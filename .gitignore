@@ -3,3 +3,6 @@
 ################################################################################
 
 /.vs/vstancer/v15
+/vstancer_shared/obj/Debug
+/vstancer_server/obj/Debug
+/vstancer_client/obj/Debug
