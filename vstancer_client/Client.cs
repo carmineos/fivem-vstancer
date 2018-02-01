@@ -17,6 +17,7 @@ namespace vstancer_client
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
 
         private int currentVehicle;
+        //private int previousVehicle;
         private vstancerPreset currentPreset;
         private static bool firstTick = true;
         private MenuPool _menuPool;
@@ -49,12 +50,12 @@ namespace vstancer_client
                     switch (property)
                     {
                         case 0:
-                            currentPreset.currentWheelsOffset[0] = currentPreset.defaultWheelsOffset[0] + values[index];
-                            currentPreset.currentWheelsOffset[1] = currentPreset.defaultWheelsOffset[1] - values[index];
+                            currentPreset.currentWheelsOffset[0] = currentPreset.defaultWheelsOffset[0] - values[index];
+                            currentPreset.currentWheelsOffset[1] = currentPreset.defaultWheelsOffset[1] + values[index];
                             break;
                         case 1:
-                            currentPreset.currentWheelsOffset[2] = currentPreset.defaultWheelsOffset[2] + values[index];
-                            currentPreset.currentWheelsOffset[3] = currentPreset.defaultWheelsOffset[3] - values[index];
+                            currentPreset.currentWheelsOffset[2] = currentPreset.defaultWheelsOffset[2] - values[index];
+                            currentPreset.currentWheelsOffset[3] = currentPreset.defaultWheelsOffset[3] + values[index];
                             break;
                         case 2:
                             currentPreset.currentWheelsRot[0] = values[index];
@@ -98,12 +99,6 @@ namespace vstancer_client
                     currentPreset.ResetDefault();
                     CitizenFX.Core.UI.Screen.ShowNotification("Resetted");
                 }
-            };
-
-            menu.OnIndexChange += (sender, index) =>
-            {
-                if (sender.MenuItems[index] == newitem)
-                    newitem.SetLeftBadge(UIMenuItem.BadgeStyle.None);
             };
         }
 
