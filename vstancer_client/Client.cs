@@ -23,25 +23,29 @@ namespace vstancer_client
 
         private MenuPool _menuPool;
         private UIMenu wheelsEditorMenu;
+        private UIMenuListItem editingFactorGUI;
         private UIMenuListItem frontOffsetGUI;
         private UIMenuListItem rearOffsetGUI;
         private UIMenuListItem frontRotationGUI;
         private UIMenuListItem rearRotationGUI;
 
-
-        public UIMenuListItem AddMenuList(UIMenu menu,string name, int property, float defaultValue)
+        public UIMenuListItem AddMenuListValues(UIMenu menu,string name, int property, float defaultValue)
         {
             float maxValue = 0.30f;
             int countValues = (int)(maxValue / editingFactor);
             var values = new List<dynamic>();
 
+            if (property == 2 || property == 3)
+                defaultValue = -defaultValue;
+
+            //defaultValue = (float)Math.Round(defaultValue, 3);
+
             //POSITIVE VALUES
             for (int i = 0; i <= countValues; i++)
-                values.Add(-defaultValue+(i * editingFactor));
-
+                values.Add((float)Math.Round(-defaultValue + (i * editingFactor),3));
             //NEGATIVE VALUES
             for (int i = countValues; i >= 1; i--)
-                values.Add(-defaultValue+(-i * editingFactor));
+                values.Add((float)Math.Round(-defaultValue + (-i * editingFactor), 3));
 
             //FIX 0.0999999999 WHY??
             //values[10] = 0.10f;
@@ -64,15 +68,33 @@ namespace vstancer_client
                             currentPreset.currentWheelsOffset[3] = +values[index];
                             break;
                         case 2:
-                            currentPreset.currentWheelsRot[0] = -values[index];
-                            currentPreset.currentWheelsRot[1] = +values[index];
+                            currentPreset.currentWheelsRot[0] = +values[index];
+                            currentPreset.currentWheelsRot[1] = -values[index];
                             break;
                         case 3:
-                            currentPreset.currentWheelsRot[2] = -values[index];
-                            currentPreset.currentWheelsRot[3] = +values[index];
+                            currentPreset.currentWheelsRot[2] = +values[index];
+                            currentPreset.currentWheelsRot[3] = -values[index];
                             break;
                     }
                     AddPreset();
+                }
+
+            };
+            return newitem;
+        }
+
+        public UIMenuListItem AddEditingFactorValues(UIMenu menu)
+        {
+            var values = new List<dynamic>() { 0.001f, 0.01f, 0.1f };
+            var newitem = new UIMenuListItem("Editing Factor", values, 1);
+            menu.AddItem(newitem);
+            menu.OnListChange += (sender, item, index) =>
+            {
+                if (item == newitem)
+                {
+                    editingFactor = values[index];
+                    Init();
+                    wheelsEditorMenu.Visible = true;
                 }
 
             };
@@ -183,10 +205,11 @@ namespace vstancer_client
             _menuPool = new MenuPool();
             wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Offset & Rotation");
             _menuPool.Add(wheelsEditorMenu);
-            frontOffsetGUI = AddMenuList(wheelsEditorMenu, "Front Offset", 0,currentPreset.currentWheelsOffset[0]);
-            rearOffsetGUI = AddMenuList(wheelsEditorMenu, "Rear Offset", 1, currentPreset.currentWheelsOffset[2]);
-            frontRotationGUI = AddMenuList(wheelsEditorMenu, "Front Rotation", 2, currentPreset.currentWheelsRot[0]);
-            rearRotationGUI = AddMenuList(wheelsEditorMenu, "Rear Rotation", 3, currentPreset.currentWheelsRot[2]);
+            //editingFactorGUI = AddEditingFactorValues(wheelsEditorMenu);
+            frontOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Front Offset", 0, currentPreset.currentWheelsOffset[0]);
+            rearOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Rear Offset", 1, currentPreset.currentWheelsOffset[2]);
+            frontRotationGUI = AddMenuListValues(wheelsEditorMenu, "Front Rotation", 2, currentPreset.currentWheelsRot[0]);
+            rearRotationGUI = AddMenuListValues(wheelsEditorMenu, "Rear Rotation", 3, currentPreset.currentWheelsRot[2]);
 
             AddMenuSync(wheelsEditorMenu);
             AddMenuReset(wheelsEditorMenu);
@@ -288,7 +311,6 @@ namespace vstancer_client
             }
             await Task.FromResult(0);
         }
-
 
         public static async void PrintDictionary()
         {

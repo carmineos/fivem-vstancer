@@ -16,7 +16,18 @@ namespace vstancer_server
         {
             EventHandlers["sendWheelEditorPreset"] += new Action<Player, int, int, float, float, float, float, float, float, float, float>(BroadcastPreset);
             EventHandlers["clientWheelsEditorReady"] += new Action<Player>(SendDictionary);
+            //EventHandlers["playerDropped"] += new Action<string>(ResetIfNoPlayers);
         }
+
+        /*private async void ResetIfNoPlayers(string reason)
+        {
+            if (Players?.Any() ?? false)
+                return;
+
+            presetsDictionary.Clear();
+            Debug.WriteLine("WHEELS EDITOR: No player was online, dictionary cleared");
+            await Task.FromResult(0);
+        }*/
 
         private static async void SendDictionary([FromSource]Player player)
         {
