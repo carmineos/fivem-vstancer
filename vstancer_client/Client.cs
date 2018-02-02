@@ -18,7 +18,7 @@ namespace vstancer_client
 
         private int currentVehicle = -1;
         private int previousVehicle = -1;
-        private vstancerPreset currentPreset;
+        private vstancerPreset currentPreset = new vstancerPreset(4,new float[4] { 0, 0, 0, 0 }, new float[4] { 0, 0, 0, 0 });
         private static bool firstTick = true;
 
         private MenuPool _menuPool;
@@ -29,7 +29,7 @@ namespace vstancer_client
         private UIMenuListItem rearRotationGUI;
 
 
-        public UIMenuListItem AddMenuList(UIMenu menu,string name, int property)
+        public UIMenuListItem AddMenuList(UIMenu menu,string name, int property, float defaultValue)
         {
             float maxValue = 0.30f;
             int countValues = (int)(maxValue / editingFactor);
@@ -37,15 +37,15 @@ namespace vstancer_client
 
             //POSITIVE VALUES
             for (int i = 0; i <= countValues; i++)
-                values.Add((i * editingFactor));
+                values.Add(-defaultValue+(i * editingFactor));
 
             //NEGATIVE VALUES
             for (int i = countValues; i >= 1; i--)
-                values.Add((-i * editingFactor));
+                values.Add(-defaultValue+(-i * editingFactor));
 
             //FIX 0.0999999999 WHY??
-            values[10] = 0.10f;
-            values[51] = -0.10f;
+            //values[10] = 0.10f;
+            //values[51] = -0.10f;
 
             var newitem = new UIMenuListItem(name, values, 0);
             menu.AddItem(newitem);
@@ -56,20 +56,20 @@ namespace vstancer_client
                     switch (property)
                     {
                          case 0:
-                            currentPreset.currentWheelsOffset[0] = currentPreset.defaultWheelsOffset[0] - values[index];
-                            currentPreset.currentWheelsOffset[1] = currentPreset.defaultWheelsOffset[1] + values[index];
+                            currentPreset.currentWheelsOffset[0] = -values[index];
+                            currentPreset.currentWheelsOffset[1] = +values[index];
                             break;
                         case 1:
-                            currentPreset.currentWheelsOffset[2] = currentPreset.defaultWheelsOffset[2] - values[index];
-                            currentPreset.currentWheelsOffset[3] = currentPreset.defaultWheelsOffset[3] + values[index];
+                            currentPreset.currentWheelsOffset[2] = -values[index];
+                            currentPreset.currentWheelsOffset[3] = +values[index];
                             break;
                         case 2:
-                            currentPreset.currentWheelsRot[0] = values[index];
-                            currentPreset.currentWheelsRot[1] = -values[index];
+                            currentPreset.currentWheelsRot[0] = -values[index];
+                            currentPreset.currentWheelsRot[1] = +values[index];
                             break;
                         case 3:
-                            currentPreset.currentWheelsRot[2] = values[index];
-                            currentPreset.currentWheelsRot[3] = -values[index];
+                            currentPreset.currentWheelsRot[2] = -values[index];
+                            currentPreset.currentWheelsRot[3] = +values[index];
                             break;
                     }
                     AddPreset();
@@ -174,7 +174,7 @@ namespace vstancer_client
                 }
                 EventHandlers.Add("syncWheelEditorPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SavePresetFromServer));
                 RefreshEntities();
-                RefreshCurrentVehicleOnly();
+                //RefreshCurrentVehicleOnly();
             });
         }
 
@@ -183,10 +183,10 @@ namespace vstancer_client
             _menuPool = new MenuPool();
             wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Offset & Rotation");
             _menuPool.Add(wheelsEditorMenu);
-            frontOffsetGUI = AddMenuList(wheelsEditorMenu, "Front Offset", 0);
-            rearOffsetGUI = AddMenuList(wheelsEditorMenu, "Rear Offset", 1);
-            frontRotationGUI = AddMenuList(wheelsEditorMenu, "Front Rotation", 2);
-            rearRotationGUI = AddMenuList(wheelsEditorMenu, "Rear Rotation", 3);
+            frontOffsetGUI = AddMenuList(wheelsEditorMenu, "Front Offset", 0,currentPreset.currentWheelsOffset[0]);
+            rearOffsetGUI = AddMenuList(wheelsEditorMenu, "Rear Offset", 1, currentPreset.currentWheelsOffset[2]);
+            frontRotationGUI = AddMenuList(wheelsEditorMenu, "Front Rotation", 2, currentPreset.currentWheelsRot[0]);
+            rearRotationGUI = AddMenuList(wheelsEditorMenu, "Rear Rotation", 3, currentPreset.currentWheelsRot[2]);
 
             AddMenuSync(wheelsEditorMenu);
             AddMenuReset(wheelsEditorMenu);
@@ -244,11 +244,13 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public static void SavePresetFromServer(int netID, int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
+        public static async void SavePresetFromServer(int netID, int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
         {
             vstancerPreset preset = new vstancerPreset(count, currentRotFront, currentRotRear, currentOffFront, currentOffRear, defRotFront, defRotRear, defOffFront, defOffRear);
             synchedPresets[netID] = preset;
             //Debug.WriteLine("WHEELS EDITOR: Stored preset for netID={0} received from server", netID);
+
+            await Task.FromResult(0);
         }
 
         public static async void RefreshEntities()
