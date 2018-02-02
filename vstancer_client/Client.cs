@@ -49,7 +49,7 @@ namespace vstancer_client
 
             var newitem = new UIMenuListItem(name, values, 0);
             menu.AddItem(newitem);
-            wheelsEditorMenu.OnListChange += (sender, item, index) =>
+            menu.OnListChange += (sender, item, index) =>
             {
                 if (item == newitem)
                 {
@@ -72,6 +72,7 @@ namespace vstancer_client
                             currentPreset.currentWheelsRot[3] = -values[index];
                             break;
                     }
+                    AddPreset();
                 }
 
             };
@@ -152,20 +153,17 @@ namespace vstancer_client
                 {
                     int netID = NetworkGetNetworkIdFromEntity(playerPed.CurrentVehicle.Handle);
 
+                    if (synchedPresets.ContainsKey(netID))
+                        currentPreset = synchedPresets[netID];
+                    else
+                        currentPreset = CreatePresetFromVehicle(playerPed.CurrentVehicle.Handle);
+
                     if (playerPed.CurrentVehicle.Handle != currentVehicle)
                     {
-                        if(synchedPresets.ContainsKey(netID))
-                            currentPreset = synchedPresets[netID];
-                        else
-                            currentPreset = CreatePresetFromVehicle(playerPed.CurrentVehicle.Handle);
                         previousVehicle = currentVehicle;
                         Init();
                     }
                     currentVehicle = playerPed.CurrentVehicle.Handle;
-
-                    //CHECKS IF THE PRESET HAS BEEN EDITED TO ADD IT TO THE DICTIONARY
-                    AddPreset();
-
 
                     if (IsControlJustPressed(1, 167) || IsDisabledControlJustPressed(1, 167)) // TOGGLE MENU VISIBLE
                     {
@@ -176,7 +174,7 @@ namespace vstancer_client
                 }
                 EventHandlers.Add("syncWheelEditorPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SavePresetFromServer));
                 RefreshEntities();
-                RefreshCurrentVehicle();
+                RefreshCurrentVehicleOnly();
             });
         }
 
@@ -193,7 +191,7 @@ namespace vstancer_client
             AddMenuSync(wheelsEditorMenu);
             AddMenuReset(wheelsEditorMenu);
             wheelsEditorMenu.MouseEdgeEnabled = false;
-            wheelsEditorMenu.MouseControlsEnabled = false;
+            wheelsEditorMenu.MouseControlsEnabled = true;
             _menuPool.RefreshIndex();
         }
 
@@ -241,7 +239,7 @@ namespace vstancer_client
                 preset.defaultWheelsOffset[0],
                 preset.defaultWheelsOffset[2]
                 );
-                Debug.WriteLine("WHEELS EDITOR: Preset sent netID={0}, local={1}", netID, vehicle);
+                //Debug.WriteLine("WHEELS EDITOR: Preset sent netID={0}, local={1}", netID, vehicle);
             } 
             await Task.FromResult(0);
         }
@@ -272,7 +270,7 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public async void RefreshCurrentVehicle()
+        public async void RefreshCurrentVehicleOnly()
         {
             if(currentPreset != null && currentPreset.HasBeenEdited())
             {
