@@ -75,5 +75,18 @@ namespace vstancer_shared
                 currentWheelsOffset[index] = _defaultWheelsOffset[index];
             }
         }
+
+        public bool HasBeenEdited()
+        {
+            return ((_defaultWheelsOffset[0] != currentWheelsOffset[0]) ||
+                (_defaultWheelsOffset[1] != currentWheelsOffset[1]) ||
+                (_defaultWheelsOffset[2] != currentWheelsOffset[2]) ||
+                (_defaultWheelsOffset[3] != currentWheelsOffset[3]) ||
+                (_defaultWheelsRot[0] != currentWheelsRot[0]) ||
+                (_defaultWheelsRot[1] != currentWheelsRot[1]) ||
+                (_defaultWheelsRot[2] != currentWheelsRot[2]) ||
+                (_defaultWheelsRot[3] != currentWheelsRot[3])
+                );
+        }
     }
 }
