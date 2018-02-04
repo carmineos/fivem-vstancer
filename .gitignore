@@ -6,3 +6,6 @@
 /vstancer_shared/obj/Debug
 /vstancer_server/obj/Debug
 /vstancer_client/obj/Debug
+/vstancer_client/bin/Debug
+/vstancer_server/bin/Debug
+/vstancer_shared/bin/Debug
