@@ -23,7 +23,7 @@ namespace vstancer_client
 
         private MenuPool _menuPool;
         private UIMenu wheelsEditorMenu;
-        private UIMenuListItem editingFactorGUI;
+        //private UIMenuListItem editingFactorGUI;
         private UIMenuListItem frontOffsetGUI;
         private UIMenuListItem rearOffsetGUI;
         private UIMenuListItem frontRotationGUI;
