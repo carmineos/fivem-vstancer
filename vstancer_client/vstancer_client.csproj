@@ -36,7 +36,7 @@
     </Reference>
     <Reference Include="NativeUI, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>vendor\NativeUI.dll</HintPath>
+      <HintPath>thirdparty\NativeUI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
