@@ -151,7 +151,8 @@ namespace vstancer_client
             AddMenuSync(wheelsEditorMenu);
             AddMenuReset(wheelsEditorMenu);
             wheelsEditorMenu.MouseEdgeEnabled = false;
-            wheelsEditorMenu.MouseControlsEnabled = true;
+            wheelsEditorMenu.ControlDisablingEnabled = false;
+            wheelsEditorMenu.MouseControlsEnabled = false;
             _menuPool.RefreshIndex();
         }
         #endregion
@@ -204,7 +205,6 @@ namespace vstancer_client
                 playerPed.CurrentVehicle.GetPedOnSeat(VehicleSeat.Driver) == playerPed && playerPed.CurrentVehicle.IsAlive)
             {
                 int netID = NetworkGetNetworkIdFromEntity(playerPed.CurrentVehicle.Handle);
-
                 if (synchedPresets.ContainsKey(netID))
                     currentPreset = synchedPresets[netID];
                 else
@@ -217,7 +217,7 @@ namespace vstancer_client
                 }
                 currentVehicle = playerPed.CurrentVehicle.Handle;
 
-                if (IsControlJustPressed(1, 167) || IsDisabledControlJustPressed(1, 167)) // TOGGLE MENU VISIBLE
+                    if (IsControlJustPressed(1, 167) || IsDisabledControlJustPressed(1, 167)) // TOGGLE MENU VISIBLE
                     wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
             }
             RefreshEntities();
@@ -231,10 +231,13 @@ namespace vstancer_client
                 SetEntityAsMissionEntity(currentVehicle, true, true);
                 int netID = NetworkGetNetworkIdFromEntity(currentVehicle);
 
-                /*if (netID == 0) //DOESN'T WORK
-                    NetworkRequestControlOfNetworkId(netID);*/
+                if (netID == 0)
+                {
+                    //NetworkRequestControlOfNetworkId(netID);//DOESN'T WORK
+                    Debug.WriteLine("WHEELS EDITOR: EDITING DISABLED netID={0}, local={1}", netID, currentVehicle);
+                } 
 
-                SetNetworkIdExistsOnAllMachines(netID,true);
+                //SetNetworkIdExistsOnAllMachines(netID,true);
 
                 if (netID != 0 && !synchedPresets.ContainsKey(netID))
                     synchedPresets.Add(netID, currentPreset);
