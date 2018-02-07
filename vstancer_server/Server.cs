@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CitizenFX.Core;
+using static CitizenFX.Core.Native.API;
 using vstancer_shared;
 
 namespace vstancer_server
@@ -16,22 +17,17 @@ namespace vstancer_server
         {
             EventHandlers["sendWheelEditorPreset"] += new Action<Player, int, int, float, float, float, float, float, float, float, float>(BroadcastPreset);
             EventHandlers["clientWheelsEditorReady"] += new Action<Player>(SendDictionary);
-            //EventHandlers["playerDropped"] += new Action<string>(ResetIfNoPlayers);
+            EventHandlers["PrintDictionary"] += new Action(PrintDictionary);
+
+            RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
+            {
+                PrintDictionary();
+            }), false);
         }
-
-        /*private async void ResetIfNoPlayers(string reason)
-        {
-            if (Players?.Any() ?? false)
-                return;
-
-            presetsDictionary.Clear();
-            Debug.WriteLine("WHEELS EDITOR: No player was online, dictionary cleared");
-            await Task.FromResult(0);
-        }*/
 
         private static async void SendDictionary([FromSource]Player player)
         {
-            Debug.WriteLine("WHEELS EDITOR: Sent presets dictionary ({0}) to player={1}({2})", presetsDictionary.Count, player.Name, player.Handle);
+            Debug.WriteLine("WHEELS EDITOR: PRESETS DICTIONARY({0}) SENT TO player={1}({2})", presetsDictionary.Count, player.Name, player.Handle);
             foreach (int netID in presetsDictionary.Keys)
             {
                 vstancerPreset preset = presetsDictionary[netID];
@@ -70,8 +66,16 @@ namespace vstancer_server
                 defOffFront,
                 defOffRear
                 );
-            Debug.WriteLine("WHEELS EDITOR: Preset broadcasted netID={0} player={1}({2})", netID, player.Name, player.Handle);
+            Debug.WriteLine("WHEELS EDITOR: PRESET BROADCASTED netID={0} player={1}({2})", netID, player.Name, player.Handle);
 
+            await Task.FromResult(0);
+        }
+
+        public static async void PrintDictionary()
+        {
+            Debug.WriteLine("WHEELS EDITOR: SERVER'S DICTIONARY LENGHT={0} ", presetsDictionary.Count.ToString());
+            foreach (int netID in presetsDictionary.Keys)
+                Debug.WriteLine("WHEELS EDITOR: PRESET netID={0}", netID);
             await Task.FromResult(0);
         }
     }
