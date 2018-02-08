@@ -14,6 +14,8 @@ namespace vstancer_client
     public class Client : BaseScript
     {
         private static float editingFactor = 0.01f;
+        private static float maxEditing = 0.30f;
+
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
 
@@ -32,8 +34,7 @@ namespace vstancer_client
 
         public UIMenuListItem AddMenuListValues(UIMenu menu, string name, int property, float defaultValue)
         {
-            float maxValue = 0.30f;
-            int countValues = (int)(maxValue / editingFactor);
+            int countValues = (int)(maxEditing / editingFactor);
             var values = new List<dynamic>();
 
             if (property == 2 || property == 3)
@@ -136,7 +137,7 @@ namespace vstancer_client
         public void InitialiseMenu()
         {
             _menuPool = new MenuPool();
-            wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Offset & Rotation");
+            wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber");
             _menuPool.Add(wheelsEditorMenu);
             //editingFactorGUI = AddEditingFactorValues(wheelsEditorMenu);
             frontOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Front Track Width", 0, currentPreset.currentWheelsOffset[0]);
@@ -261,20 +262,20 @@ namespace vstancer_client
         {
             //TEMP DOUBLE CHECK
             int netID = NetworkGetNetworkIdFromEntity(vehicle);
-            
+            int frontCount = preset.frontCount;
             if (netID != 0)
             {
                 TriggerServerEvent("sendWheelEditorPreset",
                 netID,
                 preset.wheelsCount,
                 preset.currentWheelsRot[0],
-                preset.currentWheelsRot[2],
+                preset.currentWheelsRot[frontCount],
                 preset.currentWheelsOffset[0],
-                preset.currentWheelsOffset[2],
+                preset.currentWheelsOffset[frontCount],
                 preset.defaultWheelsRot[0],
-                preset.defaultWheelsRot[2],
+                preset.defaultWheelsRot[frontCount],
                 preset.defaultWheelsOffset[0],
-                preset.defaultWheelsOffset[2]
+                preset.defaultWheelsOffset[frontCount]
                 );
                 Debug.WriteLine("WHEELS EDITOR: PRESET SENT TO SERVER netID={0}, local={1}", netID, vehicle);
             }

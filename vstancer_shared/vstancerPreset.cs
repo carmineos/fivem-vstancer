@@ -80,11 +80,10 @@ namespace vstancer_shared
         public vstancerPreset(int count, float[] defRot, float[] defOff)
         {
             wheelsCount = count;
+            frontCount = wheelsCount / 2;
 
-            if ((wheelsCount / 2) % 2 == 0)
-                frontCount = wheelsCount / 2;
-            else
-                frontCount = (wheelsCount / 2) - 1;
+            if (frontCount % 2 != 0)
+                frontCount -= 1;
 
             _defaultWheelsRot = new float[wheelsCount];
             _defaultWheelsOffset = new float[wheelsCount];
@@ -140,10 +139,9 @@ namespace vstancer_shared
             currentWheelsRot = new float[wheelsCount];
             currentWheelsOffset = new float[wheelsCount];
 
-            if ((wheelsCount / 2) % 2 == 0)
-                frontCount = wheelsCount / 2;
-            else
-                frontCount = (wheelsCount / 2) - 1;
+            frontCount = wheelsCount / 2;
+            if (frontCount % 2 != 0)
+                frontCount -= 1;
 
             for (int index = 0; index < frontCount; index++)
             {
