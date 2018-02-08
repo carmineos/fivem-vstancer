@@ -9,6 +9,8 @@ namespace vstancer_shared
     public class vstancerPreset
     {
         public int wheelsCount;
+        public int frontCount;
+
         private float[] _defaultWheelsRot;
         private float[] _defaultWheelsOffset;
 
@@ -18,9 +20,71 @@ namespace vstancer_shared
         public float[] currentWheelsRot;
         public float[] currentWheelsOffset;
 
+        public void SetFrontOffset(float amount)
+        {
+            for (int index = 0; index < frontCount; index++)
+            {
+                if (index % 2 == 0)
+                    currentWheelsOffset[index] = -amount;
+                else
+                    currentWheelsOffset[index] = amount;
+            }
+        }
+
+        public void SetRearOffset(float amount)
+        {
+            for (int index = frontCount; index < wheelsCount; index++)
+            {
+                if (index % 2 == 0)
+                    currentWheelsOffset[index] = -amount;
+                else
+                    currentWheelsOffset[index] = amount;
+            }
+        }
+
+        public void SetFrontRotation(float amount)
+        {
+            for (int index = 0; index < frontCount; index++)
+            {
+                if (index % 2 == 0)
+                    currentWheelsRot[index] = amount;
+                else
+                    currentWheelsRot[index] = -amount;
+            }
+        }
+
+        public void SetRearRotation(float amount)
+        {
+            for (int index = frontCount; index < wheelsCount; index++)
+            {
+                if (index % 2 == 0)
+                    currentWheelsRot[index] = amount;
+                else
+                    currentWheelsRot[index] = -amount;
+            }
+        }
+
+        public bool HasBeenEdited
+        {
+            get
+            {
+                for (int index = 0; index < wheelsCount; index++)
+                {
+                    if ((_defaultWheelsOffset[index] != currentWheelsOffset[index]) || (_defaultWheelsRot[index] != currentWheelsRot[index]))
+                        return true;
+                }
+                return false;
+            }
+        }
+
         public vstancerPreset(int count, float[] defRot, float[] defOff)
         {
             wheelsCount = count;
+
+            if ((wheelsCount / 2) % 2 == 0)
+                frontCount = wheelsCount / 2;
+            else
+                frontCount = (wheelsCount / 2) - 1;
 
             _defaultWheelsRot = new float[wheelsCount];
             _defaultWheelsOffset = new float[wheelsCount];
@@ -37,7 +101,7 @@ namespace vstancer_shared
             }
         }
 
-        public vstancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
+        /*public vstancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
         {
             wheelsCount = count;
 
@@ -65,6 +129,57 @@ namespace vstancer_shared
             currentWheelsOffset[1] = -currentOffFront;
             currentWheelsOffset[2] = currentOffRear;
             currentWheelsOffset[3] = -currentOffRear;
+        }*/
+
+        public vstancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
+        {
+            wheelsCount = count;
+
+            _defaultWheelsRot = new float[wheelsCount];
+            _defaultWheelsOffset = new float[wheelsCount];
+            currentWheelsRot = new float[wheelsCount];
+            currentWheelsOffset = new float[wheelsCount];
+
+            if ((wheelsCount / 2) % 2 == 0)
+                frontCount = wheelsCount / 2;
+            else
+                frontCount = (wheelsCount / 2) - 1;
+
+            for (int index = 0; index < frontCount; index++)
+            {
+                if (index % 2 == 0)
+                {
+                    _defaultWheelsRot[index] = defRotFront;
+                    _defaultWheelsOffset[index] = defOffFront;
+                    currentWheelsRot[index] = currentRotFront;
+                    currentWheelsOffset[index] = currentOffFront;
+                }
+                else
+                {
+                    _defaultWheelsRot[index] = -defRotFront;
+                    _defaultWheelsOffset[index] = -defOffFront;
+                    currentWheelsRot[index] = -currentRotFront;
+                    currentWheelsOffset[index] = -currentOffFront;
+                }
+            }
+
+            for (int index = frontCount; index < wheelsCount; index++)
+            {
+                if (index % 2 == 0)
+                {
+                    _defaultWheelsRot[index] = defRotRear;
+                    _defaultWheelsOffset[index] = defOffRear;
+                    currentWheelsRot[index] = currentRotRear;
+                    currentWheelsOffset[index] = currentOffRear;
+                }
+                else
+                {
+                    _defaultWheelsRot[index] = -defRotRear;
+                    _defaultWheelsOffset[index] = -defOffRear;
+                    currentWheelsRot[index] = -currentRotRear;
+                    currentWheelsOffset[index] = -currentOffRear;
+                }
+            }
         }
 
         public void ResetDefault()
@@ -75,21 +190,6 @@ namespace vstancer_shared
                 currentWheelsOffset[index] = _defaultWheelsOffset[index];
             }
         }
-
-        public bool HasBeenEdited 
-        {
-            get
-            {
-                return ((_defaultWheelsOffset[0] != currentWheelsOffset[0]) ||
-                (_defaultWheelsOffset[1] != currentWheelsOffset[1]) ||
-                (_defaultWheelsOffset[2] != currentWheelsOffset[2]) ||
-                (_defaultWheelsOffset[3] != currentWheelsOffset[3]) ||
-                (_defaultWheelsRot[0] != currentWheelsRot[0]) ||
-                (_defaultWheelsRot[1] != currentWheelsRot[1]) ||
-                (_defaultWheelsRot[2] != currentWheelsRot[2]) ||
-                (_defaultWheelsRot[3] != currentWheelsRot[3])
-                );
-            }
-        }
+       
     }
 }

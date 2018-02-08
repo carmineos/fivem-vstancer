@@ -55,20 +55,16 @@ namespace vstancer_client
                     switch (property)
                     {
                         case 0:
-                            currentPreset.currentWheelsOffset[0] = -values[index];
-                            currentPreset.currentWheelsOffset[1] = +values[index];
+                            currentPreset.SetFrontOffset(values[index]);
                             break;
                         case 1:
-                            currentPreset.currentWheelsOffset[2] = -values[index];
-                            currentPreset.currentWheelsOffset[3] = +values[index];
+                            currentPreset.SetRearOffset(values[index]);
                             break;
                         case 2:
-                            currentPreset.currentWheelsRot[0] = +values[index];
-                            currentPreset.currentWheelsRot[1] = -values[index];
+                            currentPreset.SetFrontRotation(values[index]);
                             break;
                         case 3:
-                            currentPreset.currentWheelsRot[2] = +values[index];
-                            currentPreset.currentWheelsRot[3] = -values[index];
+                            currentPreset.SetRearRotation(values[index]);
                             break;
                     }
                     AddPreset();
