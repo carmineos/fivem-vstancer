@@ -15,6 +15,7 @@ namespace vstancer_client
     {
         private static float editingFactor = 0.01f;
         private static float maxEditing = 0.30f;
+        private static bool synchedReset = true;
 
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
@@ -127,6 +128,13 @@ namespace vstancer_client
                 if (item == newitem)
                 {
                     currentPreset.ResetDefault();
+
+                    if (synchedReset)
+                    {
+                        int netID = NetworkGetNetworkIdFromEntity(currentVehicle);
+                        TriggerServerEvent("ClientRemovedPreset", netID);
+                    }
+                    
                     CitizenFX.Core.UI.Screen.ShowNotification("Preset resetted");
                     InitialiseMenu();
                     wheelsEditorMenu.Visible = true;
@@ -167,8 +175,8 @@ namespace vstancer_client
                 PrintDictionary();
             }),false);
 
-            EventHandlers.Add("syncWheelEditorPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SavePresetFromServer));
-
+            EventHandlers.Add("BroadcastAddPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SavePresetFromServer));
+            EventHandlers.Add("BroadcastRemovePreset", new Action<int>(RemovePreset));
             Tick += OnTick;
         }
 
@@ -182,7 +190,7 @@ namespace vstancer_client
             if (!initialised)
             {
                 initialised = true;
-                TriggerServerEvent("clientWheelsEditorReady");
+                TriggerServerEvent("ClientWheelsEditorReady");
             }
 
             //VEHICLE SPAWNER HANDLER
@@ -244,6 +252,17 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
+        public static async void RemovePreset(int netID)
+        {
+            if (synchedPresets.ContainsKey(netID))
+            {
+                bool removed = synchedPresets.Remove(netID);
+                if (removed)
+                    Debug.WriteLine("WHEELS EDITOR: REMOVED PRESET FROM DICTIONARY netID={0}", netID);
+            }
+            await Task.FromResult(0);
+        }
+
         public vstancerPreset CreatePresetFromVehicle(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
@@ -265,7 +284,7 @@ namespace vstancer_client
             int frontCount = preset.frontCount;
             if (netID != 0)
             {
-                TriggerServerEvent("sendWheelEditorPreset",
+                TriggerServerEvent("ClientAddedPreset",
                 netID,
                 preset.wheelsCount,
                 preset.currentWheelsRot[0],
@@ -310,7 +329,7 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public async void RefreshCurrentVehicleOnly()
+        /*public async void RefreshCurrentVehicleOnly()
         {
             if (currentPreset != null && currentPreset.HasBeenEdited)
             {
@@ -325,7 +344,7 @@ namespace vstancer_client
                 }
             }
             await Task.FromResult(0);
-        }
+        }*/
 
         public static async void PrintDictionary()
         {
