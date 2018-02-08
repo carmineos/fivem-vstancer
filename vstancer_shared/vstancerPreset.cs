@@ -76,9 +76,11 @@ namespace vstancer_shared
             }
         }
 
-        public bool HasBeenEdited()
+        public bool HasBeenEdited 
         {
-            return ((_defaultWheelsOffset[0] != currentWheelsOffset[0]) ||
+            get
+            {
+                return ((_defaultWheelsOffset[0] != currentWheelsOffset[0]) ||
                 (_defaultWheelsOffset[1] != currentWheelsOffset[1]) ||
                 (_defaultWheelsOffset[2] != currentWheelsOffset[2]) ||
                 (_defaultWheelsOffset[3] != currentWheelsOffset[3]) ||
@@ -87,6 +89,7 @@ namespace vstancer_shared
                 (_defaultWheelsRot[2] != currentWheelsRot[2]) ||
                 (_defaultWheelsRot[3] != currentWheelsRot[3])
                 );
+            }
         }
     }
 }

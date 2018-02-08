@@ -226,14 +226,16 @@ namespace vstancer_client
 
         public async void AddPreset()
         {
-            if (currentPreset.HasBeenEdited())
+            if (currentPreset.HasBeenEdited)
             {
                 SetEntityAsMissionEntity(currentVehicle, true, true);
                 int netID = NetworkGetNetworkIdFromEntity(currentVehicle);
 
-                if (netID == 0)
+                if (netID == 0) //TRY TO FIX THIS SHIT
                 {
-                    //NetworkRequestControlOfNetworkId(netID);//DOESN'T WORK
+                    Debug.WriteLine("ENTITY CONTROL: " + NetworkRequestControlOfEntity(currentVehicle).ToString());
+                    NetworkRegisterEntityAsNetworked(currentVehicle);
+                    Debug.WriteLine("HAS A NETWORK ID: "+ NetworkDoesEntityExistWithNetworkId(currentVehicle).ToString());
                     Debug.WriteLine("WHEELS EDITOR: EDITING DISABLED netID={0}, local={1}", netID, currentVehicle);
                 } 
 
@@ -313,7 +315,7 @@ namespace vstancer_client
 
         public async void RefreshCurrentVehicleOnly()
         {
-            if (currentPreset != null && currentPreset.HasBeenEdited())
+            if (currentPreset != null && currentPreset.HasBeenEdited)
             {
                 int netID = NetworkGetNetworkIdFromEntity(currentVehicle);
                 if (!synchedPresets.ContainsKey(netID))
