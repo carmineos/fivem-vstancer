@@ -15,7 +15,7 @@ namespace vstancer_client
     {
         private static float editingFactor = 0.01f;
         private static float maxEditing = 0.30f;
-        private static bool synchedReset = true;
+        private static bool synchedReset = false;
 
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
@@ -127,14 +127,16 @@ namespace vstancer_client
             {
                 if (item == newitem)
                 {
-                    currentPreset.ResetDefault();
+                    currentPreset.ResetDefault();         
 
                     if (synchedReset)
                     {
                         int netID = NetworkGetNetworkIdFromEntity(currentVehicle);
                         TriggerServerEvent("ClientRemovedPreset", netID);
+                        RemovePreset(netID);
+                        SetEntityAsNoLongerNeeded(ref currentVehicle);
                     }
-                    
+
                     CitizenFX.Core.UI.Screen.ShowNotification("Preset resetted");
                     InitialiseMenu();
                     wheelsEditorMenu.Visible = true;

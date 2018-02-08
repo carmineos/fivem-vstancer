@@ -57,7 +57,7 @@ namespace vstancer_server
                 if (removed)
                 {
                     TriggerClientEvent("BroadcastRemovePreset", netID);
-                    Debug.WriteLine("WHEELS EDITOR: REMOVED PRESET netID={0} FROM DICTIONARY BY player={1}({2}", netID, player.Name, player.Handle);
+                    Debug.WriteLine("WHEELS EDITOR: REMOVED PRESET netID={0} BY player={1}({2}", netID, player.Name, player.Handle);
                 }
             }
             await Task.FromResult(0);
@@ -81,7 +81,7 @@ namespace vstancer_server
                 defOffFront,
                 defOffRear
                 );
-            Debug.WriteLine("WHEELS EDITOR: PRESET netID={0} BROADCASTED BY player={1}({2})", netID, player.Name, player.Handle);
+            Debug.WriteLine("WHEELS EDITOR: ADDED PRESET netID={0} BY player={1}({2})", netID, player.Name, player.Handle);
 
             await Task.FromResult(0);
         }
@@ -90,7 +90,7 @@ namespace vstancer_server
         {
             Debug.WriteLine("WHEELS EDITOR: SERVER'S DICTIONARY LENGHT={0} ", presetsDictionary.Count.ToString());
             foreach (int netID in presetsDictionary.Keys)
-                Debug.WriteLine("WHEELS EDITOR: PRESET netID={0}", netID);
+                Debug.WriteLine("netID={0}", netID);
             await Task.FromResult(0);
         }
     }
