@@ -15,14 +15,13 @@ namespace vstancer_client
     {
         private static float editingFactor = 0.01f;
         private static float maxEditing = 0.30f;
-        private static bool synchedReset = false;
-        private static float syncDistance = 200.0f;
+        private static float maxSyncDistance = 200.0f;
 
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
 
-        private int playerID;
-        //private int currentPlayerPed;
+        private static int playerID;
+
         private Vector3 currentCoords;
         private int currentVehicle;
         private int previousVehicle;
@@ -124,13 +123,15 @@ namespace vstancer_client
                 if (item == newitem)
                 {
                     currentPreset.ResetDefault();         
-                    TriggerServerEvent("ClientRemovedPreset");
-                    //RemovePreset(playerID);
-                    SetEntityAsNoLongerNeeded(ref currentVehicle);
 
-                    CitizenFX.Core.UI.Screen.ShowNotification("Preset resetted");
                     InitialiseMenu();
                     wheelsEditorMenu.Visible = true;
+                    
+                    TriggerServerEvent("ClientRemovedPreset");
+                    //RemovePreset(playerID); //IN CASE IT WASN'S SYNCHED
+                    //SetEntityAsNoLongerNeeded(ref currentVehicle);
+                    
+                    CitizenFX.Core.UI.Screen.ShowNotification("Preset resetted");
                 }
             };
         }
@@ -157,7 +158,7 @@ namespace vstancer_client
 
         public Client()
         {
-            playerID = PlayerId();
+            playerID = GetPlayerServerId(PlayerId());
 
             currentVehicle = -1;
             previousVehicle = -1;
@@ -179,20 +180,12 @@ namespace vstancer_client
             _menuPool.ProcessMenus();
 
             Ped playerPed = Game.PlayerPed;
-            
+
             //FIRST TICK
             if (!initialised)
             {
                 initialised = true;
                 TriggerServerEvent("ClientWheelsEditorReady");
-            }
-
-            //VEHICLE SPAWNER HANDLER
-            if (IsControlJustPressed(1, 168))
-            {
-                int vehicle = await SpawnVehicle();
-                if (vehicle == -1)
-                    CitizenFX.Core.UI.Screen.ShowNotification("Spawning Error");
             }
 
             //CLOSE MENU IF NOT IN VEHICLE
@@ -203,27 +196,45 @@ namespace vstancer_client
             if (playerPed.IsInVehicle() && playerPed.CurrentVehicle.Model.IsCar &&
                 playerPed.CurrentVehicle.GetPedOnSeat(VehicleSeat.Driver) == playerPed && playerPed.CurrentVehicle.IsAlive)
             {
-                
-                if (playerPed.CurrentVehicle.Handle != currentVehicle)
-                {
-                    currentPreset = CreatePresetFromVehicle(playerPed.CurrentVehicle.Handle);
-                    RemovePreset(playerID);
-                    previousVehicle = currentVehicle;
-                    InitialiseMenu();
-                }
-                else
-                {
-                    if (synchedPresets.ContainsKey(playerID))
-                        currentPreset = synchedPresets[playerID];
-                    else
-                        currentPreset = CreatePresetFromVehicle(playerPed.CurrentVehicle.Handle);
-                }
-                currentVehicle = playerPed.CurrentVehicle.Handle;
+                GetCurrentVehicle();
+                GetPreset();
 
                 if (IsControlJustPressed(1, 167) || IsDisabledControlJustPressed(1, 167)) // TOGGLE MENU VISIBLE
                     wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
             }
+            else
+            {
+                currentPreset.ResetDefault();
+                RemovePreset(playerID);
+                InitialiseMenu();
+            }
             RefreshEntities();
+        }
+
+        public async void GetCurrentVehicle()
+        {
+            int vehicle = Game.PlayerPed.CurrentVehicle.Handle;
+            if (vehicle != currentVehicle)
+            {
+                RemovePreset(playerID);
+                currentPreset.ResetDefault();
+                currentPreset = CreatePresetFromVehicle(vehicle);
+
+                previousVehicle = currentVehicle;
+                InitialiseMenu();
+            }
+            currentVehicle = vehicle;
+            await Task.FromResult(0);
+        }
+
+        public async void GetPreset()
+        {
+            if (synchedPresets.ContainsKey(playerID))
+                currentPreset = synchedPresets[playerID];
+            else
+                currentPreset = CreatePresetFromVehicle(currentVehicle);
+
+            await Task.FromResult(0);
         }
 
         public async void AddPreset()
@@ -263,21 +274,23 @@ namespace vstancer_client
 
         public static async void SendPreset(vstancerPreset preset)
         {
-            int frontCount = preset.frontCount;
+            if (synchedPresets.ContainsKey(playerID))
+            {
+                int frontCount = preset.frontCount;
 
-            TriggerServerEvent("ClientAddedPreset",
-            preset.wheelsCount,
-            preset.currentWheelsRot[0],
-            preset.currentWheelsRot[frontCount],
-            preset.currentWheelsOffset[0],
-            preset.currentWheelsOffset[frontCount],
-            preset.defaultWheelsRot[0],
-            preset.defaultWheelsRot[frontCount],
-            preset.defaultWheelsOffset[0],
-            preset.defaultWheelsOffset[frontCount]
-            );
-            Debug.WriteLine("WHEELS EDITOR: PRESET SENT TO SERVER");
-
+                TriggerServerEvent("ClientAddedPreset",
+                preset.wheelsCount,
+                preset.currentWheelsRot[0],
+                preset.currentWheelsRot[frontCount],
+                preset.currentWheelsOffset[0],
+                preset.currentWheelsOffset[frontCount],
+                preset.defaultWheelsRot[0],
+                preset.defaultWheelsRot[frontCount],
+                preset.defaultWheelsOffset[0],
+                preset.defaultWheelsOffset[frontCount]
+                );
+                Debug.WriteLine("WHEELS EDITOR: PRESET SENT TO SERVER");
+            }
             await Task.FromResult(0);
         }
 
@@ -292,16 +305,20 @@ namespace vstancer_client
 
         public async void RefreshEntities()
         {
-            foreach (int player in synchedPresets.Keys)
+            foreach (int ID in synchedPresets.Keys)
             {
+                int player = GetPlayerFromServerId(ID);             
                 int ped = GetPlayerPed(player);
+
+                currentCoords = Game.PlayerPed.Position; //REPLACE WITH API
                 Vector3 coords = GetEntityCoords(ped, true);
+
                 if (Vector3.Distance(currentCoords, coords) <= syncDistance)
                 {
                     int vehicle = GetVehiclePedIsIn(ped, false);
                     if (DoesEntityExist(vehicle))
                     {
-                        vstancerPreset vehPreset = synchedPresets[player];
+                        vstancerPreset vehPreset = synchedPresets[ID];
                         for (int index = 0; index < vehPreset.wheelsCount; index++)
                         {
                             SetVehicleWheelXOffset(vehicle, index, vehPreset.currentWheelsOffset[index]);
@@ -321,33 +338,6 @@ namespace vstancer_client
                 Debug.WriteLine("WHEELS EDITOR: PRESET FOR PLAYER ({0})", player);
             }
             await Task.FromResult(0);
-        }
-
-        private async Task<int> SpawnVehicle()
-        {
-            AddTextEntry("WE_SPAWN_TEST", "Enter model name");
-            DisplayOnscreenKeyboard(1, "WE_SPAWN_TEST", "", "", "", "", "", 128);
-            while (UpdateOnscreenKeyboard() != 1 && UpdateOnscreenKeyboard() != 2) await BaseScript.Delay(0);
-            string modelName = GetOnscreenKeyboardResult();
-
-            int playerPed = GetPlayerPed(-1);
-            Vector3 pedPosition = GetEntityCoords(playerPed, true);
-            uint model = (uint)GetHashKey(modelName);
-
-            if (IsModelInCdimage(model) && IsModelAVehicle(model))
-            {
-                RequestModel(model);
-                while (!HasModelLoaded(model))
-                    await Delay(0);
-                int vehicle = CreateVehicle(model, pedPosition.X, pedPosition.Y, pedPosition.Z, 0.0f, true, false);
-
-                SetEntityAsMissionEntity(vehicle, true, true);
-                SetVehicleOnGroundProperly(vehicle);
-                SetVehicleHasBeenOwnedByPlayer(playerPed, true);
-                SetPedIntoVehicle(playerPed, vehicle, -1);
-                return vehicle;
-            }
-            else return -1;
         }
     }
 }
