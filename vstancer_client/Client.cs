@@ -209,6 +209,7 @@ namespace vstancer_client
                 InitialiseMenu();
             }
             RefreshEntities();
+            await Task.FromResult(0);
         }
 
         public async void GetCurrentVehicle()
@@ -313,7 +314,7 @@ namespace vstancer_client
                 currentCoords = Game.PlayerPed.Position; //REPLACE WITH API
                 Vector3 coords = GetEntityCoords(ped, true);
 
-                if (Vector3.Distance(currentCoords, coords) <= syncDistance)
+                if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
                 {
                     int vehicle = GetVehiclePedIsIn(ped, false);
                     if (DoesEntityExist(vehicle))
