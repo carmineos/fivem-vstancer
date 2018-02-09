@@ -16,10 +16,14 @@ namespace vstancer_client
         private static float editingFactor = 0.01f;
         private static float maxEditing = 0.30f;
         private static bool synchedReset = false;
+        private static float syncDistance = 200.0f;
 
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
 
+        private int playerID;
+        //private int currentPlayerPed;
+        private Vector3 currentCoords;
         private int currentVehicle;
         private int previousVehicle;
         private vstancerPreset currentPreset;
@@ -103,16 +107,8 @@ namespace vstancer_client
             {
                 if (item == newitem)
                 {
-                    int netID = NetworkGetNetworkIdFromEntity(currentVehicle);
-                    //Debug.WriteLine("WHEELS EDITOR: Trying to send netID={0}, local={1}", netID, currentVehicle);
-
-                    if (netID != 0)
-                    {
-                        SendPreset(currentVehicle, currentPreset);
-                        CitizenFX.Core.UI.Screen.ShowNotification("Vehicle synched");
-                    }
-                    else
-                        CitizenFX.Core.UI.Screen.ShowNotification("This vehicle can't be synched");
+                    SendPreset(currentPreset);
+                    CitizenFX.Core.UI.Screen.ShowNotification("Vehicle synched");
                 }
             };
         }
@@ -128,14 +124,9 @@ namespace vstancer_client
                 if (item == newitem)
                 {
                     currentPreset.ResetDefault();         
-
-                    if (synchedReset)
-                    {
-                        int netID = NetworkGetNetworkIdFromEntity(currentVehicle);
-                        TriggerServerEvent("ClientRemovedPreset", netID);
-                        RemovePreset(netID);
-                        SetEntityAsNoLongerNeeded(ref currentVehicle);
-                    }
+                    TriggerServerEvent("ClientRemovedPreset");
+                    //RemovePreset(playerID);
+                    SetEntityAsNoLongerNeeded(ref currentVehicle);
 
                     CitizenFX.Core.UI.Screen.ShowNotification("Preset resetted");
                     InitialiseMenu();
@@ -166,6 +157,7 @@ namespace vstancer_client
 
         public Client()
         {
+            playerID = PlayerId();
 
             currentVehicle = -1;
             previousVehicle = -1;
@@ -187,7 +179,7 @@ namespace vstancer_client
             _menuPool.ProcessMenus();
 
             Ped playerPed = Game.PlayerPed;
-
+            
             //FIRST TICK
             if (!initialised)
             {
@@ -211,24 +203,27 @@ namespace vstancer_client
             if (playerPed.IsInVehicle() && playerPed.CurrentVehicle.Model.IsCar &&
                 playerPed.CurrentVehicle.GetPedOnSeat(VehicleSeat.Driver) == playerPed && playerPed.CurrentVehicle.IsAlive)
             {
-                int netID = NetworkGetNetworkIdFromEntity(playerPed.CurrentVehicle.Handle);
-                if (synchedPresets.ContainsKey(netID))
-                    currentPreset = synchedPresets[netID];
-                else
-                    currentPreset = CreatePresetFromVehicle(playerPed.CurrentVehicle.Handle);
-
+                
                 if (playerPed.CurrentVehicle.Handle != currentVehicle)
                 {
+                    currentPreset = CreatePresetFromVehicle(playerPed.CurrentVehicle.Handle);
+                    RemovePreset(playerID);
                     previousVehicle = currentVehicle;
                     InitialiseMenu();
                 }
+                else
+                {
+                    if (synchedPresets.ContainsKey(playerID))
+                        currentPreset = synchedPresets[playerID];
+                    else
+                        currentPreset = CreatePresetFromVehicle(playerPed.CurrentVehicle.Handle);
+                }
                 currentVehicle = playerPed.CurrentVehicle.Handle;
 
-                    if (IsControlJustPressed(1, 167) || IsDisabledControlJustPressed(1, 167)) // TOGGLE MENU VISIBLE
+                if (IsControlJustPressed(1, 167) || IsDisabledControlJustPressed(1, 167)) // TOGGLE MENU VISIBLE
                     wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
             }
             RefreshEntities();
-            //RefreshCurrentVehicleOnly();
         }
 
         public async void AddPreset()
@@ -236,31 +231,18 @@ namespace vstancer_client
             if (currentPreset.HasBeenEdited)
             {
                 SetEntityAsMissionEntity(currentVehicle, true, true);
-                int netID = NetworkGetNetworkIdFromEntity(currentVehicle);
-
-                if (netID == 0) //TRY TO FIX THIS SHIT
-                {
-                    Debug.WriteLine("ENTITY CONTROL: " + NetworkRequestControlOfEntity(currentVehicle).ToString());
-                    NetworkRegisterEntityAsNetworked(currentVehicle);
-                    Debug.WriteLine("HAS A NETWORK ID: "+ NetworkDoesEntityExistWithNetworkId(currentVehicle).ToString());
-                    Debug.WriteLine("WHEELS EDITOR: EDITING DISABLED netID={0}, local={1}", netID, currentVehicle);
-                } 
-
-                //SetNetworkIdExistsOnAllMachines(netID,true);
-
-                if (netID != 0 && !synchedPresets.ContainsKey(netID))
-                    synchedPresets.Add(netID, currentPreset);
+                synchedPresets[playerID] = currentPreset;
             }
             await Task.FromResult(0);
         }
 
-        public static async void RemovePreset(int netID)
+        public static async void RemovePreset(int ID)
         {
-            if (synchedPresets.ContainsKey(netID))
+            if (synchedPresets.ContainsKey(ID))
             {
-                bool removed = synchedPresets.Remove(netID);
+                bool removed = synchedPresets.Remove(ID);
                 if (removed)
-                    Debug.WriteLine("WHEELS EDITOR: REMOVED PRESET FROM DICTIONARY netID={0}", netID);
+                    Debug.WriteLine("WHEELS EDITOR: REMOVED PRESET ID={0} FROM DICTIONARY ", ID);
             }
             await Task.FromResult(0);
         }
@@ -279,84 +261,64 @@ namespace vstancer_client
             return (new vstancerPreset(wheelsCount, defaultWheelsRot, defaultWheelsOffset));
         }
 
-        public static async void SendPreset(int vehicle, vstancerPreset preset)
+        public static async void SendPreset(vstancerPreset preset)
         {
-            //TEMP DOUBLE CHECK
-            int netID = NetworkGetNetworkIdFromEntity(vehicle);
             int frontCount = preset.frontCount;
-            if (netID != 0)
-            {
-                TriggerServerEvent("ClientAddedPreset",
-                netID,
-                preset.wheelsCount,
-                preset.currentWheelsRot[0],
-                preset.currentWheelsRot[frontCount],
-                preset.currentWheelsOffset[0],
-                preset.currentWheelsOffset[frontCount],
-                preset.defaultWheelsRot[0],
-                preset.defaultWheelsRot[frontCount],
-                preset.defaultWheelsOffset[0],
-                preset.defaultWheelsOffset[frontCount]
-                );
-                Debug.WriteLine("WHEELS EDITOR: PRESET SENT TO SERVER netID={0}, local={1}", netID, vehicle);
-            }
+
+            TriggerServerEvent("ClientAddedPreset",
+            preset.wheelsCount,
+            preset.currentWheelsRot[0],
+            preset.currentWheelsRot[frontCount],
+            preset.currentWheelsOffset[0],
+            preset.currentWheelsOffset[frontCount],
+            preset.defaultWheelsRot[0],
+            preset.defaultWheelsRot[frontCount],
+            preset.defaultWheelsOffset[0],
+            preset.defaultWheelsOffset[frontCount]
+            );
+            Debug.WriteLine("WHEELS EDITOR: PRESET SENT TO SERVER");
+
             await Task.FromResult(0);
         }
 
-        public static async void SavePresetFromServer(int netID, int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
+        public static async void SavePresetFromServer(int ID, int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
         {
             vstancerPreset preset = new vstancerPreset(count, currentRotFront, currentRotRear, currentOffFront, currentOffRear, defRotFront, defRotRear, defOffFront, defOffRear);
-            synchedPresets[netID] = preset;
-            Debug.WriteLine("WHEELS EDITOR: RECEIVED PRESET FROM SERVER netID={0}", netID);
+            synchedPresets[ID] = preset;
+            Debug.WriteLine("WHEELS EDITOR: RECEIVED PRESET FROM SERVER ID={0}", ID);
 
             await Task.FromResult(0);
         }
 
-        public static async void RefreshEntities()
+        public async void RefreshEntities()
         {
-            foreach (int netID in synchedPresets.Keys)
+            foreach (int player in synchedPresets.Keys)
             {
-                int veh = NetworkGetEntityFromNetworkId(netID);
-                if (DoesEntityExist(veh))
+                int ped = GetPlayerPed(player);
+                Vector3 coords = GetEntityCoords(ped, true);
+                if (Vector3.Distance(currentCoords, coords) <= syncDistance)
                 {
-                    vstancerPreset vehPreset = synchedPresets[netID];
-
-                    for (int index = 0; index < vehPreset.wheelsCount; index++)
+                    int vehicle = GetVehiclePedIsIn(ped, false);
+                    if (DoesEntityExist(vehicle))
                     {
-                        SetVehicleWheelXOffset(veh, index, vehPreset.currentWheelsOffset[index]);
-                        SetVehicleWheelXrot(veh, index, vehPreset.currentWheelsRot[index]);
+                        vstancerPreset vehPreset = synchedPresets[player];
+                        for (int index = 0; index < vehPreset.wheelsCount; index++)
+                        {
+                            SetVehicleWheelXOffset(vehicle, index, vehPreset.currentWheelsOffset[index]);
+                            SetVehicleWheelXrot(vehicle, index, vehPreset.currentWheelsRot[index]);
+                        }
                     }
                 }
             }
             await Task.FromResult(0);
         }
-
-        /*public async void RefreshCurrentVehicleOnly()
-        {
-            if (currentPreset != null && currentPreset.HasBeenEdited)
-            {
-                int netID = NetworkGetNetworkIdFromEntity(currentVehicle);
-                if (!synchedPresets.ContainsKey(netID))
-                {
-                    for (int index = 0; index < currentPreset.wheelsCount; index++)
-                    {
-                        SetVehicleWheelXOffset(currentVehicle, index, currentPreset.currentWheelsOffset[index]);
-                        SetVehicleWheelXrot(currentVehicle, index, currentPreset.currentWheelsRot[index]);
-                    }
-                }
-            }
-            await Task.FromResult(0);
-        }*/
 
         public static async void PrintDictionary()
         {
             Debug.WriteLine("WHEELS EDITOR: CLIENT'S DICTIONARY LENGHT={0} ", synchedPresets.Count.ToString());
-            foreach (int netID in synchedPresets.Keys)
+            foreach (int player in synchedPresets.Keys)
             {
-                int handle = NetworkGetEntityFromNetworkId(netID);
-                int modelHash = GetEntityModel(handle);
-                string displayName = GetDisplayNameFromVehicleModel((uint)modelHash);
-                Debug.WriteLine("WHEELS EDITOR: PRESET Local={0}, netID={1}, name={2}", handle, netID, displayName);
+                Debug.WriteLine("WHEELS EDITOR: PRESET FOR PLAYER ({0})", player);
             }
             await Task.FromResult(0);
         }

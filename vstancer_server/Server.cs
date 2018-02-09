@@ -15,8 +15,8 @@ namespace vstancer_server
 
         public Server()
         {
-            EventHandlers["ClientRemovedPreset"] += new Action<Player, int>(BroadcastRemovePreset);
-            EventHandlers["ClientAddedPreset"] += new Action<Player, int, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
+            EventHandlers["ClientRemovedPreset"] += new Action<Player>(BroadcastRemovePreset);
+            EventHandlers["ClientAddedPreset"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
             EventHandlers["ClientWheelsEditorReady"] += new Action<Player>(BroadcastDictionary);
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
@@ -27,14 +27,13 @@ namespace vstancer_server
 
         private static async void BroadcastDictionary([FromSource]Player player)
         {
-            Debug.WriteLine("WHEELS EDITOR: PRESETS DICTIONARY({0}) SENT TO player={1}({2})", presetsDictionary.Count, player.Name, player.Handle);
-            foreach (int netID in presetsDictionary.Keys)
+            foreach (int ID in presetsDictionary.Keys)
             {
-                vstancerPreset preset = presetsDictionary[netID];
+                vstancerPreset preset = presetsDictionary[ID];
                 int frontCount = preset.frontCount;
 
                 TriggerClientEvent(player, "BroadcastAddPreset",
-                    netID,
+                    ID,
                     preset.wheelsCount,
                     preset.currentWheelsRot[0],
                     preset.currentWheelsRot[frontCount],
@@ -46,31 +45,34 @@ namespace vstancer_server
                     preset.defaultWheelsOffset[frontCount]
                     );
             }
+            Debug.WriteLine("WHEELS EDITOR: PRESETS DICTIONARY({0}) SENT TO player={1}({2})", presetsDictionary.Count, player.Name, player.Handle);
             await Task.FromResult(0);
         }
 
-        private static async void BroadcastRemovePreset([FromSource]Player player,int netID)
+        private static async void BroadcastRemovePreset([FromSource]Player player)
         {
-            if (presetsDictionary.ContainsKey(netID))
+            int playerID = int.Parse(player.Handle);
+            if (presetsDictionary.ContainsKey(playerID))
             {
-                bool removed = presetsDictionary.Remove(netID);
+                bool removed = presetsDictionary.Remove(playerID);
                 if (removed)
                 {
-                    TriggerClientEvent("BroadcastRemovePreset", netID);
-                    Debug.WriteLine("WHEELS EDITOR: REMOVED PRESET netID={0} BY player={1}({2}", netID, player.Name, player.Handle);
+                    TriggerClientEvent("BroadcastRemovePreset", playerID);
+                    Debug.WriteLine("WHEELS EDITOR: REMOVED PRESET FOR player={0}({1})", player.Name, player.Handle);
                 }
             }
             await Task.FromResult(0);
         }
 
-        private static async void BroadcastAddPreset([FromSource]Player player, int netID, int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
+        private static async void BroadcastAddPreset([FromSource]Player player, int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
         {
+            int playerID = int.Parse(player.Handle);
             vstancerPreset preset = new vstancerPreset(count, currentRotFront, currentRotRear, currentOffFront, currentOffRear, defRotFront, defRotRear, defOffFront, defOffRear);
 
-            presetsDictionary[netID] = preset;
+            presetsDictionary[playerID] = preset;
 
             TriggerClientEvent("BroadcastAddPreset",
-                netID,
+                playerID,
                 count,
                 currentRotFront,
                 currentRotRear,
@@ -81,7 +83,7 @@ namespace vstancer_server
                 defOffFront,
                 defOffRear
                 );
-            Debug.WriteLine("WHEELS EDITOR: ADDED PRESET netID={0} BY player={1}({2})", netID, player.Name, player.Handle);
+            Debug.WriteLine("WHEELS EDITOR: ADDED PRESET FOR player={0}({1})", player.Name, player.Handle);
 
             await Task.FromResult(0);
         }
