@@ -229,6 +229,8 @@ namespace vstancer_client
             }
             RefreshEntities();
             //RefreshCurrentVehicleOnly();
+        
+            await Task.FromResult(0);
         }
 
         public async void AddPreset()
