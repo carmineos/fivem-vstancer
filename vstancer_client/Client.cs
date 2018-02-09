@@ -186,7 +186,7 @@ namespace vstancer_client
         {
             _menuPool.ProcessMenus();
 
-            Ped playerPed = Game.PlayerPed;
+            int playerPed = GetPlayerPed(-1);
 
             //FIRST TICK
             if (!initialised)
@@ -203,30 +203,36 @@ namespace vstancer_client
                     CitizenFX.Core.UI.Screen.ShowNotification("Spawning Error");
             }
 
-            //CLOSE MENU IF NOT IN VEHICLE
-            if (!playerPed.IsInVehicle() && wheelsEditorMenu.Visible)
-                wheelsEditorMenu.Visible = false;
-
-            //CURRENT VEHICLE/PRESET HANDLER
-            if (playerPed.IsInVehicle() && playerPed.CurrentVehicle.Model.IsCar &&
-                playerPed.CurrentVehicle.GetPedOnSeat(VehicleSeat.Driver) == playerPed && playerPed.CurrentVehicle.IsAlive)
+            //VEHICLE & PRESET HANDLER
+            if (IsPedInAnyVehicle(playerPed, false))
             {
-                int netID = NetworkGetNetworkIdFromEntity(playerPed.CurrentVehicle.Handle);
-                if (synchedPresets.ContainsKey(netID))
-                    currentPreset = synchedPresets[netID];
-                else
-                    currentPreset = CreatePresetFromVehicle(playerPed.CurrentVehicle.Handle);
-
-                if (playerPed.CurrentVehicle.Handle != currentVehicle)
+                int vehicle = GetVehiclePedIsIn(playerPed,false);
+                if(IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle,-1) == playerPed && !IsEntityDead(vehicle))
                 {
-                    previousVehicle = currentVehicle;
-                    InitialiseMenu();
-                }
-                currentVehicle = playerPed.CurrentVehicle.Handle;
+                    int netID = NetworkGetNetworkIdFromEntity(vehicle);
+                    if (synchedPresets.ContainsKey(netID))
+                        currentPreset = synchedPresets[netID];
+                    else
+                        currentPreset = CreatePresetFromVehicle(vehicle);
+
+                    if (vehicle != currentVehicle)
+                    {
+                        previousVehicle = currentVehicle;
+                        InitialiseMenu();
+                    }
+                    currentVehicle = vehicle;
 
                     if (IsControlJustPressed(1, 167) || IsDisabledControlJustPressed(1, 167)) // TOGGLE MENU VISIBLE
-                    wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
+                        wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
+                }
             }
+            else
+            {
+                //CLOSE MENU IF NOT IN VEHICLE
+                if (wheelsEditorMenu.Visible)
+                    wheelsEditorMenu.Visible = false;
+            }
+            
             RefreshEntities();
             //RefreshCurrentVehicleOnly();
         
