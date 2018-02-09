@@ -20,6 +20,7 @@ namespace vstancer_client
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
 
+        private int playerPed;
         private int currentVehicle;
         private int previousVehicle;
         private vstancerPreset currentPreset;
@@ -186,7 +187,7 @@ namespace vstancer_client
         {
             _menuPool.ProcessMenus();
 
-            int playerPed = GetPlayerPed(-1);
+            playerPed = GetPlayerPed(-1);
 
             //FIRST TICK
             if (!initialised)
@@ -376,7 +377,7 @@ namespace vstancer_client
             while (UpdateOnscreenKeyboard() != 1 && UpdateOnscreenKeyboard() != 2) await BaseScript.Delay(0);
             string modelName = GetOnscreenKeyboardResult();
 
-            int playerPed = GetPlayerPed(-1);
+            playerPed = GetPlayerPed(-1);
             Vector3 pedPosition = GetEntityCoords(playerPed, true);
             uint model = (uint)GetHashKey(modelName);
 
