@@ -269,7 +269,7 @@ namespace vstancer_client
             {
                 bool removed = synchedPresets.Remove(ID);
                 if (removed)
-                    Debug.WriteLine("WHEELS EDITOR: REMOVED PRESET ID={0} FROM DICTIONARY ", ID);
+                    Debug.WriteLine("VSTANCER: Removed preset for Player ID={0}", ID);
             }
             await Task.FromResult(0);
         }
@@ -303,7 +303,7 @@ namespace vstancer_client
             currentPreset.defaultWheelsOffset[0],
             currentPreset.defaultWheelsOffset[frontCount]
             );
-            Debug.WriteLine("WHEELS EDITOR: PRESET SENT TO SERVER");
+            Debug.WriteLine("VSTANCER: Sent preset to the server ID={0}", playerID);
             await Task.FromResult(0);
         }
 
@@ -311,7 +311,7 @@ namespace vstancer_client
         {
             vstancerPreset preset = new vstancerPreset(count, currentRotFront, currentRotRear, currentOffFront, currentOffRear, defRotFront, defRotRear, defOffFront, defOffRear);
             synchedPresets[ID] = preset;
-            Debug.WriteLine("WHEELS EDITOR: RECEIVED PRESET FROM SERVER ID={0}", ID);
+            Debug.WriteLine("VSTANCER: Received preset for Player ID={0}", ID);
 
             await Task.FromResult(0);
         }
@@ -364,10 +364,10 @@ namespace vstancer_client
 
         public static async void PrintDictionary()
         {
-            Debug.WriteLine("WHEELS EDITOR: CLIENT'S DICTIONARY LENGHT={0} ", synchedPresets.Count.ToString());
+            Debug.WriteLine("VSTANCER: Synched Presets Count={0}", synchedPresets.Count.ToString());
             foreach (int player in synchedPresets.Keys)
             {
-                Debug.WriteLine("WHEELS EDITOR: PRESET FOR PLAYER ({0})", player);
+                Debug.WriteLine("Player ID={0}", player);
             }
             await Task.FromResult(0);
         }

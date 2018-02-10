@@ -25,6 +25,20 @@ namespace vstancer_server
             {
                 PrintDictionary();
             }), false);
+
+            /*
+            RegisterCommand("vstancer_maxEditing", new Action<int, dynamic>((source, args) =>
+            {
+                float maxEditing = float.Parse(args[1]);
+                TriggerClientEvent("BroadcastMaxEditing", maxEditing);
+            }), false);
+
+            RegisterCommand("vstancer_maxSyncCount", new Action<int, dynamic>((source, args) =>
+            {
+                float maxSyncCount = float.Parse(args[1]);
+                TriggerClientEvent("BroadcastMaxSyncCount", maxSyncCount);
+            }), false);
+            */
         }
 
         private static async void BroadcastDictionary([FromSource]Player player)
@@ -47,7 +61,7 @@ namespace vstancer_server
                     preset.defaultWheelsOffset[frontCount]
                     );
             }
-            Debug.WriteLine("WHEELS EDITOR: PRESETS DICTIONARY({0}) SENT TO player={1}({2})", presetsDictionary.Count, player.Name, player.Handle);
+            Debug.WriteLine("VSTANCER: Sent synched presets({0}) to Player={1}({2})", presetsDictionary.Count, player.Name, player.Handle);
             await Task.FromResult(0);
         }
 
@@ -60,7 +74,7 @@ namespace vstancer_server
                 if (removed)
                 {
                     TriggerClientEvent("BroadcastRemovePreset", playerID);
-                    Debug.WriteLine("WHEELS EDITOR: REMOVED PRESET FOR player={0}({1})", player.Name, player.Handle);
+                    Debug.WriteLine("VSTANCER: Removed preset for Player={0}({1})", player.Name, player.Handle);
                 }
             }
             await Task.FromResult(0);
@@ -85,16 +99,16 @@ namespace vstancer_server
                 defOffFront,
                 defOffRear
                 );
-            Debug.WriteLine("WHEELS EDITOR: ADDED PRESET FOR player={0}({1})", player.Name, player.Handle);
+            Debug.WriteLine("VSTANCER: Added preset for Player={0}({1})", player.Name, player.Handle);
 
             await Task.FromResult(0);
         }
 
         public static async void PrintDictionary()
         {
-            Debug.WriteLine("WHEELS EDITOR: SERVER'S DICTIONARY LENGHT={0} ", presetsDictionary.Count.ToString());
-            foreach (int netID in presetsDictionary.Keys)
-                Debug.WriteLine("netID={0}", netID);
+            Debug.WriteLine("VSTANCER: Synched Presets Count={0}", presetsDictionary.Count.ToString());
+            foreach (int ID in presetsDictionary.Keys)
+                Debug.WriteLine("Player ID={0}", ID);
             await Task.FromResult(0);
         }
     }
