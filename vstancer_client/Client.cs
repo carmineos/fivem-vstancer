@@ -22,7 +22,6 @@ namespace vstancer_client
 
         private int playerPed;
         private int currentVehicle;
-        private int previousVehicle;
         private vstancerPreset currentPreset;
 
         #region GUI
@@ -153,8 +152,8 @@ namespace vstancer_client
             //editingFactorGUI = AddEditingFactorValues(wheelsEditorMenu);
             frontOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Front Track Width", 0, currentPreset.currentWheelsOffset[0]);
             frontRotationGUI = AddMenuListValues(wheelsEditorMenu, "Front Camber", 2, currentPreset.currentWheelsRot[0]);
-            rearOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Rear Track Width", 1, currentPreset.currentWheelsOffset[2]);
-            rearRotationGUI = AddMenuListValues(wheelsEditorMenu, "Rear Camber", 3, currentPreset.currentWheelsRot[2]);
+            rearOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Rear Track Width", 1, currentPreset.currentWheelsOffset[currentPreset.frontCount]);
+            rearRotationGUI = AddMenuListValues(wheelsEditorMenu, "Rear Camber", 3, currentPreset.currentWheelsRot[currentPreset.frontCount]);
 
             AddMenuSync(wheelsEditorMenu);
             AddMenuReset(wheelsEditorMenu);
@@ -168,8 +167,7 @@ namespace vstancer_client
         public Client()
         {
 
-            currentVehicle = -1;
-            previousVehicle = -1;
+            currentVehicle = 0;
             currentPreset = new vstancerPreset(4, new float[4] { 0, 0, 0, 0 }, new float[4] { 0, 0, 0, 0 });
             InitialiseMenu();
 
@@ -218,7 +216,6 @@ namespace vstancer_client
 
                     if (vehicle != currentVehicle)
                     {
-                        previousVehicle = currentVehicle;
                         InitialiseMenu();
                     }
                     currentVehicle = vehicle;
