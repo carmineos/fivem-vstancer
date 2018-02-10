@@ -17,8 +17,6 @@ namespace vstancer_server
 
         public Server()
         {
-            //Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-
             EventHandlers["ClientRemovedPreset"] += new Action<Player>(BroadcastRemovePreset);
             EventHandlers["ClientAddedPreset"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
             EventHandlers["ClientWheelsEditorReady"] += new Action<Player>(BroadcastDictionary);

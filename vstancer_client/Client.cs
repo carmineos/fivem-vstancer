@@ -403,9 +403,12 @@ namespace vstancer_client
         public static async void PrintDictionary()
         {
             Debug.WriteLine("VSTANCER: Synched Presets Count={0}", synchedPresets.Count.ToString());
-            foreach (int player in synchedPresets.Keys)
+            foreach (int ID in synchedPresets.Keys)
             {
-                Debug.WriteLine("Player ID={0}", player);
+                int player = GetPlayerFromServerId(ID);
+                string name = GetPlayerName(player);
+
+                Debug.WriteLine("Player: {0}({1})", name, ID);
             }
             await Task.FromResult(0);
         }
