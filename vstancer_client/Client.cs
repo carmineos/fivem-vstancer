@@ -17,6 +17,10 @@ namespace vstancer_client
         private static float maxEditing = 0.30f;
         private static float maxSyncDistance = 150.0f;
 
+        private static int coolDownSeconds = 30;
+        private static int maxSyncCount = 2;
+        private static int syncCount = 0;
+
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
 
@@ -105,8 +109,18 @@ namespace vstancer_client
             {
                 if (item == newitem)
                 {
-                    SynchPreset();
-                    CitizenFX.Core.UI.Screen.ShowNotification("Vehicle synched");
+                    if (syncCount < maxSyncCount)
+                    {
+                        SynchPreset();
+                        syncCount++;
+                        CoolDown();
+                        CitizenFX.Core.UI.Screen.ShowNotification("Vehicle synched");
+                    }
+                    else
+                    {
+                        CitizenFX.Core.UI.Screen.ShowNotification(String.Format("You've already synched {0} times in the last {1} seconds", syncCount, coolDownSeconds));
+                    }
+                    
                 }
             };
         }
@@ -120,8 +134,15 @@ namespace vstancer_client
             {
                 if (item == newitem)
                 {
-                    TriggerServerEvent("ClientRemovedPreset");
-                    CitizenFX.Core.UI.Screen.ShowNotification("Vehicle unsynched");
+                    if (synchedPresets.ContainsKey(playerID))
+                    {
+                        TriggerServerEvent("ClientRemovedPreset");
+                        CitizenFX.Core.UI.Screen.ShowNotification("Vehicle unsynched");
+                    }
+                    else
+                    {
+                        CitizenFX.Core.UI.Screen.ShowNotification("You are already unsynched");
+                    }
                 }
             };
         }
@@ -231,6 +252,15 @@ namespace vstancer_client
             RefreshCurrentPreset();
             RefreshSynchedPresets();
             await Task.FromResult(0);
+        }
+
+        public static async void CoolDown()
+        {
+            if(syncCount > 0)
+            {
+                await Delay(coolDownSeconds*1000);
+                syncCount -= 1;
+            }
         }
 
         public static async void RemoveSynchedPreset(int ID)
