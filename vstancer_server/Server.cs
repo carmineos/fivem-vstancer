@@ -15,6 +15,8 @@ namespace vstancer_server
 
         public Server()
         {
+            //TODO:Add handlers for when player disconnect
+
             EventHandlers["ClientRemovedPreset"] += new Action<Player>(BroadcastRemovePreset);
             EventHandlers["ClientAddedPreset"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
             EventHandlers["ClientWheelsEditorReady"] += new Action<Player>(BroadcastDictionary);
