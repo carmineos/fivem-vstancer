@@ -10,7 +10,6 @@ using vstancer_shared;
 
 namespace vstancer_client
 {
-    //TODO: Add a limit of synchs in time
     public class Client : BaseScript
     {
         private static float editingFactor = 0.01f;
@@ -18,7 +17,7 @@ namespace vstancer_client
         private static float maxSyncDistance = 150.0f;
 
         private static int coolDownSeconds = 30;
-        private static int maxSyncCount = 2;
+        private static int maxSyncCount = 1;
         private static int syncCount = 0;
 
         private static bool initialised = false;
@@ -150,7 +149,7 @@ namespace vstancer_client
         public void AddMenuReset(UIMenu menu)
         {
             var newitem = new UIMenuItem("Reset Default", "Restores default values.");
-            newitem.SetRightBadge(UIMenuItem.BadgeStyle.Tick);
+            //newitem.SetRightBadge(UIMenuItem.BadgeStyle.Tick);
             menu.AddItem(newitem);
 
             menu.OnItemSelect += (sender, item, index) =>
@@ -201,8 +200,34 @@ namespace vstancer_client
                 PrintDictionary();
             }),false);
 
+            RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
+            {
+                float new_maxSyncDistance = float.Parse(args[0]);
+                maxSyncDistance = new_maxSyncDistance;
+                Debug.WriteLine("VSTANCER: Received new maxSyncDistance value {0}", new_maxSyncDistance.ToString());
+            }), false);
+
             EventHandlers.Add("BroadcastAddPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SaveSynchedPreset));
             EventHandlers.Add("BroadcastRemovePreset", new Action<int>(RemoveSynchedPreset));
+
+            EventHandlers.Add("BroadcastMaxEditing", new Action<float>((new_maxEditing) =>
+            {
+                maxEditing = new_maxEditing;
+                Debug.WriteLine("VSTANCER: Received new maxEditing value {0}", new_maxEditing.ToString());
+            }));
+
+            EventHandlers.Add("BroadcastMaxSyncCount", new Action<int>((new_maxSyncCount) =>
+            {
+                maxSyncCount = new_maxSyncCount;
+                Debug.WriteLine("VSTANCER: Received new maxSyncCount value {0}", new_maxSyncCount.ToString());
+            }));
+
+            EventHandlers.Add("BroadcastCoolDownSeconds", new Action<int>((new_coolDownSeconds) =>
+            {
+                coolDownSeconds = new_coolDownSeconds;
+                Debug.WriteLine("VSTANCER: Received new coolDownSeconds value {0}", new_coolDownSeconds.ToString());
+            }));
+
             Tick += OnTick;
         }
 

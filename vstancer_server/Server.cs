@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using vstancer_shared;
+using System.Threading;
+using System.Globalization;
 
 namespace vstancer_server
 {
@@ -15,7 +17,7 @@ namespace vstancer_server
 
         public Server()
         {
-            //TODO:Add handlers for when player disconnect
+            //Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
             EventHandlers["ClientRemovedPreset"] += new Action<Player>(BroadcastRemovePreset);
             EventHandlers["ClientAddedPreset"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
@@ -27,19 +29,26 @@ namespace vstancer_server
                 PrintDictionary();
             }), false);
 
-            /*
+            
             RegisterCommand("vstancer_maxEditing", new Action<int, dynamic>((source, args) =>
             {
-                float maxEditing = float.Parse(args[1]);
+                float maxEditing = float.Parse(args[0]);
                 TriggerClientEvent("BroadcastMaxEditing", maxEditing);
             }), false);
 
+            
             RegisterCommand("vstancer_maxSyncCount", new Action<int, dynamic>((source, args) =>
             {
-                float maxSyncCount = float.Parse(args[1]);
+                int maxSyncCount = int.Parse(args[0]);
                 TriggerClientEvent("BroadcastMaxSyncCount", maxSyncCount);
             }), false);
-            */
+
+            RegisterCommand("vstancer_cooldown", new Action<int, dynamic>((source, args) =>
+            {
+                int cooldownSeconds = int.Parse(args[0]);
+                TriggerClientEvent("BroadcastCoolDownSeconds", cooldownSeconds);
+            }), false);
+
         }
 
         private static async void BroadcastDictionary([FromSource]Player player)
