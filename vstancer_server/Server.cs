@@ -20,6 +20,7 @@ namespace vstancer_server
             EventHandlers["ClientRemovedPreset"] += new Action<Player>(BroadcastRemovePreset);
             EventHandlers["ClientAddedPreset"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
             EventHandlers["ClientWheelsEditorReady"] += new Action<Player>(BroadcastDictionary);
+            EventHandlers["playerDropped"] += new Action<Player>(BroadcastRemovePreset);
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {

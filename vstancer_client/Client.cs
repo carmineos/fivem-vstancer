@@ -223,6 +223,14 @@ namespace vstancer_client
             if (IsPedInAnyVehicle(playerPed, false))
             {
                 int vehicle = GetVehiclePedIsIn(playerPed, false);
+                /*
+                //RESET THE VEHICLE IF PED EXITS FROM THE VEHICLE
+                if (IsControlJustPressed(1, 75))
+                {
+                    currentPreset.ResetDefault();
+                    InitialiseMenu();
+                }*/
+                
                 if (IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle, -1) == playerPed && !IsEntityDead(vehicle))
                 {
                     if (vehicle != currentVehicle)
@@ -318,7 +326,7 @@ namespace vstancer_client
 
         public async void RefreshCurrentPreset()
         {
-            if (currentPreset != null)// if (currentPreset != null && currentPreset.HasBeenEdited)
+            if (currentPreset != null)// if (currentPreset != null && currentPreset.HasBeenEdited) 
             {
                 if (DoesEntityExist(currentVehicle))
                 {
