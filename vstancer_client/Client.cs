@@ -239,6 +239,11 @@ namespace vstancer_client
                         currentVehicle = vehicle;
                         InitialiseMenu();
                     }
+                    else
+                    {
+                        if (synchedPresets.ContainsKey(playerID))
+                            currentPreset = synchedPresets[playerID];
+                    }
 
                     if (IsControlJustPressed(1, 167) || IsDisabledControlJustPressed(1, 167)) // TOGGLE MENU VISIBLE
                         wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
