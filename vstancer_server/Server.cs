@@ -47,8 +47,8 @@ namespace vstancer_server
 
             RegisterCommand("vstancer_cooldown", new Action<int, dynamic>((source, args) =>
             {
-                int coolDownSeconds = int.Parse(args[0]);
-                TriggerClientEvent("vstancer:cooldown", coolDownSeconds);
+                int cooldownSeconds = int.Parse(args[0]);
+                TriggerClientEvent("vstancer:cooldown", cooldownSeconds);
             }), false);
 
         }

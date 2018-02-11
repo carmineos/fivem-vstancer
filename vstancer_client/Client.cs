@@ -7,6 +7,8 @@ using NativeUI;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using vstancer_shared;
+using System.Drawing;
+using CitizenFX.Core.UI;
 
 namespace vstancer_client
 {
@@ -18,7 +20,7 @@ namespace vstancer_client
 
         private static float maxEditing = 0.30f;
         private static int maxSyncCount = 1;
-        private static int coolDownSeconds = 30;
+        private static int cooldownSeconds = 30;
 
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
@@ -117,7 +119,7 @@ namespace vstancer_client
                     }
                     else
                     {
-                        CitizenFX.Core.UI.Screen.ShowNotification(String.Format("You've already synched {0} times in the last {1} seconds", syncCount, coolDownSeconds));
+                        CitizenFX.Core.UI.Screen.ShowNotification(String.Format("You've already synched {0} times in the last {1} seconds", syncCount, cooldownSeconds));
                     }
                     
                 }
@@ -169,7 +171,7 @@ namespace vstancer_client
         public void InitialiseMenu()
         {
             _menuPool = new MenuPool();
-            wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber");
+            wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, Screen.Height * 0.05f));
             _menuPool.Add(wheelsEditorMenu);
             //editingFactorGUI = AddEditingFactorValues(wheelsEditorMenu);
             frontOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Front Track Width", 0, currentPreset.currentWheelsOffset[0]);
@@ -224,7 +226,7 @@ namespace vstancer_client
 
             EventHandlers.Add("vstancer:cooldown", new Action<int>((new_coolDownSeconds) =>
             {
-                coolDownSeconds = new_coolDownSeconds;
+                cooldownSeconds = new_coolDownSeconds;
                 Debug.WriteLine("VSTANCER: Received new coolDownSeconds value {0}", new_coolDownSeconds.ToString());
             }));
 
@@ -232,8 +234,8 @@ namespace vstancer_client
             {
                 maxEditing = new_maxEditing;
                 maxSyncCount = new_maxSyncCount;
-                coolDownSeconds = new_coolDownSeconds;
-                Debug.WriteLine("VSTANCER: Received settings maxEditing={0} maxSyncCount={1} coolDownSeconds={2}", maxEditing, maxSyncCount, coolDownSeconds);
+                cooldownSeconds = new_coolDownSeconds;
+                Debug.WriteLine("VSTANCER: Received settings maxEditing={0} maxSyncCount={1} coolDownSeconds={2}", maxEditing, maxSyncCount, cooldownSeconds);
             }));
 
             Tick += OnTick;
@@ -304,7 +306,7 @@ namespace vstancer_client
         {
             if(syncCount > 0)
             {
-                await Delay(coolDownSeconds*1000);
+                await Delay(cooldownSeconds*1000);
                 syncCount -= 1;
             }
         }
