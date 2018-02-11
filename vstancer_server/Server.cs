@@ -21,9 +21,9 @@ namespace vstancer_server
 
         public Server()
         {
-            EventHandlers["vstancer_ClientUnsync"] += new Action<Player>(BroadcastRemovePreset);
-            EventHandlers["vstancer_ClientSync"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
-            EventHandlers["vstancer_ClientReady"] += new Action<Player>(BroadcastDictionary);
+            EventHandlers["vstancer:clientUnsync"] += new Action<Player>(BroadcastRemovePreset);
+            EventHandlers["vstancer:clientSync"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
+            EventHandlers["vstancer:clientReady"] += new Action<Player>(BroadcastDictionary);
             EventHandlers["playerDropped"] += new Action<Player>(BroadcastRemovePreset);
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
@@ -35,27 +35,27 @@ namespace vstancer_server
             RegisterCommand("vstancer_maxEditing", new Action<int, dynamic>((source, args) =>
             {
                 maxEditing = float.Parse(args[0]);
-                TriggerClientEvent("BroadcastMaxEditing", maxEditing);
+                TriggerClientEvent("vstancer:maxEditing", maxEditing);
             }), false);
 
             
             RegisterCommand("vstancer_maxSyncCount", new Action<int, dynamic>((source, args) =>
             {
                 maxSyncCount = int.Parse(args[0]);
-                TriggerClientEvent("BroadcastMaxSyncCount", maxSyncCount);
+                TriggerClientEvent("vstancer:maxSyncCount", maxSyncCount);
             }), false);
 
             RegisterCommand("vstancer_cooldown", new Action<int, dynamic>((source, args) =>
             {
                 int coolDownSeconds = int.Parse(args[0]);
-                TriggerClientEvent("BroadcastCoolDownSeconds", coolDownSeconds);
+                TriggerClientEvent("vstancer:cooldown", coolDownSeconds);
             }), false);
 
         }
 
         private static async void BroadcastDictionary([FromSource]Player player)
         {
-            TriggerClientEvent(player,"BroadcastSettings", maxEditing, maxSyncCount, coolDownSeconds);
+            TriggerClientEvent(player,"vstancer:settings", maxEditing, maxSyncCount, coolDownSeconds);
             Debug.WriteLine("VSTANCER: Settings sent to Player={0}({1})", player.Name, player.Handle);
 
             foreach (int ID in presetsDictionary.Keys)
@@ -63,7 +63,7 @@ namespace vstancer_server
                 vstancerPreset preset = presetsDictionary[ID];
                 int frontCount = preset.frontCount;
 
-                TriggerClientEvent(player, "BroadcastAddPreset",
+                TriggerClientEvent(player, "vstancer:addPreset",
                     ID,
                     preset.wheelsCount,
                     preset.currentWheelsRot[0],
@@ -88,7 +88,7 @@ namespace vstancer_server
                 bool removed = presetsDictionary.Remove(playerID);
                 if (removed)
                 {
-                    TriggerClientEvent("BroadcastRemovePreset", playerID);
+                    TriggerClientEvent("vstancer:removePreset", playerID);
                     Debug.WriteLine("VSTANCER: Removed preset for Player={0}({1})", player.Name, player.Handle);
                 }
             }
@@ -102,7 +102,7 @@ namespace vstancer_server
 
             presetsDictionary[playerID] = preset;
 
-            TriggerClientEvent("BroadcastAddPreset",
+            TriggerClientEvent("vstancer:addPreset",
                 playerID,
                 count,
                 currentRotFront,

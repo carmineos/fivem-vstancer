@@ -135,7 +135,7 @@ namespace vstancer_client
                 {
                     if (synchedPresets.ContainsKey(playerID))
                     {
-                        TriggerServerEvent("vstancer_ClientUnsync");
+                        TriggerServerEvent("vstancer:clientUnsync");
                         CitizenFX.Core.UI.Screen.ShowNotification("Vehicle unsynched");
                     }
                     else
@@ -207,28 +207,28 @@ namespace vstancer_client
                 Debug.WriteLine("VSTANCER: Received new maxSyncDistance value {0}", new_maxSyncDistance.ToString());
             }), false);
 
-            EventHandlers.Add("BroadcastAddPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SaveSynchedPreset));
-            EventHandlers.Add("BroadcastRemovePreset", new Action<int>(RemoveSynchedPreset));
+            EventHandlers.Add("vstancer:addPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SaveSynchedPreset));
+            EventHandlers.Add("vstancer:removePreset", new Action<int>(RemoveSynchedPreset));
 
-            EventHandlers.Add("BroadcastMaxEditing", new Action<float>((new_maxEditing) =>
+            EventHandlers.Add("vstancer:maxEditing", new Action<float>((new_maxEditing) =>
             {
                 maxEditing = new_maxEditing;
                 Debug.WriteLine("VSTANCER: Received new maxEditing value {0}", new_maxEditing.ToString());
             }));
 
-            EventHandlers.Add("BroadcastMaxSyncCount", new Action<int>((new_maxSyncCount) =>
+            EventHandlers.Add("vstancer:maxSyncCount", new Action<int>((new_maxSyncCount) =>
             {
                 maxSyncCount = new_maxSyncCount;
                 Debug.WriteLine("VSTANCER: Received new maxSyncCount value {0}", new_maxSyncCount.ToString());
             }));
 
-            EventHandlers.Add("BroadcastCoolDownSeconds", new Action<int>((new_coolDownSeconds) =>
+            EventHandlers.Add("vstancer:cooldown", new Action<int>((new_coolDownSeconds) =>
             {
                 coolDownSeconds = new_coolDownSeconds;
                 Debug.WriteLine("VSTANCER: Received new coolDownSeconds value {0}", new_coolDownSeconds.ToString());
             }));
 
-            EventHandlers.Add("BroadcastSettings", new Action<float,int,int>((new_maxEditing, new_maxSyncCount,new_coolDownSeconds) =>
+            EventHandlers.Add("vstancer:settings", new Action<float,int,int>((new_maxEditing, new_maxSyncCount,new_coolDownSeconds) =>
             {
                 maxEditing = new_maxEditing;
                 maxSyncCount = new_maxSyncCount;
@@ -249,7 +249,7 @@ namespace vstancer_client
             if (!initialised)
             {
                 initialised = true;
-                TriggerServerEvent("vstancer_ClientReady");
+                TriggerServerEvent("vstancer:clientReady");
             }
 
             //CURRENT VEHICLE/PRESET HANDLER
@@ -338,7 +338,7 @@ namespace vstancer_client
         {
             int frontCount = currentPreset.frontCount;
 
-            TriggerServerEvent("vstancer_ClientSync",
+            TriggerServerEvent("vstancer:clientSync",
             currentPreset.wheelsCount,
             currentPreset.currentWheelsRot[0],
             currentPreset.currentWheelsRot[frontCount],
