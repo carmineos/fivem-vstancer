@@ -13,13 +13,17 @@ namespace vstancer_server
 {
     public class Server : BaseScript
     {
+        private static float maxEditing = 0.30f;
+        private static int maxSyncCount = 1;
+        private static int coolDownSeconds = 30;
+
         private static Dictionary<int, vstancerPreset> presetsDictionary = new Dictionary<int, vstancerPreset>();
 
         public Server()
         {
-            EventHandlers["ClientRemovedPreset"] += new Action<Player>(BroadcastRemovePreset);
-            EventHandlers["ClientAddedPreset"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
-            EventHandlers["ClientWheelsEditorReady"] += new Action<Player>(BroadcastDictionary);
+            EventHandlers["vstancer_ClientUnsync"] += new Action<Player>(BroadcastRemovePreset);
+            EventHandlers["vstancer_ClientSync"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
+            EventHandlers["vstancer_ClientReady"] += new Action<Player>(BroadcastDictionary);
             EventHandlers["playerDropped"] += new Action<Player>(BroadcastRemovePreset);
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
@@ -30,27 +34,30 @@ namespace vstancer_server
             
             RegisterCommand("vstancer_maxEditing", new Action<int, dynamic>((source, args) =>
             {
-                float maxEditing = float.Parse(args[0]);
+                maxEditing = float.Parse(args[0]);
                 TriggerClientEvent("BroadcastMaxEditing", maxEditing);
             }), false);
 
             
             RegisterCommand("vstancer_maxSyncCount", new Action<int, dynamic>((source, args) =>
             {
-                int maxSyncCount = int.Parse(args[0]);
+                maxSyncCount = int.Parse(args[0]);
                 TriggerClientEvent("BroadcastMaxSyncCount", maxSyncCount);
             }), false);
 
             RegisterCommand("vstancer_cooldown", new Action<int, dynamic>((source, args) =>
             {
-                int cooldownSeconds = int.Parse(args[0]);
-                TriggerClientEvent("BroadcastCoolDownSeconds", cooldownSeconds);
+                int coolDownSeconds = int.Parse(args[0]);
+                TriggerClientEvent("BroadcastCoolDownSeconds", coolDownSeconds);
             }), false);
 
         }
 
         private static async void BroadcastDictionary([FromSource]Player player)
         {
+            TriggerClientEvent(player,"BroadcastSettings", maxEditing, maxSyncCount, coolDownSeconds);
+            Debug.WriteLine("VSTANCER: Settings sent to Player={0}({1})", player.Name, player.Handle);
+
             foreach (int ID in presetsDictionary.Keys)
             {
                 vstancerPreset preset = presetsDictionary[ID];

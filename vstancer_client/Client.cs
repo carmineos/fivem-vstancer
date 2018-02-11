@@ -13,12 +13,12 @@ namespace vstancer_client
     public class Client : BaseScript
     {
         private static float editingFactor = 0.01f;
-        private static float maxEditing = 0.30f;
         private static float maxSyncDistance = 150.0f;
-
-        private static int coolDownSeconds = 30;
-        private static int maxSyncCount = 1;
         private static int syncCount = 0;
+
+        private static float maxEditing = 0.30f;
+        private static int maxSyncCount = 1;
+        private static int coolDownSeconds = 30;
 
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
@@ -135,7 +135,7 @@ namespace vstancer_client
                 {
                     if (synchedPresets.ContainsKey(playerID))
                     {
-                        TriggerServerEvent("ClientRemovedPreset");
+                        TriggerServerEvent("vstancer_ClientUnsync");
                         CitizenFX.Core.UI.Screen.ShowNotification("Vehicle unsynched");
                     }
                     else
@@ -228,6 +228,14 @@ namespace vstancer_client
                 Debug.WriteLine("VSTANCER: Received new coolDownSeconds value {0}", new_coolDownSeconds.ToString());
             }));
 
+            EventHandlers.Add("BroadcastSettings", new Action<float,int,int>((new_maxEditing, new_maxSyncCount,new_coolDownSeconds) =>
+            {
+                maxEditing = new_maxEditing;
+                maxSyncCount = new_maxSyncCount;
+                coolDownSeconds = new_coolDownSeconds;
+                Debug.WriteLine("VSTANCER: Received settings maxEditing={0} maxSyncCount={1} coolDownSeconds={2}", maxEditing, maxSyncCount, coolDownSeconds);
+            }));
+
             Tick += OnTick;
         }
 
@@ -241,7 +249,7 @@ namespace vstancer_client
             if (!initialised)
             {
                 initialised = true;
-                TriggerServerEvent("ClientWheelsEditorReady");
+                TriggerServerEvent("vstancer_ClientReady");
             }
 
             //CURRENT VEHICLE/PRESET HANDLER
@@ -330,7 +338,7 @@ namespace vstancer_client
         {
             int frontCount = currentPreset.frontCount;
 
-            TriggerServerEvent("ClientAddedPreset",
+            TriggerServerEvent("vstancer_ClientSync",
             currentPreset.wheelsCount,
             currentPreset.currentWheelsRot[0],
             currentPreset.currentWheelsRot[frontCount],
