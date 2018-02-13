@@ -158,8 +158,8 @@ namespace vstancer_client
             {
                 if (item == newitem)
                 {
-                    currentPreset.ResetDefault();         
-
+                    currentPreset.ResetDefault();
+                    RefreshCurrentPreset();
                     InitialiseMenu();
                     wheelsEditorMenu.Visible = true;
                     
@@ -270,6 +270,9 @@ namespace vstancer_client
                 {
                     if (vehicle != currentVehicle)
                     {
+                        currentPreset.ResetDefault();
+                        RefreshCurrentPreset();
+
                         currentPreset = CreatePresetFromVehicle(vehicle);
                         currentVehicle = vehicle;
                         InitialiseMenu();
@@ -297,7 +300,9 @@ namespace vstancer_client
 
             }
 
-            RefreshCurrentPreset();
+            if (currentPreset != null && currentPreset.HasBeenEdited)
+                RefreshCurrentPreset();
+
             RefreshSynchedPresets();
             await Task.FromResult(0);
         }
@@ -366,8 +371,6 @@ namespace vstancer_client
 
         public async void RefreshCurrentPreset()
         {
-            if (currentPreset != null)// if (currentPreset != null && currentPreset.HasBeenEdited) 
-            {
                 if (DoesEntityExist(currentVehicle))
                 {
                     if (!synchedPresets.ContainsKey(playerID))
@@ -379,7 +382,6 @@ namespace vstancer_client
                         }
                     }
                 }
-            }
             await Task.FromResult(0);
         }
 
