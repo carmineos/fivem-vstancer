@@ -171,7 +171,7 @@ namespace vstancer_client
         public void InitialiseMenu()
         {
             _menuPool = new MenuPool();
-            wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, Screen.Height * 0.05f));
+            wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, 0));
             _menuPool.Add(wheelsEditorMenu);
             //editingFactorGUI = AddEditingFactorValues(wheelsEditorMenu);
             frontOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Front Track Width", 0, currentPreset.currentWheelsOffset[0]);
@@ -263,6 +263,14 @@ namespace vstancer_client
                 {
                     if (vehicle != currentVehicle)
                     {
+                        //ATTEMPT TO FIX BROKEN DEFAULTS IF CHANGE VEHICLE WHILE SYNCHED
+                        /*if (synchedPresets.ContainsKey(playerID))
+                        {
+                            TriggerServerEvent("vstancer:clientUnsync");
+                            while (synchedPresets.ContainsKey(playerID))
+                                await Delay(0); //UNSAFE, MAY CAUSE DEADLOCKS >.<
+                        }*/
+
                         currentPreset.ResetDefault();
                         RefreshCurrentPreset();
 
@@ -404,6 +412,22 @@ namespace vstancer_client
                 }
             }
             await Task.FromResult(0);
+        }
+
+        //WILL BE USED TO PRINT THE STATUS IN THE UI
+        public string GetStatus
+        {
+            get
+            {
+                if (synchedPresets.ContainsKey(playerID))
+                {
+                    vstancerPreset preset = synchedPresets[playerID];
+                    if (currentPreset == preset)
+                        return "~g~Synched";
+                    else return "~y~Needs Re-Sync";
+                }
+                else return "~r~Not Synched";
+            }
         }
 
         public static async void PrintDictionary()
