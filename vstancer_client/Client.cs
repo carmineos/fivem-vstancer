@@ -103,7 +103,7 @@ namespace vstancer_client
 
         public void AddMenuSync(UIMenu menu)
         {
-            var newitem = new UIMenuItem("Sync Preset", "Syncs the current preset with the server.");
+            var newitem = new UIMenuItem("Sync Preset", "Syncs the changes with the server.");
             newitem.SetRightBadge(UIMenuItem.BadgeStyle.Lock);
             menu.AddItem(newitem);
             menu.OnItemSelect += (sender, item, index) =>
@@ -150,7 +150,7 @@ namespace vstancer_client
 
         public void AddMenuReset(UIMenu menu)
         {
-            var newitem = new UIMenuItem("Reset Default", "Restores default values.");
+            var newitem = new UIMenuItem("Reset Default", "Restores locally the default values.");
             //newitem.SetRightBadge(UIMenuItem.BadgeStyle.Tick);
             menu.AddItem(newitem);
 
@@ -285,9 +285,16 @@ namespace vstancer_client
                 //CLOSE MENU IF NOT IN VEHICLE
                 if (wheelsEditorMenu.Visible)
                     wheelsEditorMenu.Visible = false;
+
+                /*//RESET IF PED EXITS FROM VEHICLE
+                if (currentPreset.HasBeenEdited)
+                {
+                    currentPreset.ResetDefault();
+                    RefreshCurrentPreset();
+                }*/
             }
 
-            if (currentPreset != null && currentPreset.HasBeenEdited)
+            if (currentPreset.HasBeenEdited)
                 RefreshCurrentPreset();
 
             RefreshSynchedPresets();
