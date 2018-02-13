@@ -258,13 +258,6 @@ namespace vstancer_client
             if (IsPedInAnyVehicle(playerPed, false))
             {
                 int vehicle = GetVehiclePedIsIn(playerPed, false);
-                /*
-                //RESET THE VEHICLE IF PED EXITS FROM THE VEHICLE
-                if (IsControlJustPressed(1, 75))
-                {
-                    currentPreset.ResetDefault();
-                    InitialiseMenu();
-                }*/
                 
                 if (IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle, -1) == playerPed && !IsEntityDead(vehicle))
                 {
@@ -292,12 +285,6 @@ namespace vstancer_client
                 //CLOSE MENU IF NOT IN VEHICLE
                 if (wheelsEditorMenu.Visible)
                     wheelsEditorMenu.Visible = false;
-
-                /*if(currentPreset.HasBeenEdited)
-                    currentPreset.ResetDefault();
-                currentVehicle = 0;
-                InitialiseMenu();*/
-
             }
 
             if (currentPreset != null && currentPreset.HasBeenEdited)
@@ -371,17 +358,17 @@ namespace vstancer_client
 
         public async void RefreshCurrentPreset()
         {
-                if (DoesEntityExist(currentVehicle))
+            if (DoesEntityExist(currentVehicle))
+            {
+                if (!synchedPresets.ContainsKey(playerID))
                 {
-                    if (!synchedPresets.ContainsKey(playerID))
+                    for (int index = 0; index < currentPreset.wheelsCount; index++)
                     {
-                        for (int index = 0; index < currentPreset.wheelsCount; index++)
-                        {
-                            SetVehicleWheelXOffset(currentVehicle, index, currentPreset.currentWheelsOffset[index]);
-                            SetVehicleWheelXrot(currentVehicle, index, currentPreset.currentWheelsRot[index]);
-                        }
+                        SetVehicleWheelXOffset(currentVehicle, index, currentPreset.currentWheelsOffset[index]);
+                        SetVehicleWheelXrot(currentVehicle, index, currentPreset.currentWheelsRot[index]);
                     }
                 }
+            }
             await Task.FromResult(0);
         }
 
