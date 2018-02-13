@@ -103,7 +103,7 @@ namespace vstancer_client
 
         public void AddMenuSync(UIMenu menu)
         {
-            var newitem = new UIMenuItem("Sync Preset", "Syncs the changes with the server.");
+            var newitem = new UIMenuItem("Sync", "Syncs the changes with the server.");
             newitem.SetRightBadge(UIMenuItem.BadgeStyle.Lock);
             menu.AddItem(newitem);
             menu.OnItemSelect += (sender, item, index) =>
@@ -115,7 +115,7 @@ namespace vstancer_client
                         SynchPreset();
                         syncCount++;
                         CoolDown();
-                        CitizenFX.Core.UI.Screen.ShowNotification("Vehicle synched");
+                        CitizenFX.Core.UI.Screen.ShowNotification("Current values synched");
                     }
                     else
                     {
@@ -128,7 +128,7 @@ namespace vstancer_client
 
         public void AddMenuUnsync(UIMenu menu)
         {
-            var newitem = new UIMenuItem("Unsync Preset", "Unsyncs the preset with the server.");
+            var newitem = new UIMenuItem("Undo sync", "Stops you from being synched with the server.");
             newitem.SetRightBadge(UIMenuItem.BadgeStyle.Alert);
             menu.AddItem(newitem);
             menu.OnItemSelect += (sender, item, index) =>
@@ -142,7 +142,7 @@ namespace vstancer_client
                     }
                     else
                     {
-                        CitizenFX.Core.UI.Screen.ShowNotification("You are already unsynched");
+                        CitizenFX.Core.UI.Screen.ShowNotification("You are already not synched");
                     }
                 }
             };
@@ -150,7 +150,7 @@ namespace vstancer_client
 
         public void AddMenuReset(UIMenu menu)
         {
-            var newitem = new UIMenuItem("Reset Default", "Restores locally the default values.");
+            var newitem = new UIMenuItem("Reset", "Restores locally the default values.");
             //newitem.SetRightBadge(UIMenuItem.BadgeStyle.Tick);
             menu.AddItem(newitem);
 
@@ -163,7 +163,7 @@ namespace vstancer_client
                     InitialiseMenu();
                     wheelsEditorMenu.Visible = true;
                     
-                    CitizenFX.Core.UI.Screen.ShowNotification("Preset resetted");
+                    CitizenFX.Core.UI.Screen.ShowNotification("Default values restored");
                 }
             };
         }
@@ -171,6 +171,7 @@ namespace vstancer_client
         public void InitialiseMenu()
         {
             _menuPool = new MenuPool();
+            //wheelsEditorMenu = new UIMenu("Wheels Editor", "(BETA)Status: " + GetStatus, new PointF(Screen.Width, 0));
             wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, 0));
             _menuPool.Add(wheelsEditorMenu);
             //editingFactorGUI = AddEditingFactorValues(wheelsEditorMenu);
@@ -424,9 +425,9 @@ namespace vstancer_client
                     vstancerPreset preset = synchedPresets[playerID];
                     if (currentPreset == preset)
                         return "~g~Synched";
-                    else return "~y~Needs Re-Sync";
+                    else return "~y~Local and synched mismatch";
                 }
-                else return "~r~Not Synched";
+                else return "~r~Not synched";
             }
         }
 
