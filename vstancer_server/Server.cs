@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using vstancer_shared;
-using System.Threading;
-using System.Globalization;
 
 namespace vstancer_server
 {
     public class Server : BaseScript
     {
         private static float maxEditing = 0.30f;
-        private static int maxSyncCount = 1;
-        private static int coolDownSeconds = 30;
+        private static long timer = 1000;
+
+        private static bool debugMode = false;
 
         private static Dictionary<int, vstancerPreset> presetsDictionary = new Dictionary<int, vstancerPreset>();
 
@@ -38,24 +35,23 @@ namespace vstancer_server
                 TriggerClientEvent("vstancer:maxEditing", maxEditing);
             }), false);
 
-            
-            RegisterCommand("vstancer_maxSyncCount", new Action<int, dynamic>((source, args) =>
+            RegisterCommand("vstancer_timer", new Action<int, dynamic>((source, args) =>
             {
-                maxSyncCount = int.Parse(args[0]);
-                TriggerClientEvent("vstancer:maxSyncCount", maxSyncCount);
+                timer = long.Parse(args[0]);
+                TriggerClientEvent("vstancer:timer", timer);
             }), false);
 
-            RegisterCommand("vstancer_cooldown", new Action<int, dynamic>((source, args) =>
+            RegisterCommand("vstancer_debug", new Action<int, dynamic>((source, args) =>
             {
-                int cooldownSeconds = int.Parse(args[0]);
-                TriggerClientEvent("vstancer:cooldown", cooldownSeconds);
+                debugMode = bool.Parse(args[0]);
+                Debug.WriteLine("VSTANCER: Received new debug value {0}", debugMode.ToString());
             }), false);
 
         }
 
         private static async void BroadcastDictionary([FromSource]Player player)
         {
-            TriggerClientEvent(player,"vstancer:settings", maxEditing, maxSyncCount, coolDownSeconds);
+            TriggerClientEvent(player,"vstancer:settings", maxEditing, timer);
             Debug.WriteLine("VSTANCER: Settings sent to Player={0}({1})", player.Name, player.Handle);
 
             foreach (int ID in presetsDictionary.Keys)
@@ -89,7 +85,9 @@ namespace vstancer_server
                 if (removed)
                 {
                     TriggerClientEvent("vstancer:removePreset", playerID);
-                    Debug.WriteLine("VSTANCER: Removed preset for Player={0}({1})", player.Name, player.Handle);
+
+                    if (debugMode)
+                        Debug.WriteLine("VSTANCER: Removed preset for Player={0}({1})", player.Name, player.Handle);
                 }
             }
             await Task.FromResult(0);
@@ -114,7 +112,9 @@ namespace vstancer_server
                 defOffFront,
                 defOffRear
                 );
-            Debug.WriteLine("VSTANCER: Added preset for Player={0}({1})", player.Name, player.Handle);
+
+            if (debugMode)
+                Debug.WriteLine("VSTANCER: Added preset for Player={0}({1})", player.Name, player.Handle);
 
             await Task.FromResult(0);
         }

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace vstancer_shared
 {
-    public class vstancerPreset
+    public class vstancerPreset : IEquatable<vstancerPreset>
     {
         public int wheelsCount;
         public int frontCount;
@@ -100,36 +96,6 @@ namespace vstancer_shared
             }
         }
 
-        /*public vstancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
-        {
-            wheelsCount = count;
-
-            _defaultWheelsRot = new float[wheelsCount];
-            _defaultWheelsOffset = new float[wheelsCount];
-            currentWheelsRot = new float[wheelsCount];
-            currentWheelsOffset = new float[wheelsCount];
-
-            _defaultWheelsRot[0] = defRotFront;
-            _defaultWheelsRot[1] = -defRotFront;
-            _defaultWheelsRot[2] = defRotRear;
-            _defaultWheelsRot[3] = -defRotRear;
-
-            _defaultWheelsOffset[0] = defOffFront;
-            _defaultWheelsOffset[1] = -defOffFront;
-            _defaultWheelsOffset[2] = defOffRear;
-            _defaultWheelsOffset[3] = -defOffRear;
-
-            currentWheelsRot[0] = currentRotFront;
-            currentWheelsRot[1] = -currentRotFront;
-            currentWheelsRot[2] = currentRotRear;
-            currentWheelsRot[3] = -currentRotRear;
-
-            currentWheelsOffset[0] = currentOffFront;
-            currentWheelsOffset[1] = -currentOffFront;
-            currentWheelsOffset[2] = currentOffRear;
-            currentWheelsOffset[3] = -currentOffRear;
-        }*/
-
         public vstancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
         {
             wheelsCount = count;
@@ -188,6 +154,23 @@ namespace vstancer_shared
                 currentWheelsOffset[index] = _defaultWheelsOffset[index];
             }
         }
-       
+
+        public bool Equals(vstancerPreset other)
+        {
+            if (wheelsCount != other.wheelsCount)
+                return false;
+
+            for (int index = 0; index < wheelsCount; index++)
+            {
+                if ((Math.Round(_defaultWheelsOffset[index],3) != Math.Round(other._defaultWheelsOffset[index],3))
+                || (Math.Round(_defaultWheelsRot[index], 3) != Math.Round(other._defaultWheelsRot[index], 3))
+                || (Math.Round(currentWheelsOffset[index], 3) != Math.Round(other.currentWheelsOffset[index], 3))
+                || (Math.Round(currentWheelsRot[index], 3) != Math.Round(other.currentWheelsRot[index], 3))
+                )
+                    return false;
+            }
+            return true;
+        }
+
     }
 }
