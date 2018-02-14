@@ -243,6 +243,16 @@ namespace vstancer_client
                     if (IsControlJustPressed(1, 167) || IsDisabledControlJustPressed(1, 167)) // TOGGLE MENU VISIBLE
                         wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
                 }
+                else
+                {
+                    //TEMP FIX TO PASSENGER SPAMMING IF HAD AN EDITED VEHICLE
+                    if (currentPreset.HasBeenEdited)
+                    {
+                        currentPreset.ResetDefault();
+                        RefreshLocalPreset(); //FORCED
+                        Synch(); //FORCED
+                    }
+                }
             }
             else
             {
@@ -362,7 +372,7 @@ namespace vstancer_client
             if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
             {
                 int vehicle = GetVehiclePedIsIn(ped, false);
-                if (DoesEntityExist(vehicle))
+                if (DoesEntityExist(vehicle) && GetPedInVehicleSeat(vehicle, -1) == ped)
                 {
                     vstancerPreset vehPreset = synchedPresets[ID];
                     for (int index = 0; index < vehPreset.wheelsCount; index++)
