@@ -20,7 +20,7 @@ namespace vstancer_client
         private static bool debugMode = false;
 
         private static long lastTime;
-        private static long timer;
+        private static long timer = 1000;
         
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
@@ -110,7 +110,7 @@ namespace vstancer_client
                 if (item == newitem)
                 {
                     currentPreset.ResetDefault();
-                    //RefreshCurrentPreset();
+                    //RefreshLocalPreset();
 
                     InitialiseMenu();
                     wheelsEditorMenu.Visible = true;
