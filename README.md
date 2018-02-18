@@ -8,10 +8,9 @@ When you have finished click on "Sync Preset" to allow all the players in the se
 
 This version of the script tries to achieve the result without using netID of the entities but synching only the vehicle the playerPed is using.<br />
 * Only allows to sync the current vehicle the playerPed is using
+* Changes automatically synched if required
 * Unsync the preset if playerDropped
-* Antispam system to prevent players to spam synched presets (by default max 1 syncs in 30 seconds)
 * Only refreshes players' vehicles which are close to you (by default distance is 150)
-* Can manually unsync your preset
 
 F6 Opens the menu to edit the wheels<br />
 
@@ -24,22 +23,30 @@ Prints the list of all the synched players
 
 Sets the 'float' as the maximum distance used to synch others players' vehicles
 
+>vstancer_debug 'bool'
+
+Enables or disables the logs to be printed in the console
+
 **SERVER COMMANDS**<br />
-> vstancer_print
+` vstancer_print`
 
 Prints the list of all the synched players
 
->vstancer_maxEditing 'float'
+`vstancer_debug 'bool'`
 
-Sets the 'float' as the min/max offset for the default value of each property (for all the players)
+Enables or disables the logs to be printed in the console
 
->vstancer_maxSyncCount 'int'
+`vstancer_maxOffset 'float'`
 
-Sets the 'int' as max number of synchs for antispam (for all the players)
+Sets the 'float' as the min/max offset for the default track width value (sets this for all the players)
 
->vstancer_cooldown 'int'
+`vstancer_maxCamber 'float'`
 
-Sets the 'int' as cooldown value (in seconds) used as timer for antispam (for all the players)
+Sets the 'float' as the min/max offset for the default camber value (sets this for all the players)
+
+`vstancer_timer 'long'`
+
+Sets the 'long' as timer to wait for checking if each client needs to syncs again its preset (sets this for all the players)
 <br />
 [Source](https://github.com/neos7/FiveM_vstancer)<br />
 [Download](https://github.com/neos7/FiveM_vstancer/releases/download/v1.0/vstancer.rar)<br />
