@@ -13,15 +13,17 @@ namespace vstancer_client
 {
     public class Client : BaseScript
     {
-        private static float editingFactor = 0.01f;
-        private static float maxSyncDistance = 150.0f;
-        private static float maxEditing = 0.30f;
-
-        private static bool debugMode = false;
+        #region CONFIG
+        private static float editingFactor;
+        private static float maxSyncDistance;
+        private static float maxOffset;
+        private static float maxCamber;
+        private static long timer;
+        private static bool debug;
+        private static int toggleMenu;
+        #endregion
 
         private static long lastTime;
-        private static long timer = 1000;
-        
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
 
@@ -42,11 +44,19 @@ namespace vstancer_client
 
         public UIMenuListItem AddMenuListValues(UIMenu menu, string name, int property, float defaultValue)
         {
-            int countValues = (int)(maxEditing / editingFactor);
+            int countValues;
             var values = new List<dynamic>();
 
             if (property == 2 || property == 3)
+            {
                 defaultValue = -defaultValue;
+                countValues = (int)(maxCamber / editingFactor);
+            }
+            else
+            {
+                countValues = (int)(maxOffset / editingFactor);
+            }
+                
 
             //POSITIVE VALUES
             for (int i = 0; i <= countValues; i++)
@@ -141,6 +151,8 @@ namespace vstancer_client
 
         public Client()
         {
+            LoadConfig();
+
             lastTime = GetGameTimer();
 
             playerID = GetPlayerServerId(PlayerId());
@@ -149,44 +161,38 @@ namespace vstancer_client
             currentPreset = new vstancerPreset(4, new float[4] { 0, 0, 0, 0 }, new float[4] { 0, 0, 0, 0 });
             InitialiseMenu();
 
-            RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
-            {
-                PrintDictionary();
-            }),false);
-
-            RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
-            {
-                maxSyncDistance = float.Parse(args[0]);
-                Debug.WriteLine("VSTANCER: Received new maxSyncDistance value {0}", maxSyncDistance.ToString());
-            }), false);
-
-            RegisterCommand("vstancer_debug", new Action<int, dynamic>((source, args) =>
-            {
-                debugMode = bool.Parse(args[0]);
-                Debug.WriteLine("VSTANCER: Received new debug value {0}", debugMode.ToString());
-            }), false);
-
             EventHandlers.Add("vstancer:addPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SaveSynchedPreset));
             EventHandlers.Add("vstancer:removePreset", new Action<int>(RemoveSynchedPreset));
-
-            EventHandlers.Add("vstancer:maxEditing", new Action<float>((new_maxEditing) =>
+            EventHandlers.Add("vstancer:maxOffset", new Action<float>((new_maxOffset) =>
             {
-                maxEditing = new_maxEditing;
-                Debug.WriteLine("VSTANCER: Received new maxEditing value {0}", new_maxEditing.ToString());
+                maxOffset = new_maxOffset;
+                Debug.WriteLine("VSTANCER: Received new maxOffset value {0}", new_maxOffset.ToString());
             }));
-
+            EventHandlers.Add("vstancer:maxCamber", new Action<float>((new_maxCamber) =>
+            {
+                maxCamber = new_maxCamber;
+                Debug.WriteLine("VSTANCER: Received new maxCamber value {0}", new_maxCamber.ToString());
+            }));
             EventHandlers.Add("vstancer:timer", new Action<long>((new_timer) =>
             {
                 timer = new_timer;
                 Debug.WriteLine("VSTANCER: Received new timer value {0}", new_timer.ToString());
             }));
 
-            EventHandlers.Add("vstancer:settings", new Action<float, long>((new_maxEditing, new_timer) =>
+            RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
-                maxEditing = new_maxEditing;
-                timer = new_timer;
-                Debug.WriteLine("VSTANCER: Received settings maxEditing={0} timer={1}", new_maxEditing, new_timer);
-            }));
+                PrintDictionary();
+            }), false);
+            RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
+            {
+                maxSyncDistance = float.Parse(args[0]);
+                Debug.WriteLine("VSTANCER: Received new maxSyncDistance value {0}", maxSyncDistance.ToString());
+            }), false);
+            RegisterCommand("vstancer_debug", new Action<int, dynamic>((source, args) =>
+            {
+                debug = bool.Parse(args[0]);
+                Debug.WriteLine("VSTANCER: Received new debug value {0}", debug.ToString());
+            }), false);
 
             Tick += OnTick;
         }
@@ -240,7 +246,7 @@ namespace vstancer_client
                         InitialiseMenu();
                     }
 
-                    if (IsControlJustPressed(1, 167) || IsDisabledControlJustPressed(1, 167)) // TOGGLE MENU VISIBLE
+                    if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu)) // TOGGLE MENU VISIBLE
                         wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
                 }
                 else
@@ -285,7 +291,7 @@ namespace vstancer_client
                 bool removed = synchedPresets.Remove(ID);
                 if (removed)
                 {
-                    if (debugMode)
+                    if (debug)
                         Debug.WriteLine("VSTANCER: Removed preset for Player ID={0}", ID);
                 }    
             }
@@ -315,7 +321,6 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-
         public async void Synch()
         {
             int frontCount = currentPreset.frontCount;
@@ -331,7 +336,7 @@ namespace vstancer_client
             currentPreset.defaultWheelsOffset[frontCount]
             );
 
-            if (debugMode)
+            if (debug)
                 Debug.WriteLine("VSTANCER: Sent preset to the server ID={0}", playerID);
 
             await Task.FromResult(0);
@@ -342,7 +347,7 @@ namespace vstancer_client
             vstancerPreset preset = new vstancerPreset(count, currentRotFront, currentRotRear, currentOffFront, currentOffRear, defRotFront, defRotRear, defOffFront, defOffRear);
             synchedPresets[ID] = preset;
 
-            if (debugMode)
+            if (debug)
                 Debug.WriteLine("VSTANCER: Received preset for Player ID={0}", ID);
 
             await Task.FromResult(0);
@@ -396,6 +401,34 @@ namespace vstancer_client
                 Debug.WriteLine("Player: {0}({1})", name, ID);
             }
             await Task.FromResult(0);
+        }
+
+        protected void LoadConfig()
+        {
+            string strings = null;
+            vstancerConfig config = new vstancerConfig();
+            try
+            {
+                strings = LoadResourceFile("vstancer", "config.ini");
+                Debug.WriteLine("VSTANCER: Loaded settings from config.ini");
+                config.ParseConfigFile(strings);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("VSTANCER: Impossible to load config.ini");
+            }
+            finally
+            {
+                toggleMenu = config.toggleMenu;
+                editingFactor = config.editingFactor;
+                maxSyncDistance = config.maxSyncDistance;
+                maxOffset = config.maxOffset;
+                maxCamber = config.maxCamber;
+                timer = config.timer;
+                debug = config.debug;
+
+                Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3} maxSyncDistance={4}", maxOffset, maxCamber, timer, debug, maxSyncDistance);
+            }
         }
     }
 }

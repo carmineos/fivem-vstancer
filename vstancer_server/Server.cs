@@ -9,15 +9,19 @@ namespace vstancer_server
 {
     public class Server : BaseScript
     {
-        private static float maxEditing = 0.30f;
-        private static long timer = 1000;
-
-        private static bool debugMode = false;
+        #region CONFIG
+        private static float maxOffset;
+        private static float maxCamber;
+        private static long timer;
+        private static bool debug;
+        #endregion
 
         private static Dictionary<int, vstancerPreset> presetsDictionary = new Dictionary<int, vstancerPreset>();
 
         public Server()
         {
+            LoadConfig();
+
             EventHandlers["vstancer:clientUnsync"] += new Action<Player>(BroadcastRemovePreset);
             EventHandlers["vstancer:clientSync"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
             EventHandlers["vstancer:clientReady"] += new Action<Player>(BroadcastDictionary);
@@ -27,31 +31,33 @@ namespace vstancer_server
             {
                 PrintDictionary();
             }), false);
-
-            
-            RegisterCommand("vstancer_maxEditing", new Action<int, dynamic>((source, args) =>
+            RegisterCommand("vstancer_maxOffset", new Action<int, dynamic>((source, args) =>
             {
-                maxEditing = float.Parse(args[0]);
-                TriggerClientEvent("vstancer:maxEditing", maxEditing);
+                maxOffset = float.Parse(args[0]);
+                TriggerClientEvent("vstancer:maxOffset", maxOffset);
+                Debug.WriteLine("VSTANCER: Received new maxOffset value {0}", maxOffset);
             }), false);
-
+            RegisterCommand("vstancer_maxCamber", new Action<int, dynamic>((source, args) =>
+            {
+                maxCamber = float.Parse(args[0]);
+                TriggerClientEvent("vstancer:maxCamber", maxCamber);
+                Debug.WriteLine("VSTANCER: Received new maxCamber value {0}", maxCamber);
+            }), false);
             RegisterCommand("vstancer_timer", new Action<int, dynamic>((source, args) =>
             {
                 timer = long.Parse(args[0]);
                 TriggerClientEvent("vstancer:timer", timer);
+                Debug.WriteLine("VSTANCER: Received new timer value {0}", timer);
             }), false);
-
             RegisterCommand("vstancer_debug", new Action<int, dynamic>((source, args) =>
             {
-                debugMode = bool.Parse(args[0]);
-                Debug.WriteLine("VSTANCER: Received new debug value {0}", debugMode.ToString());
+                debug = bool.Parse(args[0]);
+                Debug.WriteLine("VSTANCER: Received new debug value {0}", debug);
             }), false);
-
         }
 
         private static async void BroadcastDictionary([FromSource]Player player)
         {
-            TriggerClientEvent(player,"vstancer:settings", maxEditing, timer);
             Debug.WriteLine("VSTANCER: Settings sent to Player={0}({1})", player.Name, player.Handle);
 
             foreach (int ID in presetsDictionary.Keys)
@@ -86,7 +92,7 @@ namespace vstancer_server
                 {
                     TriggerClientEvent("vstancer:removePreset", playerID);
 
-                    if (debugMode)
+                    if (debug)
                         Debug.WriteLine("VSTANCER: Removed preset for Player={0}({1})", player.Name, player.Handle);
                 }
             }
@@ -113,7 +119,7 @@ namespace vstancer_server
                 defOffRear
                 );
 
-            if (debugMode)
+            if (debug)
                 Debug.WriteLine("VSTANCER: Added preset for Player={0}({1})", player.Name, player.Handle);
 
             await Task.FromResult(0);
@@ -122,9 +128,35 @@ namespace vstancer_server
         public static async void PrintDictionary()
         {
             Debug.WriteLine("VSTANCER: Synched Presets Count={0}", presetsDictionary.Count.ToString());
+            Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3}", maxOffset, maxCamber, timer, debug);
             foreach (int ID in presetsDictionary.Keys)
                 Debug.WriteLine("Player ID={0}", ID);
             await Task.FromResult(0);
+        }
+
+        protected void LoadConfig()
+        {
+            string strings = null;
+            vstancerConfig config = new vstancerConfig();
+            try
+            {
+                strings = LoadResourceFile("vstancer", "config.ini");
+                Debug.WriteLine("VSTANCER: Loaded settings from config.ini");
+                config.ParseConfigFile(strings);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("VSTANCER: Impossible to load config.ini");
+            }
+            finally
+            {
+                maxOffset = config.maxOffset;
+                maxCamber = config.maxCamber;
+                timer = config.timer;
+                debug = config.debug;
+
+                Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3}", maxOffset, maxCamber, timer, debug);
+            }
         }
     }
 }
