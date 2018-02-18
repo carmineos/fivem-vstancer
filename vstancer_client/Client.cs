@@ -393,6 +393,7 @@ namespace vstancer_client
         public static async void PrintDictionary()
         {
             Debug.WriteLine("VSTANCER: Synched Presets Count={0}", synchedPresets.Count.ToString());
+            Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3} maxSyncDistance={4}", maxOffset, maxCamber, timer, debug, maxSyncDistance);
             foreach (int ID in synchedPresets.Keys)
             {
                 int player = GetPlayerFromServerId(ID);

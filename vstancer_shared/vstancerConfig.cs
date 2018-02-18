@@ -16,7 +16,6 @@ namespace vstancer_shared
         public long timer { get; set; } //SHARED
         public bool debug { get; set; } //CLIENT & SERVER
 
-        private Dictionary<string, string> Entries;
 
         public vstancerConfig()
         {
@@ -31,8 +30,7 @@ namespace vstancer_shared
 
         public void ParseConfigFile(string content)
         {
-            //Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Entries = new Dictionary<string, string>();
+            Dictionary<string, string> Entries = new Dictionary<string, string>();
 
             if (content?.Any() ?? false)
             {

@@ -58,8 +58,6 @@ namespace vstancer_server
 
         private static async void BroadcastDictionary([FromSource]Player player)
         {
-            Debug.WriteLine("VSTANCER: Settings sent to Player={0}({1})", player.Name, player.Handle);
-
             foreach (int ID in presetsDictionary.Keys)
             {
                 vstancerPreset preset = presetsDictionary[ID];
