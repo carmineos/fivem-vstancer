@@ -71,6 +71,7 @@ I am open to any kind of feedback. Report suggestions and bugs you find.<br />
 * VStancer by ikt: https://github.com/E66666666/GTAVStancer
 * FiveM by CitizenFX: https://github.com/citizenfx/fivem
 * NativeUI by GUAD: https://github.com/Guad/NativeUI
+* GTADrifting members: https://gtad.club/
 
 VIDEO:<br />
 https://streamable.com/hzjyj
