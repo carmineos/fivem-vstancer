@@ -3,7 +3,7 @@ An attempt to use the features from ikt's VStancer as resource for FiveM servers
 The script allows to edit the camber and the track width of the wheels.<br />
 
 When a client edits something, it will be automatically synchronized.<br />
-If a client resets the settings it won't be synchronized until he changes something again.<br />
+If a client resets the settings it will stop from being synchronized until he changes something again.<br />
 
 This version of the script tries to achieve the result without using netID of the entities but synching only the vehicle the playerPed is using.<br />
 * Only allows to sync the current vehicle the playerPed is using
