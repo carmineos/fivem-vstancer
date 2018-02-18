@@ -15,37 +15,29 @@ This version of the script tries to achieve the result without using netID of th
 F6 Opens the menu to edit the wheels<br />
 
 **CLIENT COMMANDS**<br />
-> vstancer_print
-
+`vstancer_print`
 Prints the list of all the synched players
 
->vstancer_distance 'float'
-
+`vstancer_distance 'float'`
 Sets the 'float' as the maximum distance used to synch others players' vehicles
 
->vstancer_debug 'bool'
-
+`vstancer_debug 'bool'`
 Enables or disables the logs to be printed in the console
 
 **SERVER COMMANDS**<br />
-` vstancer_print`
-
+`vstancer_print`
 Prints the list of all the synched players
 
 `vstancer_debug 'bool'`
-
 Enables or disables the logs to be printed in the console
 
 `vstancer_maxOffset 'float'`
-
 Sets the 'float' as the min/max offset for the default track width value (sets this for all the players)
 
 `vstancer_maxCamber 'float'`
-
 Sets the 'float' as the min/max offset for the default camber value (sets this for all the players)
 
 `vstancer_timer 'long'`
-
 Sets the 'long' as timer to wait for checking if each client needs to syncs again its preset (sets this for all the players)
 <br />
 [Source](https://github.com/neos7/FiveM_vstancer)<br />
