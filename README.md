@@ -63,7 +63,7 @@ The value in milliseconds used by each client to check if its preset requires to
 Enables the debug mode, which prints some logs in the console
 
 [Source](https://github.com/neos7/FiveM_vstancer)<br />
-[Download](https://github.com/neos7/FiveM_vstancer/releases/download/v1.0/vstancer.rar)<br />
+[Download](https://github.com/neos7/FiveM_vstancer/releases/download/v2.1/vstancer_livesync.zip)<br />
 I am open to any kind of feedback. Report suggestions and bugs you find.<br />
 
 
