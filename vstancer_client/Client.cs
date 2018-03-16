@@ -294,7 +294,9 @@ namespace vstancer_client
                 if (NetworkDoesNetworkIdExist(ID))
                     UpdateEntityByNetID(ID);
                 else // If any ID doesn't exist then notify the server to remove it
+                {
                     NotifyServerRemove(ID);
+                }
             }
 
             await Task.FromResult(0);
@@ -374,7 +376,7 @@ namespace vstancer_client
             );
 
             if (debug)
-                Debug.WriteLine("VSTANCER: Sent preset to the server netID={0} Entity={1} EntityFromNetID={2}", currentVehicleNetID, currentVehicle, NetworkGetEntityFromNetworkId(currentVehicleNetID));
+                Debug.WriteLine("VSTANCER: Sent preset to the server netID={0} Entity={1}", currentVehicleNetID, currentVehicle);
 
             await Task.FromResult(0);
         }
@@ -453,7 +455,7 @@ namespace vstancer_client
                 Debug.WriteLine("VSTANCER: Loaded settings from config.ini");
                 config.ParseConfigFile(strings);
             }
-            catch (Exception e)
+            catch
             {
                 Debug.WriteLine("VSTANCER: Impossible to load config.ini");
             }

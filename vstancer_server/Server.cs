@@ -141,7 +141,7 @@ namespace vstancer_server
                 Debug.WriteLine("VSTANCER: Loaded settings from config.ini");
                 config.ParseConfigFile(strings);
             }
-            catch (Exception e)
+            catch
             {
                 Debug.WriteLine("VSTANCER: Impossible to load config.ini");
             }
