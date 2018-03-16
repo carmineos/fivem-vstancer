@@ -27,11 +27,14 @@ namespace vstancer_client
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
 
-        private static int playerID;
+        //private static int playerID;
         private int playerPed;
 
         private int currentVehicle;
         private vstancerPreset currentPreset;
+
+        //FIX THIS SO IT ISN'T CALLED IF currentVehicle isn't set or doesn't exist
+        public int CurrentVehicleNetID;
 
         #region GUI
         private MenuPool _menuPool;
@@ -155,7 +158,7 @@ namespace vstancer_client
 
             lastTime = GetGameTimer();
 
-            playerID = GetPlayerServerId(PlayerId());
+            //playerID = GetPlayerServerId(PlayerId());
 
             currentVehicle = 0;
             currentPreset = new vstancerPreset(4, new float[4] { 0, 0, 0, 0 }, new float[4] { 0, 0, 0, 0 });
@@ -215,9 +218,28 @@ namespace vstancer_client
             {
                 if (currentPreset.HasBeenEdited)
                 {
-                    bool isSynched = synchedPresets.ContainsKey(playerID);
-                    if (!isSynched || (isSynched && !synchedPresets[playerID].Equals(currentPreset)))
+                    bool isSynched = synchedPresets.ContainsKey(CurrentVehicleNetID);
+                    /*if (!isSynched || (isSynched && !synchedPresets[CurrentVehicleNetID].Equals(currentPreset)))
+                        Synch();*/
+
+                    #region DEBUG
+                    if (!isSynched)
+                    {
                         Synch();
+                        Debug.WriteLine("Is not synched");
+                    }
+                    else
+                    {
+                        if (!synchedPresets[CurrentVehicleNetID].Equals(currentPreset))
+                        {
+                            Debug.WriteLine("Synched but not equal");
+                            Debug.WriteLine("synched: {0}", synchedPresets[CurrentVehicleNetID].ToString());
+                            Debug.WriteLine("current: {0}", currentPreset.ToString());
+                            Synch();
+                        }
+
+                    } 
+                    #endregion
                 }
                 else
                     StopSync();
@@ -232,16 +254,16 @@ namespace vstancer_client
 
                 if (IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle, -1) == playerPed && !IsEntityDead(vehicle))
                 {
+                    int netID = NetworkGetNetworkIdFromEntity(vehicle);
+
                     if (vehicle != currentVehicle)
                     {
-                        if (currentPreset.HasBeenEdited)
-                        {
-                            currentPreset.ResetDefault();
-                            RefreshLocalPreset(); //FORCED
-                            Synch(); //FORCED
-                        }
+                        if (synchedPresets.ContainsKey(netID))
+                            currentPreset = synchedPresets[netID];
+                        else
+                            currentPreset = CreatePresetFromVehicle(vehicle);
 
-                        currentPreset = CreatePresetFromVehicle(vehicle);
+                        CurrentVehicleNetID = netID;
                         currentVehicle = vehicle;
                         InitialiseMenu();
                     }
@@ -251,13 +273,8 @@ namespace vstancer_client
                 }
                 else
                 {
-                    //TEMP FIX TO PASSENGER SPAMMING IF HAD AN EDITED VEHICLE
-                    if (currentPreset.HasBeenEdited)
-                    {
-                        currentPreset.ResetDefault();
-                        RefreshLocalPreset(); //FORCED
-                        Synch(); //FORCED
-                    }
+                    //If current vehicle isn't a car or player isn't driving current vehicle or vehicle is dead
+
                 }
             }
             else
@@ -265,18 +282,17 @@ namespace vstancer_client
                 //CLOSE MENU IF NOT IN VEHICLE
                 if (wheelsEditorMenu.Visible)
                     wheelsEditorMenu.Visible = false;
-
-                /*//RESET IF PED EXITS FROM VEHICLE
-                if (currentPreset.HasBeenEdited)
-                {
-                    currentPreset.ResetDefault();
-                    RefreshCurrentPreset();
-                }*/
             }
 
             RefreshLocalPreset();
-            foreach (int ID in synchedPresets.Keys.Where(key => key != playerID))
-                RefreshSynchedPreset(ID);
+            IEnumerable<int> refresh = synchedPresets.Keys.Where(key => key != CurrentVehicleNetID);  //Avoid using CurrentVehicleNetID as Property
+            foreach (int ID in refresh)
+            {
+                if (NetworkDoesNetworkIdExist(ID))
+                    RefreshSynchedPreset(ID);
+                else
+                    RemoveSynchedPreset(ID);
+            }
 
             await Task.FromResult(0);
         }
@@ -292,7 +308,8 @@ namespace vstancer_client
                 if (removed)
                 {
                     if (debug)
-                        Debug.WriteLine("VSTANCER: Removed preset for Player ID={0}", ID);
+                        Debug.WriteLine("VSTANCER: Removed preset for netID={0}", ID);
+                    //Debug.WriteLine("VSTANCER: Removed preset for netID={0} EntityFromNetID={1}", ID, NetworkGetEntityFromNetworkId(ID));
                 }    
             }
             await Task.FromResult(0);
@@ -314,9 +331,9 @@ namespace vstancer_client
 
         public async void StopSync()
         {
-            if (synchedPresets.ContainsKey(playerID))
+            if (synchedPresets.ContainsKey(CurrentVehicleNetID))
             {
-                TriggerServerEvent("vstancer:clientUnsync");
+                TriggerServerEvent("vstancer:clientUnsync", CurrentVehicleNetID);
             }
             await Task.FromResult(0);
         }
@@ -325,6 +342,7 @@ namespace vstancer_client
         {
             int frontCount = currentPreset.frontCount;
             TriggerServerEvent("vstancer:clientSync",
+                CurrentVehicleNetID,
             currentPreset.wheelsCount,
             currentPreset.currentWheelsRot[0],
             currentPreset.currentWheelsRot[frontCount],
@@ -337,7 +355,7 @@ namespace vstancer_client
             );
 
             if (debug)
-                Debug.WriteLine("VSTANCER: Sent preset to the server ID={0}", playerID);
+                Debug.WriteLine("VSTANCER: Sent preset to the server netID={0} Entity={1} EntityFromNetID={2}", CurrentVehicleNetID, currentVehicle, NetworkGetEntityFromNetworkId(CurrentVehicleNetID));
 
             await Task.FromResult(0);
         }
@@ -348,7 +366,7 @@ namespace vstancer_client
             synchedPresets[ID] = preset;
 
             if (debug)
-                Debug.WriteLine("VSTANCER: Received preset for Player ID={0}", ID);
+                Debug.WriteLine("VSTANCER: Received preset for netID={0} EntityFromNetID={1}", ID, NetworkGetEntityFromNetworkId(ID));
 
             await Task.FromResult(0);
         }
@@ -368,22 +386,20 @@ namespace vstancer_client
 
         public async void RefreshSynchedPreset(int ID)
         {
-            int player = GetPlayerFromServerId(ID);
-            int ped = GetPlayerPed(player);
+            int entity = NetworkGetEntityFromNetworkId(ID);
 
-            Vector3 currentCoords = GetEntityCoords(playerPed, true);
-            Vector3 coords = GetEntityCoords(ped, true);
-
-            if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
+            if (DoesEntityExist(entity))
             {
-                int vehicle = GetVehiclePedIsIn(ped, false);
-                if (DoesEntityExist(vehicle) && GetPedInVehicleSeat(vehicle, -1) == ped)
+                Vector3 currentCoords = GetEntityCoords(playerPed, true);
+                Vector3 entityCoords = GetEntityCoords(entity, true);
+
+                if (Vector3.Distance(currentCoords, entityCoords) <= maxSyncDistance)
                 {
                     vstancerPreset vehPreset = synchedPresets[ID];
                     for (int index = 0; index < vehPreset.wheelsCount; index++)
                     {
-                        SetVehicleWheelXOffset(vehicle, index, vehPreset.currentWheelsOffset[index]);
-                        SetVehicleWheelXrot(vehicle, index, vehPreset.currentWheelsRot[index]);
+                        SetVehicleWheelXOffset(entity, index, vehPreset.currentWheelsOffset[index]);
+                        SetVehicleWheelXrot(entity, index, vehPreset.currentWheelsRot[index]);
                     }
                 }
             }
@@ -399,7 +415,7 @@ namespace vstancer_client
                 int player = GetPlayerFromServerId(ID);
                 string name = GetPlayerName(player);
 
-                Debug.WriteLine("Player: {0}({1})", name, ID);
+                Debug.WriteLine("Preset: netID={0} EntityFromNetID={1}", ID, NetworkGetEntityFromNetworkId(ID));
             }
             await Task.FromResult(0);
         }

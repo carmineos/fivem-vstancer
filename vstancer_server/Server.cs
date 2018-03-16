@@ -22,10 +22,10 @@ namespace vstancer_server
         {
             LoadConfig();
 
-            EventHandlers["vstancer:clientUnsync"] += new Action<Player>(BroadcastRemovePreset);
-            EventHandlers["vstancer:clientSync"] += new Action<Player, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
+            EventHandlers["vstancer:clientUnsync"] += new Action<Player,int>(BroadcastRemovePreset);
+            EventHandlers["vstancer:clientSync"] += new Action<Player, int, int, float, float, float, float, float, float, float, float>(BroadcastAddPreset);
             EventHandlers["vstancer:clientReady"] += new Action<Player>(BroadcastDictionary);
-            EventHandlers["playerDropped"] += new Action<Player>(BroadcastRemovePreset);
+            //EventHandlers["playerDropped"] += new Action<Player>(BroadcastRemovePreset);
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
@@ -80,32 +80,31 @@ namespace vstancer_server
             await Task.FromResult(0);
         }
 
-        private static async void BroadcastRemovePreset([FromSource]Player player)
+        private static async void BroadcastRemovePreset([FromSource]Player player,int netID)
         {
-            int playerID = int.Parse(player.Handle);
-            if (presetsDictionary.ContainsKey(playerID))
+            if (presetsDictionary.ContainsKey(netID))
             {
-                bool removed = presetsDictionary.Remove(playerID);
+                bool removed = presetsDictionary.Remove(netID);
                 if (removed)
                 {
-                    TriggerClientEvent("vstancer:removePreset", playerID);
+                    TriggerClientEvent("vstancer:removePreset", netID);
 
                     if (debug)
-                        Debug.WriteLine("VSTANCER: Removed preset for Player={0}({1})", player.Name, player.Handle);
+                        Debug.WriteLine("VSTANCER: Removed preset for netID={0}", netID);
                 }
             }
             await Task.FromResult(0);
         }
 
-        private static async void BroadcastAddPreset([FromSource]Player player, int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
+        private static async void BroadcastAddPreset([FromSource]Player player, int netID, int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
         {
-            int playerID = int.Parse(player.Handle);
+            //int playerID = int.Parse(player.Handle);
             vstancerPreset preset = new vstancerPreset(count, currentRotFront, currentRotRear, currentOffFront, currentOffRear, defRotFront, defRotRear, defOffFront, defOffRear);
 
-            presetsDictionary[playerID] = preset;
+            presetsDictionary[netID] = preset;
 
             TriggerClientEvent("vstancer:addPreset",
-                playerID,
+                netID,
                 count,
                 currentRotFront,
                 currentRotRear,
@@ -118,7 +117,7 @@ namespace vstancer_server
                 );
 
             if (debug)
-                Debug.WriteLine("VSTANCER: Added preset for Player={0}({1})", player.Name, player.Handle);
+                Debug.WriteLine("VSTANCER: Added preset for netID={0}", netID);
 
             await Task.FromResult(0);
         }
@@ -128,7 +127,7 @@ namespace vstancer_server
             Debug.WriteLine("VSTANCER: Synched Presets Count={0}", presetsDictionary.Count.ToString());
             Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3}", maxOffset, maxCamber, timer, debug);
             foreach (int ID in presetsDictionary.Keys)
-                Debug.WriteLine("Player ID={0}", ID);
+                Debug.WriteLine("Preset netID={0}", ID);
             await Task.FromResult(0);
         }
 
