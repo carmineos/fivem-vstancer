@@ -27,6 +27,12 @@ namespace vstancer_server
             EventHandlers["vstancer:clientReady"] += new Action<Player>(BroadcastDictionary);
             //EventHandlers["playerDropped"] += new Action<Player>(BroadcastRemovePreset);
 
+            /*EventHandlers.Add("playerDropped", new Action<Player>((player) =>
+            { 
+                //Reset dictionary if there is no player online
+                if()
+            }));*/
+
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
                 PrintDictionary();
@@ -76,6 +82,8 @@ namespace vstancer_server
                     preset.defaultWheelsOffset[frontCount]
                     );
             }
+            TriggerClientEvent(player, "vstancer:initializeClient", true);
+
             Debug.WriteLine("VSTANCER: Sent synched presets({0}) to Player={1}({2})", presetsDictionary.Count, player.Name, player.Handle);
             await Task.FromResult(0);
         }

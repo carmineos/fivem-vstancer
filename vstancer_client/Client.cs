@@ -23,7 +23,7 @@ namespace vstancer_client
         private static int toggleMenu;
 
         private static long lastTime;
-        private static bool initialised = false;
+        private static bool? initialised = null; // Null before first tick, on first tick notify server and becomes false, once got a reply from server becomes true
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
 
         private int playerPed;
@@ -160,6 +160,11 @@ namespace vstancer_client
 
             EventHandlers.Add("vstancer:addPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SavePreset));
             EventHandlers.Add("vstancer:removePreset", new Action<int>(RemovePreset));
+            EventHandlers.Add("vstancer:initializeClient", new Action<bool>((value) =>
+            {
+                initialised = value;
+            }));
+
             EventHandlers.Add("vstancer:maxOffset", new Action<float>((new_maxOffset) =>
             {
                 maxOffset = new_maxOffset;
@@ -198,16 +203,20 @@ namespace vstancer_client
         {
             _menuPool.ProcessMenus();
 
-            playerPed = GetPlayerPed(-1);
-
             // On first tick notify the server that the client is ready to receive info
-            if (!initialised)
+            if (initialised != true)
             {
-                initialised = true;
-                TriggerServerEvent("vstancer:clientReady");
+                //initialised = true; // Should maybe wait to receive presets from server
+                if(initialised != false)
+                {
+                    initialised = false;
+                    TriggerServerEvent("vstancer:clientReady");
+                }
             }
-            else
+            else // Be sure to don't do anything until initialised
             {
+                playerPed = GetPlayerPed(-1);
+
                 // Check if the server has to be notified about the status of the current preset
                 if ((GetGameTimer() - lastTime) > timer)
                 {
@@ -289,10 +298,8 @@ namespace vstancer_client
                         wheelsEditorMenu.Visible = false;
                 }
 
-
                 // Current preset is always refreshed
-                if(currentVehicle != 0 && currentPreset != null)
-                    RefreshLocalPreset();
+                RefreshLocalPreset();
 
                 // Refresh entities of all the local netIDs synched with the server dictionary
                 IEnumerable<int> refresh = synchedPresets.Keys.Where(key => key != currentVehicleNetID);
@@ -404,14 +411,20 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
+        /// <summary>
+        /// Refreshes the entity of currentVehicle using values from currentPreset
+        /// </summary>
         public async void RefreshLocalPreset()
         {
-            if (DoesEntityExist(currentVehicle))
+            if (currentVehicle != 0 && currentPreset != null)
             {
-                for (int index = 0; index < currentPreset.wheelsCount; index++)
+                if (DoesEntityExist(currentVehicle))
                 {
-                    SetVehicleWheelXOffset(currentVehicle, index, currentPreset.currentWheelsOffset[index]);
-                    SetVehicleWheelXrot(currentVehicle, index, currentPreset.currentWheelsRot[index]);
+                    for (int index = 0; index < currentPreset.wheelsCount; index++)
+                    {
+                        SetVehicleWheelXOffset(currentVehicle, index, currentPreset.currentWheelsOffset[index]);
+                        SetVehicleWheelXrot(currentVehicle, index, currentPreset.currentWheelsRot[index]);
+                    }
                 }
             }
             await Task.FromResult(0);
