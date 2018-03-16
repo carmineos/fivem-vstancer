@@ -13,7 +13,7 @@ namespace vstancer_client
 {
     public class Client : BaseScript
     {
-        #region CONFIG
+        // Config fields
         private static float editingFactor;
         private static float maxSyncDistance;
         private static float maxOffset;
@@ -21,20 +21,16 @@ namespace vstancer_client
         private static long timer;
         private static bool debug;
         private static int toggleMenu;
-        #endregion
 
         private static long lastTime;
         private static bool initialised = false;
         private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
 
-        //private static int playerID;
         private int playerPed;
 
         private int currentVehicle;
         private vstancerPreset currentPreset;
-
-        //FIX THIS SO IT ISN'T CALLED IF currentVehicle isn't set or doesn't exist
-        public int CurrentVehicleNetID;
+        private int currentVehicleNetID;
 
         #region GUI
         private MenuPool _menuPool;
@@ -164,8 +160,8 @@ namespace vstancer_client
             currentPreset = new vstancerPreset(4, new float[4] { 0, 0, 0, 0 }, new float[4] { 0, 0, 0, 0 });
             InitialiseMenu();
 
-            EventHandlers.Add("vstancer:addPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SaveSynchedPreset));
-            EventHandlers.Add("vstancer:removePreset", new Action<int>(RemoveSynchedPreset));
+            EventHandlers.Add("vstancer:addPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SavePreset));
+            EventHandlers.Add("vstancer:removePreset", new Action<int>(RemovePreset));
             EventHandlers.Add("vstancer:maxOffset", new Action<float>((new_maxOffset) =>
             {
                 maxOffset = new_maxOffset;
@@ -206,26 +202,28 @@ namespace vstancer_client
 
             playerPed = GetPlayerPed(-1);
 
-            //FIRST TICK
+            // On first tick notify the server that the client is ready to receive info
             if (!initialised)
             {
                 initialised = true;
                 TriggerServerEvent("vstancer:clientReady");
             }
             
-            //RESYNC EACH TIMER
+            // Check if the server has to be notified about the status of the current preset
             if ((GetGameTimer() - lastTime) > timer)
             {
+                // If current preset hasn't default values
                 if (currentPreset.HasBeenEdited)
                 {
-                    bool isSynched = synchedPresets.ContainsKey(CurrentVehicleNetID);
-                    /*if (!isSynched || (isSynched && !synchedPresets[CurrentVehicleNetID].Equals(currentPreset)))
-                        Synch();*/
+                    bool isSynched = synchedPresets.ContainsKey(currentVehicleNetID);
+                    if (!isSynched || (isSynched && !synchedPresets[currentVehicleNetID].Equals(currentPreset)))
+                        NotifyServerAdd(currentVehicleNetID, currentPreset);
 
+                    /** DEBUG
                     #region DEBUG
                     if (!isSynched)
                     {
-                        Synch();
+                        NotifyServerAdd(CurrentVehicleNetID, currentPreset);
                         Debug.WriteLine("Is not synched");
                     }
                     else
@@ -235,14 +233,15 @@ namespace vstancer_client
                             Debug.WriteLine("Synched but not equal");
                             Debug.WriteLine("synched: {0}", synchedPresets[CurrentVehicleNetID].ToString());
                             Debug.WriteLine("current: {0}", currentPreset.ToString());
-                            Synch();
+                            NotifyServerAdd(CurrentVehicleNetID, currentPreset);
                         }
 
-                    } 
+                    }
                     #endregion
+                    */
                 }
-                else
-                    StopSync();
+                else // Probably the preset has been reset
+                    NotifyServerRemove(currentVehicleNetID);
 
                 lastTime = GetGameTimer();
             }
@@ -263,7 +262,7 @@ namespace vstancer_client
                         else
                             currentPreset = CreatePresetFromVehicle(vehicle);
 
-                        CurrentVehicleNetID = netID;
+                        currentVehicleNetID = netID;
                         currentVehicle = vehicle;
                         InitialiseMenu();
                     }
@@ -284,32 +283,43 @@ namespace vstancer_client
                     wheelsEditorMenu.Visible = false;
             }
 
+
+            // Current preset is always refreshed
             RefreshLocalPreset();
-            IEnumerable<int> refresh = synchedPresets.Keys.Where(key => key != CurrentVehicleNetID);  //Avoid using CurrentVehicleNetID as Property
+
+            // Refresh entities of all the local netIDs synched with the server dictionary
+            IEnumerable<int> refresh = synchedPresets.Keys.Where(key => key != currentVehicleNetID);
             foreach (int ID in refresh)
             {
                 if (NetworkDoesNetworkIdExist(ID))
-                    RefreshSynchedPreset(ID);
-                else
-                    RemoveSynchedPreset(ID);
+                    UpdateEntityByNetID(ID);
+                else // If any ID doesn't exist then notify the server to remove it
+                    NotifyServerRemove(ID);
             }
 
             await Task.FromResult(0);
         }
 
-        public async void RemoveSynchedPreset(int ID)
+        /// <summary>
+        /// Removes the <paramref name="ID"/> from the local dictionary
+        /// </summary>
+        /// <param name="ID"></param>
+        public async void RemovePreset(int ID)
         {
             if (synchedPresets.ContainsKey(ID))
             {
-                synchedPresets[ID].ResetDefault(); //FORCED
-                RefreshSynchedPreset(ID); //FORCED
+                // If the netID exists, it's probably a reset, and if no player is in the vehicle then it requires to be forced
+                if (NetworkDoesNetworkIdExist(ID))
+                {
+                    synchedPresets[ID].ResetDefault(); //FORCED
+                    UpdateEntityByNetID(ID); //FORCED
+                }
 
                 bool removed = synchedPresets.Remove(ID);
                 if (removed)
                 {
                     if (debug)
                         Debug.WriteLine("VSTANCER: Removed preset for netID={0}", ID);
-                    //Debug.WriteLine("VSTANCER: Removed preset for netID={0} EntityFromNetID={1}", ID, NetworkGetEntityFromNetworkId(ID));
                 }    
             }
             await Task.FromResult(0);
@@ -329,38 +339,51 @@ namespace vstancer_client
             return (new vstancerPreset(wheelsCount, defaultWheelsRot, defaultWheelsOffset));
         }
 
-        public async void StopSync()
+        /// <summary>
+        /// Triggers the event to tell the server to remove a netID from the dictionary
+        /// </summary>
+        /// <param name="netID">The netID the server has to remove</param>
+        public async void NotifyServerRemove(int netID)
         {
-            if (synchedPresets.ContainsKey(CurrentVehicleNetID))
+            if (synchedPresets.ContainsKey(netID))
             {
-                TriggerServerEvent("vstancer:clientUnsync", CurrentVehicleNetID);
+                TriggerServerEvent("vstancer:clientUnsync", netID);
             }
             await Task.FromResult(0);
         }
 
-        public async void Synch()
+        /// <summary>
+        /// Triggers the event to tell the server to add a netID in the dictionary
+        /// </summary>
+        /// <param name="netID">The netID the server has to add</param>
+        /// <param name="preset">The preset linked to the <paramref name="netID"/></param>
+        public async void NotifyServerAdd(int netID , vstancerPreset preset)
         {
             int frontCount = currentPreset.frontCount;
             TriggerServerEvent("vstancer:clientSync",
-                CurrentVehicleNetID,
-            currentPreset.wheelsCount,
-            currentPreset.currentWheelsRot[0],
-            currentPreset.currentWheelsRot[frontCount],
-            currentPreset.currentWheelsOffset[0],
-            currentPreset.currentWheelsOffset[frontCount],
-            currentPreset.defaultWheelsRot[0],
-            currentPreset.defaultWheelsRot[frontCount],
-            currentPreset.defaultWheelsOffset[0],
-            currentPreset.defaultWheelsOffset[frontCount]
+                netID,
+            preset.wheelsCount,
+            preset.currentWheelsRot[0],
+            preset.currentWheelsRot[frontCount],
+            preset.currentWheelsOffset[0],
+            preset.currentWheelsOffset[frontCount],
+            preset.defaultWheelsRot[0],
+            preset.defaultWheelsRot[frontCount],
+            preset.defaultWheelsOffset[0],
+            preset.defaultWheelsOffset[frontCount]
             );
 
             if (debug)
-                Debug.WriteLine("VSTANCER: Sent preset to the server netID={0} Entity={1} EntityFromNetID={2}", CurrentVehicleNetID, currentVehicle, NetworkGetEntityFromNetworkId(CurrentVehicleNetID));
+                Debug.WriteLine("VSTANCER: Sent preset to the server netID={0} Entity={1} EntityFromNetID={2}", currentVehicleNetID, currentVehicle, NetworkGetEntityFromNetworkId(currentVehicleNetID));
 
             await Task.FromResult(0);
         }
 
-        public static async void SaveSynchedPreset(int ID, int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
+        /// <summary>
+        /// Creates a preset from values reived from the server and saves it in the local dictionary
+        /// </summary>
+        /// <param name="ID">The netID linked to the preset</param>
+        public static async void SavePreset(int ID, int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
         {
             vstancerPreset preset = new vstancerPreset(count, currentRotFront, currentRotRear, currentOffFront, currentOffRear, defRotFront, defRotRear, defOffFront, defOffRear);
             synchedPresets[ID] = preset;
@@ -384,7 +407,7 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public async void RefreshSynchedPreset(int ID)
+        public async void UpdateEntityByNetID(int ID)
         {
             int entity = NetworkGetEntityFromNetworkId(ID);
 
