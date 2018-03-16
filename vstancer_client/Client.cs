@@ -154,10 +154,8 @@ namespace vstancer_client
 
             lastTime = GetGameTimer();
 
-            //playerID = GetPlayerServerId(PlayerId());
-
             currentVehicle = 0;
-            currentPreset = new vstancerPreset(4, new float[4] { 0, 0, 0, 0 }, new float[4] { 0, 0, 0, 0 });
+            currentPreset = new vstancerPreset();
             InitialiseMenu();
 
             EventHandlers.Add("vstancer:addPreset", new Action<int, int, float, float, float, float, float, float, float, float>(SavePreset));
@@ -208,94 +206,104 @@ namespace vstancer_client
                 initialised = true;
                 TriggerServerEvent("vstancer:clientReady");
             }
-            
-            // Check if the server has to be notified about the status of the current preset
-            if ((GetGameTimer() - lastTime) > timer)
+            else
             {
-                // If current preset hasn't default values
-                if (currentPreset.HasBeenEdited)
+                // Check if the server has to be notified about the status of the current preset
+                if ((GetGameTimer() - lastTime) > timer)
                 {
-                    bool isSynched = synchedPresets.ContainsKey(currentVehicleNetID);
-                    if (!isSynched || (isSynched && !synchedPresets[currentVehicleNetID].Equals(currentPreset)))
-                        NotifyServerAdd(currentVehicleNetID, currentPreset);
-
-                    /** DEBUG
-                    #region DEBUG
-                    if (!isSynched)
+                    // If current preset hasn't default values
+                    if (currentPreset != null && currentPreset.HasBeenEdited)
                     {
-                        NotifyServerAdd(CurrentVehicleNetID, currentPreset);
-                        Debug.WriteLine("Is not synched");
+                        bool isSynched = synchedPresets.ContainsKey(currentVehicleNetID);
+                        if (!isSynched || (isSynched && !synchedPresets[currentVehicleNetID].Equals(currentPreset)))
+                            NotifyServerAdd(currentVehicleNetID, currentPreset);
+
+                        /** DEBUG
+                        #region DEBUG
+                        if (!isSynched)
+                        {
+                            NotifyServerAdd(CurrentVehicleNetID, currentPreset);
+                            Debug.WriteLine("Is not synched");
+                        }
+                        else
+                        {
+                            if (!synchedPresets[CurrentVehicleNetID].Equals(currentPreset))
+                            {
+                                Debug.WriteLine("Synched but not equal");
+                                Debug.WriteLine("synched: {0}", synchedPresets[CurrentVehicleNetID].ToString());
+                                Debug.WriteLine("current: {0}", currentPreset.ToString());
+                                NotifyServerAdd(CurrentVehicleNetID, currentPreset);
+                            }
+
+                        }
+                        #endregion
+                        */
+                    }
+                    else // Probably the preset has been reset
+                        NotifyServerRemove(currentVehicleNetID);
+
+                    lastTime = GetGameTimer();
+                }
+
+                //CURRENT VEHICLE/PRESET HANDLER
+                if (IsPedInAnyVehicle(playerPed, false))
+                {
+                    int vehicle = GetVehiclePedIsIn(playerPed, false);
+
+                    if (IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle, -1) == playerPed && !IsEntityDead(vehicle))
+                    {
+                        // Update current vehicle and get its preset
+                        int netID = NetworkGetNetworkIdFromEntity(vehicle);
+                        if (vehicle != currentVehicle)
+                        {
+                            if (synchedPresets.ContainsKey(netID))
+                                currentPreset = synchedPresets[netID];
+                            else
+                                currentPreset = CreatePresetFromVehicle(vehicle);
+
+                            currentVehicleNetID = netID;
+                            currentVehicle = vehicle;
+                            InitialiseMenu();
+                        }
+
+                        if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu)) // TOGGLE MENU VISIBLE
+                            wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
                     }
                     else
                     {
-                        if (!synchedPresets[CurrentVehicleNetID].Equals(currentPreset))
-                        {
-                            Debug.WriteLine("Synched but not equal");
-                            Debug.WriteLine("synched: {0}", synchedPresets[CurrentVehicleNetID].ToString());
-                            Debug.WriteLine("current: {0}", currentPreset.ToString());
-                            NotifyServerAdd(CurrentVehicleNetID, currentPreset);
-                        }
-
+                        // If current vehicle isn't a car or player isn't driving current vehicle or vehicle is dead
+                        currentPreset = null;
+                        currentVehicle = 0;
+                        currentVehicleNetID = 0;
                     }
-                    #endregion
-                    */
-                }
-                else // Probably the preset has been reset
-                    NotifyServerRemove(currentVehicleNetID);
-
-                lastTime = GetGameTimer();
-            }
-
-            //CURRENT VEHICLE/PRESET HANDLER
-            if (IsPedInAnyVehicle(playerPed, false))
-            {
-                int vehicle = GetVehiclePedIsIn(playerPed, false);
-
-                if (IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle, -1) == playerPed && !IsEntityDead(vehicle))
-                {
-                    int netID = NetworkGetNetworkIdFromEntity(vehicle);
-
-                    if (vehicle != currentVehicle)
-                    {
-                        if (synchedPresets.ContainsKey(netID))
-                            currentPreset = synchedPresets[netID];
-                        else
-                            currentPreset = CreatePresetFromVehicle(vehicle);
-
-                        currentVehicleNetID = netID;
-                        currentVehicle = vehicle;
-                        InitialiseMenu();
-                    }
-
-                    if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu)) // TOGGLE MENU VISIBLE
-                        wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
                 }
                 else
                 {
-                    //If current vehicle isn't a car or player isn't driving current vehicle or vehicle is dead
+                    // If player isn't in any vehicle
+                    currentPreset = null;
+                    currentVehicle = 0;
+                    currentVehicleNetID = 0;
 
+                    //Close menu if opened
+                    if (wheelsEditorMenu.Visible)
+                        wheelsEditorMenu.Visible = false;
                 }
-            }
-            else
-            {
-                //CLOSE MENU IF NOT IN VEHICLE
-                if (wheelsEditorMenu.Visible)
-                    wheelsEditorMenu.Visible = false;
-            }
 
 
-            // Current preset is always refreshed
-            RefreshLocalPreset();
+                // Current preset is always refreshed
+                if(currentVehicle != 0 && currentPreset != null)
+                    RefreshLocalPreset();
 
-            // Refresh entities of all the local netIDs synched with the server dictionary
-            IEnumerable<int> refresh = synchedPresets.Keys.Where(key => key != currentVehicleNetID);
-            foreach (int ID in refresh)
-            {
-                if (NetworkDoesNetworkIdExist(ID))
-                    UpdateEntityByNetID(ID);
-                else // If any ID doesn't exist then notify the server to remove it
+                // Refresh entities of all the local netIDs synched with the server dictionary
+                IEnumerable<int> refresh = synchedPresets.Keys.Where(key => key != currentVehicleNetID);
+                foreach (int ID in refresh)
                 {
-                    NotifyServerRemove(ID);
+                    if (NetworkDoesNetworkIdExist(ID))
+                        UpdateEntityByNetID(ID);
+                    else // If any ID doesn't exist then notify the server to remove it
+                    {
+                        NotifyServerRemove(ID);
+                    }
                 }
             }
 

@@ -73,6 +73,17 @@ namespace vstancer_shared
             }
         }
 
+        public vstancerPreset()
+        {
+            wheelsCount = 4;
+            frontCount = 2;
+
+            _defaultWheelsRot = new float[] { 0, 0, 0, 0 };
+            _defaultWheelsOffset = new float[] { 0, 0, 0, 0 };
+            currentWheelsRot = new float[] { 0, 0, 0, 0 };
+            currentWheelsOffset = new float[] { 0, 0, 0, 0 };
+        }
+
         public vstancerPreset(int count, float[] defRot, float[] defOff)
         {
             wheelsCount = count;
