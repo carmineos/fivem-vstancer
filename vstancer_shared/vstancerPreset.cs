@@ -172,5 +172,35 @@ namespace vstancer_shared
             return true;
         }
 
+        public override string ToString()
+        {
+            string s = string.Format("Wheels count: {0} Front count: {1}", wheelsCount, frontCount);
+
+            string defOf = "Defualt offset: ";
+            string defRot = "Defualt rotation: ";
+            string curOff = "Current offset: ";
+            string curRot = "Current rotation: ";
+
+            for (int i = 0; i < wheelsCount; i++)
+            {
+                defOf += string.Format("{0}", defaultWheelsOffset[i]);
+                defRot += string.Format("{0}", defaultWheelsRot[i]);
+                curOff += string.Format("{0}", currentWheelsOffset[i]);
+                curRot += string.Format("{0}", currentWheelsRot[i]);
+
+                if(i<wheelsCount-1)
+                {
+                    defOf += " ";
+                    defRot += " ";
+                    curOff += " ";
+                    curRot += " ";
+                }
+            }
+
+            s += Environment.NewLine + defOf + Environment.NewLine + defRot + Environment.NewLine + curOff + Environment.NewLine + curRot;
+
+            return s;   
+        }
+
     }
 }
