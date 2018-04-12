@@ -61,15 +61,14 @@ namespace vstancer_client
                 countValues = (int)(maxOffset / editingFactor);
             }
 
-            var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3));
-
             //POSITIVE VALUES
             for (int i = 0; i <= countValues; i++)
                 values.Add((float)Math.Round(-defaultValue + (i * editingFactor), 3));
             //NEGATIVE VALUES
             for (int i = countValues; i >= 1; i--)
                 values.Add((float)Math.Round(-defaultValue + (-i * editingFactor), 3));
-            
+
+            var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3)); // Index calculated at runtime in case of script restart
             //Debug.WriteLine($"current:{currentValue}, default:{defaultValue}, index:{currentIndex}");
 
             var newitem = new UIMenuListItem(name, values, currentIndex);
