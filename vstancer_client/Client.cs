@@ -13,7 +13,7 @@ namespace vstancer_client
 {
     public class Client : BaseScript
     {
-        #region CONFIG FIEDS
+        #region CONFIG_FIEDS
         private static float editingFactor;
         private static float maxSyncDistance;
         private static float maxOffset;
@@ -23,11 +23,11 @@ namespace vstancer_client
         private static int toggleMenu;
         #endregion
 
-        #region DECORATORS NAMES
-        private string decorOffsetPrefix = "vstancer_offset_";
-        private string decorRotationPrefix = "vstancer_rotation_";
-        private string decorDefaultOffsetPrefix = "vstancer_offset_default_";
-        private string decorDefaultRotationPrefix = "vstancer_rotation_default_";
+        #region DECORATORS_NAMES
+        private static string decorOffsetPrefix = "vstancer_offset_";
+        private static string decorRotationPrefix = "vstancer_rotation_";
+        private static string decorDefaultOffsetPrefix = "vstancer_offset_default_";
+        private static string decorDefaultRotationPrefix = "vstancer_rotation_default_";
         #endregion
 
         #region FIELDS
@@ -40,27 +40,28 @@ namespace vstancer_client
         #region GUI
         private MenuPool _menuPool;
         private UIMenu wheelsEditorMenu;
-        //private UIMenuListItem editingFactorGUI;
         private UIMenuListItem frontOffsetGUI;
         private UIMenuListItem rearOffsetGUI;
         private UIMenuListItem frontRotationGUI;
         private UIMenuListItem rearRotationGUI;
 
-        public UIMenuListItem AddMenuListValues(UIMenu menu, string name, int property, float defaultValue)
+        public UIMenuListItem AddMenuListValues(UIMenu menu, string name, int property, float defaultValue, float currentValue)
         {
             int countValues;
             var values = new List<dynamic>();
 
             if (property == 2 || property == 3)
             {
-                defaultValue = -defaultValue;
+                defaultValue = -defaultValue; 
                 countValues = (int)(maxCamber / editingFactor);
             }
             else
             {
+                currentValue = -currentValue;
                 countValues = (int)(maxOffset / editingFactor);
             }
-                
+
+            var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3));
 
             //POSITIVE VALUES
             for (int i = 0; i <= countValues; i++)
@@ -68,8 +69,10 @@ namespace vstancer_client
             //NEGATIVE VALUES
             for (int i = countValues; i >= 1; i--)
                 values.Add((float)Math.Round(-defaultValue + (-i * editingFactor), 3));
+            
+            //Debug.WriteLine($"current:{currentValue}, default:{defaultValue}, index:{currentIndex}");
 
-            var newitem = new UIMenuListItem(name, values, 0);
+            var newitem = new UIMenuListItem(name, values, currentIndex);
             menu.AddItem(newitem);
             menu.OnListChange += (sender, item, index) =>
             {
@@ -106,7 +109,7 @@ namespace vstancer_client
                 if (item == newitem)
                 {
                     currentPreset.ResetDefault();
-                    RemoveDecors();
+                    RemoveDecorators(currentVehicle);
 
                     InitialiseMenu();
                     wheelsEditorMenu.Visible = true;
@@ -120,10 +123,10 @@ namespace vstancer_client
             wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, 0));
             _menuPool.Add(wheelsEditorMenu);
 
-            frontOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Front Track Width", 0, currentPreset.currentWheelsOffset[0]);
-            frontRotationGUI = AddMenuListValues(wheelsEditorMenu, "Front Camber", 2, currentPreset.currentWheelsRot[0]);
-            rearOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Rear Track Width", 1, currentPreset.currentWheelsOffset[currentPreset.frontCount]);
-            rearRotationGUI = AddMenuListValues(wheelsEditorMenu, "Rear Camber", 3, currentPreset.currentWheelsRot[currentPreset.frontCount]);
+            frontOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Front Track Width", 0, currentPreset.defaultWheelsOffset[0], currentPreset.currentWheelsOffset[0]);
+            frontRotationGUI = AddMenuListValues(wheelsEditorMenu, "Front Camber", 2, currentPreset.defaultWheelsRot[0], currentPreset.currentWheelsRot[0]);
+            rearOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Rear Track Width", 1, currentPreset.defaultWheelsOffset[currentPreset.frontCount], currentPreset.currentWheelsOffset[currentPreset.frontCount]);
+            rearRotationGUI = AddMenuListValues(wheelsEditorMenu, "Rear Camber", 3, currentPreset.defaultWheelsRot[currentPreset.frontCount], currentPreset.currentWheelsRot[currentPreset.frontCount]);
 
             AddMenuReset(wheelsEditorMenu);
             wheelsEditorMenu.MouseEdgeEnabled = false;
@@ -139,7 +142,7 @@ namespace vstancer_client
 
             lastTime = GetGameTimer();
 
-            currentVehicle = 0;
+            currentVehicle = -1;
             currentPreset = new vstancerPreset();
             InitialiseMenu();
 
@@ -163,13 +166,13 @@ namespace vstancer_client
                 debug = bool.Parse(args[0]);
                 Debug.WriteLine("VSTANCER: Received new debug value {0}", debug.ToString());
             }), false);
+            RegisterCommand("vstancer_info", new Action<int, dynamic>((source, args) =>
+            {
+                PrintDecoratorsInfo(currentVehicle);
+            }), false);
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
-                PrintVstancerDecors();
-            }), false);
-            RegisterCommand("vstancer_list", new Action<int, dynamic>((source, args) =>
-            {
-                PrintListVehiclesWithDecors();
+                PrintVehiclesWithDecorators();
             }), false);
             Tick += OnTick;
         }
@@ -217,13 +220,13 @@ namespace vstancer_client
             }
 
             // Current preset is always refreshed
-            RefreshLocalPreset();
+            RefreshCurrentVehicle();
 
             // Check decorators needs to be updated
             if ((GetGameTimer() - lastTime) > timer)
             {
                 if (currentVehicle != -1 && currentPreset != null)
-                    UpdateDecorsOnCurrentVehicle();
+                    UpdateVehicleDecorators(currentVehicle, currentPreset);
                 lastTime = GetGameTimer();
             }
 
@@ -233,9 +236,12 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public async void RemoveDecors()
+        /// <summary>
+        /// Removes the decorators from the <paramref name="vehicle"/>
+        /// </summary>
+        /// <param name="vehicle"></param>
+        private async void RemoveDecorators(int vehicle)
         {
-            int vehicle = currentVehicle;
             int wheelsCount = GetVehicleNumberOfWheels(currentVehicle);
             string decorName;
 
@@ -261,11 +267,13 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public async void UpdateDecorsOnCurrentVehicle()
+        /// <summary>
+        /// Updates the decorators on the <paramref name="vehicle"/> with updated values from the <paramref name="preset"/>
+        /// </summary>
+        /// <param name="vehicle"></param>
+        private async void UpdateVehicleDecorators(int vehicle, vstancerPreset preset)
         {
-            int vehicle = currentVehicle;
             int wheelsCount = GetVehicleNumberOfWheels(currentVehicle);
-
             string decorName;
 
             for (int index = 0; index < wheelsCount; index++)
@@ -274,14 +282,14 @@ namespace vstancer_client
                 if (DecorExistOn(vehicle, decorName))
                 {
                     float value = DecorGetFloat(vehicle, decorName);
-                    if (value != currentPreset.defaultWheelsOffset[index])
-                        DecorSetFloat(vehicle, decorName, currentPreset.defaultWheelsOffset[index]);
+                    if (value != preset.defaultWheelsOffset[index])
+                        DecorSetFloat(vehicle, decorName, preset.defaultWheelsOffset[index]);
                 }else
                 {
-                    if(currentPreset.defaultWheelsOffset[index] != currentPreset.currentWheelsOffset[index])
+                    if(preset.defaultWheelsOffset[index] != preset.currentWheelsOffset[index])
                     {
                         DecorRegister(decorName, 1);
-                        DecorSetFloat(vehicle, decorName, currentPreset.defaultWheelsOffset[index]);
+                        DecorSetFloat(vehicle, decorName, preset.defaultWheelsOffset[index]);
                     }
                 }
 
@@ -289,15 +297,15 @@ namespace vstancer_client
                 if (DecorExistOn(vehicle, decorName))
                 {
                     float value = DecorGetFloat(vehicle, decorName);
-                    if (value != currentPreset.defaultWheelsRot[index])
-                        DecorSetFloat(vehicle, decorName, currentPreset.defaultWheelsRot[index]);
+                    if (value != preset.defaultWheelsRot[index])
+                        DecorSetFloat(vehicle, decorName, preset.defaultWheelsRot[index]);
                 }
                 else
                 {
-                    if (currentPreset.defaultWheelsRot[index] != currentPreset.currentWheelsRot[index])
+                    if (preset.defaultWheelsRot[index] != preset.currentWheelsRot[index])
                     {
                         DecorRegister(decorName, 1);
-                        DecorSetFloat(vehicle, decorName, currentPreset.defaultWheelsRot[index]);
+                        DecorSetFloat(vehicle, decorName, preset.defaultWheelsRot[index]);
                     }
                 }
 
@@ -305,15 +313,15 @@ namespace vstancer_client
                 if (DecorExistOn(vehicle, decorName))
                 {
                     float value = DecorGetFloat(vehicle, decorName);
-                    if (value != currentPreset.currentWheelsOffset[index])
-                        DecorSetFloat(vehicle, decorName, currentPreset.currentWheelsOffset[index]);
+                    if (value != preset.currentWheelsOffset[index])
+                        DecorSetFloat(vehicle, decorName, preset.currentWheelsOffset[index]);
                 }
                 else
                 {
-                    if (currentPreset.defaultWheelsOffset[index] != currentPreset.currentWheelsOffset[index])
+                    if (preset.defaultWheelsOffset[index] != preset.currentWheelsOffset[index])
                     {
                         DecorRegister(decorName, 1);
-                        DecorSetFloat(vehicle, decorName, currentPreset.currentWheelsOffset[index]);
+                        DecorSetFloat(vehicle, decorName, preset.currentWheelsOffset[index]);
                     }
                 }
 
@@ -321,15 +329,15 @@ namespace vstancer_client
                 if (DecorExistOn(vehicle, decorName))
                 {
                     float value = DecorGetFloat(vehicle, decorName);
-                    if (value != currentPreset.currentWheelsRot[index])
-                        DecorSetFloat(vehicle, decorName, currentPreset.currentWheelsRot[index]);
+                    if (value != preset.currentWheelsRot[index])
+                        DecorSetFloat(vehicle, decorName, preset.currentWheelsRot[index]);
                 }
                 else
                 {
-                    if (currentPreset.defaultWheelsOffset[index] != currentPreset.currentWheelsOffset[index])
+                    if (preset.defaultWheelsOffset[index] != preset.currentWheelsOffset[index])
                     {
                         DecorRegister(decorName, 1);
-                        DecorSetFloat(vehicle, decorName, currentPreset.currentWheelsRot[index]);
+                        DecorSetFloat(vehicle, decorName, preset.currentWheelsRot[index]);
                     }
                 }
 
@@ -338,7 +346,12 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public vstancerPreset CreatePreset(int vehicle)
+        /// <summary>
+        /// Creates a preset for the <paramref name="vehicle"/> to edit it locally
+        /// </summary>
+        /// <param name="vehicle"></param>
+        /// <returns></returns>
+        private vstancerPreset CreatePreset(int vehicle)
         {
             string decorName;
 
@@ -377,7 +390,10 @@ namespace vstancer_client
             return preset;
         }
 
-        public async void RefreshLocalPreset()
+        /// <summary>
+        /// Refreshes the current vehicle with values from the current preset
+        /// </summary>
+        private async void RefreshCurrentVehicle()
         {
             if (currentVehicle != -1 && currentPreset != null)
             {
@@ -393,7 +409,10 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public async void IterateVehicles()
+        /// <summary>
+        /// Iterates all the vehicle entities
+        /// </summary>
+        private async void IterateVehicles()
         {
             int entity = -1;
             int handle = FindFirstVehicle(ref entity);
@@ -408,7 +427,7 @@ namespace vstancer_client
                         Vector3 coords = GetEntityCoords(entity, true);
 
                         if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
-                            RefreshVehicleWithDecor(entity);
+                            RefreshVehicle(entity);
                     }
                 }
                 EndFindVehicle(handle);
@@ -416,7 +435,11 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public async void RefreshVehicleWithDecor(int vehicle)
+        /// <summary>
+        /// Refreshes the <paramref name="vehicle"/> with values from its decorators (if exist)
+        /// </summary>
+        /// <param name="vehicle"></param>
+        private async void RefreshVehicle(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             for (int index = 0; index < wheelsCount; index++)
@@ -438,15 +461,16 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public async void PrintVstancerDecors()
+        /// <summary>
+        /// Prints the values of the decorators used on the <paramref name="vehicle"/>
+        /// </summary>
+        private async void PrintDecoratorsInfo(int vehicle)
         {
-            int vehicle = currentVehicle;
-
             if (DoesEntityExist(vehicle))
             {
                 int wheelsCount = GetVehicleNumberOfWheels(vehicle);
                 int netID = NetworkGetNetworkIdFromEntity(vehicle);
-                Debug.WriteLine($"Vehicle: {vehicle}, wheelsCount: {wheelsCount}, netID: {netID}");
+                Debug.WriteLine($"VSTANCER: Vehicle: {vehicle}, wheelsCount: {wheelsCount}, netID: {netID}");
                 for (int index = 0; index < wheelsCount; index++)
                 {
                     string decorOffsetName = decorOffsetPrefix + index.ToString();
@@ -468,7 +492,10 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public async void PrintListVehiclesWithDecors()
+        /// <summary>
+        /// Prints the list of vehicles using any vstancer decorator.
+        /// </summary>
+        private async void PrintVehiclesWithDecorators()
         {
             List<int> list = new List<int>();
             int entity = -1;
@@ -478,20 +505,17 @@ namespace vstancer_client
             {
                 while (FindNextVehicle(handle, ref entity))
                 {
-                    if (entity != currentVehicle)
+                    int wheelsCount = GetVehicleNumberOfWheels(entity);
+
+                    for (int index = 0; index < wheelsCount; index++)
                     {
-                        
-                        int wheelsCount = GetVehicleNumberOfWheels(entity);
-                        for (int index = 0; index < wheelsCount; index++)
-                        {
-                            if (
-                                DecorExistOn(entity, decorDefaultOffsetPrefix + index.ToString()) ||
-                                DecorExistOn(entity, decorDefaultRotationPrefix + index.ToString()) ||
-                                DecorExistOn(entity, decorOffsetPrefix + index.ToString()) ||
-                                DecorExistOn(entity, decorRotationPrefix + index.ToString())
-                                )
-                                list.Add(entity);
-                        }
+                        if (
+                            DecorExistOn(entity, decorDefaultOffsetPrefix + index.ToString()) ||
+                            DecorExistOn(entity, decorDefaultRotationPrefix + index.ToString()) ||
+                            DecorExistOn(entity, decorOffsetPrefix + index.ToString()) ||
+                            DecorExistOn(entity, decorRotationPrefix + index.ToString())
+                            )
+                            list.Add(entity);
                     }
                 }
                 EndFindVehicle(handle);
