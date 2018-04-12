@@ -5,7 +5,7 @@ The script allows to edit the camber and the track width of the wheels.<br />
 When a client edits something, it will be automatically synchronized.<br />
 If a client resets the settings it will stop from being synchronized until he changes something again.<br />
 
-This version of the script tries to achieve the result without using decorators.<br />
+This version of the script tries to achieve the result using decorators.<br />
 F6 Opens the menu to edit the wheels<br />
 
 **CLIENT COMMANDS**<br />
