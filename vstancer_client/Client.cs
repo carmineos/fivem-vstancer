@@ -13,7 +13,7 @@ namespace vstancer_client
 {
     public class Client : BaseScript
     {
-        // Config fields
+        #region CONFIG FIEDS
         private static float editingFactor;
         private static float maxSyncDistance;
         private static float maxOffset;
@@ -21,14 +21,21 @@ namespace vstancer_client
         private static long timer;
         private static bool debug;
         private static int toggleMenu;
+        #endregion
 
+        #region DECORATORS NAMES
+        private string decorOffsetPrefix = "vstancer_offset_";
+        private string decorRotationPrefix = "vstancer_rotation_";
+        private string decorDefaultOffsetPrefix = "vstancer_offset_default_";
+        private string decorDefaultRotationPrefix = "vstancer_rotation_default_";
+        #endregion
+
+        #region FIELDS
         private static long lastTime;
-        private static Dictionary<int, vstancerPreset> synchedPresets = new Dictionary<int, vstancerPreset>();
-
         private int playerPed;
-
         private int currentVehicle;
         private vstancerPreset currentPreset;
+        #endregion
 
         #region GUI
         private MenuPool _menuPool;
@@ -89,24 +96,6 @@ namespace vstancer_client
             return newitem;
         }
 
-        /*public UIMenuListItem AddEditingFactorValues(UIMenu menu)
-        {
-            var values = new List<dynamic>() { 0.001f, 0.01f, 0.1f };
-            var newitem = new UIMenuListItem("Editing Factor", values, 1);
-            menu.AddItem(newitem);
-            menu.OnListChange += (sender, item, index) =>
-            {
-                if (item == newitem)
-                {
-                    editingFactor = values[index];
-                    InitialiseMenu();
-                    wheelsEditorMenu.Visible = true;
-                }
-
-            };
-            return newitem;
-        }*/
-
         public void AddMenuReset(UIMenu menu)
         {
             var newitem = new UIMenuItem("Reset", "Restores locally the default values.");
@@ -118,12 +107,9 @@ namespace vstancer_client
                 {
                     currentPreset.ResetDefault();
                     RemoveDecors();
-                    //RefreshLocalPreset();
 
                     InitialiseMenu();
                     wheelsEditorMenu.Visible = true;
-                    
-                    CitizenFX.Core.UI.Screen.ShowNotification("Default values restored");
                 }
             };
         }
@@ -133,7 +119,7 @@ namespace vstancer_client
             _menuPool = new MenuPool();
             wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, 0));
             _menuPool.Add(wheelsEditorMenu);
-            //editingFactorGUI = AddEditingFactorValues(wheelsEditorMenu);
+
             frontOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Front Track Width", 0, currentPreset.currentWheelsOffset[0]);
             frontRotationGUI = AddMenuListValues(wheelsEditorMenu, "Front Camber", 2, currentPreset.currentWheelsRot[0]);
             rearOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Rear Track Width", 1, currentPreset.currentWheelsOffset[currentPreset.frontCount]);
@@ -179,7 +165,11 @@ namespace vstancer_client
             }), false);
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
-                PrintDecors();
+                PrintVstancerDecors();
+            }), false);
+            RegisterCommand("vstancer_list", new Action<int, dynamic>((source, args) =>
+            {
+                PrintListVehiclesWithDecors();
             }), false);
             Tick += OnTick;
         }
@@ -246,16 +236,8 @@ namespace vstancer_client
         public async void RemoveDecors()
         {
             int vehicle = currentVehicle;
-
-            string decorOffsetPrefix = "vstancer_offset_";
-            string decorRotationPrefix = "vstancer_rotation_";
-
-            string decorDefaultOffsetPrefix = "vstancer_offset_default_";
-            string decorDefaultRotationPrefix = "vstancer_rotation_default_";
-
             int wheelsCount = GetVehicleNumberOfWheels(currentVehicle);
-
-            string decorName = string.Empty;
+            string decorName;
 
             for (int index = 0; index < wheelsCount; index++)
             {
@@ -282,16 +264,9 @@ namespace vstancer_client
         public async void UpdateDecorsOnCurrentVehicle()
         {
             int vehicle = currentVehicle;
-
-            string decorOffsetPrefix = "vstancer_offset_";
-            string decorRotationPrefix = "vstancer_rotation_";
-
-            string decorDefaultOffsetPrefix = "vstancer_offset_default_";
-            string decorDefaultRotationPrefix = "vstancer_rotation_default_";
-
             int wheelsCount = GetVehicleNumberOfWheels(currentVehicle);
 
-            string decorName = string.Empty;
+            string decorName;
 
             for (int index = 0; index < wheelsCount; index++)
             {
@@ -365,13 +340,7 @@ namespace vstancer_client
 
         public vstancerPreset CreatePreset(int vehicle)
         {
-            string decorOffsetPrefix = "vstancer_offset_";
-            string decorRotationPrefix = "vstancer_rotation_";
-
-            string decorDefaultOffsetPrefix = "vstancer_offset_default_";
-            string decorDefaultRotationPrefix = "vstancer_rotation_default_";
-
-            string decorName = string.Empty;
+            string decorName;
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             float[] defaultWheelsRot = new float[wheelsCount];
@@ -434,18 +403,21 @@ namespace vstancer_client
                 while(FindNextVehicle(handle,ref entity))
                 {
                     if(entity != currentVehicle)
-                        UpdateVehicleByDecor(entity);
+                    {
+                        Vector3 currentCoords = GetEntityCoords(playerPed, true);
+                        Vector3 coords = GetEntityCoords(entity, true);
+
+                        if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
+                            RefreshVehicleWithDecor(entity);
+                    }
                 }
                 EndFindVehicle(handle);
             }
             await Task.FromResult(0);
         }
 
-        public async void UpdateVehicleByDecor(int vehicle)
+        public async void RefreshVehicleWithDecor(int vehicle)
         {
-            string decorOffsetPrefix = "vstancer_offset_";
-            string decorRotationPrefix = "vstancer_rotation_";
-
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             for (int index = 0; index < wheelsCount; index++)
             {
@@ -466,31 +438,71 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
-        public async void PrintDecors()
+        public async void PrintVstancerDecors()
         {
             int vehicle = currentVehicle;
 
-            string decorOffsetPrefix = "vstancer_offset_";
-            string decorRotationPrefix = "vstancer_rotation_";
-
-            int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            Debug.WriteLine($"Vehicle {vehicle}");
-            for (int index = 0; index < wheelsCount; index++)
+            if (DoesEntityExist(vehicle))
             {
-                string decorOffsetName = decorOffsetPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorOffsetName))
+                int wheelsCount = GetVehicleNumberOfWheels(vehicle);
+                int netID = NetworkGetNetworkIdFromEntity(vehicle);
+                Debug.WriteLine($"Vehicle: {vehicle}, wheelsCount: {wheelsCount}, netID: {netID}");
+                for (int index = 0; index < wheelsCount; index++)
                 {
-                    float value = DecorGetFloat(vehicle, decorOffsetName);
-                    Debug.WriteLine($"{decorOffsetName}: {value}");
-                }
+                    string decorOffsetName = decorOffsetPrefix + index.ToString();
+                    if (DecorExistOn(vehicle, decorOffsetName))
+                    {
+                        float value = DecorGetFloat(vehicle, decorOffsetName);
+                        Debug.WriteLine($"{decorOffsetName}: {value}");
+                    }
 
-                string decorRotationName = decorRotationPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorRotationName))
-                {
-                    float value = DecorGetFloat(vehicle, decorRotationName);
-                    Debug.WriteLine($"{decorRotationName}: {value}");
+                    string decorRotationName = decorRotationPrefix + index.ToString();
+                    if (DecorExistOn(vehicle, decorRotationName))
+                    {
+                        float value = DecorGetFloat(vehicle, decorRotationName);
+                        Debug.WriteLine($"{decorRotationName}: {value}");
+                    }
                 }
+            }else Debug.WriteLine("VSTANCER: Current vehicle doesn't exist");
+
+            await Task.FromResult(0);
+        }
+
+        public async void PrintListVehiclesWithDecors()
+        {
+            List<int> list = new List<int>();
+            int entity = -1;
+            int handle = FindFirstVehicle(ref entity);
+
+            if (handle != -1)
+            {
+                while (FindNextVehicle(handle, ref entity))
+                {
+                    if (entity != currentVehicle)
+                    {
+                        
+                        int wheelsCount = GetVehicleNumberOfWheels(entity);
+                        for (int index = 0; index < wheelsCount; index++)
+                        {
+                            if (
+                                DecorExistOn(entity, decorDefaultOffsetPrefix + index.ToString()) ||
+                                DecorExistOn(entity, decorDefaultRotationPrefix + index.ToString()) ||
+                                DecorExistOn(entity, decorOffsetPrefix + index.ToString()) ||
+                                DecorExistOn(entity, decorRotationPrefix + index.ToString())
+                                )
+                                list.Add(entity);
+                        }
+                    }
+                }
+                EndFindVehicle(handle);
             }
+            IEnumerable<int> entities = list.Distinct();
+            Debug.WriteLine($"VSTANCER: Vehicles with decorators: {entities.Count()}");
+            foreach (var item in entities)
+            {
+                Debug.WriteLine($"Vehicle: {item}, NetID: {NetworkGetNetworkIdFromEntity(item)}");
+            }
+
             await Task.FromResult(0);
         }
 
