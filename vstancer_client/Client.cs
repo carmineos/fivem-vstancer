@@ -150,29 +150,53 @@ namespace vstancer_client
                 maxOffset = new_maxOffset;
                 Debug.WriteLine("VSTANCER: Received new maxOffset value {0}", new_maxOffset.ToString());
             }));
+
             EventHandlers.Add("vstancer:maxCamber", new Action<float>((new_maxCamber) =>
             {
                 maxCamber = new_maxCamber;
                 Debug.WriteLine("VSTANCER: Received new maxCamber value {0}", new_maxCamber.ToString());
             }));
+
             EventHandlers.Add("vstancer:timer", new Action<long>((new_timer) =>
             {
                 timer = new_timer;
                 Debug.WriteLine("VSTANCER: Received new timer value {0}", new_timer.ToString());
             }));
+
+            RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
+            {
+                bool result = float.TryParse(args[0], out float value);
+                if (result)
+                {
+                    maxSyncDistance = value;
+                    Debug.WriteLine("VSTANCER: Received new maxSyncDistance value {0}", value);
+                }
+                else Debug.WriteLine("VSTANCER: Can't parse {0}", value);
+
+            }), false);
+
             RegisterCommand("vstancer_debug", new Action<int, dynamic>((source, args) =>
             {
-                debug = bool.Parse(args[0]);
-                Debug.WriteLine("VSTANCER: Received new debug value {0}", debug.ToString());
+                bool result = bool.TryParse(args[0], out bool value);
+                if (result)
+                {
+                    debug = value;
+                    Debug.WriteLine("VSTANCER: Received new debug value {0}", value);
+                }
+                Debug.WriteLine("VSTANCER: Can't parse {0}", value);
+
             }), false);
+
             RegisterCommand("vstancer_info", new Action<int, dynamic>((source, args) =>
             {
                 PrintDecoratorsInfo(currentVehicle);
             }), false);
+
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
                 PrintVehiclesWithDecorators();
             }), false);
+
             Tick += OnTick;
         }
 

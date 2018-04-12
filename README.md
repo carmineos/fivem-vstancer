@@ -5,28 +5,23 @@ The script allows to edit the camber and the track width of the wheels.<br />
 When a client edits something, it will be automatically synchronized.<br />
 If a client resets the settings it will stop from being synchronized until he changes something again.<br />
 
-This version of the script tries to achieve the result without using netID of the entities but synching only the vehicle the playerPed is using.<br />
-* Only allows to sync the current vehicle the playerPed is using
-* Changes automatically synched if required
-* Unsync the preset if playerDropped
-* Only refreshes players' vehicles which are close to you (by default distance is 150)
-
+This version of the script tries to achieve the result without using decorators.<br />
 F6 Opens the menu to edit the wheels<br />
 
 **CLIENT COMMANDS**<br />
+`vstancer_info`
+Prints the info about decorators on the current vehicle
+
 `vstancer_print`
-Prints the list of all the synched players
+Prints the list of all the vehicles with any decorator of this script
 
 `vstancer_distance 'float'`
-Sets the 'float' as the maximum distance used to synch others players' vehicles
+Sets the 'float' as the maximum distance used to refresh wheels of the vehicles with decorators
 
 `vstancer_debug 'bool'`
 Enables or disables the logs to be printed in the console
 
 **SERVER COMMANDS**<br />
-`vstancer_print`
-Prints the list of all the synched players
-
 `vstancer_debug 'bool'`
 Enables or disables the logs to be printed in the console
 
