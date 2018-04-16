@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vstancer_shared", "vstancer
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{886C4B07-F58C-4E89-A80F-849679435A18}"
 	ProjectSection(SolutionItems) = preProject
+		__resource.lua = __resource.lua
+		config.ini = config.ini
 		postbuild.bat = postbuild.bat
 		README.md = README.md
 	EndProjectSection
