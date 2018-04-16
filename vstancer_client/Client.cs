@@ -183,7 +183,7 @@ namespace vstancer_client
                     debug = value;
                     Debug.WriteLine("VSTANCER: Received new debug value {0}", value);
                 }
-                Debug.WriteLine("VSTANCER: Can't parse {0}", value);
+                else Debug.WriteLine("VSTANCER: Can't parse {0}", value);
 
             }), false);
 
@@ -357,7 +357,7 @@ namespace vstancer_client
                 }
                 else
                 {
-                    if (preset.defaultWheelsOffset[index] != preset.currentWheelsOffset[index])
+                    if (preset.defaultWheelsRot[index] != preset.currentWheelsRot[index])
                     {
                         DecorRegister(decorName, 1);
                         DecorSetFloat(vehicle, decorName, preset.currentWheelsRot[index]);
