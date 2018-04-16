@@ -24,10 +24,15 @@ namespace vstancer_client
         #endregion
 
         #region DECORATORS_NAMES
-        private static string decorOffsetPrefix = "vstancer_offset_";
-        private static string decorRotationPrefix = "vstancer_rotation_";
-        private static string decorDefaultOffsetPrefix = "vstancer_offset_default_";
-        private static string decorDefaultRotationPrefix = "vstancer_rotation_default_";
+        private static string decorOffsetFront = "vstancer_offset_front";
+        private static string decorRotationFront = "vstancer_rotation_front";
+        private static string decorOffsetDefaultFront = "vstancer_offset_default_front";
+        private static string decorRotationDefaultFront = "vstancer_rotation_default_front";
+
+        private static string decorOffsetRear = "vstancer_offset_rear";
+        private static string decorRotationRear = "vstancer_rotation_rear";
+        private static string decorOffsetDefaultRear = "vstancer_offset_default_rear";
+        private static string decorRotationDefaultRear = "vstancer_rotation_default_rear";
         #endregion
 
         #region FIELDS
@@ -138,6 +143,16 @@ namespace vstancer_client
         public Client()
         {
             LoadConfig();
+
+            DecorRegister(decorOffsetFront, 1);
+            DecorRegister(decorRotationFront, 1);
+            DecorRegister(decorOffsetDefaultFront, 1);
+            DecorRegister(decorRotationDefaultFront, 1);
+
+            DecorRegister(decorOffsetRear, 1);
+            DecorRegister(decorRotationRear, 1);
+            DecorRegister(decorOffsetDefaultRear, 1);
+            DecorRegister(decorRotationDefaultRear, 1);
 
             lastTime = GetGameTimer();
 
@@ -265,27 +280,29 @@ namespace vstancer_client
         /// <param name="vehicle"></param>
         private async void RemoveDecorators(int vehicle)
         {
-            int wheelsCount = GetVehicleNumberOfWheels(currentVehicle);
-            string decorName;
+            if (DecorExistOn(vehicle, decorOffsetFront))
+                DecorRemove(vehicle, decorOffsetFront);
 
-            for (int index = 0; index < wheelsCount; index++)
-            {
-                decorName = decorDefaultOffsetPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                    DecorRemove(vehicle, decorName);
+            if (DecorExistOn(vehicle, decorRotationFront))
+                DecorRemove(vehicle, decorRotationFront);
 
-                decorName = decorDefaultRotationPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                    DecorRemove(vehicle, decorName);
+            if (DecorExistOn(vehicle, decorOffsetDefaultFront))
+                DecorRemove(vehicle, decorOffsetDefaultFront);
 
-                decorName = decorOffsetPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                    DecorRemove(vehicle, decorName);
+            if (DecorExistOn(vehicle, decorRotationDefaultFront))
+                DecorRemove(vehicle, decorRotationDefaultFront);
 
-                decorName = decorRotationPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                    DecorRemove(vehicle, decorName);
-            }
+            if (DecorExistOn(vehicle, decorOffsetRear))
+                DecorRemove(vehicle, decorOffsetRear);
+
+            if (DecorExistOn(vehicle, decorRotationRear))
+                DecorRemove(vehicle, decorRotationRear);
+
+            if (DecorExistOn(vehicle, decorOffsetDefaultRear))
+                DecorRemove(vehicle, decorOffsetDefaultRear);
+
+            if (DecorExistOn(vehicle, decorRotationDefaultRear))
+                DecorRemove(vehicle, decorRotationDefaultRear);
 
             await Task.FromResult(0);
         }
@@ -297,73 +314,105 @@ namespace vstancer_client
         private async void UpdateVehicleDecorators(int vehicle, vstancerPreset preset)
         {
             int wheelsCount = GetVehicleNumberOfWheels(currentVehicle);
-            string decorName;
+            int frontCount = wheelsCount / 2;
 
-            for (int index = 0; index < wheelsCount; index++)
+            if (frontCount % 2 != 0)
+                frontCount -= 1;
+
+            if (DecorExistOn(vehicle, decorOffsetDefaultFront))
             {
-                decorName = decorDefaultOffsetPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                {
-                    float value = DecorGetFloat(vehicle, decorName);
-                    if (value != preset.defaultWheelsOffset[index])
-                        DecorSetFloat(vehicle, decorName, preset.defaultWheelsOffset[index]);
-                }else
-                {
-                    if(preset.defaultWheelsOffset[index] != preset.currentWheelsOffset[index])
-                    {
-                        DecorRegister(decorName, 1);
-                        DecorSetFloat(vehicle, decorName, preset.defaultWheelsOffset[index]);
-                    }
-                }
+                float value = DecorGetFloat(vehicle, decorOffsetDefaultFront);
+                if (value != preset.defaultWheelsOffset[0])
+                    DecorSetFloat(vehicle, decorOffsetDefaultFront, preset.defaultWheelsOffset[0]);
+            }
+            else
+            {
+                if (preset.defaultWheelsOffset[0] != preset.currentWheelsOffset[0])
+                    DecorSetFloat(vehicle, decorOffsetDefaultFront, preset.defaultWheelsOffset[0]);
+            }
 
-                decorName = decorDefaultRotationPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                {
-                    float value = DecorGetFloat(vehicle, decorName);
-                    if (value != preset.defaultWheelsRot[index])
-                        DecorSetFloat(vehicle, decorName, preset.defaultWheelsRot[index]);
-                }
-                else
-                {
-                    if (preset.defaultWheelsRot[index] != preset.currentWheelsRot[index])
-                    {
-                        DecorRegister(decorName, 1);
-                        DecorSetFloat(vehicle, decorName, preset.defaultWheelsRot[index]);
-                    }
-                }
+            if (DecorExistOn(vehicle, decorRotationDefaultFront))
+            {
+                float value = DecorGetFloat(vehicle, decorRotationDefaultFront);
+                if (value != preset.defaultWheelsRot[0])
+                    DecorSetFloat(vehicle, decorRotationDefaultFront, preset.defaultWheelsRot[0]);
+            }
+            else
+            {
+                if (preset.defaultWheelsRot[0] != preset.currentWheelsRot[0])
+                    DecorSetFloat(vehicle, decorRotationDefaultFront, preset.defaultWheelsRot[0]);
+            }
 
-                decorName = decorOffsetPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                {
-                    float value = DecorGetFloat(vehicle, decorName);
-                    if (value != preset.currentWheelsOffset[index])
-                        DecorSetFloat(vehicle, decorName, preset.currentWheelsOffset[index]);
-                }
-                else
-                {
-                    if (preset.defaultWheelsOffset[index] != preset.currentWheelsOffset[index])
-                    {
-                        DecorRegister(decorName, 1);
-                        DecorSetFloat(vehicle, decorName, preset.currentWheelsOffset[index]);
-                    }
-                }
+            if (DecorExistOn(vehicle, decorOffsetDefaultRear))
+            {
+                float value = DecorGetFloat(vehicle, decorOffsetDefaultRear);
+                if (value != preset.defaultWheelsOffset[frontCount])
+                    DecorSetFloat(vehicle, decorOffsetDefaultRear, preset.defaultWheelsOffset[frontCount]);
+            }
+            else
+            {
+                if (preset.defaultWheelsOffset[frontCount] != preset.currentWheelsOffset[frontCount])
+                    DecorSetFloat(vehicle, decorOffsetDefaultRear, preset.defaultWheelsOffset[frontCount]);
+            }
 
-                decorName = decorRotationPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                {
-                    float value = DecorGetFloat(vehicle, decorName);
-                    if (value != preset.currentWheelsRot[index])
-                        DecorSetFloat(vehicle, decorName, preset.currentWheelsRot[index]);
-                }
-                else
-                {
-                    if (preset.defaultWheelsRot[index] != preset.currentWheelsRot[index])
-                    {
-                        DecorRegister(decorName, 1);
-                        DecorSetFloat(vehicle, decorName, preset.currentWheelsRot[index]);
-                    }
-                }
+            if (DecorExistOn(vehicle, decorRotationDefaultRear))
+            {
+                float value = DecorGetFloat(vehicle, decorRotationDefaultRear);
+                if (value != preset.defaultWheelsRot[frontCount])
+                    DecorSetFloat(vehicle, decorRotationDefaultRear, preset.defaultWheelsRot[frontCount]);
+            }
+            else
+            {
+                if (preset.defaultWheelsRot[frontCount] != preset.currentWheelsRot[frontCount])
+                    DecorSetFloat(vehicle, decorRotationDefaultRear, preset.defaultWheelsRot[frontCount]);
+            }
 
+            if (DecorExistOn(vehicle, decorOffsetFront))
+            {
+                float value = DecorGetFloat(vehicle, decorOffsetFront);
+                if (value != preset.currentWheelsOffset[0])
+                    DecorSetFloat(vehicle, decorOffsetFront, preset.currentWheelsOffset[0]);
+            }
+            else
+            {
+                if (preset.defaultWheelsOffset[0] != preset.currentWheelsOffset[0])
+                    DecorSetFloat(vehicle, decorOffsetFront, preset.currentWheelsOffset[0]);
+            }
+
+            if (DecorExistOn(vehicle, decorRotationFront))
+            {
+                float value = DecorGetFloat(vehicle, decorRotationFront);
+                if (value != preset.currentWheelsRot[0])
+                    DecorSetFloat(vehicle, decorRotationFront, preset.currentWheelsRot[0]);
+            }
+            else
+            {
+                if (preset.defaultWheelsRot[0] != preset.currentWheelsRot[0])
+                    DecorSetFloat(vehicle, decorRotationFront, preset.currentWheelsRot[0]);
+            }
+
+            if (DecorExistOn(vehicle, decorOffsetRear))
+            {
+                float value = DecorGetFloat(vehicle, decorOffsetRear);
+                if (value != preset.currentWheelsOffset[frontCount])
+                    DecorSetFloat(vehicle, decorOffsetRear, preset.currentWheelsOffset[frontCount]);
+            }
+            else
+            {
+                if (preset.defaultWheelsOffset[frontCount] != preset.currentWheelsOffset[frontCount])
+                    DecorSetFloat(vehicle, decorOffsetRear, preset.currentWheelsOffset[frontCount]);
+            }
+
+            if (DecorExistOn(vehicle, decorRotationRear))
+            {
+                float value = DecorGetFloat(vehicle, decorRotationRear);
+                if (value != preset.currentWheelsRot[frontCount])
+                    DecorSetFloat(vehicle, decorRotationRear, preset.currentWheelsRot[frontCount]);
+            }
+            else
+            {
+                if (preset.defaultWheelsRot[frontCount] != preset.currentWheelsRot[frontCount])
+                    DecorSetFloat(vehicle, decorRotationRear, preset.currentWheelsRot[frontCount]);
             }
 
             await Task.FromResult(0);
@@ -376,39 +425,46 @@ namespace vstancer_client
         /// <returns></returns>
         private vstancerPreset CreatePreset(int vehicle)
         {
-            string decorName;
-
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            float[] defaultWheelsRot = new float[wheelsCount];
-            float[] defaultWheelsOffset = new float[wheelsCount];
+            int frontCount = wheelsCount / 2;
+            if (frontCount % 2 != 0)
+                frontCount -= 1;
 
-            for (int index = 0; index < wheelsCount; index++)
-            {
-                decorName = decorDefaultOffsetPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                    defaultWheelsOffset[index] = DecorGetFloat(vehicle, decorName);
-                else
-                    defaultWheelsOffset[index] = GetVehicleWheelXOffset(vehicle, index);
+            float currentRotationFront, currentRotationRear, currentOffsetFront, currentOffsetRear, defaultRotationFront, defaultRotationRear, defaultOffsetFront, defaultOffsetRear;
 
-                decorName = decorDefaultRotationPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                    defaultWheelsRot[index] = DecorGetFloat(vehicle, decorName);
-                else
-                    defaultWheelsRot[index] = GetVehicleWheelXrot(vehicle, index);
-            }
+            if (DecorExistOn(vehicle, decorOffsetDefaultFront))
+                defaultOffsetFront = DecorGetFloat(vehicle, decorOffsetDefaultFront);
+            else defaultOffsetFront = GetVehicleWheelXOffset(vehicle, 0);
 
-            vstancerPreset preset = new vstancerPreset(wheelsCount, defaultWheelsRot, defaultWheelsOffset);
+            if (DecorExistOn(vehicle, decorRotationDefaultFront))
+                defaultRotationFront = DecorGetFloat(vehicle, decorRotationDefaultFront);
+            else defaultRotationFront = GetVehicleWheelXrot(vehicle, 0);
 
-            for (int index = 0; index < wheelsCount; index++)
-            {
-                decorName = decorOffsetPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                    preset.currentWheelsOffset[index] = DecorGetFloat(vehicle, decorName);
+            if (DecorExistOn(vehicle, decorOffsetFront))
+                currentOffsetFront = DecorGetFloat(vehicle, decorOffsetFront);
+            else currentOffsetFront = defaultOffsetFront;
 
-                decorName = decorRotationPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorName))
-                    preset.currentWheelsRot[index] = DecorGetFloat(vehicle, decorName);
-            }
+            if (DecorExistOn(vehicle, decorRotationFront))
+                currentRotationFront = DecorGetFloat(vehicle, decorRotationFront);
+            else currentRotationFront = defaultRotationFront;
+
+            if (DecorExistOn(vehicle, decorOffsetDefaultRear))
+                defaultOffsetRear = DecorGetFloat(vehicle, decorOffsetDefaultRear);
+            else defaultOffsetRear = GetVehicleWheelXOffset(vehicle, frontCount);
+
+            if (DecorExistOn(vehicle, decorRotationDefaultRear))
+                defaultRotationRear = DecorGetFloat(vehicle, decorRotationDefaultRear);
+            else defaultRotationRear = GetVehicleWheelXrot(vehicle, frontCount);
+
+            if (DecorExistOn(vehicle, decorOffsetRear))
+                currentOffsetRear = DecorGetFloat(vehicle, decorOffsetRear);
+            else currentOffsetRear = defaultOffsetRear;
+
+            if (DecorExistOn(vehicle, decorRotationRear))
+                currentRotationRear = DecorGetFloat(vehicle, decorRotationRear);
+            else currentRotationRear = defaultRotationRear;
+
+            vstancerPreset preset = new vstancerPreset(wheelsCount, currentRotationFront, currentRotationRear, currentOffsetFront, currentOffsetRear, defaultRotationFront, defaultRotationRear, defaultOffsetFront, defaultOffsetRear);
 
             return preset;
         }
@@ -465,22 +521,64 @@ namespace vstancer_client
         private async void RefreshVehicle(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            for (int index = 0; index < wheelsCount; index++)
-            {
-                string decorOffsetName = decorOffsetPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorOffsetName))
-                {
-                    float value = DecorGetFloat(vehicle, decorOffsetName);
-                    SetVehicleWheelXOffset(vehicle, index, value);
-                }
+            int frontCount = wheelsCount / 2;
 
-                string decorRotationName = decorRotationPrefix + index.ToString();
-                if (DecorExistOn(vehicle, decorRotationName))
+            if (frontCount % 2 != 0)
+                frontCount -= 1;
+
+            if (DecorExistOn(vehicle, decorOffsetFront))
+            {
+                float value = DecorGetFloat(vehicle, decorOffsetFront);
+
+                for (int index = 0; index < frontCount; index++)
                 {
-                    float value = DecorGetFloat(vehicle, decorRotationName);
-                    SetVehicleWheelXrot(vehicle, index, value);
+                    if (index % 2 == 0)
+                        SetVehicleWheelXOffset(vehicle, index, value);
+                    else
+                        SetVehicleWheelXOffset(vehicle, index, -value);
+                }
+                    
+            }
+
+            if (DecorExistOn(vehicle, decorRotationFront))
+            {
+                float value = DecorGetFloat(vehicle, decorRotationFront);
+
+                for (int index = 0; index < frontCount; index++)
+                {
+                    if (index % 2 == 0)
+                        SetVehicleWheelXrot(vehicle, index, value);
+                    else
+                        SetVehicleWheelXrot(vehicle, index, -value);
                 }
             }
+
+            if (DecorExistOn(vehicle, decorOffsetRear))
+            {
+                float value = DecorGetFloat(vehicle, decorOffsetRear);
+
+                for (int index = frontCount; index < wheelsCount; index++)
+                {
+                    if (index % 2 == 0)
+                        SetVehicleWheelXOffset(vehicle, index, value);
+                    else
+                        SetVehicleWheelXOffset(vehicle, index, -value);
+                }
+            }
+
+            if (DecorExistOn(vehicle, decorRotationRear))
+            {
+                float value = DecorGetFloat(vehicle, decorRotationRear);
+
+                for (int index = frontCount; index < wheelsCount; index++)
+                {
+                    if (index % 2 == 0)
+                        SetVehicleWheelXrot(vehicle, index, value);
+                    else
+                        SetVehicleWheelXrot(vehicle, index, -value);
+                }
+            }
+
             await Task.FromResult(0);
         }
 
@@ -494,23 +592,32 @@ namespace vstancer_client
                 int wheelsCount = GetVehicleNumberOfWheels(vehicle);
                 int netID = NetworkGetNetworkIdFromEntity(vehicle);
                 Debug.WriteLine($"VSTANCER: Vehicle: {vehicle}, wheelsCount: {wheelsCount}, netID: {netID}");
-                for (int index = 0; index < wheelsCount; index++)
-                {
-                    string decorOffsetName = decorOffsetPrefix + index.ToString();
-                    if (DecorExistOn(vehicle, decorOffsetName))
-                    {
-                        float value = DecorGetFloat(vehicle, decorOffsetName);
-                        Debug.WriteLine($"{decorOffsetName}: {value}");
-                    }
 
-                    string decorRotationName = decorRotationPrefix + index.ToString();
-                    if (DecorExistOn(vehicle, decorRotationName))
-                    {
-                        float value = DecorGetFloat(vehicle, decorRotationName);
-                        Debug.WriteLine($"{decorRotationName}: {value}");
-                    }
+                if (DecorExistOn(vehicle, decorOffsetFront))
+                {
+                    float value = DecorGetFloat(vehicle, decorOffsetFront);
+                    Debug.WriteLine($"{decorOffsetFront}: {value}");
                 }
-            }else Debug.WriteLine("VSTANCER: Current vehicle doesn't exist");
+
+                if (DecorExistOn(vehicle, decorRotationFront))
+                {
+                    float value = DecorGetFloat(vehicle, decorRotationFront);
+                    Debug.WriteLine($"{decorRotationFront}: {value}");
+                }
+
+                if (DecorExistOn(vehicle, decorOffsetRear))
+                {
+                    float value = DecorGetFloat(vehicle, decorOffsetRear);
+                    Debug.WriteLine($"{decorOffsetRear}: {value}");
+                }
+
+                if (DecorExistOn(vehicle, decorRotationRear))
+                {
+                    float value = DecorGetFloat(vehicle, decorRotationRear);
+                    Debug.WriteLine($"{decorRotationRear}: {value}");
+                }
+            }
+            else Debug.WriteLine("VSTANCER: Current vehicle doesn't exist");
 
             await Task.FromResult(0);
         }
@@ -528,18 +635,17 @@ namespace vstancer_client
             {
                 while (FindNextVehicle(handle, ref entity))
                 {
-                    int wheelsCount = GetVehicleNumberOfWheels(entity);
-
-                    for (int index = 0; index < wheelsCount; index++)
-                    {
                         if (
-                            DecorExistOn(entity, decorDefaultOffsetPrefix + index.ToString()) ||
-                            DecorExistOn(entity, decorDefaultRotationPrefix + index.ToString()) ||
-                            DecorExistOn(entity, decorOffsetPrefix + index.ToString()) ||
-                            DecorExistOn(entity, decorRotationPrefix + index.ToString())
+                            DecorExistOn(entity, decorOffsetFront) ||
+                            DecorExistOn(entity, decorRotationFront) ||
+                            DecorExistOn(entity, decorOffsetDefaultFront) ||
+                            DecorExistOn(entity, decorRotationDefaultFront) ||
+                            DecorExistOn(entity, decorOffsetRear) ||
+                            DecorExistOn(entity, decorRotationRear) ||
+                            DecorExistOn(entity, decorOffsetDefaultRear) ||
+                            DecorExistOn(entity, decorRotationDefaultRear)
                             )
                             list.Add(entity);
-                    }
                 }
                 EndFindVehicle(handle);
             }
