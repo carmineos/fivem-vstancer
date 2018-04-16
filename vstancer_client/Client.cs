@@ -142,8 +142,6 @@ namespace vstancer_client
 
         public Client()
         {
-            LoadConfig();
-
             DecorRegister(decorOffsetFront, 1);
             DecorRegister(decorRotationFront, 1);
             DecorRegister(decorOffsetDefaultFront, 1);
@@ -154,12 +152,14 @@ namespace vstancer_client
             DecorRegister(decorOffsetDefaultRear, 1);
             DecorRegister(decorRotationDefaultRear, 1);
 
+            LoadConfig();
+
             lastTime = GetGameTimer();
 
             currentVehicle = -1;
             currentPreset = new vstancerPreset();
             InitialiseMenu();
-
+                     
             EventHandlers.Add("vstancer:maxOffset", new Action<float>((new_maxOffset) =>
             {
                 maxOffset = new_maxOffset;
@@ -176,7 +176,7 @@ namespace vstancer_client
             {
                 timer = new_timer;
                 Debug.WriteLine("VSTANCER: Received new timer value {0}", new_timer.ToString());
-            }));
+            }));          
 
             RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
             {
