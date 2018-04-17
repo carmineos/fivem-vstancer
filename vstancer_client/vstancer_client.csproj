@@ -50,12 +50,8 @@
   <ItemGroup>
     <Compile Include="Client.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\vstancer_shared\vstancer_shared.csproj">
-      <Project>{f573587a-32f0-44cf-b3eb-fd889f06c36a}</Project>
-      <Name>vstancer_shared</Name>
-    </ProjectReference>
+    <Compile Include="vstancerConfig.cs" />
+    <Compile Include="vstancerPreset.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

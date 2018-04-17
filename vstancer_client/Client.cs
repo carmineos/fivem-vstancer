@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using NativeUI;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using vstancer_shared;
 using System.Drawing;
 using CitizenFX.Core.UI;
 using System.Text;
