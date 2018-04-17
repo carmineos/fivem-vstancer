@@ -8,6 +8,7 @@ using static CitizenFX.Core.Native.API;
 using vstancer_shared;
 using System.Drawing;
 using CitizenFX.Core.UI;
+using System.Text;
 
 namespace vstancer_client
 {
@@ -74,7 +75,7 @@ namespace vstancer_client
                 values.Add((float)Math.Round(-defaultValue + (-i * editingFactor), 3));
 
             var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3)); // Index calculated at runtime in case of script restart
-            //Debug.WriteLine($"current:{currentValue}, default:{defaultValue}, index:{currentIndex}");
+
 
             var newitem = new UIMenuListItem(name, values, currentIndex);
             menu.AddItem(newitem);
@@ -261,7 +262,7 @@ namespace vstancer_client
             RefreshCurrentVehicle();
 
             // Check decorators needs to be updated
-            if ((GetGameTimer() - lastTime) > timer)
+            if (wheelsEditorMenu.Visible || (GetGameTimer() - lastTime) > timer)
             {
                 if (currentVehicle != -1 && currentPreset != null)
                     UpdateVehicleDecorators(currentVehicle, currentPreset);
@@ -498,7 +499,7 @@ namespace vstancer_client
 
             if (handle != -1)
             {
-                while(FindNextVehicle(handle,ref entity))
+                do
                 {
                     if(entity != currentVehicle)
                     {
@@ -509,6 +510,8 @@ namespace vstancer_client
                             RefreshVehicle(entity);
                     }
                 }
+                while (FindNextVehicle(handle, ref entity));
+                
                 EndFindVehicle(handle);
             }
             await Task.FromResult(0);
@@ -591,31 +594,33 @@ namespace vstancer_client
             {
                 int wheelsCount = GetVehicleNumberOfWheels(vehicle);
                 int netID = NetworkGetNetworkIdFromEntity(vehicle);
-                Debug.WriteLine($"VSTANCER: Vehicle: {vehicle}, wheelsCount: {wheelsCount}, netID: {netID}");
+                StringBuilder s = new StringBuilder();
+                s.Append($"VSTANCER: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount} ");
 
                 if (DecorExistOn(vehicle, decorOffsetFront))
                 {
                     float value = DecorGetFloat(vehicle, decorOffsetFront);
-                    Debug.WriteLine($"{decorOffsetFront}: {value}");
+                    s.Append($"{decorOffsetFront}:{value} ");
                 }
 
                 if (DecorExistOn(vehicle, decorRotationFront))
                 {
                     float value = DecorGetFloat(vehicle, decorRotationFront);
-                    Debug.WriteLine($"{decorRotationFront}: {value}");
+                    s.Append($"{decorRotationFront}:{value} ");
                 }
 
                 if (DecorExistOn(vehicle, decorOffsetRear))
                 {
                     float value = DecorGetFloat(vehicle, decorOffsetRear);
-                    Debug.WriteLine($"{decorOffsetRear}: {value}");
+                    s.Append($"{decorOffsetRear}:{value} ");
                 }
 
                 if (DecorExistOn(vehicle, decorRotationRear))
                 {
                     float value = DecorGetFloat(vehicle, decorRotationRear);
-                    Debug.WriteLine($"{decorRotationRear}: {value}");
+                    s.Append($"{decorRotationRear}:{value} ");
                 }
+                Debug.WriteLine(s.ToString());
             }
             else Debug.WriteLine("VSTANCER: Current vehicle doesn't exist");
 
@@ -633,27 +638,29 @@ namespace vstancer_client
 
             if (handle != -1)
             {
-                while (FindNextVehicle(handle, ref entity))
+                do
                 {
-                        if (
-                            DecorExistOn(entity, decorOffsetFront) ||
-                            DecorExistOn(entity, decorRotationFront) ||
-                            DecorExistOn(entity, decorOffsetDefaultFront) ||
-                            DecorExistOn(entity, decorRotationDefaultFront) ||
-                            DecorExistOn(entity, decorOffsetRear) ||
-                            DecorExistOn(entity, decorRotationRear) ||
-                            DecorExistOn(entity, decorOffsetDefaultRear) ||
-                            DecorExistOn(entity, decorRotationDefaultRear)
-                            )
-                            list.Add(entity);
+                    if (
+                        DecorExistOn(entity, decorOffsetFront) ||
+                        DecorExistOn(entity, decorRotationFront) ||
+                        DecorExistOn(entity, decorOffsetDefaultFront) ||
+                        DecorExistOn(entity, decorRotationDefaultFront) ||
+                        DecorExistOn(entity, decorOffsetRear) ||
+                        DecorExistOn(entity, decorRotationRear) ||
+                        DecorExistOn(entity, decorOffsetDefaultRear) ||
+                        DecorExistOn(entity, decorRotationDefaultRear)
+                        )
+                        list.Add(entity);
                 }
+                while (FindNextVehicle(handle, ref entity));
+                
                 EndFindVehicle(handle);
             }
             IEnumerable<int> entities = list.Distinct();
             Debug.WriteLine($"VSTANCER: Vehicles with decorators: {entities.Count()}");
             foreach (var item in entities)
             {
-                Debug.WriteLine($"Vehicle: {item}, NetID: {NetworkGetNetworkIdFromEntity(item)}");
+                PrintDecoratorsInfo(item);
             }
 
             await Task.FromResult(0);
