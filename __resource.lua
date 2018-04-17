@@ -7,8 +7,3 @@ client_scripts {
 	'vstancer_shared.net.dll',
 	'vstancer_client.net.dll'
 }
-
-server_scripts {
-	'vstancer_shared.net.dll',
-	'vstancer_server.net.dll'
-}

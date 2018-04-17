@@ -159,25 +159,7 @@ namespace vstancer_client
 
             currentVehicle = -1;
             currentPreset = new vstancerPreset();
-            InitialiseMenu();
-                     
-            EventHandlers.Add("vstancer:maxOffset", new Action<float>((new_maxOffset) =>
-            {
-                maxOffset = new_maxOffset;
-                Debug.WriteLine("VSTANCER: Received new maxOffset value {0}", new_maxOffset.ToString());
-            }));
-
-            EventHandlers.Add("vstancer:maxCamber", new Action<float>((new_maxCamber) =>
-            {
-                maxCamber = new_maxCamber;
-                Debug.WriteLine("VSTANCER: Received new maxCamber value {0}", new_maxCamber.ToString());
-            }));
-
-            EventHandlers.Add("vstancer:timer", new Action<long>((new_timer) =>
-            {
-                timer = new_timer;
-                Debug.WriteLine("VSTANCER: Received new timer value {0}", new_timer.ToString());
-            }));          
+            InitialiseMenu();             
 
             RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
             {
