@@ -59,17 +59,17 @@ namespace vstancer_client
 
             //POSITIVE VALUES
             for (int i = 0; i <= countValues; i++)
-                values.Add((float)Math.Round(-defaultValue + (i * editingFactor), 3));
+                values.Add((float)Math.Round(defaultValue + (i * editingFactor), 3));
             //NEGATIVE VALUES
             for (int i = countValues; i >= 1; i--)
-                values.Add((float)Math.Round(-defaultValue + (-i * editingFactor), 3));
+                values.Add((float)Math.Round(defaultValue + (-i * editingFactor), 3));
 
             return values;
         }
 
         public UIMenuListItem AddRotationList(UIMenu menu, string name, float defaultValue, float currentValue)
         {
-            List<dynamic> values = BuildDynamicFloatList(-defaultValue,maxCamber);
+            List<dynamic> values = BuildDynamicFloatList(defaultValue,maxCamber);
 
             var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3)); // Index calculated at runtime in case of script restart
 
@@ -85,7 +85,7 @@ namespace vstancer_client
 
         public UIMenuListItem AddOffsetList(UIMenu menu, string name, float defaultValue, float currentValue)
         {
-            List<dynamic> values = BuildDynamicFloatList(defaultValue, maxOffset);
+            List<dynamic> values = BuildDynamicFloatList(-defaultValue, maxOffset);
 
             var currentIndex = values.IndexOf((float)Math.Round(-currentValue, 3)); // Index calculated at runtime in case of script restart
 
