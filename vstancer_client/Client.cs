@@ -70,18 +70,19 @@ namespace vstancer_client
             int countValues = (int)(maxCamber / editingFactor);
             List<dynamic> values = BuildDynamicFloatList(defaultValue, countValues);
 
-            var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3)); // Index calculated at runtime in case of script restart
-
-            Debug.WriteLine($"GUI:{name} currentValue:{Math.Round(currentValue, 3)} index:{currentIndex}");
+            var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3));
 
             var newitem = new UIMenuListItem(name, values, currentIndex);
             menu.AddItem(newitem);
             menu.OnListChange += (sender, item, index) =>
             {
-                //Debug.WriteLine($"newvalue:{values[index]} index:{index}");
+                if (item == newitem)
+                {
+                    Debug.WriteLine($"Edited {name}: oldValue:{currentValue} newvalue:{values[index]} index:{index}");
 
-                if (item == frontRotationGUI) currentPreset.SetFrontRotation(values[index]);
-                else if (item == rearRotationGUI) currentPreset.SetRearRotation(values[index]);
+                    if (item == frontRotationGUI) currentPreset.SetFrontRotation(values[index]);
+                    else if (item == rearRotationGUI) currentPreset.SetRearRotation(values[index]);
+                }
             };
             return newitem;
         }
@@ -91,19 +92,20 @@ namespace vstancer_client
             int countValues = (int)(maxOffset / editingFactor);
             List<dynamic> values = BuildDynamicFloatList(-defaultValue, countValues);
 
-            var currentIndex = values.IndexOf((float)Math.Round(-currentValue, 3)); // Index calculated at runtime in case of script restart
-
-            Debug.WriteLine($"GUI:{name} currentValue:{Math.Round(-currentValue, 3)} index:{currentIndex}");
+            var currentIndex = values.IndexOf((float)Math.Round(-currentValue, 3));
 
             var newitem = new UIMenuListItem(name, values, currentIndex);
             menu.AddItem(newitem);
 
             menu.OnListChange += (sender, item, index) =>
             {
-                //Debug.WriteLine($"newvalue:{values[index]} index:{index}");
+                if(item == newitem)
+                {
+                    Debug.WriteLine($"Edited {name}: oldValue:{currentValue} newvalue:{values[index]} index:{index}");
 
-                if (item == frontOffsetGUI) currentPreset.SetFrontOffset(values[index]);
-                else if (item == rearOffsetGUI) currentPreset.SetRearOffset(values[index]);
+                    if (item == frontOffsetGUI) currentPreset.SetFrontOffset(values[index]);
+                    else if (item == rearOffsetGUI) currentPreset.SetRearOffset(values[index]);
+                }
             };
 
             return newitem;
