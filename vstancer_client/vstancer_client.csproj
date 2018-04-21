@@ -55,6 +55,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>call "$(SolutionDir)postbuild.bat" "$(TargetPath)"</PostBuildEvent>
+    <PostBuildEvent>call "$(SolutionDir)postbuild.bat" "$(TargetPath)"
+copy "$(SolutionDir)config.ini" E:\Carmine\neos7\cfx-server\server-data\resources\[customscripts]\vstancer
+copy "$(SolutionDir)__resource.lua" E:\Carmine\neos7\cfx-server\server-data\resources\[customscripts]\vstancer</PostBuildEvent>
   </PropertyGroup>
 </Project>
