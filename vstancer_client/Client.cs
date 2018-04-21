@@ -42,29 +42,20 @@ namespace vstancer_client
         private vstancerPreset currentPreset;
         #endregion
 
-        #region GUI
+        #region GUI_FIELDS
         private MenuPool _menuPool;
-        private UIMenu wheelsEditorMenu;
+        private UIMenu EditorMenu;
         private UIMenuListItem frontOffsetGUI;
         private UIMenuListItem rearOffsetGUI;
         private UIMenuListItem frontRotationGUI;
         private UIMenuListItem rearRotationGUI;
+        #endregion
 
-        public UIMenuListItem AddMenuListValues(UIMenu menu, string name, int property, float defaultValue, float currentValue)
+        public List<dynamic> BuildDynamicFloatList(float defaultValue, float maxValue)
         {
-            int countValues;
-            var values = new List<dynamic>();
+            int countValues = (int)(maxValue / editingFactor);
 
-            if (property == 2 || property == 3)
-            {
-                defaultValue = -defaultValue; 
-                countValues = (int)(maxCamber / editingFactor);
-            }
-            else
-            {
-                currentValue = -currentValue;
-                countValues = (int)(maxOffset / editingFactor);
-            }
+            var values = new List<dynamic>();
 
             //POSITIVE VALUES
             for (int i = 0; i <= countValues; i++)
@@ -73,33 +64,40 @@ namespace vstancer_client
             for (int i = countValues; i >= 1; i--)
                 values.Add((float)Math.Round(-defaultValue + (-i * editingFactor), 3));
 
-            var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3)); // Index calculated at runtime in case of script restart
+            return values;
+        }
 
+        public UIMenuListItem AddRotationList(UIMenu menu, string name, float defaultValue, float currentValue)
+        {
+            List<dynamic> values = BuildDynamicFloatList(-defaultValue,maxCamber);
+
+            var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3)); // Index calculated at runtime in case of script restart
 
             var newitem = new UIMenuListItem(name, values, currentIndex);
             menu.AddItem(newitem);
             menu.OnListChange += (sender, item, index) =>
             {
-                if (item == newitem)
-                {
-                    switch (property)
-                    {
-                        case 0:
-                            currentPreset.SetFrontOffset(values[index]);
-                            break;
-                        case 1:
-                            currentPreset.SetRearOffset(values[index]);
-                            break;
-                        case 2:
-                            currentPreset.SetFrontRotation(values[index]);
-                            break;
-                        case 3:
-                            currentPreset.SetRearRotation(values[index]);
-                            break;
-                    }
-                }
-
+                if (item == frontRotationGUI) currentPreset.SetFrontRotation(values[index]);
+                else if (item == rearRotationGUI) currentPreset.SetRearRotation(values[index]);
             };
+            return newitem;
+        }
+
+        public UIMenuListItem AddOffsetList(UIMenu menu, string name, float defaultValue, float currentValue)
+        {
+            List<dynamic> values = BuildDynamicFloatList(defaultValue, maxOffset);
+
+            var currentIndex = values.IndexOf((float)Math.Round(-currentValue, 3)); // Index calculated at runtime in case of script restart
+
+            var newitem = new UIMenuListItem(name, values, currentIndex);
+            menu.AddItem(newitem);
+
+            menu.OnListChange += (sender, item, index) =>
+            {
+                if (item == frontOffsetGUI) currentPreset.SetFrontOffset(values[index]);
+                else if (item == rearOffsetGUI) currentPreset.SetRearOffset(values[index]);
+            };
+
             return newitem;
         }
 
@@ -116,7 +114,7 @@ namespace vstancer_client
                     RemoveDecorators(currentVehicle);
 
                     InitialiseMenu();
-                    wheelsEditorMenu.Visible = true;
+                    EditorMenu.Visible = true;
                 }
             };
         }
@@ -124,21 +122,21 @@ namespace vstancer_client
         public void InitialiseMenu()
         {
             _menuPool = new MenuPool();
-            wheelsEditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, 0));
-            _menuPool.Add(wheelsEditorMenu);
+            EditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, 0));
+            _menuPool.Add(EditorMenu);
 
-            frontOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Front Track Width", 0, currentPreset.defaultWheelsOffset[0], currentPreset.currentWheelsOffset[0]);
-            frontRotationGUI = AddMenuListValues(wheelsEditorMenu, "Front Camber", 2, currentPreset.defaultWheelsRot[0], currentPreset.currentWheelsRot[0]);
-            rearOffsetGUI = AddMenuListValues(wheelsEditorMenu, "Rear Track Width", 1, currentPreset.defaultWheelsOffset[currentPreset.frontCount], currentPreset.currentWheelsOffset[currentPreset.frontCount]);
-            rearRotationGUI = AddMenuListValues(wheelsEditorMenu, "Rear Camber", 3, currentPreset.defaultWheelsRot[currentPreset.frontCount], currentPreset.currentWheelsRot[currentPreset.frontCount]);
+            frontOffsetGUI = AddOffsetList(EditorMenu, "Front Track Width", currentPreset.defaultWheelsOffset[0], currentPreset.currentWheelsOffset[0]);
+            rearOffsetGUI = AddOffsetList(EditorMenu, "Rear Track Width", currentPreset.defaultWheelsOffset[currentPreset.frontCount], currentPreset.currentWheelsOffset[currentPreset.frontCount]);
 
-            AddMenuReset(wheelsEditorMenu);
-            wheelsEditorMenu.MouseEdgeEnabled = false;
-            wheelsEditorMenu.ControlDisablingEnabled = false;
-            wheelsEditorMenu.MouseControlsEnabled = false;
+            frontRotationGUI = AddRotationList(EditorMenu, "Front Camber", currentPreset.defaultWheelsRot[0], currentPreset.currentWheelsRot[0]);
+            rearRotationGUI = AddRotationList(EditorMenu, "Rear Camber",  currentPreset.defaultWheelsRot[currentPreset.frontCount], currentPreset.currentWheelsRot[currentPreset.frontCount]);
+
+            AddMenuReset(EditorMenu);
+            EditorMenu.MouseEdgeEnabled = false;
+            EditorMenu.ControlDisablingEnabled = false;
+            EditorMenu.MouseControlsEnabled = false;
             _menuPool.RefreshIndex();
         }
-        #endregion
 
         public Client()
         {
@@ -219,7 +217,7 @@ namespace vstancer_client
                     }
 
                     if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu)) // TOGGLE MENU VISIBLE
-                        wheelsEditorMenu.Visible = !wheelsEditorMenu.Visible;
+                        EditorMenu.Visible = !EditorMenu.Visible;
                 }
                 else
                 {
@@ -235,15 +233,15 @@ namespace vstancer_client
                 currentVehicle = -1;
 
                 //Close menu if opened
-                if (wheelsEditorMenu.Visible)
-                    wheelsEditorMenu.Visible = false;
+                if (EditorMenu.Visible)
+                    EditorMenu.Visible = false;
             }
 
             // Current preset is always refreshed
             RefreshCurrentVehicle();
 
             // Check decorators needs to be updated
-            if (wheelsEditorMenu.Visible || (GetGameTimer() - lastTime) > timer)
+            if (EditorMenu.Visible || (GetGameTimer() - lastTime) > timer)
             {
                 if (currentVehicle != -1 && currentPreset != null)
                     UpdateVehicleDecorators(currentVehicle, currentPreset);
