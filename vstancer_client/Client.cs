@@ -51,10 +51,8 @@ namespace vstancer_client
         private UIMenuListItem rearRotationGUI;
         #endregion
 
-        public List<dynamic> BuildDynamicFloatList(float defaultValue, float maxValue)
+        public List<dynamic> BuildDynamicFloatList(float defaultValue, int countValues)
         {
-            int countValues = (int)(maxValue / editingFactor);
-
             var values = new List<dynamic>();
 
             //POSITIVE VALUES
@@ -69,14 +67,19 @@ namespace vstancer_client
 
         public UIMenuListItem AddRotationList(UIMenu menu, string name, float defaultValue, float currentValue)
         {
-            List<dynamic> values = BuildDynamicFloatList(defaultValue,maxCamber);
+            int countValues = (int)(maxCamber / editingFactor);
+            List<dynamic> values = BuildDynamicFloatList(defaultValue, countValues);
 
             var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3)); // Index calculated at runtime in case of script restart
+
+            Debug.WriteLine($"GUI:{name} currentValue:{Math.Round(currentValue, 3)} index:{currentIndex}");
 
             var newitem = new UIMenuListItem(name, values, currentIndex);
             menu.AddItem(newitem);
             menu.OnListChange += (sender, item, index) =>
             {
+                //Debug.WriteLine($"newvalue:{values[index]} index:{index}");
+
                 if (item == frontRotationGUI) currentPreset.SetFrontRotation(values[index]);
                 else if (item == rearRotationGUI) currentPreset.SetRearRotation(values[index]);
             };
@@ -85,15 +88,20 @@ namespace vstancer_client
 
         public UIMenuListItem AddOffsetList(UIMenu menu, string name, float defaultValue, float currentValue)
         {
-            List<dynamic> values = BuildDynamicFloatList(-defaultValue, maxOffset);
+            int countValues = (int)(maxOffset / editingFactor);
+            List<dynamic> values = BuildDynamicFloatList(-defaultValue, countValues);
 
             var currentIndex = values.IndexOf((float)Math.Round(-currentValue, 3)); // Index calculated at runtime in case of script restart
+
+            Debug.WriteLine($"GUI:{name} currentValue:{Math.Round(-currentValue, 3)} index:{currentIndex}");
 
             var newitem = new UIMenuListItem(name, values, currentIndex);
             menu.AddItem(newitem);
 
             menu.OnListChange += (sender, item, index) =>
             {
+                //Debug.WriteLine($"newvalue:{values[index]} index:{index}");
+
                 if (item == frontOffsetGUI) currentPreset.SetFrontOffset(values[index]);
                 else if (item == rearOffsetGUI) currentPreset.SetRearOffset(values[index]);
             };
@@ -185,6 +193,8 @@ namespace vstancer_client
             RegisterCommand("vstancer_info", new Action<int, dynamic>((source, args) =>
             {
                 PrintDecoratorsInfo(currentVehicle);
+                if (currentPreset != null)
+                    Debug.WriteLine(currentPreset.ToString());
             }), false);
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
