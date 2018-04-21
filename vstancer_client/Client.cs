@@ -78,7 +78,8 @@ namespace vstancer_client
             {
                 if (item == newitem)
                 {
-                    Debug.WriteLine($"Edited {name}: oldValue:{currentValue} newvalue:{values[index]} index:{index}");
+                    if (debug)
+                        Debug.WriteLine($"Edited {name}: oldValue:{currentValue} newvalue:{values[index]} index:{index}");
 
                     if (item == frontRotationGUI) currentPreset.SetFrontRotation(values[index]);
                     else if (item == rearRotationGUI) currentPreset.SetRearRotation(values[index]);
@@ -101,7 +102,8 @@ namespace vstancer_client
             {
                 if(item == newitem)
                 {
-                    Debug.WriteLine($"Edited {name}: oldValue:{currentValue} newvalue:{values[index]} index:{index}");
+                    if (debug)
+                        Debug.WriteLine($"Edited {name}: oldValue:{currentValue} newvalue:{values[index]} index:{index}");
 
                     if (item == frontOffsetGUI) currentPreset.SetFrontOffset(values[index]);
                     else if (item == rearOffsetGUI) currentPreset.SetRearOffset(values[index]);
