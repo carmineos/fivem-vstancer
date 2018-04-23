@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Text;
 using NativeUI;
 using CitizenFX.Core;
-using static CitizenFX.Core.Native.API;
-using System.Drawing;
 using CitizenFX.Core.UI;
-using System.Text;
+using static CitizenFX.Core.Native.API;
 
 namespace vstancer_client
 {
@@ -51,7 +51,7 @@ namespace vstancer_client
         private UIMenuListItem rearRotationGUI;
         #endregion
 
-        public List<dynamic> BuildDynamicFloatList(float defaultValue, int countValues)
+        private List<dynamic> BuildDynamicFloatList(float defaultValue, int countValues)
         {
             var values = new List<dynamic>();
 
@@ -65,7 +65,7 @@ namespace vstancer_client
             return values;
         }
 
-        public UIMenuListItem AddRotationList(UIMenu menu, string name, float defaultValue, float currentValue)
+        private UIMenuListItem AddRotationList(UIMenu menu, string name, float defaultValue, float currentValue)
         {
             int countValues = (int)(maxCamber / editingFactor);
             List<dynamic> values = BuildDynamicFloatList(defaultValue, countValues);
@@ -88,7 +88,7 @@ namespace vstancer_client
             return newitem;
         }
 
-        public UIMenuListItem AddOffsetList(UIMenu menu, string name, float defaultValue, float currentValue)
+        private UIMenuListItem AddOffsetList(UIMenu menu, string name, float defaultValue, float currentValue)
         {
             int countValues = (int)(maxOffset / editingFactor);
             List<dynamic> values = BuildDynamicFloatList(-defaultValue, countValues);
@@ -100,7 +100,7 @@ namespace vstancer_client
 
             menu.OnListChange += (sender, item, index) =>
             {
-                if(item == newitem)
+                if (item == newitem)
                 {
                     if (debug)
                         Debug.WriteLine($"Edited {name}: oldValue:{currentValue} newvalue:{values[index]} index:{index}");
@@ -109,11 +109,10 @@ namespace vstancer_client
                     else if (item == rearOffsetGUI) currentPreset.SetRearOffset(values[index]);
                 }
             };
-
             return newitem;
         }
 
-        public void AddMenuReset(UIMenu menu)
+        private void AddMenuReset(UIMenu menu)
         {
             var newitem = new UIMenuItem("Reset", "Restores locally the default values.");
             menu.AddItem(newitem);
@@ -131,7 +130,7 @@ namespace vstancer_client
             };
         }
 
-        public void InitialiseMenu()
+        private void InitialiseMenu()
         {
             _menuPool = new MenuPool();
             EditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, 0));
@@ -141,7 +140,7 @@ namespace vstancer_client
             rearOffsetGUI = AddOffsetList(EditorMenu, "Rear Track Width", currentPreset.defaultWheelsOffset[currentPreset.frontCount], currentPreset.currentWheelsOffset[currentPreset.frontCount]);
 
             frontRotationGUI = AddRotationList(EditorMenu, "Front Camber", currentPreset.defaultWheelsRot[0], currentPreset.currentWheelsRot[0]);
-            rearRotationGUI = AddRotationList(EditorMenu, "Rear Camber",  currentPreset.defaultWheelsRot[currentPreset.frontCount], currentPreset.currentWheelsRot[currentPreset.frontCount]);
+            rearRotationGUI = AddRotationList(EditorMenu, "Rear Camber", currentPreset.defaultWheelsRot[currentPreset.frontCount], currentPreset.currentWheelsRot[currentPreset.frontCount]);
 
             AddMenuReset(EditorMenu);
             EditorMenu.MouseEdgeEnabled = false;
@@ -168,7 +167,7 @@ namespace vstancer_client
 
             currentVehicle = -1;
             currentPreset = new vstancerPreset();
-            InitialiseMenu();             
+            InitialiseMenu();
 
             RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
             {
@@ -209,7 +208,7 @@ namespace vstancer_client
             Tick += OnTick;
         }
 
-        public async Task OnTick()
+        private async Task OnTick()
         {
             _menuPool.ProcessMenus();
 
@@ -494,7 +493,7 @@ namespace vstancer_client
             {
                 do
                 {
-                    if(entity != currentVehicle)
+                    if (entity != currentVehicle)
                     {
                         Vector3 currentCoords = GetEntityCoords(playerPed, true);
                         Vector3 coords = GetEntityCoords(entity, true);
@@ -504,7 +503,7 @@ namespace vstancer_client
                     }
                 }
                 while (FindNextVehicle(handle, ref entity));
-                
+
                 EndFindVehicle(handle);
             }
             await Task.FromResult(0);
@@ -533,7 +532,7 @@ namespace vstancer_client
                     else
                         SetVehicleWheelXOffset(vehicle, index, -value);
                 }
-                    
+
             }
 
             if (DecorExistOn(vehicle, decorRotationFront))
@@ -646,7 +645,7 @@ namespace vstancer_client
                         list.Add(entity);
                 }
                 while (FindNextVehicle(handle, ref entity));
-                
+
                 EndFindVehicle(handle);
             }
             IEnumerable<int> entities = list.Distinct();

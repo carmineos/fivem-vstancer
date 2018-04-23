@@ -173,7 +173,7 @@ namespace vstancer_client
 
             for (int index = 0; index < wheelsCount; index++)
             {
-                if ((Math.Round(_defaultWheelsOffset[index],3) != Math.Round(other._defaultWheelsOffset[index],3))
+                if ((Math.Round(_defaultWheelsOffset[index], 3) != Math.Round(other._defaultWheelsOffset[index], 3))
                 || (Math.Round(_defaultWheelsRot[index], 3) != Math.Round(other._defaultWheelsRot[index], 3))
                 || (Math.Round(currentWheelsOffset[index], 3) != Math.Round(other.currentWheelsOffset[index], 3))
                 || (Math.Round(currentWheelsRot[index], 3) != Math.Round(other.currentWheelsRot[index], 3))
@@ -187,8 +187,8 @@ namespace vstancer_client
         {
             string s = string.Format("Wheels count: {0} Front count: {1}", wheelsCount, frontCount);
 
-            string defOf = "Defualt offset: ";
-            string defRot = "Defualt rotation: ";
+            string defOf = "Default offset: ";
+            string defRot = "Default rotation: ";
             string curOff = "Current offset: ";
             string curRot = "Current rotation: ";
 
@@ -199,7 +199,7 @@ namespace vstancer_client
                 curOff += string.Format("{0}", currentWheelsOffset[i]);
                 curRot += string.Format("{0}", currentWheelsRot[i]);
 
-                if(i<wheelsCount-1)
+                if (i < wheelsCount - 1)
                 {
                     defOf += " ";
                     defRot += " ";
@@ -210,7 +210,7 @@ namespace vstancer_client
 
             s += Environment.NewLine + defOf + Environment.NewLine + defRot + Environment.NewLine + curOff + Environment.NewLine + curRot;
 
-            return s;   
+            return s;
         }
 
     }
