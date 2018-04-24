@@ -122,6 +122,7 @@ namespace vstancer_client
                 if (item == newitem)
                 {
                     currentPreset.ResetDefault();
+                    RefreshVehicleUsingPreset(currentVehicle, currentPreset); // Force one single refresh to update rendering at correct position after reset
                     RemoveDecorators(currentVehicle);
 
                     InitialiseMenu();
@@ -245,15 +246,19 @@ namespace vstancer_client
                 currentPreset = null;
                 currentVehicle = -1;
 
-                //Close menu if opened
+                // Close menu if opened
                 if (EditorMenu.Visible)
                     EditorMenu.Visible = false;
             }
 
-            // Current preset is always refreshed
-            RefreshCurrentVehicle();
+            // Check if current vehicle needs to be refreshed
+            if (currentVehicle != -1 && currentPreset != null)
+            {
+                if(currentPreset.HasBeenEdited)
+                    RefreshVehicleUsingPreset(currentVehicle, currentPreset);
+            }
 
-            // Check decorators needs to be updated
+            // Check if decorators needs to be updated
             if (EditorMenu.Visible || (GetGameTimer() - lastTime) > timer)
             {
                 if (currentVehicle != -1 && currentPreset != null)
@@ -463,19 +468,16 @@ namespace vstancer_client
         }
 
         /// <summary>
-        /// Refreshes the current vehicle with values from the current preset
+        /// Refreshes the <paramref name="vehicle"/> with values from the <paramref name="preset"/>
         /// </summary>
-        private async void RefreshCurrentVehicle()
+        private async void RefreshVehicleUsingPreset(int vehicle, vstancerPreset preset)
         {
-            if (currentVehicle != -1 && currentPreset != null)
+            if (DoesEntityExist(vehicle))
             {
-                if (DoesEntityExist(currentVehicle))
+                for (int index = 0; index < preset.wheelsCount; index++)
                 {
-                    for (int index = 0; index < currentPreset.wheelsCount; index++)
-                    {
-                        SetVehicleWheelXOffset(currentVehicle, index, currentPreset.currentWheelsOffset[index]);
-                        SetVehicleWheelXrot(currentVehicle, index, currentPreset.currentWheelsRot[index]);
-                    }
+                    SetVehicleWheelXOffset(vehicle, index, preset.currentWheelsOffset[index]);
+                    SetVehicleWheelXrot(vehicle, index, preset.currentWheelsRot[index]);
                 }
             }
             await Task.FromResult(0);
@@ -499,7 +501,7 @@ namespace vstancer_client
                         Vector3 coords = GetEntityCoords(entity, true);
 
                         if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
-                            RefreshVehicle(entity);
+                            RefreshVehicleUsingDecorators(entity);
                     }
                 }
                 while (FindNextVehicle(handle, ref entity));
@@ -513,7 +515,7 @@ namespace vstancer_client
         /// Refreshes the <paramref name="vehicle"/> with values from its decorators (if exist)
         /// </summary>
         /// <param name="vehicle"></param>
-        private async void RefreshVehicle(int vehicle)
+        private async void RefreshVehicleUsingDecorators(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = wheelsCount / 2;
