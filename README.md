@@ -21,20 +21,6 @@ Sets the 'float' as the maximum distance used to refresh wheels of the vehicles 
 `vstancer_debug 'bool'`
 Enables or disables the logs to be printed in the console
 
-**SERVER COMMANDS**<br />
-`vstancer_debug 'bool'`
-Enables or disables the logs to be printed in the console
-
-`vstancer_maxOffset 'float'`
-Sets the 'float' as the min/max offset for the default track width value
-
-`vstancer_maxCamber 'float'`
-Sets the 'float' as the min/max offset for the default camber value
-
-`vstancer_timer 'long'`
-Sets the 'long' as timer to wait for checking if each client needs to syncs again its preset
-<br />
-
 **CONFIG.INI**<br />
 `toggleMenu=167`
 The Control to toggle the Menu, default is 167 which is F6
@@ -58,7 +44,7 @@ The value in milliseconds used by each client to check if its preset requires to
 Enables the debug mode, which prints some logs in the console
 
 [Source](https://github.com/neos7/FiveM_vstancer)<br />
-[Download](https://github.com/neos7/FiveM_vstancer/releases/download/v2.1/vstancer_livesync.zip)<br />
+[Download](https://github.com/neos7/FiveM_vstancer/releases/download/v3/vstancer.zip)<br />
 I am open to any kind of feedback. Report suggestions and bugs you find.<br />
 
 
@@ -67,6 +53,4 @@ I am open to any kind of feedback. Report suggestions and bugs you find.<br />
 * FiveM by CitizenFX: https://github.com/citizenfx/fivem
 * NativeUI by GUAD: https://github.com/Guad/NativeUI
 * GTADrifting members: https://gtad.club/
-
-VIDEO:<br />
-https://streamable.com/hzjyj
+* All the testers
