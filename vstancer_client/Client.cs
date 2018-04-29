@@ -36,10 +36,12 @@ namespace vstancer_client
         #endregion
 
         #region FIELDS
-        private static long lastTime;
+        private long currentTime;
+        private long lastTime;
         private int playerPed;
         private int currentVehicle;
         private vstancerPreset currentPreset;
+        private IEnumerable<int> vehicles;
         #endregion
 
         #region GUI_FIELDS
@@ -135,18 +137,18 @@ namespace vstancer_client
         {
             _menuPool = new MenuPool();
             EditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, 0));
-            _menuPool.Add(EditorMenu);
 
             frontOffsetGUI = AddOffsetList(EditorMenu, "Front Track Width", currentPreset.defaultWheelsOffset[0], currentPreset.currentWheelsOffset[0]);
             rearOffsetGUI = AddOffsetList(EditorMenu, "Rear Track Width", currentPreset.defaultWheelsOffset[currentPreset.frontCount], currentPreset.currentWheelsOffset[currentPreset.frontCount]);
-
             frontRotationGUI = AddRotationList(EditorMenu, "Front Camber", currentPreset.defaultWheelsRot[0], currentPreset.currentWheelsRot[0]);
             rearRotationGUI = AddRotationList(EditorMenu, "Rear Camber", currentPreset.defaultWheelsRot[currentPreset.frontCount], currentPreset.currentWheelsRot[currentPreset.frontCount]);
-
             AddMenuReset(EditorMenu);
+
             EditorMenu.MouseEdgeEnabled = false;
             EditorMenu.ControlDisablingEnabled = false;
             EditorMenu.MouseControlsEnabled = false;
+
+            _menuPool.Add(EditorMenu);
             _menuPool.RefreshIndex();
         }
 
@@ -164,10 +166,13 @@ namespace vstancer_client
 
             LoadConfig();
 
+            currentTime = GetGameTimer();
             lastTime = GetGameTimer();
 
             currentVehicle = -1;
             currentPreset = new vstancerPreset();
+            vehicles = Enumerable.Empty<int>();
+
             InitialiseMenu();
 
             RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
@@ -207,14 +212,33 @@ namespace vstancer_client
             }), false);
 
             Tick += OnTick;
+            Tick += VstancerTask;
         }
-
         private async Task OnTick()
         {
             _menuPool.ProcessMenus();
 
-            playerPed = GetPlayerPed(-1);
+            if (currentVehicle != -1 && currentPreset != null)
+            {
+                if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu)) // TOGGLE MENU VISIBLE
+                    EditorMenu.Visible = !EditorMenu.Visible;
+            }
+            else
+            { 
+                // Close menu if opened
+                if (EditorMenu.Visible)
+                    EditorMenu.Visible = false;
+            }
+                
 
+            await Task.FromResult(0);
+        }
+
+        private async Task VstancerTask()
+        {
+            currentTime = (GetGameTimer() - lastTime);
+
+            playerPed = PlayerPedId();
             //CURRENT VEHICLE/PRESET HANDLER
             if (IsPedInAnyVehicle(playerPed, false))
             {
@@ -229,9 +253,6 @@ namespace vstancer_client
                         currentVehicle = vehicle;
                         InitialiseMenu();
                     }
-
-                    if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu)) // TOGGLE MENU VISIBLE
-                        EditorMenu.Visible = !EditorMenu.Visible;
                 }
                 else
                 {
@@ -245,31 +266,30 @@ namespace vstancer_client
                 // If player isn't in any vehicle
                 currentPreset = null;
                 currentVehicle = -1;
-
-                // Close menu if opened
-                if (EditorMenu.Visible)
-                    EditorMenu.Visible = false;
             }
 
             // Check if current vehicle needs to be refreshed
             if (currentVehicle != -1 && currentPreset != null)
             {
-                if(currentPreset.HasBeenEdited)
+                if (currentPreset.HasBeenEdited)
                     RefreshVehicleUsingPreset(currentVehicle, currentPreset);
             }
 
             // Check if decorators needs to be updated
-            if (EditorMenu.Visible || (GetGameTimer() - lastTime) > timer)
+            if (currentTime > timer)
             {
                 if (currentVehicle != -1 && currentPreset != null)
                     UpdateVehicleDecorators(currentVehicle, currentPreset);
+
+                vehicles = IterateVehicles();
+
                 lastTime = GetGameTimer();
             }
 
-            // Iterates all the vehicles and refreshes them
-            IterateVehicles();
+            // Refreshes the iterated vehicles
+            RefreshVehicles();
 
-            await Task.FromResult(0);
+            await Delay(0);
         }
 
         /// <summary>
@@ -302,7 +322,7 @@ namespace vstancer_client
             if (DecorExistOn(vehicle, decorRotationDefaultRear))
                 DecorRemove(vehicle, decorRotationDefaultRear);
 
-            await Task.FromResult(0);
+            await Delay(0);
         }
 
         /// <summary>
@@ -413,7 +433,7 @@ namespace vstancer_client
                     DecorSetFloat(vehicle, decorRotationRear, preset.currentWheelsRot[frontCount]);
             }
 
-            await Task.FromResult(0);
+            await Delay(0);
         }
 
         /// <summary>
@@ -480,35 +500,28 @@ namespace vstancer_client
                     SetVehicleWheelXrot(vehicle, index, preset.currentWheelsRot[index]);
                 }
             }
-            await Task.FromResult(0);
+            await Delay(0);
         }
 
         /// <summary>
-        /// Iterates all the vehicle entities
+        /// Refreshes all the vehicles
         /// </summary>
-        private async void IterateVehicles()
+        private async void RefreshVehicles()
         {
-            int entity = -1;
-            int handle = FindFirstVehicle(ref entity);
+            Vector3 currentCoords = GetEntityCoords(playerPed, true);
 
-            if (handle != -1)
+            foreach (int entity in vehicles.Except(new List<int> { currentVehicle }))
             {
-                do
+                //if (entity != currentVehicle)
+                if (DoesEntityExist(entity))
                 {
-                    if (entity != currentVehicle)
-                    {
-                        Vector3 currentCoords = GetEntityCoords(playerPed, true);
-                        Vector3 coords = GetEntityCoords(entity, true);
+                    Vector3 coords = GetEntityCoords(entity, true);
 
-                        if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
-                            RefreshVehicleUsingDecorators(entity);
-                    }
+                    if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
+                        RefreshVehicleUsingDecorators(entity);
                 }
-                while (FindNextVehicle(handle, ref entity));
-
-                EndFindVehicle(handle);
             }
-            await Task.FromResult(0);
+            await Delay(0);
         }
 
         /// <summary>
@@ -576,7 +589,7 @@ namespace vstancer_client
                 }
             }
 
-            await Task.FromResult(0);
+            await Delay(0);
         }
 
         /// <summary>
@@ -618,7 +631,7 @@ namespace vstancer_client
             }
             else Debug.WriteLine("VSTANCER: Current vehicle doesn't exist");
 
-            await Task.FromResult(0);
+            await Delay(0);
         }
 
         /// <summary>
@@ -626,15 +639,7 @@ namespace vstancer_client
         /// </summary>
         private async void PrintVehiclesWithDecorators()
         {
-            List<int> list = new List<int>();
-            int entity = -1;
-            int handle = FindFirstVehicle(ref entity);
-
-            if (handle != -1)
-            {
-                do
-                {
-                    if (
+            IEnumerable<int> entities = vehicles.Where(entity => (
                         DecorExistOn(entity, decorOffsetFront) ||
                         DecorExistOn(entity, decorRotationFront) ||
                         DecorExistOn(entity, decorOffsetDefaultFront) ||
@@ -643,21 +648,14 @@ namespace vstancer_client
                         DecorExistOn(entity, decorRotationRear) ||
                         DecorExistOn(entity, decorOffsetDefaultRear) ||
                         DecorExistOn(entity, decorRotationDefaultRear)
-                        )
-                        list.Add(entity);
-                }
-                while (FindNextVehicle(handle, ref entity));
+                        ) == true);
 
-                EndFindVehicle(handle);
-            }
-            IEnumerable<int> entities = list.Distinct();
             Debug.WriteLine($"VSTANCER: Vehicles with decorators: {entities.Count()}");
-            foreach (var item in entities)
-            {
-                PrintDecoratorsInfo(item);
-            }
 
-            await Task.FromResult(0);
+            foreach (var item in entities)
+                PrintDecoratorsInfo(item);
+
+            await Delay(0);
         }
 
         protected void LoadConfig()
@@ -686,6 +684,25 @@ namespace vstancer_client
 
                 Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3} maxSyncDistance={4}", maxOffset, maxCamber, timer, debug, maxSyncDistance);
             }
+        }
+
+        private IEnumerable<int> IterateVehicles()
+        {
+            List<int> entities = new List<int>();
+            int entity = -1;
+            int handle = FindFirstVehicle(ref entity);
+
+            if (handle != -1)
+            {
+                do
+                {
+                    entities.Add(entity);
+                }
+                while (FindNextVehicle(handle, ref entity));
+
+                EndFindVehicle(handle);
+            }
+            return entities;
         }
     }
 }
