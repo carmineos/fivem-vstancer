@@ -8,6 +8,7 @@ using NativeUI;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
+using System.Collections;
 
 namespace vstancer_client
 {
@@ -281,7 +282,7 @@ namespace vstancer_client
                 if (currentVehicle != -1 && currentPreset != null)
                     UpdateVehicleDecorators(currentVehicle, currentPreset);
 
-                vehicles = IterateVehicles();
+                vehicles = new VehicleList();
 
                 lastTime = GetGameTimer();
             }
@@ -686,7 +687,7 @@ namespace vstancer_client
             }
         }
 
-        private IEnumerable<int> IterateVehicles()
+        /*private IEnumerable<int> IterateVehicles()
         {
             List<int> entities = new List<int>();
             int entity = -1;
@@ -703,6 +704,32 @@ namespace vstancer_client
                 EndFindVehicle(handle);
             }
             return entities;
+        }*/
+    }
+
+
+    public class VehicleList : IEnumerable<int>
+    {
+        public IEnumerator<int> GetEnumerator()
+        {
+            int entity = -1;
+            int handle = FindFirstVehicle(ref entity);
+
+            if (handle != -1)
+            {
+                do
+                {
+                    yield return entity;
+                }
+                while (FindNextVehicle(handle, ref entity));
+
+                EndFindVehicle(handle);
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
