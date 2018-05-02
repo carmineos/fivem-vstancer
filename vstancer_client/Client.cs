@@ -77,7 +77,8 @@ namespace vstancer_client
 
             var newitem = new UIMenuListItem(name, values, currentIndex);
             menu.AddItem(newitem);
-            menu.OnListChange += (sender, item, index) =>
+            
+            /**menu.OnListChange += (sender, item, index) =>
             {
                 if (item == newitem)
                 {
@@ -87,7 +88,7 @@ namespace vstancer_client
                     if (item == frontRotationGUI) currentPreset.SetFrontRotation(values[index]);
                     else if (item == rearRotationGUI) currentPreset.SetRearRotation(values[index]);
                 }
-            };
+            };*/
             return newitem;
         }
 
@@ -101,7 +102,7 @@ namespace vstancer_client
             var newitem = new UIMenuListItem(name, values, currentIndex);
             menu.AddItem(newitem);
 
-            menu.OnListChange += (sender, item, index) =>
+            /**menu.OnListChange += (sender, item, index) =>
             {
                 if (item == newitem)
                 {
@@ -111,7 +112,7 @@ namespace vstancer_client
                     if (item == frontOffsetGUI) currentPreset.SetFrontOffset(values[index]);
                     else if (item == rearOffsetGUI) currentPreset.SetRearOffset(values[index]);
                 }
-            };
+            };*/
             return newitem;
         }
 
@@ -151,6 +152,19 @@ namespace vstancer_client
 
             _menuPool.Add(EditorMenu);
             _menuPool.RefreshIndex();
+
+            EditorMenu.OnListChange += (sender, item, index) =>
+            {
+                var value = item.IndexToItem(index);
+
+                if (item == frontRotationGUI) currentPreset.SetFrontRotation(value);
+                else if (item == rearRotationGUI) currentPreset.SetRearRotation(value);
+                else if (item == frontOffsetGUI) currentPreset.SetFrontOffset(value);
+                else if (item == rearOffsetGUI) currentPreset.SetRearOffset(value);
+
+                if (debug)
+                    Debug.WriteLine($"Edited {item.Text} => [value:{value} index:{index}]");
+            };
         }
 
         public Client()
