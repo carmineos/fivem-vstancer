@@ -25,15 +25,15 @@ namespace vstancer_client
         #endregion
 
         #region DECORATORS_NAMES
-        private static string decorOffsetFront = "vstancer_offset_front";
-        private static string decorRotationFront = "vstancer_rotation_front";
-        private static string decorOffsetDefaultFront = "vstancer_offset_default_front";
-        private static string decorRotationDefaultFront = "vstancer_rotation_default_front";
+        private static string decor_off_f = "vstancer_off_f";
+        private static string decor_rot_f = "vstancer_rot_f";
+        private static string decor_off_f_def = "vstancer_off_f_def";
+        private static string decor_rot_f_def = "vstancer_rot_f_def";
 
-        private static string decorOffsetRear = "vstancer_offset_rear";
-        private static string decorRotationRear = "vstancer_rotation_rear";
-        private static string decorOffsetDefaultRear = "vstancer_offset_default_rear";
-        private static string decorRotationDefaultRear = "vstancer_rotation_default_rear";
+        private static string decor_off_r = "vstancer_off_r";
+        private static string decor_rot_r = "vstancer_rot_r";
+        private static string decor_off_r_def = "vstancer_off_r_def";
+        private static string decor_rot_r_def = "vstancer_rot_r_def";
         #endregion
 
         #region FIELDS
@@ -169,15 +169,15 @@ namespace vstancer_client
 
         public Client()
         {
-            DecorRegister(decorOffsetFront, 1);
-            DecorRegister(decorRotationFront, 1);
-            DecorRegister(decorOffsetDefaultFront, 1);
-            DecorRegister(decorRotationDefaultFront, 1);
+            DecorRegister(decor_off_f, 1);
+            DecorRegister(decor_rot_f, 1);
+            DecorRegister(decor_off_f_def, 1);
+            DecorRegister(decor_rot_f_def, 1);
 
-            DecorRegister(decorOffsetRear, 1);
-            DecorRegister(decorRotationRear, 1);
-            DecorRegister(decorOffsetDefaultRear, 1);
-            DecorRegister(decorRotationDefaultRear, 1);
+            DecorRegister(decor_off_r, 1);
+            DecorRegister(decor_rot_r, 1);
+            DecorRegister(decor_off_r_def, 1);
+            DecorRegister(decor_rot_r_def, 1);
 
             LoadConfig();
 
@@ -313,29 +313,29 @@ namespace vstancer_client
         /// <param name="vehicle"></param>
         private async void RemoveDecorators(int vehicle)
         {
-            if (DecorExistOn(vehicle, decorOffsetFront))
-                DecorRemove(vehicle, decorOffsetFront);
+            if (DecorExistOn(vehicle, decor_off_f))
+                DecorRemove(vehicle, decor_off_f);
 
-            if (DecorExistOn(vehicle, decorRotationFront))
-                DecorRemove(vehicle, decorRotationFront);
+            if (DecorExistOn(vehicle, decor_rot_f))
+                DecorRemove(vehicle, decor_rot_f);
 
-            if (DecorExistOn(vehicle, decorOffsetDefaultFront))
-                DecorRemove(vehicle, decorOffsetDefaultFront);
+            if (DecorExistOn(vehicle, decor_off_f_def))
+                DecorRemove(vehicle, decor_off_f_def);
 
-            if (DecorExistOn(vehicle, decorRotationDefaultFront))
-                DecorRemove(vehicle, decorRotationDefaultFront);
+            if (DecorExistOn(vehicle, decor_rot_f_def))
+                DecorRemove(vehicle, decor_rot_f_def);
 
-            if (DecorExistOn(vehicle, decorOffsetRear))
-                DecorRemove(vehicle, decorOffsetRear);
+            if (DecorExistOn(vehicle, decor_off_r))
+                DecorRemove(vehicle, decor_off_r);
 
-            if (DecorExistOn(vehicle, decorRotationRear))
-                DecorRemove(vehicle, decorRotationRear);
+            if (DecorExistOn(vehicle, decor_rot_r))
+                DecorRemove(vehicle, decor_rot_r);
 
-            if (DecorExistOn(vehicle, decorOffsetDefaultRear))
-                DecorRemove(vehicle, decorOffsetDefaultRear);
+            if (DecorExistOn(vehicle, decor_off_r_def))
+                DecorRemove(vehicle, decor_off_r_def);
 
-            if (DecorExistOn(vehicle, decorRotationDefaultRear))
-                DecorRemove(vehicle, decorRotationDefaultRear);
+            if (DecorExistOn(vehicle, decor_rot_r_def))
+                DecorRemove(vehicle, decor_rot_r_def);
 
             await Delay(0);
         }
@@ -352,100 +352,100 @@ namespace vstancer_client
             if (frontCount % 2 != 0)
                 frontCount -= 1;
 
-            if (DecorExistOn(vehicle, decorOffsetDefaultFront))
+            if (DecorExistOn(vehicle, decor_off_f_def))
             {
-                float value = DecorGetFloat(vehicle, decorOffsetDefaultFront);
+                float value = DecorGetFloat(vehicle, decor_off_f_def);
                 if (value != preset.defaultWheelsOffset[0])
-                    DecorSetFloat(vehicle, decorOffsetDefaultFront, preset.defaultWheelsOffset[0]);
+                    DecorSetFloat(vehicle, decor_off_f_def, preset.defaultWheelsOffset[0]);
             }
             else
             {
                 if (preset.defaultWheelsOffset[0] != preset.currentWheelsOffset[0])
-                    DecorSetFloat(vehicle, decorOffsetDefaultFront, preset.defaultWheelsOffset[0]);
+                    DecorSetFloat(vehicle, decor_off_f_def, preset.defaultWheelsOffset[0]);
             }
 
-            if (DecorExistOn(vehicle, decorRotationDefaultFront))
+            if (DecorExistOn(vehicle, decor_rot_f_def))
             {
-                float value = DecorGetFloat(vehicle, decorRotationDefaultFront);
+                float value = DecorGetFloat(vehicle, decor_rot_f_def);
                 if (value != preset.defaultWheelsRot[0])
-                    DecorSetFloat(vehicle, decorRotationDefaultFront, preset.defaultWheelsRot[0]);
+                    DecorSetFloat(vehicle, decor_rot_f_def, preset.defaultWheelsRot[0]);
             }
             else
             {
                 if (preset.defaultWheelsRot[0] != preset.currentWheelsRot[0])
-                    DecorSetFloat(vehicle, decorRotationDefaultFront, preset.defaultWheelsRot[0]);
+                    DecorSetFloat(vehicle, decor_rot_f_def, preset.defaultWheelsRot[0]);
             }
 
-            if (DecorExistOn(vehicle, decorOffsetDefaultRear))
+            if (DecorExistOn(vehicle, decor_off_r_def))
             {
-                float value = DecorGetFloat(vehicle, decorOffsetDefaultRear);
+                float value = DecorGetFloat(vehicle, decor_off_r_def);
                 if (value != preset.defaultWheelsOffset[frontCount])
-                    DecorSetFloat(vehicle, decorOffsetDefaultRear, preset.defaultWheelsOffset[frontCount]);
+                    DecorSetFloat(vehicle, decor_off_r_def, preset.defaultWheelsOffset[frontCount]);
             }
             else
             {
                 if (preset.defaultWheelsOffset[frontCount] != preset.currentWheelsOffset[frontCount])
-                    DecorSetFloat(vehicle, decorOffsetDefaultRear, preset.defaultWheelsOffset[frontCount]);
+                    DecorSetFloat(vehicle, decor_off_r_def, preset.defaultWheelsOffset[frontCount]);
             }
 
-            if (DecorExistOn(vehicle, decorRotationDefaultRear))
+            if (DecorExistOn(vehicle, decor_rot_r_def))
             {
-                float value = DecorGetFloat(vehicle, decorRotationDefaultRear);
+                float value = DecorGetFloat(vehicle, decor_rot_r_def);
                 if (value != preset.defaultWheelsRot[frontCount])
-                    DecorSetFloat(vehicle, decorRotationDefaultRear, preset.defaultWheelsRot[frontCount]);
+                    DecorSetFloat(vehicle, decor_rot_r_def, preset.defaultWheelsRot[frontCount]);
             }
             else
             {
                 if (preset.defaultWheelsRot[frontCount] != preset.currentWheelsRot[frontCount])
-                    DecorSetFloat(vehicle, decorRotationDefaultRear, preset.defaultWheelsRot[frontCount]);
+                    DecorSetFloat(vehicle, decor_rot_r_def, preset.defaultWheelsRot[frontCount]);
             }
 
-            if (DecorExistOn(vehicle, decorOffsetFront))
+            if (DecorExistOn(vehicle, decor_off_f))
             {
-                float value = DecorGetFloat(vehicle, decorOffsetFront);
+                float value = DecorGetFloat(vehicle, decor_off_f);
                 if (value != preset.currentWheelsOffset[0])
-                    DecorSetFloat(vehicle, decorOffsetFront, preset.currentWheelsOffset[0]);
+                    DecorSetFloat(vehicle, decor_off_f, preset.currentWheelsOffset[0]);
             }
             else
             {
                 if (preset.defaultWheelsOffset[0] != preset.currentWheelsOffset[0])
-                    DecorSetFloat(vehicle, decorOffsetFront, preset.currentWheelsOffset[0]);
+                    DecorSetFloat(vehicle, decor_off_f, preset.currentWheelsOffset[0]);
             }
 
-            if (DecorExistOn(vehicle, decorRotationFront))
+            if (DecorExistOn(vehicle, decor_rot_f))
             {
-                float value = DecorGetFloat(vehicle, decorRotationFront);
+                float value = DecorGetFloat(vehicle, decor_rot_f);
                 if (value != preset.currentWheelsRot[0])
-                    DecorSetFloat(vehicle, decorRotationFront, preset.currentWheelsRot[0]);
+                    DecorSetFloat(vehicle, decor_rot_f, preset.currentWheelsRot[0]);
             }
             else
             {
                 if (preset.defaultWheelsRot[0] != preset.currentWheelsRot[0])
-                    DecorSetFloat(vehicle, decorRotationFront, preset.currentWheelsRot[0]);
+                    DecorSetFloat(vehicle, decor_rot_f, preset.currentWheelsRot[0]);
             }
 
-            if (DecorExistOn(vehicle, decorOffsetRear))
+            if (DecorExistOn(vehicle, decor_off_r))
             {
-                float value = DecorGetFloat(vehicle, decorOffsetRear);
+                float value = DecorGetFloat(vehicle, decor_off_r);
                 if (value != preset.currentWheelsOffset[frontCount])
-                    DecorSetFloat(vehicle, decorOffsetRear, preset.currentWheelsOffset[frontCount]);
+                    DecorSetFloat(vehicle, decor_off_r, preset.currentWheelsOffset[frontCount]);
             }
             else
             {
                 if (preset.defaultWheelsOffset[frontCount] != preset.currentWheelsOffset[frontCount])
-                    DecorSetFloat(vehicle, decorOffsetRear, preset.currentWheelsOffset[frontCount]);
+                    DecorSetFloat(vehicle, decor_off_r, preset.currentWheelsOffset[frontCount]);
             }
 
-            if (DecorExistOn(vehicle, decorRotationRear))
+            if (DecorExistOn(vehicle, decor_rot_r))
             {
-                float value = DecorGetFloat(vehicle, decorRotationRear);
+                float value = DecorGetFloat(vehicle, decor_rot_r);
                 if (value != preset.currentWheelsRot[frontCount])
-                    DecorSetFloat(vehicle, decorRotationRear, preset.currentWheelsRot[frontCount]);
+                    DecorSetFloat(vehicle, decor_rot_r, preset.currentWheelsRot[frontCount]);
             }
             else
             {
                 if (preset.defaultWheelsRot[frontCount] != preset.currentWheelsRot[frontCount])
-                    DecorSetFloat(vehicle, decorRotationRear, preset.currentWheelsRot[frontCount]);
+                    DecorSetFloat(vehicle, decor_rot_r, preset.currentWheelsRot[frontCount]);
             }
 
             await Delay(0);
@@ -465,36 +465,36 @@ namespace vstancer_client
 
             float currentRotationFront, currentRotationRear, currentOffsetFront, currentOffsetRear, defaultRotationFront, defaultRotationRear, defaultOffsetFront, defaultOffsetRear;
 
-            if (DecorExistOn(vehicle, decorOffsetDefaultFront))
-                defaultOffsetFront = DecorGetFloat(vehicle, decorOffsetDefaultFront);
+            if (DecorExistOn(vehicle, decor_off_f_def))
+                defaultOffsetFront = DecorGetFloat(vehicle, decor_off_f_def);
             else defaultOffsetFront = GetVehicleWheelXOffset(vehicle, 0);
 
-            if (DecorExistOn(vehicle, decorRotationDefaultFront))
-                defaultRotationFront = DecorGetFloat(vehicle, decorRotationDefaultFront);
+            if (DecorExistOn(vehicle, decor_rot_f_def))
+                defaultRotationFront = DecorGetFloat(vehicle, decor_rot_f_def);
             else defaultRotationFront = GetVehicleWheelXrot(vehicle, 0);
 
-            if (DecorExistOn(vehicle, decorOffsetFront))
-                currentOffsetFront = DecorGetFloat(vehicle, decorOffsetFront);
+            if (DecorExistOn(vehicle, decor_off_f))
+                currentOffsetFront = DecorGetFloat(vehicle, decor_off_f);
             else currentOffsetFront = defaultOffsetFront;
 
-            if (DecorExistOn(vehicle, decorRotationFront))
-                currentRotationFront = DecorGetFloat(vehicle, decorRotationFront);
+            if (DecorExistOn(vehicle, decor_rot_f))
+                currentRotationFront = DecorGetFloat(vehicle, decor_rot_f);
             else currentRotationFront = defaultRotationFront;
 
-            if (DecorExistOn(vehicle, decorOffsetDefaultRear))
-                defaultOffsetRear = DecorGetFloat(vehicle, decorOffsetDefaultRear);
+            if (DecorExistOn(vehicle, decor_off_r_def))
+                defaultOffsetRear = DecorGetFloat(vehicle, decor_off_r_def);
             else defaultOffsetRear = GetVehicleWheelXOffset(vehicle, frontCount);
 
-            if (DecorExistOn(vehicle, decorRotationDefaultRear))
-                defaultRotationRear = DecorGetFloat(vehicle, decorRotationDefaultRear);
+            if (DecorExistOn(vehicle, decor_rot_r_def))
+                defaultRotationRear = DecorGetFloat(vehicle, decor_rot_r_def);
             else defaultRotationRear = GetVehicleWheelXrot(vehicle, frontCount);
 
-            if (DecorExistOn(vehicle, decorOffsetRear))
-                currentOffsetRear = DecorGetFloat(vehicle, decorOffsetRear);
+            if (DecorExistOn(vehicle, decor_off_r))
+                currentOffsetRear = DecorGetFloat(vehicle, decor_off_r);
             else currentOffsetRear = defaultOffsetRear;
 
-            if (DecorExistOn(vehicle, decorRotationRear))
-                currentRotationRear = DecorGetFloat(vehicle, decorRotationRear);
+            if (DecorExistOn(vehicle, decor_rot_r))
+                currentRotationRear = DecorGetFloat(vehicle, decor_rot_r);
             else currentRotationRear = defaultRotationRear;
 
             vstancerPreset preset = new vstancerPreset(wheelsCount, currentRotationFront, currentRotationRear, currentOffsetFront, currentOffsetRear, defaultRotationFront, defaultRotationRear, defaultOffsetFront, defaultOffsetRear);
@@ -551,9 +551,9 @@ namespace vstancer_client
             if (frontCount % 2 != 0)
                 frontCount -= 1;
 
-            if (DecorExistOn(vehicle, decorOffsetFront))
+            if (DecorExistOn(vehicle, decor_off_f))
             {
-                float value = DecorGetFloat(vehicle, decorOffsetFront);
+                float value = DecorGetFloat(vehicle, decor_off_f);
 
                 for (int index = 0; index < frontCount; index++)
                 {
@@ -565,9 +565,9 @@ namespace vstancer_client
 
             }
 
-            if (DecorExistOn(vehicle, decorRotationFront))
+            if (DecorExistOn(vehicle, decor_rot_f))
             {
-                float value = DecorGetFloat(vehicle, decorRotationFront);
+                float value = DecorGetFloat(vehicle, decor_rot_f);
 
                 for (int index = 0; index < frontCount; index++)
                 {
@@ -578,9 +578,9 @@ namespace vstancer_client
                 }
             }
 
-            if (DecorExistOn(vehicle, decorOffsetRear))
+            if (DecorExistOn(vehicle, decor_off_r))
             {
-                float value = DecorGetFloat(vehicle, decorOffsetRear);
+                float value = DecorGetFloat(vehicle, decor_off_r);
 
                 for (int index = frontCount; index < wheelsCount; index++)
                 {
@@ -591,9 +591,9 @@ namespace vstancer_client
                 }
             }
 
-            if (DecorExistOn(vehicle, decorRotationRear))
+            if (DecorExistOn(vehicle, decor_rot_r))
             {
-                float value = DecorGetFloat(vehicle, decorRotationRear);
+                float value = DecorGetFloat(vehicle, decor_rot_r);
 
                 for (int index = frontCount; index < wheelsCount; index++)
                 {
@@ -619,28 +619,28 @@ namespace vstancer_client
                 StringBuilder s = new StringBuilder();
                 s.Append($"VSTANCER: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount} ");
 
-                if (DecorExistOn(vehicle, decorOffsetFront))
+                if (DecorExistOn(vehicle, decor_off_f))
                 {
-                    float value = DecorGetFloat(vehicle, decorOffsetFront);
-                    s.Append($"{decorOffsetFront}:{value} ");
+                    float value = DecorGetFloat(vehicle, decor_off_f);
+                    s.Append($"{decor_off_f}:{value} ");
                 }
 
-                if (DecorExistOn(vehicle, decorRotationFront))
+                if (DecorExistOn(vehicle, decor_rot_f))
                 {
-                    float value = DecorGetFloat(vehicle, decorRotationFront);
-                    s.Append($"{decorRotationFront}:{value} ");
+                    float value = DecorGetFloat(vehicle, decor_rot_f);
+                    s.Append($"{decor_rot_f}:{value} ");
                 }
 
-                if (DecorExistOn(vehicle, decorOffsetRear))
+                if (DecorExistOn(vehicle, decor_off_r))
                 {
-                    float value = DecorGetFloat(vehicle, decorOffsetRear);
-                    s.Append($"{decorOffsetRear}:{value} ");
+                    float value = DecorGetFloat(vehicle, decor_off_r);
+                    s.Append($"{decor_off_r}:{value} ");
                 }
 
-                if (DecorExistOn(vehicle, decorRotationRear))
+                if (DecorExistOn(vehicle, decor_rot_r))
                 {
-                    float value = DecorGetFloat(vehicle, decorRotationRear);
-                    s.Append($"{decorRotationRear}:{value} ");
+                    float value = DecorGetFloat(vehicle, decor_rot_r);
+                    s.Append($"{decor_rot_r}:{value} ");
                 }
                 Debug.WriteLine(s.ToString());
             }
@@ -655,14 +655,14 @@ namespace vstancer_client
         private async void PrintVehiclesWithDecorators()
         {
             IEnumerable<int> entities = vehicles.Where(entity => (
-                        DecorExistOn(entity, decorOffsetFront) ||
-                        DecorExistOn(entity, decorRotationFront) ||
-                        DecorExistOn(entity, decorOffsetDefaultFront) ||
-                        DecorExistOn(entity, decorRotationDefaultFront) ||
-                        DecorExistOn(entity, decorOffsetRear) ||
-                        DecorExistOn(entity, decorRotationRear) ||
-                        DecorExistOn(entity, decorOffsetDefaultRear) ||
-                        DecorExistOn(entity, decorRotationDefaultRear)
+                        DecorExistOn(entity, decor_off_f) ||
+                        DecorExistOn(entity, decor_rot_f) ||
+                        DecorExistOn(entity, decor_off_f_def) ||
+                        DecorExistOn(entity, decor_rot_f_def) ||
+                        DecorExistOn(entity, decor_off_r) ||
+                        DecorExistOn(entity, decor_rot_r) ||
+                        DecorExistOn(entity, decor_off_r_def) ||
+                        DecorExistOn(entity, decor_rot_r_def)
                         ) == true);
 
             Debug.WriteLine($"VSTANCER: Vehicles with decorators: {entities.Count()}");
