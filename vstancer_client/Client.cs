@@ -22,6 +22,12 @@ namespace vstancer_client
         private static long timer;
         private static bool debug;
         private static int toggleMenu;
+        private static float screenPosX;
+        private static float screenPosY;
+        public static string title;
+        public static string description;
+        public static uint bannerColor;
+        private static bool EnableBannerColor;
         #endregion
 
         #region DECORATORS_NAMES
@@ -118,7 +124,7 @@ namespace vstancer_client
 
         private void AddMenuReset(UIMenu menu)
         {
-            var newitem = new UIMenuItem("Reset", "Restores locally the default values.");
+            var newitem = new UIMenuItem("Reset", "Restores the default values");
             menu.AddItem(newitem);
 
             menu.OnItemSelect += (sender, item, index) =>
@@ -138,7 +144,14 @@ namespace vstancer_client
         private void InitialiseMenu()
         {
             _menuPool = new MenuPool();
-            EditorMenu = new UIMenu("Wheels Editor", "~b~Track Width & Camber", new PointF(Screen.Width, 0));
+            EditorMenu = new UIMenu(title, description, new PointF(screenPosX*Screen.Width, screenPosY*Screen.Height));
+
+            if (EnableBannerColor)
+            {
+                var banner = new UIResRectangle();
+                banner.Color = Color.FromArgb((int)bannerColor);
+                EditorMenu.SetBannerType(banner);
+            }
 
             frontOffsetGUI = AddOffsetList(EditorMenu, "Front Track Width", currentPreset.DefaultOffsetX[0], currentPreset.OffsetX[0]);
             rearOffsetGUI = AddOffsetList(EditorMenu, "Rear Track Width", currentPreset.DefaultOffsetX[currentPreset.frontCount], currentPreset.OffsetX[currentPreset.frontCount]);
@@ -169,6 +182,8 @@ namespace vstancer_client
 
         public Client()
         {
+            Debug.WriteLine("VSTANCER: Script by Neos7");
+
             DecorRegister(decor_off_f, 1);
             DecorRegister(decor_rot_f, 1);
             DecorRegister(decor_off_f_def, 1);
@@ -680,11 +695,12 @@ namespace vstancer_client
             try
             {
                 strings = LoadResourceFile("vstancer", "config.ini");
-                Debug.WriteLine("VSTANCER: Loaded settings from config.ini");
                 config.ParseConfigFile(strings);
+                Debug.WriteLine("VSTANCER: Loaded settings from config.ini");
             }
-            catch
+            catch(Exception e)
             {
+                Debug.WriteLine(e.StackTrace);
                 Debug.WriteLine("VSTANCER: Impossible to load config.ini");
             }
             finally
@@ -696,8 +712,14 @@ namespace vstancer_client
                 maxCamber = config.maxCamber;
                 timer = config.timer;
                 debug = config.debug;
+                screenPosX = config.screenPosX;
+                screenPosY = config.screenPosY;
+                title = config.title;
+                description = config.description;
+                bannerColor = config.bannerColor;
+                EnableBannerColor = config.EnableBannerColor;
 
-                Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3} maxSyncDistance={4}", maxOffset, maxCamber, timer, debug, maxSyncDistance);
+                Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3} maxSyncDistance={4} position={5}-{6}", maxOffset, maxCamber, timer, debug, maxSyncDistance, screenPosX, screenPosY);
             }
         }
 

@@ -1,18 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace vstancer_client
 {
     public class vstancerConfig
     {
-        public float editingFactor { get; set; } //CLIENT
-        public float maxSyncDistance { get; set; } //CLIENT
-        public int toggleMenu { get; set; } //CLIENT
-        public float maxOffset { get; set; } //SHARED
-        public float maxCamber { get; set; } //SHARED
-        public long timer { get; set; } //SHARED
-        public bool debug { get; set; } //CLIENT & SERVER
-
+        public float editingFactor { get; set; }
+        public float maxSyncDistance { get; set; }
+        public int toggleMenu { get; set; }
+        public float maxOffset { get; set; }
+        public float maxCamber { get; set; }
+        public long timer { get; set; }
+        public bool debug { get; set; }
+        public float screenPosX { get; set; }
+        public float screenPosY { get; set; }
+        public string title { get; set; }
+        public string description { get; set; }
+        public uint bannerColor { get; set; }
+        public bool EnableBannerColor { get; set; }
 
         public vstancerConfig()
         {
@@ -23,6 +29,12 @@ namespace vstancer_client
             toggleMenu = 167;
             timer = 1000;
             debug = false;
+            screenPosX = 1.0f;
+            screenPosY = 0.0f;
+            title = "Wheels Editor";
+            description = "~b~Track Width & Camber";
+            bannerColor = 0xFFF04040;
+            EnableBannerColor = false;
         }
 
         public void ParseConfigFile(string content)
@@ -61,6 +73,24 @@ namespace vstancer_client
 
             if (Entries.ContainsKey("debug"))
                 debug = bool.Parse(Entries["debug"]);
+
+            if (Entries.ContainsKey("screenPosX"))
+                screenPosX = float.Parse(Entries["screenPosX"]);
+
+            if (Entries.ContainsKey("screenPosY"))
+                screenPosY = float.Parse(Entries["screenPosY"]);
+
+            if (Entries.ContainsKey("title"))
+                title = Entries["title"].Trim();
+
+            if (Entries.ContainsKey("description"))
+                description = Entries["description"].Trim();
+
+            if (Entries.ContainsKey("bannerColor"))
+                bannerColor = Convert.ToUInt32(Entries["bannerColor"], 16);
+
+            if (Entries.ContainsKey("EnableBannerColor"))
+                EnableBannerColor = bool.Parse(Entries["EnableBannerColor"]);
         }
     }
 }
