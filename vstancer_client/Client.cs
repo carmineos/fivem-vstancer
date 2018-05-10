@@ -238,7 +238,7 @@ namespace vstancer_client
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
-                PrintVehiclesWithDecorators();
+                PrintVehiclesWithDecorators(vehicles);
             }), false);
 
             Tick += OnTick;
@@ -317,7 +317,7 @@ namespace vstancer_client
             }
 
             // Refreshes the iterated vehicles
-            RefreshVehicles();
+            RefreshVehicles(vehicles.Except(new List<int> { currentVehicle }));
 
             await Delay(0);
         }
@@ -361,7 +361,7 @@ namespace vstancer_client
         /// <param name="vehicle"></param>
         private async void UpdateVehicleDecorators(int vehicle, vstancerPreset preset)
         {
-            int wheelsCount = GetVehicleNumberOfWheels(currentVehicle);
+            int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = wheelsCount / 2;
 
             if (frontCount % 2 != 0)
@@ -536,11 +536,11 @@ namespace vstancer_client
         /// <summary>
         /// Refreshes all the vehicles
         /// </summary>
-        private async void RefreshVehicles()
+        private async void RefreshVehicles(IEnumerable<int> vehiclesList)
         {
             Vector3 currentCoords = GetEntityCoords(playerPed, true);
 
-            foreach (int entity in vehicles.Except(new List<int> { currentVehicle }))
+            foreach (int entity in vehiclesList)
             {
                 //if (entity != currentVehicle)
                 if (DoesEntityExist(entity))
@@ -667,18 +667,9 @@ namespace vstancer_client
         /// <summary>
         /// Prints the list of vehicles using any vstancer decorator.
         /// </summary>
-        private async void PrintVehiclesWithDecorators()
+        private async void PrintVehiclesWithDecorators(IEnumerable<int> vehiclesList)
         {
-            IEnumerable<int> entities = vehicles.Where(entity => (
-                        DecorExistOn(entity, decor_off_f) ||
-                        DecorExistOn(entity, decor_rot_f) ||
-                        DecorExistOn(entity, decor_off_f_def) ||
-                        DecorExistOn(entity, decor_rot_f_def) ||
-                        DecorExistOn(entity, decor_off_r) ||
-                        DecorExistOn(entity, decor_rot_r) ||
-                        DecorExistOn(entity, decor_off_r_def) ||
-                        DecorExistOn(entity, decor_rot_r_def)
-                        ) == true);
+            IEnumerable<int> entities = vehiclesList.Where(entity => HasDecorators(entity));
 
             Debug.WriteLine($"VSTANCER: Vehicles with decorators: {entities.Count()}");
 
@@ -686,6 +677,20 @@ namespace vstancer_client
                 PrintDecoratorsInfo(item);
 
             await Delay(0);
+        }
+
+        private bool HasDecorators(int entity)
+        {
+            return (    
+                DecorExistOn(entity, decor_off_f) ||
+                DecorExistOn(entity, decor_rot_f) ||    
+                DecorExistOn(entity, decor_off_r) ||
+                DecorExistOn(entity, decor_rot_r) ||
+                DecorExistOn(entity, decor_off_f_def) ||
+                DecorExistOn(entity, decor_rot_f_def) ||
+                DecorExistOn(entity, decor_off_r_def) ||
+                DecorExistOn(entity, decor_rot_r_def)
+                ) == true;
         }
 
         protected void LoadConfig()
