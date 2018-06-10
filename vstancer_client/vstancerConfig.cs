@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace vstancer_client
 {
-    public class vstancerConfig
+    public class VstancerConfig
     {
         public float editingFactor { get; set; }
         public float maxSyncDistance { get; set; }
@@ -20,7 +20,7 @@ namespace vstancer_client
         public uint bannerColor { get; set; }
         public bool EnableBannerColor { get; set; }
 
-        public vstancerConfig()
+        public VstancerConfig()
         {
             editingFactor = 0.01f;
             maxSyncDistance = 150.0f;

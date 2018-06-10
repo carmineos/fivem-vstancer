@@ -2,7 +2,7 @@
 
 namespace vstancer_client
 {
-    public class vstancerPreset : IEquatable<vstancerPreset>
+    public class VstancerPreset : IEquatable<VstancerPreset>
     {
         public int wheelsCount;
         public int frontCount;
@@ -73,7 +73,7 @@ namespace vstancer_client
             }
         }
 
-        public vstancerPreset()
+        public VstancerPreset()
         {
             wheelsCount = 4;
             frontCount = 2;
@@ -84,7 +84,7 @@ namespace vstancer_client
             OffsetX = new float[] { 0, 0, 0, 0 };
         }
 
-        public vstancerPreset(int count, float[] defRot, float[] defOff)
+        public VstancerPreset(int count, float[] defRot, float[] defOff)
         {
             wheelsCount = count;
             frontCount = wheelsCount / 2;
@@ -107,7 +107,7 @@ namespace vstancer_client
             }
         }
 
-        public vstancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
+        public VstancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
         {
             wheelsCount = count;
 
@@ -166,7 +166,7 @@ namespace vstancer_client
             }
         }
 
-        public bool Equals(vstancerPreset other)
+        public bool Equals(VstancerPreset other)
         {
             if (wheelsCount != other.wheelsCount)
                 return false;

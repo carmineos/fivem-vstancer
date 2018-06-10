@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,11 +9,10 @@ using NativeUI;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
-using System.Collections;
 
 namespace vstancer_client
 {
-    public class Client : BaseScript
+    public class Vstancer : BaseScript
     {
         #region CONFIG_FIEDS
         private static float editingFactor;
@@ -47,7 +47,7 @@ namespace vstancer_client
         private long lastTime;
         private int playerPed;
         private int currentVehicle;
-        private vstancerPreset currentPreset;
+        private VstancerPreset currentPreset;
         private IEnumerable<int> vehicles;
         #endregion
 
@@ -122,7 +122,7 @@ namespace vstancer_client
             return newitem;
         }
 
-        private void AddMenuReset(UIMenu menu)
+        private UIMenuItem AddMenuReset(UIMenu menu)
         {
             var newitem = new UIMenuItem("Reset", "Restores the default values");
             menu.AddItem(newitem);
@@ -139,6 +139,8 @@ namespace vstancer_client
                     EditorMenu.Visible = true;
                 }
             };
+
+            return newitem;
         }
 
         private void InitialiseMenu()
@@ -163,6 +165,7 @@ namespace vstancer_client
             EditorMenu.ControlDisablingEnabled = false;
             EditorMenu.MouseControlsEnabled = false;
 
+            _menuPool.ResetCursorOnOpen = true;
             _menuPool.Add(EditorMenu);
             _menuPool.RefreshIndex();
 
@@ -180,7 +183,7 @@ namespace vstancer_client
             };
         }
 
-        public Client()
+        public Vstancer()
         {
             Debug.WriteLine("VSTANCER: Script by Neos7");
 
@@ -200,7 +203,7 @@ namespace vstancer_client
             lastTime = GetGameTimer();
 
             currentVehicle = -1;
-            currentPreset = new vstancerPreset();
+            currentPreset = new VstancerPreset();
             vehicles = Enumerable.Empty<int>();
 
             InitialiseMenu();
@@ -241,26 +244,23 @@ namespace vstancer_client
                 PrintVehiclesWithDecorators(vehicles);
             }), false);
 
-            Tick += OnTick;
+            Tick += HandleMenu;
             Tick += VstancerTask;
         }
-        private async Task OnTick()
+        private async Task HandleMenu()
         {
             _menuPool.ProcessMenus();
 
             if (currentVehicle != -1 && currentPreset != null)
             {
-                if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu)) // TOGGLE MENU VISIBLE
+                if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu))
                     EditorMenu.Visible = !EditorMenu.Visible;
             }
             else
-            { 
-                // Close menu if opened
-                if (EditorMenu.Visible)
-                    EditorMenu.Visible = false;
+            {
+                if (_menuPool.IsAnyMenuOpen())
+                    _menuPool.CloseAllMenus();
             }
-                
-
             await Task.FromResult(0);
         }
 
@@ -359,7 +359,7 @@ namespace vstancer_client
         /// Updates the decorators on the <paramref name="vehicle"/> with updated values from the <paramref name="preset"/>
         /// </summary>
         /// <param name="vehicle"></param>
-        private async void UpdateVehicleDecorators(int vehicle, vstancerPreset preset)
+        private async void UpdateVehicleDecorators(int vehicle, VstancerPreset preset)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = wheelsCount / 2;
@@ -471,7 +471,7 @@ namespace vstancer_client
         /// </summary>
         /// <param name="vehicle"></param>
         /// <returns></returns>
-        private vstancerPreset CreatePreset(int vehicle)
+        private VstancerPreset CreatePreset(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = wheelsCount / 2;
@@ -512,7 +512,7 @@ namespace vstancer_client
                 currentRotationRear = DecorGetFloat(vehicle, decor_rot_r);
             else currentRotationRear = defaultRotationRear;
 
-            vstancerPreset preset = new vstancerPreset(wheelsCount, currentRotationFront, currentRotationRear, currentOffsetFront, currentOffsetRear, defaultRotationFront, defaultRotationRear, defaultOffsetFront, defaultOffsetRear);
+            VstancerPreset preset = new VstancerPreset(wheelsCount, currentRotationFront, currentRotationRear, currentOffsetFront, currentOffsetRear, defaultRotationFront, defaultRotationRear, defaultOffsetFront, defaultOffsetRear);
 
             return preset;
         }
@@ -520,7 +520,7 @@ namespace vstancer_client
         /// <summary>
         /// Refreshes the <paramref name="vehicle"/> with values from the <paramref name="preset"/>
         /// </summary>
-        private async void RefreshVehicleUsingPreset(int vehicle, vstancerPreset preset)
+        private async void RefreshVehicleUsingPreset(int vehicle, VstancerPreset preset)
         {
             if (DoesEntityExist(vehicle))
             {
@@ -696,7 +696,7 @@ namespace vstancer_client
         protected void LoadConfig()
         {
             string strings = null;
-            vstancerConfig config = new vstancerConfig();
+            VstancerConfig config = new VstancerConfig();
             try
             {
                 strings = LoadResourceFile("vstancer", "config.ini");
@@ -705,8 +705,8 @@ namespace vstancer_client
             }
             catch(Exception e)
             {
-                Debug.WriteLine(e.StackTrace);
                 Debug.WriteLine("VSTANCER: Impossible to load config.ini");
+                Debug.WriteLine(e.StackTrace);
             }
             finally
             {
@@ -727,25 +727,6 @@ namespace vstancer_client
                 Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3} maxSyncDistance={4} position={5}-{6}", maxOffset, maxCamber, timer, debug, maxSyncDistance, screenPosX, screenPosY);
             }
         }
-
-        /*private IEnumerable<int> IterateVehicles()
-        {
-            List<int> entities = new List<int>();
-            int entity = -1;
-            int handle = FindFirstVehicle(ref entity);
-
-            if (handle != -1)
-            {
-                do
-                {
-                    entities.Add(entity);
-                }
-                while (FindNextVehicle(handle, ref entity));
-
-                EndFindVehicle(handle);
-            }
-            return entities;
-        }*/
     }
 
 
