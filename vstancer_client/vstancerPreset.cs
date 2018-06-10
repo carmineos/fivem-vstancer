@@ -185,7 +185,7 @@ namespace vstancer_client
 
         public override string ToString()
         {
-            string s = string.Format("Wheels count: {0} Front count: {1}", wheelsCount, frontCount);
+            string s = string.Format($"Edited:{IsEdited} Wheels count:{wheelsCount} Front count:{frontCount}");
 
             string defOff = "Default offset: ";
             string defRot = "Default rotation: ";

@@ -17,8 +17,6 @@ namespace vstancer_client
         public float screenPosY { get; set; }
         public string title { get; set; }
         public string description { get; set; }
-        public uint bannerColor { get; set; }
-        public bool EnableBannerColor { get; set; }
 
         public VstancerConfig()
         {
@@ -33,8 +31,6 @@ namespace vstancer_client
             screenPosY = 0.0f;
             title = "Wheels Editor";
             description = "~b~Track Width & Camber";
-            bannerColor = 0xFFF04040;
-            EnableBannerColor = false;
         }
 
         public void ParseConfigFile(string content)
@@ -85,12 +81,6 @@ namespace vstancer_client
 
             if (Entries.ContainsKey("description"))
                 description = Entries["description"].Trim();
-
-            if (Entries.ContainsKey("bannerColor"))
-                bannerColor = Convert.ToUInt32(Entries["bannerColor"], 16);
-
-            if (Entries.ContainsKey("EnableBannerColor"))
-                EnableBannerColor = bool.Parse(Entries["EnableBannerColor"]);
         }
     }
 }

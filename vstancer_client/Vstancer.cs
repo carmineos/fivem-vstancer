@@ -9,6 +9,7 @@ using NativeUI;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
+using static NativeUI.UIMenuDynamicListItem;
 
 namespace vstancer_client
 {
@@ -26,8 +27,6 @@ namespace vstancer_client
         private static float screenPosY;
         public static string title;
         public static string description;
-        public static uint bannerColor;
-        private static bool EnableBannerColor;
         #endregion
 
         #region DECORATORS_NAMES
@@ -54,73 +53,11 @@ namespace vstancer_client
         #region GUI_FIELDS
         private MenuPool _menuPool;
         private UIMenu EditorMenu;
-        private UIMenuListItem frontOffsetGUI;
-        private UIMenuListItem rearOffsetGUI;
-        private UIMenuListItem frontRotationGUI;
-        private UIMenuListItem rearRotationGUI;
+        private UIMenuDynamicListItem frontOffsetGUI;
+        private UIMenuDynamicListItem rearOffsetGUI;
+        private UIMenuDynamicListItem frontRotationGUI;
+        private UIMenuDynamicListItem rearRotationGUI;
         #endregion
-
-        private List<dynamic> BuildDynamicFloatList(float defaultValue, int countValues)
-        {
-            var values = new List<dynamic>();
-
-            //POSITIVE VALUES
-            for (int i = 0; i <= countValues; i++)
-                values.Add((float)Math.Round(defaultValue + (i * editingFactor), 3));
-            //NEGATIVE VALUES
-            for (int i = countValues; i >= 1; i--)
-                values.Add((float)Math.Round(defaultValue + (-i * editingFactor), 3));
-
-            return values;
-        }
-
-        private UIMenuListItem AddRotationList(UIMenu menu, string name, float defaultValue, float currentValue)
-        {
-            int countValues = (int)(maxCamber / editingFactor);
-            List<dynamic> values = BuildDynamicFloatList(defaultValue, countValues);
-
-            var currentIndex = values.IndexOf((float)Math.Round(currentValue, 3));
-
-            var newitem = new UIMenuListItem(name, values, currentIndex);
-            menu.AddItem(newitem);
-            
-            /**menu.OnListChange += (sender, item, index) =>
-            {
-                if (item == newitem)
-                {
-                    if (debug)
-                        Debug.WriteLine($"Edited {name}: oldValue:{currentValue} newvalue:{values[index]} index:{index}");
-
-                    if (item == frontRotationGUI) currentPreset.SetFrontRotation(values[index]);
-                    else if (item == rearRotationGUI) currentPreset.SetRearRotation(values[index]);
-                }
-            };*/
-            return newitem;
-        }
-
-        private UIMenuListItem AddOffsetList(UIMenu menu, string name, float defaultValue, float currentValue)
-        {
-            int countValues = (int)(maxOffset / editingFactor);
-            List<dynamic> values = BuildDynamicFloatList(-defaultValue, countValues);
-
-            var currentIndex = values.IndexOf((float)Math.Round(-currentValue, 3));
-
-            var newitem = new UIMenuListItem(name, values, currentIndex);
-            menu.AddItem(newitem);
-
-            /**menu.OnListChange += (sender, item, index) =>
-            {
-                if (item == newitem)
-                {
-                    if (debug)
-                        Debug.WriteLine($"Edited {name}: oldValue:{currentValue} newvalue:{values[index]} index:{index}");
-
-                    if (item == frontOffsetGUI) currentPreset.SetFrontOffset(values[index]);
-                    else if (item == rearOffsetGUI) currentPreset.SetRearOffset(values[index]);
-                }
-            };*/
-            return newitem;
-        }
 
         private UIMenuItem AddMenuReset(UIMenu menu)
         {
@@ -143,22 +80,73 @@ namespace vstancer_client
             return newitem;
         }
 
+        private UIMenuDynamicListItem AddDynamicFloatList(UIMenu menu, string name, float defaultValue, float value, float maxEditing)
+        {
+            // Avoid to detect the preset as not edited when you edit it and then edit it back to stock without pressing reset button (allowing it to refresh to stock visual)
+            //value = (float)Math.Round(value, 3);
+
+            var newitem = new UIMenuDynamicListItem(name, value.ToString("F3"), (sender, direction) =>
+            {
+                float min = defaultValue - maxEditing;
+                float max = defaultValue + maxEditing;
+
+                if (direction == ChangeDirection.Left)
+                {
+                    var newvalue = value - editingFactor;
+                    if (newvalue < min)
+                        CitizenFX.Core.UI.Screen.ShowNotification($"Min value allowed is {min}");
+                    else
+                    {
+                        value = newvalue;
+                        if (sender == frontRotationGUI) currentPreset.SetRotationFront(value);
+                        else if (sender == rearRotationGUI) currentPreset.SetRotationRear(value);
+                        else if (sender == frontOffsetGUI) currentPreset.SetOffsetFront(value);
+                        else if (sender == rearOffsetGUI) currentPreset.SetOffsetRear(value);
+
+                        // Force one single refresh to update rendering at correct position after reset
+                        if (value == defaultValue)
+                            RefreshVehicleUsingPreset(currentVehicle, currentPreset);
+
+                        if (debug)
+                            Debug.WriteLine($"Edited {sender.Text} => value:{value}");
+                    }
+                }
+                else if (direction == ChangeDirection.Right)
+                {
+                    var newvalue = value + editingFactor;
+                    if (newvalue > max)
+                        CitizenFX.Core.UI.Screen.ShowNotification($"Max value allowed is {max}");
+                    else
+                    {
+                        value = newvalue;
+                        if (sender == frontRotationGUI) currentPreset.SetRotationFront(value);
+                        else if (sender == rearRotationGUI) currentPreset.SetRotationRear(value);
+                        else if (sender == frontOffsetGUI) currentPreset.SetOffsetFront(value);
+                        else if (sender == rearOffsetGUI) currentPreset.SetOffsetRear(value);
+
+                        // Force one single refresh to update rendering at correct position after reset
+                        if (value == defaultValue)
+                            RefreshVehicleUsingPreset(currentVehicle, currentPreset);
+
+                        if (debug)
+                            Debug.WriteLine($"Edited {sender.Text} => value:{value}");
+                    }
+                }
+                return value.ToString("F3");
+            });
+            menu.AddItem(newitem);
+            return newitem;
+        }
+
         private void InitialiseMenu()
         {
             _menuPool = new MenuPool();
             EditorMenu = new UIMenu(title, description, new PointF(screenPosX*Screen.Width, screenPosY*Screen.Height));
 
-            if (EnableBannerColor)
-            {
-                var banner = new UIResRectangle();
-                banner.Color = Color.FromArgb((int)bannerColor);
-                EditorMenu.SetBannerType(banner);
-            }
-
-            frontOffsetGUI = AddOffsetList(EditorMenu, "Front Track Width", currentPreset.DefaultOffsetX[0], currentPreset.OffsetX[0]);
-            rearOffsetGUI = AddOffsetList(EditorMenu, "Rear Track Width", currentPreset.DefaultOffsetX[currentPreset.frontCount], currentPreset.OffsetX[currentPreset.frontCount]);
-            frontRotationGUI = AddRotationList(EditorMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0]);
-            rearRotationGUI = AddRotationList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.frontCount], currentPreset.RotationY[currentPreset.frontCount]);
+            frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], maxOffset);
+            rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.frontCount], -currentPreset.OffsetX[currentPreset.frontCount], maxOffset);
+            frontRotationGUI = AddDynamicFloatList(EditorMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], maxCamber);
+            rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.frontCount], currentPreset.RotationY[currentPreset.frontCount], maxCamber);
             AddMenuReset(EditorMenu);
 
             EditorMenu.MouseEdgeEnabled = false;
@@ -168,19 +156,6 @@ namespace vstancer_client
             _menuPool.ResetCursorOnOpen = true;
             _menuPool.Add(EditorMenu);
             _menuPool.RefreshIndex();
-
-            EditorMenu.OnListChange += (sender, item, index) =>
-            {
-                var value = item.IndexToItem(index);
-
-                if (item == frontRotationGUI) currentPreset.SetRotationFront(value);
-                else if (item == rearRotationGUI) currentPreset.SetRotationRear(value);
-                else if (item == frontOffsetGUI) currentPreset.SetOffsetFront(value);
-                else if (item == rearOffsetGUI) currentPreset.SetOffsetRear(value);
-
-                if (debug)
-                    Debug.WriteLine($"Edited {item.Text} => [value:{value} index:{index}]");
-            };
         }
 
         public Vstancer()
@@ -247,6 +222,7 @@ namespace vstancer_client
             Tick += HandleMenu;
             Tick += VstancerTask;
         }
+
         private async Task HandleMenu()
         {
             _menuPool.ProcessMenus();
@@ -632,7 +608,7 @@ namespace vstancer_client
                 int wheelsCount = GetVehicleNumberOfWheels(vehicle);
                 int netID = NetworkGetNetworkIdFromEntity(vehicle);
                 StringBuilder s = new StringBuilder();
-                s.Append($"VSTANCER: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount} ");
+                s.Append($"VSTANCER: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
 
                 if (DecorExistOn(vehicle, decor_off_f))
                 {
@@ -721,8 +697,6 @@ namespace vstancer_client
                 screenPosY = config.screenPosY;
                 title = config.title;
                 description = config.description;
-                bannerColor = config.bannerColor;
-                EnableBannerColor = config.EnableBannerColor;
 
                 Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3} maxSyncDistance={4} position={5}-{6}", maxOffset, maxCamber, timer, debug, maxSyncDistance, screenPosX, screenPosY);
             }
