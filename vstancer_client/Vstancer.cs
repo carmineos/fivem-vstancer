@@ -164,15 +164,7 @@ namespace vstancer_client
             ResourceName = GetCurrentResourceName();
             Debug.WriteLine("VSTANCER: Script by Neos7");
 
-            DecorRegister(decor_off_f, 1);
-            DecorRegister(decor_rot_f, 1);
-            DecorRegister(decor_off_f_def, 1);
-            DecorRegister(decor_rot_f_def, 1);
-
-            DecorRegister(decor_off_r, 1);
-            DecorRegister(decor_rot_r, 1);
-            DecorRegister(decor_off_r_def, 1);
-            DecorRegister(decor_rot_r_def, 1);
+            RegisterDecorators();
 
             LoadConfig();
 
@@ -301,6 +293,24 @@ namespace vstancer_client
         }
 
         /// <summary>
+        /// Registers the decorators for this script
+        /// </summary>
+        private async void RegisterDecorators()
+        {
+            DecorRegister(decor_off_f, 1);
+            DecorRegister(decor_rot_f, 1);
+            DecorRegister(decor_off_f_def, 1);
+            DecorRegister(decor_rot_f_def, 1);
+
+            DecorRegister(decor_off_r, 1);
+            DecorRegister(decor_rot_r, 1);
+            DecorRegister(decor_off_r_def, 1);
+            DecorRegister(decor_rot_r_def, 1);
+
+            await Delay(0);
+        }
+
+        /// <summary>
         /// Removes the decorators from the <paramref name="vehicle"/>
         /// </summary>
         /// <param name="vehicle"></param>
@@ -333,6 +343,31 @@ namespace vstancer_client
             await Delay(0);
         }
 
+        public async void UpdateFloatDecorator(int vehicle, string name, float currentValue, float defaultValue)
+        {
+            // Decorator exists but needs to be updated
+            if (DecorExistOn(vehicle, name))
+            {
+                float decorValue = DecorGetFloat(vehicle, name);
+                if (Math.Abs(currentValue - decorValue) > 0.001f)
+                {
+                    DecorSetFloat(vehicle, name, currentValue);
+                    if (debug)
+                        Debug.WriteLine($"Updated decorator {name} updated from {decorValue} to {currentValue} for vehicle {vehicle}");
+                }
+            }
+            else // Decorator doesn't exist, create it if required
+            {
+                if (Math.Abs(currentValue - defaultValue) > 0.001f)
+                {
+                    DecorSetFloat(vehicle, name, currentValue);
+                    if (debug)
+                        Debug.WriteLine($"Added decorator {name} with value {currentValue} to vehicle {vehicle}");
+                }
+            }
+            await Delay(0);
+        }
+
         /// <summary>
         /// Updates the decorators on the <paramref name="vehicle"/> with updated values from the <paramref name="preset"/>
         /// </summary>
@@ -345,101 +380,17 @@ namespace vstancer_client
             if (frontCount % 2 != 0)
                 frontCount -= 1;
 
-            if (DecorExistOn(vehicle, decor_off_f_def))
-            {
-                float value = DecorGetFloat(vehicle, decor_off_f_def);
-                if (value != preset.DefaultOffsetX[0])
-                    DecorSetFloat(vehicle, decor_off_f_def, preset.DefaultOffsetX[0]);
-            }
-            else
-            {
-                if (preset.DefaultOffsetX[0] != preset.OffsetX[0])
-                    DecorSetFloat(vehicle, decor_off_f_def, preset.DefaultOffsetX[0]);
-            }
+            UpdateFloatDecorator(vehicle, decor_off_f_def, preset.DefaultOffsetX[0], preset.OffsetX[0]);
+            UpdateFloatDecorator(vehicle, decor_rot_f_def, preset.DefaultRotationY[0], preset.RotationY[0]);
 
-            if (DecorExistOn(vehicle, decor_rot_f_def))
-            {
-                float value = DecorGetFloat(vehicle, decor_rot_f_def);
-                if (value != preset.DefaultRotationY[0])
-                    DecorSetFloat(vehicle, decor_rot_f_def, preset.DefaultRotationY[0]);
-            }
-            else
-            {
-                if (preset.DefaultRotationY[0] != preset.RotationY[0])
-                    DecorSetFloat(vehicle, decor_rot_f_def, preset.DefaultRotationY[0]);
-            }
+            UpdateFloatDecorator(vehicle, decor_off_r_def, preset.DefaultOffsetX[frontCount], preset.OffsetX[frontCount]);
+            UpdateFloatDecorator(vehicle, decor_rot_r_def, preset.DefaultRotationY[frontCount], preset.RotationY[frontCount]);
 
-            if (DecorExistOn(vehicle, decor_off_r_def))
-            {
-                float value = DecorGetFloat(vehicle, decor_off_r_def);
-                if (value != preset.DefaultOffsetX[frontCount])
-                    DecorSetFloat(vehicle, decor_off_r_def, preset.DefaultOffsetX[frontCount]);
-            }
-            else
-            {
-                if (preset.DefaultOffsetX[frontCount] != preset.OffsetX[frontCount])
-                    DecorSetFloat(vehicle, decor_off_r_def, preset.DefaultOffsetX[frontCount]);
-            }
+            UpdateFloatDecorator(vehicle, decor_off_f, preset.OffsetX[0], preset.DefaultOffsetX[0]);
+            UpdateFloatDecorator(vehicle, decor_rot_f, preset.RotationY[0], preset.DefaultRotationY[0]);
+            UpdateFloatDecorator(vehicle, decor_off_r, preset.OffsetX[frontCount], preset.DefaultOffsetX[frontCount]);
+            UpdateFloatDecorator(vehicle, decor_rot_r, preset.RotationY[frontCount], preset.DefaultRotationY[frontCount]);
 
-            if (DecorExistOn(vehicle, decor_rot_r_def))
-            {
-                float value = DecorGetFloat(vehicle, decor_rot_r_def);
-                if (value != preset.DefaultRotationY[frontCount])
-                    DecorSetFloat(vehicle, decor_rot_r_def, preset.DefaultRotationY[frontCount]);
-            }
-            else
-            {
-                if (preset.DefaultRotationY[frontCount] != preset.RotationY[frontCount])
-                    DecorSetFloat(vehicle, decor_rot_r_def, preset.DefaultRotationY[frontCount]);
-            }
-
-            if (DecorExistOn(vehicle, decor_off_f))
-            {
-                float value = DecorGetFloat(vehicle, decor_off_f);
-                if (value != preset.OffsetX[0])
-                    DecorSetFloat(vehicle, decor_off_f, preset.OffsetX[0]);
-            }
-            else
-            {
-                if (preset.DefaultOffsetX[0] != preset.OffsetX[0])
-                    DecorSetFloat(vehicle, decor_off_f, preset.OffsetX[0]);
-            }
-
-            if (DecorExistOn(vehicle, decor_rot_f))
-            {
-                float value = DecorGetFloat(vehicle, decor_rot_f);
-                if (value != preset.RotationY[0])
-                    DecorSetFloat(vehicle, decor_rot_f, preset.RotationY[0]);
-            }
-            else
-            {
-                if (preset.DefaultRotationY[0] != preset.RotationY[0])
-                    DecorSetFloat(vehicle, decor_rot_f, preset.RotationY[0]);
-            }
-
-            if (DecorExistOn(vehicle, decor_off_r))
-            {
-                float value = DecorGetFloat(vehicle, decor_off_r);
-                if (value != preset.OffsetX[frontCount])
-                    DecorSetFloat(vehicle, decor_off_r, preset.OffsetX[frontCount]);
-            }
-            else
-            {
-                if (preset.DefaultOffsetX[frontCount] != preset.OffsetX[frontCount])
-                    DecorSetFloat(vehicle, decor_off_r, preset.OffsetX[frontCount]);
-            }
-
-            if (DecorExistOn(vehicle, decor_rot_r))
-            {
-                float value = DecorGetFloat(vehicle, decor_rot_r);
-                if (value != preset.RotationY[frontCount])
-                    DecorSetFloat(vehicle, decor_rot_r, preset.RotationY[frontCount]);
-            }
-            else
-            {
-                if (preset.DefaultRotationY[frontCount] != preset.RotationY[frontCount])
-                    DecorSetFloat(vehicle, decor_rot_r, preset.RotationY[frontCount]);
-            }
 
             await Delay(0);
         }
