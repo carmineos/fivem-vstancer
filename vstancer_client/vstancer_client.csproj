@@ -50,7 +50,7 @@
   <ItemGroup>
     <Compile Include="Vstancer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VstancerConfig.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="VstancerPreset.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

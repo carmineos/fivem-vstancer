@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace vstancer_client
 {
-    public class VstancerConfig
+    public class Config
     {
         public float editingFactor { get; set; }
         public float maxSyncDistance { get; set; }
@@ -18,7 +18,7 @@ namespace vstancer_client
         public string title { get; set; }
         public string description { get; set; }
 
-        public VstancerConfig()
+        public Config()
         {
             editingFactor = 0.01f;
             maxSyncDistance = 150.0f;

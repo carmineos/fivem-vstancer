@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace vstancer_client
 {
@@ -190,7 +191,8 @@ namespace vstancer_client
 
         public override string ToString()
         {
-            string s = string.Format($"Edited:{IsEdited} Wheels count:{wheelsCount} Front count:{frontCount}");
+            StringBuilder s = new StringBuilder();
+            s.AppendLine($"Edited:{IsEdited} Wheels count:{wheelsCount} Front count:{frontCount}");
 
             string defOff = "Default offset: ";
             string defRot = "Default rotation: ";
@@ -199,10 +201,10 @@ namespace vstancer_client
 
             for (int i = 0; i < wheelsCount; i++)
             {
-                defOff += string.Format("{0}", DefaultOffsetX[i]);
-                defRot += string.Format("{0}", DefaultRotationY[i]);
-                curOff += string.Format("{0}", OffsetX[i]);
-                curRot += string.Format("{0}", RotationY[i]);
+                defOff += DefaultOffsetX[i].ToString();
+                defRot += DefaultRotationY[i].ToString();
+                curOff += OffsetX[i].ToString();
+                curRot += RotationY[i].ToString();
 
                 if (i < wheelsCount - 1)
                 {
@@ -212,10 +214,13 @@ namespace vstancer_client
                     curRot += " ";
                 }
             }
+            s.AppendLine();
+            s.AppendLine(curOff);
+            s.AppendLine(defOff);
+            s.AppendLine(curRot);
+            s.AppendLine(defRot);
 
-            s += Environment.NewLine + curOff + Environment.NewLine + defOff + Environment.NewLine + curRot + Environment.NewLine + defRot;
-
-            return s;
+            return s.ToString();
         }
 
     }

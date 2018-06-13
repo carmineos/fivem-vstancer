@@ -624,7 +624,7 @@ namespace vstancer_client
         protected void LoadConfig()
         {
             string strings = null;
-            VstancerConfig config = new VstancerConfig();
+            Config config = new Config();
             try
             {
                 strings = LoadResourceFile(ResourceName, "config.ini");
