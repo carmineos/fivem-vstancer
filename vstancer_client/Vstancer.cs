@@ -25,8 +25,9 @@ namespace vstancer_client
         private static int toggleMenu;
         private static float screenPosX;
         private static float screenPosY;
-        public static string title;
-        public static string description;
+        private static string title;
+        private static string description;
+        private static string ResourceName;
         #endregion
 
         #region DECORATORS_NAMES
@@ -160,6 +161,7 @@ namespace vstancer_client
 
         public Vstancer()
         {
+            ResourceName = GetCurrentResourceName();
             Debug.WriteLine("VSTANCER: Script by Neos7");
 
             DecorRegister(decor_off_f, 1);
@@ -675,7 +677,7 @@ namespace vstancer_client
             VstancerConfig config = new VstancerConfig();
             try
             {
-                strings = LoadResourceFile("vstancer", "config.ini");
+                strings = LoadResourceFile(ResourceName, "config.ini");
                 config.ParseConfigFile(strings);
                 Debug.WriteLine("VSTANCER: Loaded settings from config.ini");
             }
