@@ -214,7 +214,6 @@ namespace vstancer_client
                     curRot += " ";
                 }
             }
-            s.AppendLine();
             s.AppendLine(curOff);
             s.AppendLine(defOff);
             s.AppendLine(curRot);

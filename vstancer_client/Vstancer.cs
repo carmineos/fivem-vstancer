@@ -201,11 +201,17 @@ namespace vstancer_client
 
             }), false);
 
-            RegisterCommand("vstancer_info", new Action<int, dynamic>((source, args) =>
+            RegisterCommand("vstancer_decorators", new Action<int, dynamic>((source, args) =>
             {
                 PrintDecoratorsInfo(currentVehicle);
+            }), false);
+
+            RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
+            {
                 if (currentPreset != null)
                     Debug.WriteLine(currentPreset.ToString());
+                else
+                    Debug.WriteLine("Current preset doesn't exist");
             }), false);
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
@@ -560,30 +566,30 @@ namespace vstancer_client
                 int wheelsCount = GetVehicleNumberOfWheels(vehicle);
                 int netID = NetworkGetNetworkIdFromEntity(vehicle);
                 StringBuilder s = new StringBuilder();
-                s.Append($"VSTANCER: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
+                s.AppendLine($"VSTANCER: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
 
                 if (DecorExistOn(vehicle, decor_off_f))
                 {
                     float value = DecorGetFloat(vehicle, decor_off_f);
-                    s.Append($"{decor_off_f}:{value} ");
+                    s.AppendLine($"{decor_off_f}: {value}");
                 }
 
                 if (DecorExistOn(vehicle, decor_rot_f))
                 {
                     float value = DecorGetFloat(vehicle, decor_rot_f);
-                    s.Append($"{decor_rot_f}:{value} ");
+                    s.AppendLine($"{decor_rot_f}: {value}");
                 }
 
                 if (DecorExistOn(vehicle, decor_off_r))
                 {
                     float value = DecorGetFloat(vehicle, decor_off_r);
-                    s.Append($"{decor_off_r}:{value} ");
+                    s.AppendLine($"{decor_off_r}: {value}");
                 }
 
                 if (DecorExistOn(vehicle, decor_rot_r))
                 {
                     float value = DecorGetFloat(vehicle, decor_rot_r);
-                    s.Append($"{decor_rot_r}:{value} ");
+                    s.AppendLine($"{decor_rot_r}: {value}");
                 }
                 Debug.WriteLine(s.ToString());
             }
@@ -602,7 +608,10 @@ namespace vstancer_client
             Debug.WriteLine($"VSTANCER: Vehicles with decorators: {entities.Count()}");
 
             foreach (var item in entities)
-                PrintDecoratorsInfo(item);
+            {
+                //PrintDecoratorsInfo(item);
+                Debug.WriteLine($"Vehicle: {item}");
+            }
 
             await Delay(0);
         }
