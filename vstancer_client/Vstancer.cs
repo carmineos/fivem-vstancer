@@ -391,7 +391,6 @@ namespace vstancer_client
             UpdateFloatDecorator(vehicle, decor_off_r, preset.OffsetX[frontCount], preset.DefaultOffsetX[frontCount]);
             UpdateFloatDecorator(vehicle, decor_rot_r, preset.RotationY[frontCount], preset.DefaultRotationY[frontCount]);
 
-
             await Delay(0);
         }
 

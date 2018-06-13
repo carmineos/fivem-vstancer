@@ -173,11 +173,16 @@ namespace vstancer_client
 
             for (int index = 0; index < wheelsCount; index++)
             {
+                /*
                 if ((Math.Round(defaultOffsetX[index], 3) != Math.Round(other.defaultOffsetX[index], 3))
                 || (Math.Round(defaultRotationY[index], 3) != Math.Round(other.defaultRotationY[index], 3))
                 || (Math.Round(OffsetX[index], 3) != Math.Round(other.OffsetX[index], 3))
                 || (Math.Round(RotationY[index], 3) != Math.Round(other.RotationY[index], 3))
-                )
+                )*/
+                if (Math.Abs(defaultOffsetX[index] - other.defaultOffsetX[index]) > 0.001f
+                    || Math.Abs(defaultRotationY[index] - other.defaultRotationY[index]) > 0.001f
+                    || Math.Abs(OffsetX[index] - other.OffsetX[index]) > 0.001f
+                    || Math.Abs(RotationY[index] - other.RotationY[index]) > 0.001f)
                     return false;
             }
             return true;
