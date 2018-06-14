@@ -15,6 +15,9 @@ namespace vstancer_client
 {
     public class Vstancer : BaseScript
     {
+        private static string ResourceName;
+        private static readonly string ScriptName = "VStancer";
+
         #region CONFIG_FIEDS
         private static float editingFactor;
         private static float maxSyncDistance;
@@ -27,7 +30,6 @@ namespace vstancer_client
         private static float screenPosY;
         private static string title;
         private static string description;
-        private static string ResourceName;
         #endregion
 
         #region DECORATORS_NAMES
@@ -60,6 +62,7 @@ namespace vstancer_client
         private UIMenuDynamicListItem rearRotationGUI;
         #endregion
 
+        #region GUI_METHODS
         private UIMenuItem AddMenuReset(UIMenu menu)
         {
             var newitem = new UIMenuItem("Reset", "Restores the default values");
@@ -83,7 +86,6 @@ namespace vstancer_client
 
         private UIMenuDynamicListItem AddDynamicFloatList(UIMenu menu, string name, float defaultValue, float value, float maxEditing)
         {
-            // Avoid to detect the preset as not edited when you edit it and then edit it back to stock without pressing reset button (allowing it to refresh to stock visual)
             //value = (float)Math.Round(value, 3);
 
             var newitem = new UIMenuDynamicListItem(name, value.ToString("F3"), (sender, direction) =>
@@ -91,9 +93,13 @@ namespace vstancer_client
                 float min = defaultValue - maxEditing;
                 float max = defaultValue + maxEditing;
 
+                //min = (float)Math.Round(min, 3);
+                //max = (float)Math.Round(max, 3);
+
                 if (direction == ChangeDirection.Left)
                 {
-                    var newvalue = value - editingFactor;
+                    var newvalue = value - editingFactor; 
+                    //newvalue = (float)Math.Round(newvalue, 3);
                     if (newvalue < min)
                         CitizenFX.Core.UI.Screen.ShowNotification($"Min value allowed is {min}");
                     else
@@ -115,6 +121,7 @@ namespace vstancer_client
                 else if (direction == ChangeDirection.Right)
                 {
                     var newvalue = value + editingFactor;
+                    //newvalue = (float)Math.Round(newvalue, 3);
                     if (newvalue > max)
                         CitizenFX.Core.UI.Screen.ShowNotification($"Max value allowed is {max}");
                     else
@@ -142,7 +149,16 @@ namespace vstancer_client
         private void InitialiseMenu()
         {
             _menuPool = new MenuPool();
+            {
+                _menuPool.ResetCursorOnOpen = true;
+            }
+
             EditorMenu = new UIMenu(title, description, new PointF(screenPosX*Screen.Width, screenPosY*Screen.Height));
+            {
+                EditorMenu.MouseEdgeEnabled = false;
+                EditorMenu.ControlDisablingEnabled = false;
+                EditorMenu.MouseControlsEnabled = false;
+            }
 
             frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], maxOffset);
             rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.frontCount], -currentPreset.OffsetX[currentPreset.frontCount], maxOffset);
@@ -150,27 +166,21 @@ namespace vstancer_client
             rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.frontCount], currentPreset.RotationY[currentPreset.frontCount], maxCamber);
             AddMenuReset(EditorMenu);
 
-            EditorMenu.MouseEdgeEnabled = false;
-            EditorMenu.ControlDisablingEnabled = false;
-            EditorMenu.MouseControlsEnabled = false;
-
-            _menuPool.ResetCursorOnOpen = true;
             _menuPool.Add(EditorMenu);
             _menuPool.RefreshIndex();
         }
+        #endregion
 
         public Vstancer()
         {
             ResourceName = GetCurrentResourceName();
-            Debug.WriteLine("VSTANCER: Script by Neos7");
+            Debug.WriteLine($"{ScriptName}: Script by Neos7");
 
             RegisterDecorators();
-
             LoadConfig();
 
             currentTime = GetGameTimer();
             lastTime = GetGameTimer();
-
             currentVehicle = -1;
             currentPreset = new VstancerPreset();
             vehicles = Enumerable.Empty<int>();
@@ -183,9 +193,9 @@ namespace vstancer_client
                 if (result)
                 {
                     maxSyncDistance = value;
-                    Debug.WriteLine("VSTANCER: Received new maxSyncDistance value {0}", value);
+                    Debug.WriteLine($"{ScriptName}: Received new {nameof(maxSyncDistance)} value {value}");
                 }
-                else Debug.WriteLine("VSTANCER: Can't parse {0}", value);
+                else Debug.WriteLine($"{ScriptName}: Error parsing new value {value} for {nameof(maxSyncDistance)}");
 
             }), false);
 
@@ -195,9 +205,9 @@ namespace vstancer_client
                 if (result)
                 {
                     debug = value;
-                    Debug.WriteLine("VSTANCER: Received new debug value {0}", value);
+                    Debug.WriteLine($"{ScriptName}: Received new {nameof(debug)} value {value}");
                 }
-                else Debug.WriteLine("VSTANCER: Can't parse {0}", value);
+                else Debug.WriteLine($"{ScriptName}: Error parsing new value {value} for {nameof(debug)}");
 
             }), false);
 
@@ -206,12 +216,24 @@ namespace vstancer_client
                 PrintDecoratorsInfo(currentVehicle);
             }), false);
 
+            RegisterCommand("vstancer_decorators_on", new Action<int, dynamic>((source, args) =>
+            {
+
+                bool result = int.TryParse(args[0], out int value);
+                if (result)
+                {
+                    PrintDecoratorsInfo(value);
+                }
+                else Debug.WriteLine($"{ScriptName}: Error parsing entity handle {value}");
+
+            }), false);
+            
             RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
             {
                 if (currentPreset != null)
                     Debug.WriteLine(currentPreset.ToString());
                 else
-                    Debug.WriteLine("Current preset doesn't exist");
+                    Debug.WriteLine($"{ScriptName}: Current preset doesn't exist");
             }), false);
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
@@ -223,6 +245,10 @@ namespace vstancer_client
             Tick += VstancerTask;
         }
 
+        /// <summary>
+        /// The GUI task of the script
+        /// </summary>
+        /// <returns></returns>
         private async Task HandleMenu()
         {
             _menuPool.ProcessMenus();
@@ -240,12 +266,16 @@ namespace vstancer_client
             await Task.FromResult(0);
         }
 
+        /// <summary>
+        /// The main task of the script
+        /// </summary>
+        /// <returns></returns>
         private async Task VstancerTask()
         {
             currentTime = (GetGameTimer() - lastTime);
 
             playerPed = PlayerPedId();
-            //CURRENT VEHICLE/PRESET HANDLER
+            
             if (IsPedInAnyVehicle(playerPed, false))
             {
                 int vehicle = GetVehiclePedIsIn(playerPed, false);
@@ -349,7 +379,14 @@ namespace vstancer_client
             await Delay(0);
         }
 
-        public async void UpdateFloatDecorator(int vehicle, string name, float currentValue, float defaultValue)
+        /// <summary>
+        /// It checks if the <paramref name="vehicle"/> has a decorator named <paramref name="name"/> and updates its value with <paramref name="currentValue"/>, otherwise if <paramref name="currentValue"/> isn't equal to <paramref name="defaultValue"/> it adds the decorator <paramref name="name"/>
+        /// </summary>
+        /// <param name="vehicle"></param>
+        /// <param name="name"></param>
+        /// <param name="currentValue"></param>
+        /// <param name="defaultValue"></param>
+        private async void UpdateFloatDecorator(int vehicle, string name, float currentValue, float defaultValue)
         {
             // Decorator exists but needs to be updated
             if (DecorExistOn(vehicle, name))
@@ -359,7 +396,7 @@ namespace vstancer_client
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (debug)
-                        Debug.WriteLine($"Updated decorator {name} updated from {decorValue} to {currentValue} for vehicle {vehicle}");
+                        Debug.WriteLine($"{ScriptName}: Updated decorator {name} from {decorValue} to {currentValue} on vehicle {vehicle}");
                 }
             }
             else // Decorator doesn't exist, create it if required
@@ -368,7 +405,7 @@ namespace vstancer_client
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (debug)
-                        Debug.WriteLine($"Added decorator {name} with value {currentValue} to vehicle {vehicle}");
+                        Debug.WriteLine($"{ScriptName}: Added decorator {name} with value {currentValue} to vehicle {vehicle}");
                 }
             }
             await Delay(0);
@@ -388,7 +425,6 @@ namespace vstancer_client
 
             UpdateFloatDecorator(vehicle, decor_off_f_def, preset.DefaultOffsetX[0], preset.OffsetX[0]);
             UpdateFloatDecorator(vehicle, decor_rot_f_def, preset.DefaultRotationY[0], preset.RotationY[0]);
-
             UpdateFloatDecorator(vehicle, decor_off_r_def, preset.DefaultOffsetX[frontCount], preset.OffsetX[frontCount]);
             UpdateFloatDecorator(vehicle, decor_rot_r_def, preset.DefaultRotationY[frontCount], preset.RotationY[frontCount]);
 
@@ -476,7 +512,6 @@ namespace vstancer_client
 
             foreach (int entity in vehiclesList)
             {
-                //if (entity != currentVehicle)
                 if (DoesEntityExist(entity))
                 {
                     Vector3 coords = GetEntityCoords(entity, true);
@@ -566,7 +601,7 @@ namespace vstancer_client
                 int wheelsCount = GetVehicleNumberOfWheels(vehicle);
                 int netID = NetworkGetNetworkIdFromEntity(vehicle);
                 StringBuilder s = new StringBuilder();
-                s.AppendLine($"VSTANCER: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
+                s.AppendLine($"{ScriptName}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
 
                 if (DecorExistOn(vehicle, decor_off_f))
                 {
@@ -593,7 +628,7 @@ namespace vstancer_client
                 }
                 Debug.WriteLine(s.ToString());
             }
-            else Debug.WriteLine("VSTANCER: Current vehicle doesn't exist");
+            else Debug.WriteLine($"{ScriptName}: Can't find vehicle with handle {vehicle}");
 
             await Delay(0);
         }
@@ -605,7 +640,7 @@ namespace vstancer_client
         {
             IEnumerable<int> entities = vehiclesList.Where(entity => HasDecorators(entity));
 
-            Debug.WriteLine($"VSTANCER: Vehicles with decorators: {entities.Count()}");
+            Debug.WriteLine($"{ScriptName}: Vehicles with decorators: {entities.Count()}");
 
             foreach (var item in entities)
             {
@@ -616,6 +651,11 @@ namespace vstancer_client
             await Delay(0);
         }
 
+        /// <summary>
+        /// Returns true if the <paramref name="entity"/> has any vstancer decorator
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         private bool HasDecorators(int entity)
         {
             return (    
@@ -638,11 +678,11 @@ namespace vstancer_client
             {
                 strings = LoadResourceFile(ResourceName, "config.ini");
                 config.ParseConfigFile(strings);
-                Debug.WriteLine("VSTANCER: Loaded settings from config.ini");
+                Debug.WriteLine($"{ScriptName}: Loaded settings from config.ini");
             }
             catch(Exception e)
             {
-                Debug.WriteLine("VSTANCER: Impossible to load config.ini");
+                Debug.WriteLine($"{ScriptName}: Impossible to load config.ini");
                 Debug.WriteLine(e.StackTrace);
             }
             finally
@@ -659,7 +699,7 @@ namespace vstancer_client
                 title = config.title;
                 description = config.description;
 
-                Debug.WriteLine("VSTANCER: Settings maxOffset={0} maxCamber={1} timer={2} debug={3} maxSyncDistance={4} position={5}-{6}", maxOffset, maxCamber, timer, debug, maxSyncDistance, screenPosX, screenPosY);
+                Debug.WriteLine($"{ScriptName}: Settings maxOffset={maxOffset} maxCamber={maxCamber} timer={timer} debug={debug} maxSyncDistance={maxSyncDistance} position={screenPosX}-{screenPosY}");
             }
         }
     }
