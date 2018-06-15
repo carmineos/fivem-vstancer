@@ -56,8 +56,8 @@ The default key to open the menu is F6<br />
 `description=~b~Track Width & Camber`
 #Description of the NativeUI Menu
 
-[Source](https://github.com/neos7/FiveM_vstancer)<br />
-[Download](https://github.com/neos7/FiveM_vstancer/releases/download/v3/vstancer.zip)<br />
+[Source](https://github.com/neos7/fivem_vstancer)<br />
+[Download](https://github.com/neos7/fivem_vstancer/releases)<br />
 I am open to any kind of feedback. Report suggestions and bugs you find.<br />
 
 
