@@ -28,8 +28,6 @@ namespace vstancer_client
         private static int toggleMenu;
         private static float screenPosX;
         private static float screenPosY;
-        private static string title;
-        private static string description;
         #endregion
 
         #region DECORATORS_NAMES
@@ -98,7 +96,7 @@ namespace vstancer_client
 
                 if (direction == ChangeDirection.Left)
                 {
-                    var newvalue = value - editingFactor; 
+                    var newvalue = value - editingFactor;
                     //newvalue = (float)Math.Round(newvalue, 3);
                     if (newvalue < min)
                         CitizenFX.Core.UI.Screen.ShowNotification($"Min value allowed is {min}");
@@ -153,7 +151,15 @@ namespace vstancer_client
                 _menuPool.ResetCursorOnOpen = true;
             }
 
-            EditorMenu = new UIMenu(title, description, new PointF(screenPosX*Screen.Width, screenPosY*Screen.Height));
+            string description = "Edit Track Width and Camber";
+            if (DoesEntityExist(currentVehicle))
+            {
+                string tmp = GetLabelText(GetDisplayNameFromVehicleModel((uint)(GetEntityModel(currentVehicle))));
+                if (!IsStringNullOrEmpty(tmp))
+                    description = tmp;
+            }
+
+            EditorMenu = new UIMenu(ScriptName, description, new PointF(screenPosX*Screen.Width, screenPosY*Screen.Height));
             {
                 EditorMenu.MouseEdgeEnabled = false;
                 EditorMenu.ControlDisablingEnabled = false;
@@ -698,19 +704,19 @@ namespace vstancer_client
                 ) == true;
         }
 
-        protected void LoadConfig()
+        protected void LoadConfig(string filename = "config.ini")
         {
             string strings = null;
             Config config = new Config();
             try
             {
-                strings = LoadResourceFile(ResourceName, "config.ini");
+                strings = LoadResourceFile(ResourceName, filename);
                 config.ParseConfigFile(strings);
-                Debug.WriteLine($"{ScriptName}: Loaded settings from config.ini");
+                Debug.WriteLine($"{ScriptName}: Loaded settings from {filename}");
             }
             catch(Exception e)
             {
-                Debug.WriteLine($"{ScriptName}: Impossible to load config.ini");
+                Debug.WriteLine($"{ScriptName}: Impossible to load {filename}");
                 Debug.WriteLine(e.StackTrace);
             }
             finally
@@ -724,10 +730,8 @@ namespace vstancer_client
                 debug = config.debug;
                 screenPosX = config.screenPosX;
                 screenPosY = config.screenPosY;
-                title = config.title;
-                description = config.description;
 
-                Debug.WriteLine($"{ScriptName}: Settings maxOffset={maxOffset} maxCamber={maxCamber} timer={timer} debug={debug} maxSyncDistance={maxSyncDistance} position={screenPosX}-{screenPosY}");
+                Debug.WriteLine($"{ScriptName}: Settings {nameof(maxOffset)}={maxOffset} {nameof(maxCamber)}={maxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance} position={screenPosX}-{screenPosY}");
             }
         }
     }

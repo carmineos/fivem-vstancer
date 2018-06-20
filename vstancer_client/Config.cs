@@ -15,8 +15,6 @@ namespace vstancer_client
         public bool debug { get; set; }
         public float screenPosX { get; set; }
         public float screenPosY { get; set; }
-        public string title { get; set; }
-        public string description { get; set; }
 
         public Config()
         {
@@ -29,8 +27,6 @@ namespace vstancer_client
             debug = false;
             screenPosX = 1.0f;
             screenPosY = 0.0f;
-            title = "Wheels Editor";
-            description = "~b~Track Width & Camber";
         }
 
         public void ParseConfigFile(string content)
@@ -76,11 +72,6 @@ namespace vstancer_client
             if (Entries.ContainsKey("screenPosY"))
                 screenPosY = float.Parse(Entries["screenPosY"]);
 
-            if (Entries.ContainsKey("title"))
-                title = Entries["title"].Trim();
-
-            if (Entries.ContainsKey("description"))
-                description = Entries["description"].Trim();
         }
     }
 }
