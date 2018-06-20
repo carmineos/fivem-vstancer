@@ -94,49 +94,34 @@ namespace vstancer_client
                 //min = (float)Math.Round(min, 3);
                 //max = (float)Math.Round(max, 3);
 
+                var newvalue = value;
+
                 if (direction == ChangeDirection.Left)
-                {
-                    var newvalue = value - editingFactor;
-                    //newvalue = (float)Math.Round(newvalue, 3);
-                    if (newvalue < min)
-                        CitizenFX.Core.UI.Screen.ShowNotification($"Min value allowed is {min}");
-                    else
-                    {
-                        value = newvalue;
-                        if (sender == frontRotationGUI) currentPreset.SetRotationFront(value);
-                        else if (sender == rearRotationGUI) currentPreset.SetRotationRear(value);
-                        else if (sender == frontOffsetGUI) currentPreset.SetOffsetFront(value);
-                        else if (sender == rearOffsetGUI) currentPreset.SetOffsetRear(value);
-
-                        // Force one single refresh to update rendering at correct position after reset
-                        if (value == defaultValue)
-                            RefreshVehicleUsingPreset(currentVehicle, currentPreset);
-
-                        if (debug)
-                            Debug.WriteLine($"Edited {sender.Text} => value:{value}");
-                    }
-                }
+                    newvalue -= editingFactor;
                 else if (direction == ChangeDirection.Right)
+                    newvalue += editingFactor;
+                else return value.ToString("F3");
+
+                //newvalue = (float)Math.Round(newvalue, 3);
+
+                if (newvalue < min)
+                    CitizenFX.Core.UI.Screen.ShowNotification($"~o~Warning~w~: Min ~b~{name}~w~ value allowed is {min} for this vehicle");
+                else if (newvalue > max)
+                    CitizenFX.Core.UI.Screen.ShowNotification($"~o~Warning~w~: Max ~b~{name}~w~ value allowed is {max} for this vehicle");
+                else
                 {
-                    var newvalue = value + editingFactor;
-                    //newvalue = (float)Math.Round(newvalue, 3);
-                    if (newvalue > max)
-                        CitizenFX.Core.UI.Screen.ShowNotification($"Max value allowed is {max}");
-                    else
-                    {
-                        value = newvalue;
-                        if (sender == frontRotationGUI) currentPreset.SetRotationFront(value);
-                        else if (sender == rearRotationGUI) currentPreset.SetRotationRear(value);
-                        else if (sender == frontOffsetGUI) currentPreset.SetOffsetFront(value);
-                        else if (sender == rearOffsetGUI) currentPreset.SetOffsetRear(value);
+                    value = newvalue;
+                    if (sender == frontRotationGUI) currentPreset.SetRotationFront(value);
+                    else if (sender == rearRotationGUI) currentPreset.SetRotationRear(value);
+                    else if (sender == frontOffsetGUI) currentPreset.SetOffsetFront(value);
+                    else if (sender == rearOffsetGUI) currentPreset.SetOffsetRear(value);
 
-                        // Force one single refresh to update rendering at correct position after reset
-                        if (value == defaultValue)
-                            RefreshVehicleUsingPreset(currentVehicle, currentPreset);
+                    // Force one single refresh to update rendering at correct position after reset
+                    if (value == defaultValue)
+                        RefreshVehicleUsingPreset(currentVehicle, currentPreset);
 
-                        if (debug)
-                            Debug.WriteLine($"Edited {sender.Text} => value:{value}");
-                    }
+                    if (debug)
+                        Debug.WriteLine($"{ScriptName}: Edited {sender.Text} => value:{value}");
                 }
                 return value.ToString("F3");
             });
