@@ -84,25 +84,21 @@ namespace vstancer_client
 
         private UIMenuDynamicListItem AddDynamicFloatList(UIMenu menu, string name, float defaultValue, float value, float maxEditing)
         {
-            //value = (float)Math.Round(value, 3);
-
             var newitem = new UIMenuDynamicListItem(name, value.ToString("F3"), (sender, direction) =>
             {
+                var newvalue = value;
                 float min = defaultValue - maxEditing;
                 float max = defaultValue + maxEditing;
 
+                //newvalue = (float)Math.Round(newvalue, 3);
                 //min = (float)Math.Round(min, 3);
                 //max = (float)Math.Round(max, 3);
-
-                var newvalue = value;
 
                 if (direction == ChangeDirection.Left)
                     newvalue -= editingFactor;
                 else if (direction == ChangeDirection.Right)
                     newvalue += editingFactor;
                 else return value.ToString("F3");
-
-                //newvalue = (float)Math.Round(newvalue, 3);
 
                 if (newvalue < min)
                     CitizenFX.Core.UI.Screen.ShowNotification($"~o~Warning~w~: Min ~b~{name}~w~ value allowed is {min} for this vehicle");
@@ -662,10 +658,7 @@ namespace vstancer_client
             Debug.WriteLine($"{ScriptName}: Vehicles with decorators: {entities.Count()}");
 
             foreach (var item in entities)
-            {
-                //PrintDecoratorsInfo(item);
                 Debug.WriteLine($"Vehicle: {item}");
-            }
 
             await Delay(0);
         }
@@ -731,10 +724,7 @@ namespace vstancer_client
 
             if (handle != -1)
             {
-                do
-                {
-                    yield return entity;
-                }
+                do yield return entity;
                 while (FindNextVehicle(handle, ref entity));
 
                 EndFindVehicle(handle);
