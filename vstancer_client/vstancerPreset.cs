@@ -8,57 +8,33 @@ namespace vstancer_client
         public int wheelsCount;
         public int frontCount;
 
-        private float[] defaultRotationY;
-        private float[] defaultOffsetX;
-
-        public float[] DefaultRotationY => defaultRotationY;
-        public float[] DefaultOffsetX => defaultOffsetX;
-
+        public float[] DefaultRotationY { get; private set; }
+        public float[] DefaultOffsetX { get; private set; }
         public float[] RotationY { get; set; }
         public float[] OffsetX { get; set; }
 
         public void SetOffsetFront(float value)
         {
             for (int index = 0; index < frontCount; index++)
-            {
-                if (index % 2 == 0)
-                    OffsetX[index] = -value;
-                else
-                    OffsetX[index] = value;
-            }
+                OffsetX[index] = (index % 2 == 0) ? -value : value;     
         }
 
         public void SetOffsetRear(float value)
         {
             for (int index = frontCount; index < wheelsCount; index++)
-            {
-                if (index % 2 == 0)
-                    OffsetX[index] = -value;
-                else
-                    OffsetX[index] = value;
-            }
+                OffsetX[index] = (index % 2 == 0) ? -value : value;
         }
 
         public void SetRotationFront(float value)
         {
             for (int index = 0; index < frontCount; index++)
-            {
-                if (index % 2 == 0)
-                    RotationY[index] = value;
-                else
-                    RotationY[index] = -value;
-            }
+                RotationY[index] = (index % 2 == 0) ? value : -value;
         }
 
         public void SetRotationRear(float value)
         {
             for (int index = frontCount; index < wheelsCount; index++)
-            {
-                if (index % 2 == 0)
-                    RotationY[index] = value;
-                else
-                    RotationY[index] = -value;
-            }
+                RotationY[index] = (index % 2 == 0) ? value : -value;
         }
 
         public bool IsEdited
@@ -67,7 +43,7 @@ namespace vstancer_client
             {
                 for (int index = 0; index < wheelsCount; index++)
                 {
-                    if ((defaultOffsetX[index] != OffsetX[index]) || (defaultRotationY[index] != RotationY[index]))
+                    if ((DefaultOffsetX[index] != OffsetX[index]) || (DefaultRotationY[index] != RotationY[index]))
                         return true;
                 }
                 return false;
@@ -79,8 +55,8 @@ namespace vstancer_client
             wheelsCount = 4;
             frontCount = 2;
 
-            defaultRotationY = new float[] { 0, 0, 0, 0 };
-            defaultOffsetX = new float[] { 0, 0, 0, 0 };
+            DefaultRotationY = new float[] { 0, 0, 0, 0 };
+            DefaultOffsetX = new float[] { 0, 0, 0, 0 };
             RotationY = new float[] { 0, 0, 0, 0 };
             OffsetX = new float[] { 0, 0, 0, 0 };
         }
@@ -93,18 +69,18 @@ namespace vstancer_client
             if (frontCount % 2 != 0)
                 frontCount -= 1;
 
-            defaultRotationY = new float[wheelsCount];
-            defaultOffsetX = new float[wheelsCount];
+            DefaultRotationY = new float[wheelsCount];
+            DefaultOffsetX = new float[wheelsCount];
             RotationY = new float[wheelsCount];
             OffsetX = new float[wheelsCount];
 
             for (int index = 0; index < wheelsCount; index++)
             {
-                defaultRotationY[index] = defRot[index];
-                defaultOffsetX[index] = defOff[index];
+                DefaultRotationY[index] = defRot[index];
+                DefaultOffsetX[index] = defOff[index];
 
-                RotationY[index] = defaultRotationY[index];
-                OffsetX[index] = defaultOffsetX[index];
+                RotationY[index] = DefaultRotationY[index];
+                OffsetX[index] = DefaultOffsetX[index];
             }
         }
 
@@ -112,8 +88,8 @@ namespace vstancer_client
         {
             wheelsCount = count;
 
-            defaultRotationY = new float[wheelsCount];
-            defaultOffsetX = new float[wheelsCount];
+            DefaultRotationY = new float[wheelsCount];
+            DefaultOffsetX = new float[wheelsCount];
             RotationY = new float[wheelsCount];
             OffsetX = new float[wheelsCount];
 
@@ -125,15 +101,15 @@ namespace vstancer_client
             {
                 if (index % 2 == 0)
                 {
-                    defaultRotationY[index] = defRotFront;
-                    defaultOffsetX[index] = defOffFront;
+                    DefaultRotationY[index] = defRotFront;
+                    DefaultOffsetX[index] = defOffFront;
                     RotationY[index] = currentRotFront;
                     OffsetX[index] = currentOffFront;
                 }
                 else
                 {
-                    defaultRotationY[index] = -defRotFront;
-                    defaultOffsetX[index] = -defOffFront;
+                    DefaultRotationY[index] = -defRotFront;
+                    DefaultOffsetX[index] = -defOffFront;
                     RotationY[index] = -currentRotFront;
                     OffsetX[index] = -currentOffFront;
                 }
@@ -143,15 +119,15 @@ namespace vstancer_client
             {
                 if (index % 2 == 0)
                 {
-                    defaultRotationY[index] = defRotRear;
-                    defaultOffsetX[index] = defOffRear;
+                    DefaultRotationY[index] = defRotRear;
+                    DefaultOffsetX[index] = defOffRear;
                     RotationY[index] = currentRotRear;
                     OffsetX[index] = currentOffRear;
                 }
                 else
                 {
-                    defaultRotationY[index] = -defRotRear;
-                    defaultOffsetX[index] = -defOffRear;
+                    DefaultRotationY[index] = -defRotRear;
+                    DefaultOffsetX[index] = -defOffRear;
                     RotationY[index] = -currentRotRear;
                     OffsetX[index] = -currentOffRear;
                 }
@@ -162,8 +138,8 @@ namespace vstancer_client
         {
             for (int index = 0; index < wheelsCount; index++)
             {
-                RotationY[index] = defaultRotationY[index];
-                OffsetX[index] = defaultOffsetX[index];
+                RotationY[index] = DefaultRotationY[index];
+                OffsetX[index] = DefaultOffsetX[index];
             }
         }
 
@@ -174,8 +150,8 @@ namespace vstancer_client
 
             for (int index = 0; index < wheelsCount; index++)
             {
-                if (Math.Abs(defaultOffsetX[index] - other.defaultOffsetX[index]) > 0.001f
-                    || Math.Abs(defaultRotationY[index] - other.defaultRotationY[index]) > 0.001f
+                if (Math.Abs(DefaultOffsetX[index] - other.DefaultOffsetX[index]) > 0.001f
+                    || Math.Abs(DefaultRotationY[index] - other.DefaultRotationY[index]) > 0.001f
                     || Math.Abs(OffsetX[index] - other.OffsetX[index]) > 0.001f
                     || Math.Abs(RotationY[index] - other.RotationY[index]) > 0.001f)
                     return false;
@@ -188,30 +164,23 @@ namespace vstancer_client
             StringBuilder s = new StringBuilder();
             s.AppendLine($"Edited:{IsEdited} Wheels count:{wheelsCount} Front count:{frontCount}");
 
-            string defOff = "Default offset: ";
-            string defRot = "Default rotation: ";
-            string curOff = "Current offset: ";
-            string curRot = "Current rotation: ";
+            StringBuilder defOff = new StringBuilder(string.Format("{0,20}", "Default offset:"));
+            StringBuilder defRot = new StringBuilder(string.Format("{0,20}", "Default rotation:"));
+            StringBuilder curOff = new StringBuilder(string.Format("{0,20}", "Current offset:"));
+            StringBuilder curRot = new StringBuilder(string.Format("{0,20}", "Current rotation:"));
 
             for (int i = 0; i < wheelsCount; i++)
             {
-                defOff += DefaultOffsetX[i].ToString();
-                defRot += DefaultRotationY[i].ToString();
-                curOff += OffsetX[i].ToString();
-                curRot += RotationY[i].ToString();
-
-                if (i < wheelsCount - 1)
-                {
-                    defOff += " ";
-                    defRot += " ";
-                    curOff += " ";
-                    curRot += " ";
-                }
+                defOff.Append(string.Format("{0,15}", DefaultOffsetX[i]));
+                defRot.Append(string.Format("{0,15}", DefaultRotationY[i]));
+                curOff.Append(string.Format("{0,15}", OffsetX[i]));
+                curRot.Append(string.Format("{0,15}", RotationY[i]));
             }
-            s.AppendLine(curOff);
-            s.AppendLine(defOff);
-            s.AppendLine(curRot);
-            s.AppendLine(defRot);
+
+            s.AppendLine(curOff.ToString());
+            s.AppendLine(defOff.ToString());
+            s.AppendLine(curRot.ToString());
+            s.AppendLine(defRot.ToString());
 
             return s.ToString();
         }

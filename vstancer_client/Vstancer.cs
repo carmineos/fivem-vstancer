@@ -463,41 +463,18 @@ namespace vstancer_client
             if (frontCount % 2 != 0)
                 frontCount -= 1;
 
-            float currentRotationFront, currentRotationRear, currentOffsetFront, currentOffsetRear, defaultRotationFront, defaultRotationRear, defaultOffsetFront, defaultOffsetRear;
+            // Get default values first
+            float off_f_def = DecorExistOn(vehicle, decor_off_f_def) ? DecorGetFloat(vehicle, decor_off_f_def) : GetVehicleWheelXOffset(vehicle, 0);
+            float rot_f_def = DecorExistOn(vehicle, decor_rot_f_def) ? DecorGetFloat(vehicle, decor_rot_f_def) : GetVehicleWheelXrot(vehicle, 0);
+            float off_r_def = DecorExistOn(vehicle, decor_off_r_def) ? DecorGetFloat(vehicle, decor_off_r_def) : GetVehicleWheelXOffset(vehicle, frontCount);
+            float rot_r_def = DecorExistOn(vehicle, decor_rot_r_def) ? DecorGetFloat(vehicle, decor_rot_r_def) : GetVehicleWheelXrot(vehicle, frontCount);
 
-            if (DecorExistOn(vehicle, decor_off_f_def))
-                defaultOffsetFront = DecorGetFloat(vehicle, decor_off_f_def);
-            else defaultOffsetFront = GetVehicleWheelXOffset(vehicle, 0);
+            float off_f = DecorExistOn(vehicle, decor_off_f) ? DecorGetFloat(vehicle, decor_off_f) : off_f_def;
+            float rot_f = DecorExistOn(vehicle, decor_rot_f) ? DecorGetFloat(vehicle, decor_rot_f) : rot_f_def;
+            float off_r = DecorExistOn(vehicle, decor_off_r) ? DecorGetFloat(vehicle, decor_off_r) : off_r_def;
+            float rot_r = DecorExistOn(vehicle, decor_rot_r) ? DecorGetFloat(vehicle, decor_rot_r) : rot_r_def;
 
-            if (DecorExistOn(vehicle, decor_rot_f_def))
-                defaultRotationFront = DecorGetFloat(vehicle, decor_rot_f_def);
-            else defaultRotationFront = GetVehicleWheelXrot(vehicle, 0);  // native should be called GetVehicleWheelYrot
-
-            if (DecorExistOn(vehicle, decor_off_f))
-                currentOffsetFront = DecorGetFloat(vehicle, decor_off_f);
-            else currentOffsetFront = defaultOffsetFront;
-
-            if (DecorExistOn(vehicle, decor_rot_f))
-                currentRotationFront = DecorGetFloat(vehicle, decor_rot_f);
-            else currentRotationFront = defaultRotationFront;
-
-            if (DecorExistOn(vehicle, decor_off_r_def))
-                defaultOffsetRear = DecorGetFloat(vehicle, decor_off_r_def);
-            else defaultOffsetRear = GetVehicleWheelXOffset(vehicle, frontCount);
-
-            if (DecorExistOn(vehicle, decor_rot_r_def))
-                defaultRotationRear = DecorGetFloat(vehicle, decor_rot_r_def);
-            else defaultRotationRear = GetVehicleWheelXrot(vehicle, frontCount); // native should be called GetVehicleWheelYrot
-
-            if (DecorExistOn(vehicle, decor_off_r))
-                currentOffsetRear = DecorGetFloat(vehicle, decor_off_r);
-            else currentOffsetRear = defaultOffsetRear;
-
-            if (DecorExistOn(vehicle, decor_rot_r))
-                currentRotationRear = DecorGetFloat(vehicle, decor_rot_r);
-            else currentRotationRear = defaultRotationRear;
-
-            VstancerPreset preset = new VstancerPreset(wheelsCount, currentRotationFront, currentRotationRear, currentOffsetFront, currentOffsetRear, defaultRotationFront, defaultRotationRear, defaultOffsetFront, defaultOffsetRear);
+            VstancerPreset preset = new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
 
             return preset;
         }
@@ -709,7 +686,7 @@ namespace vstancer_client
                 screenPosX = config.screenPosX;
                 screenPosY = config.screenPosY;
 
-                Debug.WriteLine($"{ScriptName}: Settings {nameof(maxOffset)}={maxOffset} {nameof(maxCamber)}={maxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance} position={screenPosX}-{screenPosY}");
+                Debug.WriteLine($"{ScriptName}: Settings {nameof(maxOffset)}={maxOffset} {nameof(maxCamber)}={maxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance}");
             }
         }
     }
