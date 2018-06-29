@@ -148,9 +148,9 @@ namespace vstancer_client
             }
 
             frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], maxOffset);
-            rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.frontCount], -currentPreset.OffsetX[currentPreset.frontCount], maxOffset);
+            rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], maxOffset);
             frontRotationGUI = AddDynamicFloatList(EditorMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], maxCamber);
-            rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.frontCount], currentPreset.RotationY[currentPreset.frontCount], maxCamber);
+            rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], maxCamber);
             AddMenuReset(EditorMenu);
 
             _menuPool.Add(EditorMenu);
@@ -494,7 +494,7 @@ namespace vstancer_client
         {
             if (DoesEntityExist(vehicle))
             {
-                for (int index = 0; index < preset.wheelsCount; index++)
+                for (int index = 0; index < preset.WheelsCount; index++)
                 {
                     SetVehicleWheelXOffset(vehicle, index, preset.OffsetX[index]);
                     SetVehicleWheelXrot(vehicle, index, preset.RotationY[index]);

@@ -5,8 +5,8 @@ namespace vstancer_client
 {
     public class VstancerPreset : IEquatable<VstancerPreset>
     {
-        public int wheelsCount;
-        public int frontCount;
+        public int WheelsCount { get; private set; }
+        public int FrontWheelsCount { get; private set; }
 
         public float[] DefaultRotationY { get; private set; }
         public float[] DefaultOffsetX { get; private set; }
@@ -15,25 +15,25 @@ namespace vstancer_client
 
         public void SetOffsetFront(float value)
         {
-            for (int index = 0; index < frontCount; index++)
+            for (int index = 0; index < FrontWheelsCount; index++)
                 OffsetX[index] = (index % 2 == 0) ? -value : value;     
         }
 
         public void SetOffsetRear(float value)
         {
-            for (int index = frontCount; index < wheelsCount; index++)
+            for (int index = FrontWheelsCount; index < WheelsCount; index++)
                 OffsetX[index] = (index % 2 == 0) ? -value : value;
         }
 
         public void SetRotationFront(float value)
         {
-            for (int index = 0; index < frontCount; index++)
+            for (int index = 0; index < FrontWheelsCount; index++)
                 RotationY[index] = (index % 2 == 0) ? value : -value;
         }
 
         public void SetRotationRear(float value)
         {
-            for (int index = frontCount; index < wheelsCount; index++)
+            for (int index = FrontWheelsCount; index < WheelsCount; index++)
                 RotationY[index] = (index % 2 == 0) ? value : -value;
         }
 
@@ -41,7 +41,7 @@ namespace vstancer_client
         {
             get
             {
-                for (int index = 0; index < wheelsCount; index++)
+                for (int index = 0; index < WheelsCount; index++)
                 {
                     if ((DefaultOffsetX[index] != OffsetX[index]) || (DefaultRotationY[index] != RotationY[index]))
                         return true;
@@ -52,8 +52,8 @@ namespace vstancer_client
 
         public VstancerPreset()
         {
-            wheelsCount = 4;
-            frontCount = 2;
+            WheelsCount = 4;
+            FrontWheelsCount = 2;
 
             DefaultRotationY = new float[] { 0, 0, 0, 0 };
             DefaultOffsetX = new float[] { 0, 0, 0, 0 };
@@ -63,18 +63,18 @@ namespace vstancer_client
 
         public VstancerPreset(int count, float[] defRot, float[] defOff)
         {
-            wheelsCount = count;
-            frontCount = wheelsCount / 2;
+            WheelsCount = count;
+            FrontWheelsCount = WheelsCount / 2;
 
-            if (frontCount % 2 != 0)
-                frontCount -= 1;
+            if (FrontWheelsCount % 2 != 0)
+                FrontWheelsCount -= 1;
 
-            DefaultRotationY = new float[wheelsCount];
-            DefaultOffsetX = new float[wheelsCount];
-            RotationY = new float[wheelsCount];
-            OffsetX = new float[wheelsCount];
+            DefaultRotationY = new float[WheelsCount];
+            DefaultOffsetX = new float[WheelsCount];
+            RotationY = new float[WheelsCount];
+            OffsetX = new float[WheelsCount];
 
-            for (int index = 0; index < wheelsCount; index++)
+            for (int index = 0; index < WheelsCount; index++)
             {
                 DefaultRotationY[index] = defRot[index];
                 DefaultOffsetX[index] = defOff[index];
@@ -86,18 +86,18 @@ namespace vstancer_client
 
         public VstancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
         {
-            wheelsCount = count;
+            WheelsCount = count;
 
-            DefaultRotationY = new float[wheelsCount];
-            DefaultOffsetX = new float[wheelsCount];
-            RotationY = new float[wheelsCount];
-            OffsetX = new float[wheelsCount];
+            DefaultRotationY = new float[WheelsCount];
+            DefaultOffsetX = new float[WheelsCount];
+            RotationY = new float[WheelsCount];
+            OffsetX = new float[WheelsCount];
 
-            frontCount = wheelsCount / 2;
-            if (frontCount % 2 != 0)
-                frontCount -= 1;
+            FrontWheelsCount = WheelsCount / 2;
+            if (FrontWheelsCount % 2 != 0)
+                FrontWheelsCount -= 1;
 
-            for (int index = 0; index < frontCount; index++)
+            for (int index = 0; index < FrontWheelsCount; index++)
             {
                 if (index % 2 == 0)
                 {
@@ -115,7 +115,7 @@ namespace vstancer_client
                 }
             }
 
-            for (int index = frontCount; index < wheelsCount; index++)
+            for (int index = FrontWheelsCount; index < WheelsCount; index++)
             {
                 if (index % 2 == 0)
                 {
@@ -136,7 +136,7 @@ namespace vstancer_client
 
         public void Reset()
         {
-            for (int index = 0; index < wheelsCount; index++)
+            for (int index = 0; index < WheelsCount; index++)
             {
                 RotationY[index] = DefaultRotationY[index];
                 OffsetX[index] = DefaultOffsetX[index];
@@ -145,10 +145,10 @@ namespace vstancer_client
 
         public bool Equals(VstancerPreset other)
         {
-            if (wheelsCount != other.wheelsCount)
+            if (WheelsCount != other.WheelsCount)
                 return false;
 
-            for (int index = 0; index < wheelsCount; index++)
+            for (int index = 0; index < WheelsCount; index++)
             {
                 if (Math.Abs(DefaultOffsetX[index] - other.DefaultOffsetX[index]) > 0.001f
                     || Math.Abs(DefaultRotationY[index] - other.DefaultRotationY[index]) > 0.001f
@@ -162,14 +162,14 @@ namespace vstancer_client
         public override string ToString()
         {
             StringBuilder s = new StringBuilder();
-            s.AppendLine($"Edited:{IsEdited} Wheels count:{wheelsCount} Front count:{frontCount}");
+            s.AppendLine($"Edited:{IsEdited} Wheels count:{WheelsCount} Front count:{FrontWheelsCount}");
 
             StringBuilder defOff = new StringBuilder(string.Format("{0,20}", "Default offset:"));
             StringBuilder defRot = new StringBuilder(string.Format("{0,20}", "Default rotation:"));
             StringBuilder curOff = new StringBuilder(string.Format("{0,20}", "Current offset:"));
             StringBuilder curRot = new StringBuilder(string.Format("{0,20}", "Current rotation:"));
 
-            for (int i = 0; i < wheelsCount; i++)
+            for (int i = 0; i < WheelsCount; i++)
             {
                 defOff.Append(string.Format("{0,15}", DefaultOffsetX[i]));
                 defRot.Append(string.Format("{0,15}", DefaultRotationY[i]));
