@@ -35,10 +35,10 @@ The default key to open the menu is F6<br />
 `editingFactor=0.01`
 #The amount each value changes when you increase or decrease it
 
-`maxOffset=0.30`
+`maxOffset=0.25`
 #The max value you can increase or decrease the default Track Width
 
-`maxCamber=0.25`
+`maxCamber=0.20`
 #The max value you can increase or decrease the default Camber
 
 `maxSyncDistance=150.0`
@@ -49,12 +49,6 @@ The default key to open the menu is F6<br />
 
 `debug=false`
 #Enables the debug mode, which prints some logs in the console
-
-`title=Wheels Editor`
-#Title of the NativeUI Menu
-
-`description=~b~Track Width & Camber`
-#Description of the NativeUI Menu
 
 [Source](https://github.com/neos7/fivem_vstancer)<br />
 [Download](https://github.com/neos7/fivem_vstancer/releases)<br />
