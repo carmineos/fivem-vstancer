@@ -1,68 +1,67 @@
-**INTRODUCTION**<br />
-An attempt to use the features from ikt's VStancer as resource for FiveM servers to synchronize the edits among players. It is built using FiveM API and FiveM port of NativeUI.<br />
+## VSTANCER
+An attempt to use the features from ikt's VStancer as resource for FiveM servers to synchronize the edited vehicles with all the players. It is built using FiveM API and FiveM port of NativeUI.
 
-The script allows to edit the camber and the track width of the wheels.<br />
+When a client edits a vehicle, it will be automatically synchronized with all the players.
+If a vehicle is reset to the default values it will stop from being synchronized.
 
-When a client edits something, it will be automatically synchronized.<br />
-If a client resets the settings it will stop from being synchronized until he changes something again.<br />
+This version of the script tries to achieve the result using decorators.
+The default key to open the menu is F6
 
-This version of the script tries to achieve the result using decorators.<br />
-The default key to open the menu is F6<br />
+#### FEATURES
+* Edit X Position of the wheels' bones (Track Width)
+* Edit Y Rotation of the wheels' bones (Camber)
 
-**CLIENT COMMANDS**<br />
+#### CLIENT COMMANDS
 `vstancer_preset`
-#Prints the preset of the current vehicle
+Prints the preset of the current vehicle
 
 `vstancer_decorators`
-#Prints the info about decorators on the current vehicle
+Prints the info about decorators on the current vehicle
 
 `vstancer_decorators_on 'int'` 
-#Prints the info about decorators on the 'int' vehicle
+Prints the info about decorators on the vehicle with local 'int' handle
 
 `vstancer_print`
-#Prints the list of all the vehicles with any decorator of this script
+Prints the list of all the vehicles with any decorator of this script
 
 `vstancer_distance 'float'`
-#Sets the 'float' as the maximum distance used to refresh wheels of the vehicles with decorators
+Sets the 'float' as the maximum distance used to refresh wheels of the vehicles with decorators
 
 `vstancer_debug 'bool'`
-#Enables or disables the logs to be printed in the console
+Enables or disables the logs to be printed in the console
 
-**CONFIG.INI**<br />
+#### CONFIG
 `toggleMenu=167`
-#The Control to toggle the Menu, default is 167 which is F6
+The Control to toggle the Menu, default is 167 which is F6
 
 `editingFactor=0.01`
-#The amount each value changes when you increase or decrease it
+The step used to increase and decrease a value
 
 `maxOffset=0.25`
-#The max value you can increase or decrease the default Track Width
+The max value you can increase or decrease the default Track Width
 
 `maxCamber=0.20`
-#The max value you can increase or decrease the default Camber
+The max value you can increase or decrease the default Camber
 
 `maxSyncDistance=150.0`
-#The max distance within which each client refreshes others clients' vehicles
+The max distance within which each client refreshes others clients' vehicles
 
 `timer=1000`
-#The value in milliseconds used by each client to check if its preset requires to be synched again
+The value in milliseconds used by each client to check if its preset requires to be synched again
 
 `debug=false`
-#Enables the debug mode, which prints some logs in the console
+Enables the debug mode, which prints some logs in the console
 
-[Source](https://github.com/neos7/fivem_vstancer)<br />
-[Download](https://github.com/neos7/fivem_vstancer/releases)<br />
-I am open to any kind of feedback. Report suggestions and bugs you find.<br />
+[Source](https://github.com/neos7/fivem_vstancer)
+[Download](https://github.com/neos7/fivem_vstancer/releases)
+I am open to any kind of feedback. Report suggestions and bugs you find.
 
+#### BUILD
+Open the `postbuild.bat`and edit the path of the resource folder. The post build event will copy the script, the `config.ini` and the `__resource.lua` to such path. Also don't forget to include a copy of a built [NativeUI](https://github.com/citizenfx/NativeUI) script ported to FiveM.
 
-**BUILD**<br />
-Open the `postbuild.bat`and edit the path of the resource folder. The post build event will copy the script, the `config.ini` and the `__resource.lua` to such path.
-
-
-
-**CREDITS**<br />
+#### CREDITS
 * VStancer by ikt: https://github.com/E66666666/GTAVStancer
 * FiveM by CitizenFX: https://github.com/citizenfx/fivem
-* NativeUI by GUAD: https://github.com/Guad/NativeUI
+* NativeUI by Guad: https://github.com/Guad/NativeUI
 * GTADrifting members: https://gtad.club/
 * All the testers
