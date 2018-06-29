@@ -257,16 +257,8 @@ namespace vstancer_client
         {
             _menuPool.ProcessMenus();
 
-            if(_menuPool.IsAnyMenuOpen())
-            {
-                // Disable annoying controls for controller
-                DisableControlAction(1, 85, true); // INPUT_VEH_RADIO_WHEEL = DPAD - LEFT
-                DisableControlAction(1, 74, true); // INPUT_VEH_HEADLIGHT = DPAD - RIGHT
-                DisableControlAction(1, 48, true); // INPUT_HUD_SPECIAL = DPAD - DOWN
-                DisableControlAction(1, 27, true); // INPUT_PHONE = DPAD - UP
-                DisableControlAction(1, 80, true); // INPUT_VEH_CIN_CAM = B
-                DisableControlAction(1, 73, true); // INPUT_VEH_DUCK = A
-            }
+            if (_menuPool.IsAnyMenuOpen())
+                DisableControls();
 
             if (currentVehicle != -1 && currentPreset != null)
             {
@@ -279,6 +271,21 @@ namespace vstancer_client
                     _menuPool.CloseAllMenus();
             }
             await Task.FromResult(0);
+        }
+
+        /// <summary>
+        /// Disable controls for controller to use the script with the controller
+        /// </summary>
+        private async void DisableControls()
+        {
+            DisableControlAction(1, 85, true); // INPUT_VEH_RADIO_WHEEL = DPAD - LEFT
+            DisableControlAction(1, 74, true); // INPUT_VEH_HEADLIGHT = DPAD - RIGHT
+            DisableControlAction(1, 48, true); // INPUT_HUD_SPECIAL = DPAD - DOWN
+            DisableControlAction(1, 27, true); // INPUT_PHONE = DPAD - UP
+            DisableControlAction(1, 80, true); // INPUT_VEH_CIN_CAM = B
+            DisableControlAction(1, 73, true); // INPUT_VEH_DUCK = A
+
+            await Delay(0);
         }
 
         /// <summary>
