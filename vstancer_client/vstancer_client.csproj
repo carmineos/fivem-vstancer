@@ -31,8 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CitizenFX.Core">
-      <HintPath>E:\Giochi\FiveM\citizen\clr2\lib\mono\4.5\CitizenFX.Core.dll</HintPath>
+    <Reference Include="CitizenFX.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>thirdparty\CitizenFX.Core.dll</HintPath>
     </Reference>
     <Reference Include="NativeUI, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -56,7 +57,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>call "$(SolutionDir)postbuild.bat" "$(TargetPath)"
-call "$(SolutionDir)postbuild.bat" "$(SolutionDir)config.ini"
-call "$(SolutionDir)postbuild.bat" "$(SolutionDir)__resource.lua"</PostBuildEvent>
+call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\config.ini"
+call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\__resource.lua"
+call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\NativeUI.net.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>
