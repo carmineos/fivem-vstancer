@@ -169,10 +169,8 @@ namespace vstancer_client
             currentTime = GetGameTimer();
             lastTime = GetGameTimer();
             currentVehicle = -1;
-            currentPreset = new VstancerPreset();
+            currentPreset = null;
             vehicles = Enumerable.Empty<int>();
-
-            InitialiseMenu();
 
             RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
             {
@@ -255,20 +253,23 @@ namespace vstancer_client
         /// <returns></returns>
         private async Task HandleMenu()
         {
-            _menuPool.ProcessMenus();
-
-            if (_menuPool.IsAnyMenuOpen())
-                DisableControls();
-
-            if (currentVehicle != -1 && currentPreset != null)
+            if(_menuPool != null)
             {
-                if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu))
-                    EditorMenu.Visible = !EditorMenu.Visible;
-            }
-            else
-            {
+                _menuPool.ProcessMenus();
+
                 if (_menuPool.IsAnyMenuOpen())
-                    _menuPool.CloseAllMenus();
+                    DisableControls();
+
+                if (currentVehicle != -1 && currentPreset != null)
+                {
+                    if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu))
+                        EditorMenu.Visible = !EditorMenu.Visible;
+                }
+                else
+                {
+                    if (_menuPool.IsAnyMenuOpen())
+                        _menuPool.CloseAllMenus();
+                }
             }
             await Task.FromResult(0);
         }
