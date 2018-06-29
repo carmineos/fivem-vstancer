@@ -47,7 +47,7 @@ namespace vstancer_client
         private long lastTime;
         private int playerPed;
         private int currentVehicle;
-        private VstancerPreset currentPreset;
+        private Preset currentPreset;
         private IEnumerable<int> vehicles;
         #endregion
 
@@ -438,7 +438,7 @@ namespace vstancer_client
         /// Updates the decorators on the <paramref name="vehicle"/> with updated values from the <paramref name="preset"/>
         /// </summary>
         /// <param name="vehicle"></param>
-        private async void UpdateVehicleDecorators(int vehicle, VstancerPreset preset)
+        private async void UpdateVehicleDecorators(int vehicle, Preset preset)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = wheelsCount / 2;
@@ -464,7 +464,7 @@ namespace vstancer_client
         /// </summary>
         /// <param name="vehicle"></param>
         /// <returns></returns>
-        private VstancerPreset CreatePreset(int vehicle)
+        private Preset CreatePreset(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = wheelsCount / 2;
@@ -482,7 +482,7 @@ namespace vstancer_client
             float off_r = DecorExistOn(vehicle, decor_off_r) ? DecorGetFloat(vehicle, decor_off_r) : off_r_def;
             float rot_r = DecorExistOn(vehicle, decor_rot_r) ? DecorGetFloat(vehicle, decor_rot_r) : rot_r_def;
 
-            VstancerPreset preset = new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
+            Preset preset = new Preset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
 
             return preset;
         }
@@ -490,7 +490,7 @@ namespace vstancer_client
         /// <summary>
         /// Refreshes the <paramref name="vehicle"/> with values from the <paramref name="preset"/>
         /// </summary>
-        private async void RefreshVehicleUsingPreset(int vehicle, VstancerPreset preset)
+        private async void RefreshVehicleUsingPreset(int vehicle, Preset preset)
         {
             if (DoesEntityExist(vehicle))
             {
