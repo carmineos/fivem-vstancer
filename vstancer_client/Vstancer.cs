@@ -19,27 +19,27 @@ namespace vstancer_client
         private static readonly string ScriptName = "VStancer";
 
         #region CONFIG_FIEDS
-        private static float editingFactor;
-        private static float maxSyncDistance;
-        private static float maxOffset;
-        private static float maxCamber;
-        private static long timer;
-        private static bool debug;
-        private static int toggleMenu;
-        private static float screenPosX;
-        private static float screenPosY;
+        private static float editingFactor = 0.01f;
+        private static float maxSyncDistance = 150.0f;
+        private static float maxOffset = 0.25f;
+        private static float maxCamber = 0.20f;
+        private static long timer = 1000;
+        private static bool debug = false;
+        private static int toggleMenu = 167;
+        private static float screenPosX = 1.0f;
+        private static float screenPosY = 0.0f;
         #endregion
 
         #region DECORATORS_NAMES
-        private static string decor_off_f = "vstancer_off_f";
-        private static string decor_rot_f = "vstancer_rot_f";
-        private static string decor_off_f_def = "vstancer_off_f_def";
-        private static string decor_rot_f_def = "vstancer_rot_f_def";
+        private static readonly string decor_off_f = "vstancer_off_f";
+        private static readonly string decor_rot_f = "vstancer_rot_f";
+        private static readonly string decor_off_f_def = "vstancer_off_f_def";
+        private static readonly string decor_rot_f_def = "vstancer_rot_f_def";
 
-        private static string decor_off_r = "vstancer_off_r";
-        private static string decor_rot_r = "vstancer_rot_r";
-        private static string decor_off_r_def = "vstancer_off_r_def";
-        private static string decor_rot_r_def = "vstancer_rot_r_def";
+        private static readonly string decor_off_r = "vstancer_off_r";
+        private static readonly string decor_rot_r = "vstancer_rot_r";
+        private static readonly string decor_off_r_def = "vstancer_off_r_def";
+        private static readonly string decor_rot_r_def = "vstancer_rot_r_def";
         #endregion
 
         #region FIELDS
@@ -670,11 +670,10 @@ namespace vstancer_client
         protected void LoadConfig(string filename = "config.ini")
         {
             string strings = null;
-            Config config = new Config();
             try
             {
                 strings = LoadResourceFile(ResourceName, filename);
-                config.ParseConfigFile(strings);
+
                 Debug.WriteLine($"{ScriptName}: Loaded settings from {filename}");
             }
             catch(Exception e)
@@ -684,15 +683,17 @@ namespace vstancer_client
             }
             finally
             {
-                toggleMenu = config.toggleMenu;
-                editingFactor = config.editingFactor;
-                maxSyncDistance = config.maxSyncDistance;
-                maxOffset = config.maxOffset;
-                maxCamber = config.maxCamber;
-                timer = config.timer;
-                debug = config.debug;
-                screenPosX = config.screenPosX;
-                screenPosY = config.screenPosY;
+                Config config = new Config(strings);
+
+                if (int.TryParse(config.Get("toggleMenu"), out int config_ToggleMenu)) toggleMenu = config_ToggleMenu;
+                if (float.TryParse(config.Get("editingFactor"), out float config_editingFactor)) editingFactor = config_editingFactor;
+                if (float.TryParse(config.Get("maxSyncDistance"), out float config_maxSyncDistance)) maxSyncDistance = config_maxSyncDistance;
+                if (float.TryParse(config.Get("maxOffset"), out float config_maxOffset)) maxOffset = config_maxOffset;
+                if (float.TryParse(config.Get("maxCamber"), out float config_maxCamber)) maxCamber = config_maxCamber;
+                if (long.TryParse(config.Get("timer"), out long config_timer)) timer = config_timer;
+                if (bool.TryParse(config.Get("debug"), out bool config_debug)) debug = config_debug;
+                if (float.TryParse(config.Get("screenPosX"), out float config_screenPosX)) screenPosX = config_screenPosX;
+                if (float.TryParse(config.Get("screenPosY"), out float config_screenPosY)) screenPosY = config_screenPosY;
 
                 Debug.WriteLine($"{ScriptName}: Settings {nameof(maxOffset)}={maxOffset} {nameof(maxCamber)}={maxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance}");
             }
