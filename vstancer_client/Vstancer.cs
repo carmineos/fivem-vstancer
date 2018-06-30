@@ -440,21 +440,21 @@ namespace vstancer_client
         /// <param name="vehicle"></param>
         private async void UpdateVehicleDecorators(int vehicle, VstancerPreset preset)
         {
-            int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = wheelsCount / 2;
+            float[] DefaultOffsetX = preset.DefaultOffsetX;
+            float[] DefaultRotationY = preset.DefaultRotationY;
+            float[] OffsetX = preset.OffsetX;
+            float[] RotationY = preset.RotationY;
+            int frontCount = preset.FrontWheelsCount;
 
-            if (frontCount % 2 != 0)
-                frontCount -= 1;
+            UpdateFloatDecorator(vehicle, decor_off_f_def, DefaultOffsetX[0], OffsetX[0]);
+            UpdateFloatDecorator(vehicle, decor_rot_f_def, DefaultRotationY[0], RotationY[0]);
+            UpdateFloatDecorator(vehicle, decor_off_r_def, DefaultOffsetX[frontCount], OffsetX[frontCount]);
+            UpdateFloatDecorator(vehicle, decor_rot_r_def, DefaultRotationY[frontCount], RotationY[frontCount]);
 
-            UpdateFloatDecorator(vehicle, decor_off_f_def, preset.DefaultOffsetX[0], preset.OffsetX[0]);
-            UpdateFloatDecorator(vehicle, decor_rot_f_def, preset.DefaultRotationY[0], preset.RotationY[0]);
-            UpdateFloatDecorator(vehicle, decor_off_r_def, preset.DefaultOffsetX[frontCount], preset.OffsetX[frontCount]);
-            UpdateFloatDecorator(vehicle, decor_rot_r_def, preset.DefaultRotationY[frontCount], preset.RotationY[frontCount]);
-
-            UpdateFloatDecorator(vehicle, decor_off_f, preset.OffsetX[0], preset.DefaultOffsetX[0]);
-            UpdateFloatDecorator(vehicle, decor_rot_f, preset.RotationY[0], preset.DefaultRotationY[0]);
-            UpdateFloatDecorator(vehicle, decor_off_r, preset.OffsetX[frontCount], preset.DefaultOffsetX[frontCount]);
-            UpdateFloatDecorator(vehicle, decor_rot_r, preset.RotationY[frontCount], preset.DefaultRotationY[frontCount]);
+            UpdateFloatDecorator(vehicle, decor_off_f, OffsetX[0], DefaultOffsetX[0]);
+            UpdateFloatDecorator(vehicle, decor_rot_f, RotationY[0], DefaultRotationY[0]);
+            UpdateFloatDecorator(vehicle, decor_off_r, OffsetX[frontCount], DefaultOffsetX[frontCount]);
+            UpdateFloatDecorator(vehicle, decor_rot_r, RotationY[frontCount], DefaultRotationY[frontCount]);
 
             await Delay(0);
         }
@@ -494,7 +494,8 @@ namespace vstancer_client
         {
             if (DoesEntityExist(vehicle))
             {
-                for (int index = 0; index < preset.WheelsCount; index++)
+                int wheelsCount = preset.WheelsCount;
+                for (int index = 0; index < wheelsCount; index++)
                 {
                     SetVehicleWheelXOffset(vehicle, index, preset.OffsetX[index]);
                     SetVehicleWheelXrot(vehicle, index, preset.RotationY[index]);
