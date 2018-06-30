@@ -18,7 +18,7 @@ Prints the preset of the current vehicle
 `vstancer_decorators`
 Prints the info about decorators on the current vehicle
 
-`vstancer_decorators_on 'int'` 
+`vstancer_decorators 'int'` 
 Prints the info about decorators on the vehicle with local 'int' handle
 
 `vstancer_print`
