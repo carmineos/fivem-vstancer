@@ -180,13 +180,12 @@ namespace vstancer_client
                     return;
                 }
 
-                bool result = float.TryParse(args[0], out float value);
-                if (result)
+                if (float.TryParse(args[0], out float value))
                 {
                     maxSyncDistance = value;
                     Debug.WriteLine($"{ScriptName}: Received new {nameof(maxSyncDistance)} value {value}");
                 }
-                else Debug.WriteLine($"{ScriptName}: Error parsing new value {value} for {nameof(maxSyncDistance)}");
+                else Debug.WriteLine($"{ScriptName}: Error parsing new value {args[0]} as float");
 
             }), false);
 
@@ -198,13 +197,12 @@ namespace vstancer_client
                     return;
                 }
 
-                bool result = bool.TryParse(args[0], out bool value);
-                if (result)
+                if (bool.TryParse(args[0], out bool value))
                 {
                     debug = value;
                     Debug.WriteLine($"{ScriptName}: Received new {nameof(debug)} value {value}");
                 }
-                else Debug.WriteLine($"{ScriptName}: Error parsing new value {value} for {nameof(debug)}");
+                else Debug.WriteLine($"{ScriptName}: Error parsing new value {args[0]} as bool");
 
             }), false);
 
@@ -216,7 +214,7 @@ namespace vstancer_client
                 {
                     if (int.TryParse(args[0], out int value))
                         PrintDecoratorsInfo(value);
-                    else Debug.WriteLine($"{ScriptName}: Error parsing entity handle {args[0]}");
+                    else Debug.WriteLine($"{ScriptName}: Error parsing entity handle {args[0]} as int");
                 }
             }), false);
             
