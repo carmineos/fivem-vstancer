@@ -210,24 +210,14 @@ namespace vstancer_client
 
             RegisterCommand("vstancer_decorators", new Action<int, dynamic>((source, args) =>
             {
-                PrintDecoratorsInfo(currentVehicle);
-            }), false);
-
-            RegisterCommand("vstancer_decorators_on", new Action<int, dynamic>((source, args) =>
-            {
                 if (args.Count < 1)
+                    PrintDecoratorsInfo(currentVehicle);
+                else
                 {
-                    Debug.WriteLine($"{ScriptName}: Missing int argument");
-                    return;
+                    if (int.TryParse(args[0], out int value))
+                        PrintDecoratorsInfo(value);
+                    else Debug.WriteLine($"{ScriptName}: Error parsing entity handle {args[0]}");
                 }
-
-                bool result = int.TryParse(args[0], out int value);
-                if (result)
-                {
-                    PrintDecoratorsInfo(value);
-                }
-                else Debug.WriteLine($"{ScriptName}: Error parsing entity handle {value}");
-
             }), false);
             
             RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
