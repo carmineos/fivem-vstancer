@@ -9,7 +9,7 @@ using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 
-namespace vstancer_client
+namespace Vstancer.Client
 {
     public class Vstancer : BaseScript
     {

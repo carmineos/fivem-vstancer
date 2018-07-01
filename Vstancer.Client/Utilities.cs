@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using static CitizenFX.Core.Native.API;
 
-namespace vstancer_client
+namespace Vstancer.Client
 {
     public class VehicleList : IEnumerable<int>
     {

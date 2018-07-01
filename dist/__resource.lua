@@ -4,5 +4,5 @@ file 'config.ini'
 
 client_scripts {
 	'NativeUI.net.dll',
-	'vstancer_client.net.dll'
+	'Vstancer.Client.net.dll'
 }

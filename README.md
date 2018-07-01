@@ -57,7 +57,7 @@ Enables the debug mode, which prints some logs in the console
 I am open to any kind of feedback. Report suggestions and bugs you find.
 
 #### BUILD
-Open the `postbuild.bat`and edit the path of the resource folder. The post build event will copy the script, the `config.ini` and the `__resource.lua` to such path. Also don't forget to include a copy of a built [NativeUI](https://github.com/citizenfx/NativeUI) script ported to FiveM.
+Open the `postbuild.bat` and edit the path of the resource folder. The post build event will copy the script, the `config.ini` and the `__resource.lua` to such path. Also don't forget to include a copy of a built [NativeUI](https://github.com/citizenfx/NativeUI) script ported to FiveM.
 
 #### CREDITS
 * VStancer by ikt: https://github.com/E66666666/GTAVStancer

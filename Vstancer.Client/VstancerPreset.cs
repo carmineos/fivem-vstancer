@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace vstancer_client
+namespace Vstancer.Client
 {
     public class VstancerPreset : IEquatable<VstancerPreset>
     {
