@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +8,6 @@ using NativeUI;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
-using static NativeUI.UIMenuDynamicListItem;
 
 namespace vstancer_client
 {
@@ -94,9 +92,9 @@ namespace vstancer_client
                 //min = (float)Math.Round(min, 3);
                 //max = (float)Math.Round(max, 3);
 
-                if (direction == ChangeDirection.Left)
+                if (direction == UIMenuDynamicListItem.ChangeDirection.Left)
                     newvalue -= editingFactor;
-                else if (direction == ChangeDirection.Right)
+                else if (direction == UIMenuDynamicListItem.ChangeDirection.Right)
                     newvalue += editingFactor;
                 else return value.ToString("F3");
 
@@ -167,7 +165,7 @@ namespace vstancer_client
             LoadConfig();
 
             currentTime = GetGameTimer();
-            lastTime = GetGameTimer();
+            lastTime = currentTime;
             currentVehicle = -1;
             currentPreset = null;
             vehicles = Enumerable.Empty<int>();
@@ -185,7 +183,7 @@ namespace vstancer_client
                     maxSyncDistance = value;
                     Debug.WriteLine($"{ScriptName}: Received new {nameof(maxSyncDistance)} value {value}");
                 }
-                else Debug.WriteLine($"{ScriptName}: Error parsing new value {args[0]} as float");
+                else Debug.WriteLine($"{ScriptName}: Error parsing {args[0]} as float");
 
             }), false);
 
@@ -202,7 +200,7 @@ namespace vstancer_client
                     debug = value;
                     Debug.WriteLine($"{ScriptName}: Received new {nameof(debug)} value {value}");
                 }
-                else Debug.WriteLine($"{ScriptName}: Error parsing new value {args[0]} as bool");
+                else Debug.WriteLine($"{ScriptName}: Error parsing {args[0]} as bool");
 
             }), false);
 
@@ -686,29 +684,6 @@ namespace vstancer_client
 
                 Debug.WriteLine($"{ScriptName}: Settings {nameof(maxOffset)}={maxOffset} {nameof(maxCamber)}={maxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance}");
             }
-        }
-    }
-
-
-    public class VehicleList : IEnumerable<int>
-    {
-        public IEnumerator<int> GetEnumerator()
-        {
-            int entity = -1;
-            int handle = FindFirstVehicle(ref entity);
-
-            if (handle != -1)
-            {
-                do yield return entity;
-                while (FindNextVehicle(handle, ref entity));
-
-                EndFindVehicle(handle);
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }
