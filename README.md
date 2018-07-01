@@ -52,8 +52,8 @@ The value in milliseconds used by each client to check if its preset requires to
 `debug=false`
 Enables the debug mode, which prints some logs in the console
 
-[Source](https://github.com/neos7/fivem_vstancer)
-[Download](https://github.com/neos7/fivem_vstancer/releases)
+[Source](https://github.com/neos7/fivem-vstancer)
+[Download](https://github.com/neos7/fivem-vstancer/releases)
 I am open to any kind of feedback. Report suggestions and bugs you find.
 
 #### BUILD
