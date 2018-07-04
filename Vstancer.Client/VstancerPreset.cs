@@ -16,13 +16,13 @@ namespace Vstancer.Client
         public void SetOffsetFront(float value)
         {
             for (int index = 0; index < FrontWheelsCount; index++)
-                OffsetX[index] = (index % 2 == 0) ? -value : value;     
+                OffsetX[index] = (index % 2 == 0) ? value : -value;     
         }
 
         public void SetOffsetRear(float value)
         {
             for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                OffsetX[index] = (index % 2 == 0) ? -value : value;
+                OffsetX[index] = (index % 2 == 0) ? value : -value;
         }
 
         public void SetRotationFront(float value)

@@ -109,8 +109,8 @@ namespace Vstancer.Client
                     value = newvalue;
                     if (sender == frontRotationGUI) currentPreset.SetRotationFront(value);
                     else if (sender == rearRotationGUI) currentPreset.SetRotationRear(value);
-                    else if (sender == frontOffsetGUI) currentPreset.SetOffsetFront(value);
-                    else if (sender == rearOffsetGUI) currentPreset.SetOffsetRear(value);
+                    else if (sender == frontOffsetGUI) currentPreset.SetOffsetFront(-value);
+                    else if (sender == rearOffsetGUI) currentPreset.SetOffsetRear(-value);
 
                     // Force one single refresh to update rendering at correct position after reset
                     if (value == defaultValue)
