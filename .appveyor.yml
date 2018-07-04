@@ -1,7 +1,7 @@
 image: Visual Studio 2017
 
 artifacts:
-- path: vstancer-v%APPVEYOR_BUILD_VERSION%.zip
+- path: vstancer-v%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_BRANCH%.zip
   name: vstancer
 
 configuration: Release
@@ -11,5 +11,5 @@ build:
   project: fivem-vstancer.sln
 
 after_build:
-- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
-- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%.zip %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\Vstancer.Client.net.dll
+- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_BRANCH%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
+- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_BRANCH%.zip %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\Vstancer.Client.net.dll
