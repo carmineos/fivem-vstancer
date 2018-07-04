@@ -1,0 +1,15 @@
+image: Visual Studio 2017
+
+artifacts:
+- path: vstancer-v%APPVEYOR_BUILD_VERSION%.zip
+  name: vstancer
+
+configuration: Release
+platform: Any CPU
+
+build:
+  project: fivem-vstancer.sln
+
+after_build:
+- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
+- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%.zip %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\Vstancer.Client.net.dll
