@@ -19,8 +19,10 @@ namespace Vstancer.Client
         #region CONFIG_FIEDS
         private static float editingFactor = 0.01f;
         private static float maxSyncDistance = 150.0f;
-        private static float maxOffset = 0.25f;
-        private static float maxCamber = 0.20f;
+        private static float FrontMaxOffset = 0.25f;
+        private static float FrontMaxCamber = 0.20f;
+        private static float RearMaxOffset = 0.25f;
+        private static float RearMaxCamber = 0.20f;
         private static long timer = 1000;
         private static bool debug = false;
         private static int toggleMenu = 167;
@@ -145,10 +147,10 @@ namespace Vstancer.Client
                 EditorMenu.MouseControlsEnabled = false;
             }
 
-            frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], maxOffset);
-            rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], maxOffset);
-            frontRotationGUI = AddDynamicFloatList(EditorMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], maxCamber);
-            rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], maxCamber);
+            frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], FrontMaxOffset);
+            rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], RearMaxOffset);
+            frontRotationGUI = AddDynamicFloatList(EditorMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], FrontMaxCamber);
+            rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], RearMaxCamber);
             AddMenuReset(EditorMenu);
 
             _menuPool.Add(EditorMenu);
@@ -651,7 +653,7 @@ namespace Vstancer.Client
                 DecorExistOn(entity, decor_rot_f_def) ||
                 DecorExistOn(entity, decor_off_r_def) ||
                 DecorExistOn(entity, decor_rot_r_def)
-                ) == true;
+                );
         }
 
         protected void LoadConfig(string filename = "config.ini")
@@ -672,17 +674,19 @@ namespace Vstancer.Client
             {
                 Config config = new Config(strings);
 
-                if (int.TryParse(config.Get("toggleMenu"), out int config_ToggleMenu)) toggleMenu = config_ToggleMenu;
-                if (float.TryParse(config.Get("editingFactor"), out float config_editingFactor)) editingFactor = config_editingFactor;
-                if (float.TryParse(config.Get("maxSyncDistance"), out float config_maxSyncDistance)) maxSyncDistance = config_maxSyncDistance;
-                if (float.TryParse(config.Get("maxOffset"), out float config_maxOffset)) maxOffset = config_maxOffset;
-                if (float.TryParse(config.Get("maxCamber"), out float config_maxCamber)) maxCamber = config_maxCamber;
-                if (long.TryParse(config.Get("timer"), out long config_timer)) timer = config_timer;
-                if (bool.TryParse(config.Get("debug"), out bool config_debug)) debug = config_debug;
-                if (float.TryParse(config.Get("screenPosX"), out float config_screenPosX)) screenPosX = config_screenPosX;
-                if (float.TryParse(config.Get("screenPosY"), out float config_screenPosY)) screenPosY = config_screenPosY;
+                toggleMenu = config.GetIntValue("toggleMenu", toggleMenu);
+                editingFactor = config.GetFloatValue("editingFactor", editingFactor);
+                maxSyncDistance = config.GetFloatValue("maxSyncDistance", maxSyncDistance);
+                FrontMaxOffset = config.GetFloatValue("FrontMaxOffset", FrontMaxOffset);
+                FrontMaxCamber = config.GetFloatValue("FrontMaxCamber", FrontMaxCamber);
+                RearMaxOffset = config.GetFloatValue("RearMaxOffset", RearMaxOffset);
+                RearMaxCamber = config.GetFloatValue("RearMaxCamber", RearMaxCamber);
+                timer = config.GetLongValue("timer", timer);
+                debug = config.GetBoolValue("debug", debug);
+                screenPosX = config.GetFloatValue("screenPosX", screenPosX);
+                screenPosY = config.GetFloatValue("screenPosY", screenPosY);
 
-                Debug.WriteLine($"{ScriptName}: Settings {nameof(maxOffset)}={maxOffset} {nameof(maxCamber)}={maxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance}");
+                Debug.WriteLine($"{ScriptName}: Settings {nameof(FrontMaxOffset)}={FrontMaxOffset} {nameof(FrontMaxCamber)}={FrontMaxCamber} {nameof(RearMaxOffset)}={RearMaxOffset} {nameof(RearMaxCamber)}={RearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance}");
             }
         }
     }

@@ -37,11 +37,17 @@ The Control to toggle the Menu, default is 167 which is F6
 `editingFactor=0.01`
 The step used to increase and decrease a value
 
-`maxOffset=0.25`
-The max value you can increase or decrease the default Track Width
+`frontMaxOffset=0.25`
+The max value you can increase or decrease the front Track Width
 
-`maxCamber=0.20`
-The max value you can increase or decrease the default Camber
+`frontMaxCamber=0.20`
+The max value you can increase or decrease the front Camber
+
+`rearMaxOffset=0.25`
+The max value you can increase or decrease the rear Track Width
+
+`rearMaxCamber=0.20`
+The max value you can increase or decrease the rear Camber
 
 `maxSyncDistance=150.0`
 The max distance within which each client refreshes others clients' vehicles
