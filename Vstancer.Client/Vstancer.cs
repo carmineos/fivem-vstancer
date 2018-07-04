@@ -125,27 +125,17 @@ namespace Vstancer.Client
             return newitem;
         }
 
-        private void InitialiseMenu()
+        private async void InitialiseMenu()
         {
-            _menuPool = new MenuPool();
+            if(EditorMenu == null)
             {
-                _menuPool.ResetCursorOnOpen = true;
-            }
-
-            string description = "Edit Track Width and Camber";
-            if (DoesEntityExist(currentVehicle))
-            {
-                string tmp = GetLabelText(GetDisplayNameFromVehicleModel((uint)(GetEntityModel(currentVehicle))));
-                if (!IsStringNullOrEmpty(tmp))
-                    description = tmp;
-            }
-
-            EditorMenu = new UIMenu(ScriptName, description, new PointF(screenPosX*Screen.Width, screenPosY*Screen.Height));
-            {
-                EditorMenu.MouseEdgeEnabled = false;
-                EditorMenu.ControlDisablingEnabled = false;
-                EditorMenu.MouseControlsEnabled = false;
-            }
+                EditorMenu = new UIMenu(ScriptName, "Edit Track Width and Camber", new PointF(screenPosX * Screen.Width, screenPosY * Screen.Height));
+                {
+                    EditorMenu.MouseEdgeEnabled = false;
+                    EditorMenu.ControlDisablingEnabled = false;
+                    EditorMenu.MouseControlsEnabled = false;
+                }
+            }else EditorMenu.Clear();
 
             frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], FrontMaxOffset);
             rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], RearMaxOffset);
@@ -153,8 +143,18 @@ namespace Vstancer.Client
             rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], RearMaxCamber);
             AddMenuReset(EditorMenu);
 
-            _menuPool.Add(EditorMenu);
+            if(_menuPool == null)
+            {
+                _menuPool = new MenuPool();
+                {
+                    _menuPool.ResetCursorOnOpen = true;
+                }
+
+                _menuPool.Add(EditorMenu);
+            }
             _menuPool.RefreshIndex();
+
+            await Delay(0);
         }
         #endregion
 
@@ -656,7 +656,7 @@ namespace Vstancer.Client
                 );
         }
 
-        protected void LoadConfig(string filename = "config.ini")
+        private void LoadConfig(string filename = "config.ini")
         {
             string strings = null;
             try
