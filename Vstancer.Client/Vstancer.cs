@@ -230,9 +230,19 @@ namespace Vstancer.Client
             {
                 PrintVehiclesWithDecorators(vehicles);
             }), false);
+            
+            // In the constructor of a class that inherits BaseScript.
+            EventHandlers.Add("VSTANCE:MenuControl", new Action<>(EventMenuControl));
 
             Tick += HandleMenu;
             Tick += VstancerTask;
+        }
+        
+        // Create a function to handle the event somewhere else in your code.
+        private void EventMenuControl()
+        {
+            // Code that gets executed once the event is triggered goes here.
+            EditorMenu.Visible = !EditorMenu.Visible;
         }
 
         /// <summary>
