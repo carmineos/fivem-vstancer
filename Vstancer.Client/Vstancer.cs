@@ -461,9 +461,9 @@ namespace Vstancer.Client
 
             // Get default values first
             float off_f_def = DecorExistOn(vehicle, decor_off_f_def) ? DecorGetFloat(vehicle, decor_off_f_def) : GetVehicleWheelXOffset(vehicle, 0);
-            float rot_f_def = DecorExistOn(vehicle, decor_rot_f_def) ? DecorGetFloat(vehicle, decor_rot_f_def) : GetVehicleWheelXrot(vehicle, 0);
+            float rot_f_def = DecorExistOn(vehicle, decor_rot_f_def) ? DecorGetFloat(vehicle, decor_rot_f_def) : GetVehicleWheelYRotation(vehicle, 0);
             float off_r_def = DecorExistOn(vehicle, decor_off_r_def) ? DecorGetFloat(vehicle, decor_off_r_def) : GetVehicleWheelXOffset(vehicle, frontCount);
-            float rot_r_def = DecorExistOn(vehicle, decor_rot_r_def) ? DecorGetFloat(vehicle, decor_rot_r_def) : GetVehicleWheelXrot(vehicle, frontCount);
+            float rot_r_def = DecorExistOn(vehicle, decor_rot_r_def) ? DecorGetFloat(vehicle, decor_rot_r_def) : GetVehicleWheelYRotation(vehicle, frontCount);
 
             float off_f = DecorExistOn(vehicle, decor_off_f) ? DecorGetFloat(vehicle, decor_off_f) : off_f_def;
             float rot_f = DecorExistOn(vehicle, decor_rot_f) ? DecorGetFloat(vehicle, decor_rot_f) : rot_f_def;
@@ -486,7 +486,7 @@ namespace Vstancer.Client
                 for (int index = 0; index < wheelsCount; index++)
                 {
                     SetVehicleWheelXOffset(vehicle, index, preset.OffsetX[index]);
-                    SetVehicleWheelXrot(vehicle, index, preset.RotationY[index]);
+                    SetVehicleWheelYRotation(vehicle, index, preset.RotationY[index]);
                 }
             }
             await Delay(0);
@@ -545,9 +545,9 @@ namespace Vstancer.Client
                 for (int index = 0; index < frontCount; index++)
                 {
                     if (index % 2 == 0)
-                        SetVehicleWheelXrot(vehicle, index, value);
+                        SetVehicleWheelYRotation(vehicle, index, value);
                     else
-                        SetVehicleWheelXrot(vehicle, index, -value);
+                        SetVehicleWheelYRotation(vehicle, index, -value);
                 }
             }
 
@@ -571,9 +571,9 @@ namespace Vstancer.Client
                 for (int index = frontCount; index < wheelsCount; index++)
                 {
                     if (index % 2 == 0)
-                        SetVehicleWheelXrot(vehicle, index, value);
+                        SetVehicleWheelYRotation(vehicle, index, value);
                     else
-                        SetVehicleWheelXrot(vehicle, index, -value);
+                        SetVehicleWheelYRotation(vehicle, index, -value);
                 }
             }
 
