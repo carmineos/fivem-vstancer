@@ -19,12 +19,14 @@ namespace Vstancer.Client
         #region CONFIG_FIEDS
         private static float editingFactor = 0.01f;
         private static float maxSyncDistance = 150.0f;
-        private static float FrontMaxOffset = 0.25f;
-        private static float FrontMaxCamber = 0.20f;
-        private static float RearMaxOffset = 0.25f;
-        private static float RearMaxCamber = 0.20f;
+        private static float frontMaxOffset = 0.25f;
+        private static float frontMaxCamber = 0.20f;
+        private static float rearMaxOffset = 0.25f;
+        private static float rearMaxCamber = 0.20f;
         private static long timer = 1000;
         private static bool debug = false;
+        private static bool exposeCommand = false;
+        private static bool exposeEvent = false;
         private static int toggleMenu = 167;
         private static float screenPosX = 1.0f;
         private static float screenPosY = 0.0f;
@@ -90,10 +92,6 @@ namespace Vstancer.Client
                 float min = defaultValue - maxEditing;
                 float max = defaultValue + maxEditing;
 
-                //newvalue = (float)Math.Round(newvalue, 3);
-                //min = (float)Math.Round(min, 3);
-                //max = (float)Math.Round(max, 3);
-
                 if (direction == UIMenuDynamicListItem.ChangeDirection.Left)
                     newvalue -= editingFactor;
                 else if (direction == UIMenuDynamicListItem.ChangeDirection.Right)
@@ -125,7 +123,7 @@ namespace Vstancer.Client
             return newitem;
         }
 
-        private async void InitialiseMenu()
+        private void InitialiseMenu()
         {
             if(EditorMenu == null)
             {
@@ -137,10 +135,10 @@ namespace Vstancer.Client
                 }
             }else EditorMenu.Clear();
 
-            frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], FrontMaxOffset);
-            rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], RearMaxOffset);
-            frontRotationGUI = AddDynamicFloatList(EditorMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], FrontMaxCamber);
-            rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], RearMaxCamber);
+            frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], frontMaxOffset);
+            rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], rearMaxOffset);
+            frontRotationGUI = AddDynamicFloatList(EditorMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], frontMaxCamber);
+            rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], rearMaxCamber);
             AddMenuReset(EditorMenu);
 
             if(_menuPool == null)
@@ -153,8 +151,6 @@ namespace Vstancer.Client
                 _menuPool.Add(EditorMenu);
             }
             _menuPool.RefreshIndex();
-
-            await Delay(0);
         }
         #endregion
 
@@ -231,6 +227,24 @@ namespace Vstancer.Client
                 PrintVehiclesWithDecorators(vehicles);
             }), false);
 
+            if (exposeCommand)
+            {
+                RegisterCommand("vstancer", new Action<int, dynamic>((source, args) =>
+                {
+                    if (currentVehicle != -1 && currentPreset != null)
+                        EditorMenu.Visible = !EditorMenu.Visible;
+                }), false);
+            }
+
+            if (exposeEvent)
+            {
+                EventHandlers.Add("vstancer:toggleMenu", new Action(() =>
+                {
+                    if (currentVehicle != -1 && currentPreset != null)
+                        EditorMenu.Visible = !EditorMenu.Visible;
+                }));
+            }
+
             Tick += HandleMenu;
             Tick += VstancerTask;
         }
@@ -259,13 +273,12 @@ namespace Vstancer.Client
                         _menuPool.CloseAllMenus();
                 }
             }
-            await Task.FromResult(0);
         }
 
         /// <summary>
         /// Disable controls for controller to use the script with the controller
         /// </summary>
-        private async void DisableControls()
+        private void DisableControls()
         {
             DisableControlAction(1, 85, true); // INPUT_VEH_RADIO_WHEEL = DPAD - LEFT
             DisableControlAction(1, 74, true); // INPUT_VEH_HEADLIGHT = DPAD - RIGHT
@@ -273,8 +286,6 @@ namespace Vstancer.Client
             DisableControlAction(1, 27, true); // INPUT_PHONE = DPAD - UP
             DisableControlAction(1, 80, true); // INPUT_VEH_CIN_CAM = B
             DisableControlAction(1, 73, true); // INPUT_VEH_DUCK = A
-
-            await Delay(0);
         }
 
         /// <summary>
@@ -291,7 +302,7 @@ namespace Vstancer.Client
             {
                 int vehicle = GetVehiclePedIsIn(playerPed, false);
 
-                if (IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle, -1) == playerPed && !IsEntityDead(vehicle))
+                if (IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle, -1) == playerPed && IsVehicleDriveable(vehicle, false))
                 {
                     // Update current vehicle and get its preset
                     if (vehicle != currentVehicle)
@@ -328,21 +339,19 @@ namespace Vstancer.Client
                 if (currentVehicle != -1 && currentPreset != null)
                     UpdateVehicleDecorators(currentVehicle, currentPreset);
 
-                vehicles = new VehicleList();
+                vehicles = new VehicleEnumerable();
 
                 lastTime = GetGameTimer();
             }
 
             // Refreshes the iterated vehicles
             RefreshVehicles(vehicles.Except(new List<int> { currentVehicle }));
-
-            await Delay(0);
         }
 
         /// <summary>
         /// Registers the decorators for this script
         /// </summary>
-        private async void RegisterDecorators()
+        private void RegisterDecorators()
         {
             DecorRegister(decor_off_f, 1);
             DecorRegister(decor_rot_f, 1);
@@ -353,15 +362,13 @@ namespace Vstancer.Client
             DecorRegister(decor_rot_r, 1);
             DecorRegister(decor_off_r_def, 1);
             DecorRegister(decor_rot_r_def, 1);
-
-            await Delay(0);
         }
 
         /// <summary>
         /// Removes the decorators from the <paramref name="vehicle"/>
         /// </summary>
         /// <param name="vehicle"></param>
-        private async void RemoveDecorators(int vehicle)
+        private void RemoveDecorators(int vehicle)
         {
             if (DecorExistOn(vehicle, decor_off_f))
                 DecorRemove(vehicle, decor_off_f);
@@ -386,8 +393,6 @@ namespace Vstancer.Client
 
             if (DecorExistOn(vehicle, decor_rot_r_def))
                 DecorRemove(vehicle, decor_rot_r_def);
-
-            await Delay(0);
         }
 
         /// <summary>
@@ -397,7 +402,7 @@ namespace Vstancer.Client
         /// <param name="name"></param>
         /// <param name="currentValue"></param>
         /// <param name="defaultValue"></param>
-        private async void UpdateFloatDecorator(int vehicle, string name, float currentValue, float defaultValue)
+        private void UpdateFloatDecorator(int vehicle, string name, float currentValue, float defaultValue)
         {
             // Decorator exists but needs to be updated
             if (DecorExistOn(vehicle, name))
@@ -419,14 +424,13 @@ namespace Vstancer.Client
                         Debug.WriteLine($"{ScriptName}: Added decorator {name} with value {currentValue} to vehicle {vehicle}");
                 }
             }
-            await Delay(0);
         }
 
         /// <summary>
         /// Updates the decorators on the <paramref name="vehicle"/> with updated values from the <paramref name="preset"/>
         /// </summary>
         /// <param name="vehicle"></param>
-        private async void UpdateVehicleDecorators(int vehicle, VstancerPreset preset)
+        private void UpdateVehicleDecorators(int vehicle, VstancerPreset preset)
         {
             float[] DefaultOffsetX = preset.DefaultOffsetX;
             float[] DefaultRotationY = preset.DefaultRotationY;
@@ -443,8 +447,6 @@ namespace Vstancer.Client
             UpdateFloatDecorator(vehicle, decor_rot_f, RotationY[0], DefaultRotationY[0]);
             UpdateFloatDecorator(vehicle, decor_off_r, OffsetX[frontCount], DefaultOffsetX[frontCount]);
             UpdateFloatDecorator(vehicle, decor_rot_r, RotationY[frontCount], DefaultRotationY[frontCount]);
-
-            await Delay(0);
         }
 
         /// <summary>
@@ -470,15 +472,13 @@ namespace Vstancer.Client
             float off_r = DecorExistOn(vehicle, decor_off_r) ? DecorGetFloat(vehicle, decor_off_r) : off_r_def;
             float rot_r = DecorExistOn(vehicle, decor_rot_r) ? DecorGetFloat(vehicle, decor_rot_r) : rot_r_def;
 
-            VstancerPreset preset = new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
-
-            return preset;
+            return new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
         }
 
         /// <summary>
         /// Refreshes the <paramref name="vehicle"/> with values from the <paramref name="preset"/>
         /// </summary>
-        private async void RefreshVehicleUsingPreset(int vehicle, VstancerPreset preset)
+        private void RefreshVehicleUsingPreset(int vehicle, VstancerPreset preset)
         {
             if (DoesEntityExist(vehicle))
             {
@@ -489,13 +489,12 @@ namespace Vstancer.Client
                     SetVehicleWheelYRotation(vehicle, index, preset.RotationY[index]);
                 }
             }
-            await Delay(0);
         }
 
         /// <summary>
         /// Refreshes all the vehicles
         /// </summary>
-        private async void RefreshVehicles(IEnumerable<int> vehiclesList)
+        private void RefreshVehicles(IEnumerable<int> vehiclesList)
         {
             Vector3 currentCoords = GetEntityCoords(playerPed, true);
 
@@ -509,14 +508,13 @@ namespace Vstancer.Client
                         RefreshVehicleUsingDecorators(entity);
                 }
             }
-            await Delay(0);
         }
 
         /// <summary>
         /// Refreshes the <paramref name="vehicle"/> with values from its decorators (if exist)
         /// </summary>
         /// <param name="vehicle"></param>
-        private async void RefreshVehicleUsingDecorators(int vehicle)
+        private void RefreshVehicleUsingDecorators(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = wheelsCount / 2;
@@ -535,7 +533,6 @@ namespace Vstancer.Client
                     else
                         SetVehicleWheelXOffset(vehicle, index, -value);
                 }
-
             }
 
             if (DecorExistOn(vehicle, decor_rot_f))
@@ -576,14 +573,12 @@ namespace Vstancer.Client
                         SetVehicleWheelYRotation(vehicle, index, -value);
                 }
             }
-
-            await Delay(0);
         }
 
         /// <summary>
         /// Prints the values of the decorators used on the <paramref name="vehicle"/>
         /// </summary>
-        private async void PrintDecoratorsInfo(int vehicle)
+        private void PrintDecoratorsInfo(int vehicle)
         {
             if (DoesEntityExist(vehicle))
             {
@@ -618,14 +613,12 @@ namespace Vstancer.Client
                 Debug.WriteLine(s.ToString());
             }
             else Debug.WriteLine($"{ScriptName}: Can't find vehicle with handle {vehicle}");
-
-            await Delay(0);
         }
 
         /// <summary>
         /// Prints the list of vehicles using any vstancer decorator.
         /// </summary>
-        private async void PrintVehiclesWithDecorators(IEnumerable<int> vehiclesList)
+        private void PrintVehiclesWithDecorators(IEnumerable<int> vehiclesList)
         {
             IEnumerable<int> entities = vehiclesList.Where(entity => HasDecorators(entity));
 
@@ -633,8 +626,6 @@ namespace Vstancer.Client
 
             foreach (var item in entities)
                 Debug.WriteLine($"Vehicle: {item}");
-
-            await Delay(0);
         }
 
         /// <summary>
@@ -677,16 +668,18 @@ namespace Vstancer.Client
                 toggleMenu = config.GetIntValue("toggleMenu", toggleMenu);
                 editingFactor = config.GetFloatValue("editingFactor", editingFactor);
                 maxSyncDistance = config.GetFloatValue("maxSyncDistance", maxSyncDistance);
-                FrontMaxOffset = config.GetFloatValue("FrontMaxOffset", FrontMaxOffset);
-                FrontMaxCamber = config.GetFloatValue("FrontMaxCamber", FrontMaxCamber);
-                RearMaxOffset = config.GetFloatValue("RearMaxOffset", RearMaxOffset);
-                RearMaxCamber = config.GetFloatValue("RearMaxCamber", RearMaxCamber);
+                frontMaxOffset = config.GetFloatValue("fontMaxOffset", frontMaxOffset);
+                frontMaxCamber = config.GetFloatValue("frontMaxCamber", frontMaxCamber);
+                rearMaxOffset = config.GetFloatValue("rearMaxOffset", rearMaxOffset);
+                rearMaxCamber = config.GetFloatValue("rearMaxCamber", rearMaxCamber);
                 timer = config.GetLongValue("timer", timer);
                 debug = config.GetBoolValue("debug", debug);
+                exposeCommand = config.GetBoolValue("exposeCommand", exposeCommand);
+                exposeEvent = config.GetBoolValue("exposeEvent", exposeEvent);
                 screenPosX = config.GetFloatValue("screenPosX", screenPosX);
                 screenPosY = config.GetFloatValue("screenPosY", screenPosY);
 
-                Debug.WriteLine($"{ScriptName}: Settings {nameof(FrontMaxOffset)}={FrontMaxOffset} {nameof(FrontMaxCamber)}={FrontMaxCamber} {nameof(RearMaxOffset)}={RearMaxOffset} {nameof(RearMaxCamber)}={RearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance}");
+                Debug.WriteLine($"{ScriptName}: Settings {nameof(frontMaxOffset)}={frontMaxOffset} {nameof(frontMaxCamber)}={frontMaxCamber} {nameof(rearMaxOffset)}={rearMaxOffset} {nameof(rearMaxCamber)}={rearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance}");
             }
         }
     }

@@ -4,7 +4,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace Vstancer.Client
 {
-    public class VehicleList : IEnumerable<int>
+    public class VehicleEnumerable : IEnumerable<int>
     {
         public IEnumerator<int> GetEnumerator()
         {
