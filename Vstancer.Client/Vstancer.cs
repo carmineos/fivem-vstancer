@@ -245,7 +245,11 @@ namespace Vstancer.Client
                 }));
             }
 
-            Tick += HandleMenu;
+            Action<int, float, float, float, float, float, float, float, float> loadConfig = LoadVstancerConfig;
+            Exports.Add("LoadVstancerConfig", loadConfig);
+
+            Tick += UpdateCurrentVehicle;
+            Tick += MenuTask;
             Tick += VstancerTask;
         }
 
@@ -253,7 +257,7 @@ namespace Vstancer.Client
         /// The GUI task of the script
         /// </summary>
         /// <returns></returns>
-        private async Task HandleMenu()
+        private async Task MenuTask()
         {
             if(_menuPool != null)
             {
@@ -276,28 +280,13 @@ namespace Vstancer.Client
         }
 
         /// <summary>
-        /// Disable controls for controller to use the script with the controller
-        /// </summary>
-        private void DisableControls()
-        {
-            DisableControlAction(1, 85, true); // INPUT_VEH_RADIO_WHEEL = DPAD - LEFT
-            DisableControlAction(1, 74, true); // INPUT_VEH_HEADLIGHT = DPAD - RIGHT
-            DisableControlAction(1, 48, true); // INPUT_HUD_SPECIAL = DPAD - DOWN
-            DisableControlAction(1, 27, true); // INPUT_PHONE = DPAD - UP
-            DisableControlAction(1, 80, true); // INPUT_VEH_CIN_CAM = B
-            DisableControlAction(1, 73, true); // INPUT_VEH_DUCK = A
-        }
-
-        /// <summary>
-        /// The main task of the script
+        /// Updates the <see cref="currentVehicle"/> and the <see cref="currentPreset"/>
         /// </summary>
         /// <returns></returns>
-        private async Task VstancerTask()
+        private async Task UpdateCurrentVehicle()
         {
-            currentTime = (GetGameTimer() - lastTime);
-
             playerPed = PlayerPedId();
-            
+
             if (IsPedInAnyVehicle(playerPed, false))
             {
                 int vehicle = GetVehiclePedIsIn(playerPed, false);
@@ -325,6 +314,15 @@ namespace Vstancer.Client
                 currentPreset = null;
                 currentVehicle = -1;
             }
+        }
+
+        /// <summary>
+        /// The main task of the script
+        /// </summary>
+        /// <returns></returns>
+        private async Task VstancerTask()
+        {
+            currentTime = (GetGameTimer() - lastTime);
 
             // Check if current vehicle needs to be refreshed
             if (currentVehicle != -1 && currentPreset != null)
@@ -345,7 +343,32 @@ namespace Vstancer.Client
             }
 
             // Refreshes the iterated vehicles
-            RefreshVehicles(vehicles.Except(new List<int> { currentVehicle }));
+            var vehiclesList = vehicles.Except(new List<int> { currentVehicle });
+            Vector3 currentCoords = GetEntityCoords(playerPed, true);
+
+            foreach (int entity in vehiclesList)
+            {
+                if (DoesEntityExist(entity))
+                {
+                    Vector3 coords = GetEntityCoords(entity, true);
+
+                    if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
+                        RefreshVehicleUsingDecorators(entity);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Disable controls for controller to use the script with the controller
+        /// </summary>
+        private void DisableControls()
+        {
+            DisableControlAction(1, 85, true); // INPUT_VEH_RADIO_WHEEL = DPAD - LEFT
+            DisableControlAction(1, 74, true); // INPUT_VEH_HEADLIGHT = DPAD - RIGHT
+            DisableControlAction(1, 48, true); // INPUT_HUD_SPECIAL = DPAD - DOWN
+            DisableControlAction(1, 27, true); // INPUT_PHONE = DPAD - UP
+            DisableControlAction(1, 80, true); // INPUT_VEH_CIN_CAM = B
+            DisableControlAction(1, 73, true); // INPUT_VEH_DUCK = A
         }
 
         /// <summary>
@@ -393,6 +416,41 @@ namespace Vstancer.Client
 
             if (DecorExistOn(vehicle, decor_rot_r_def))
                 DecorRemove(vehicle, decor_rot_r_def);
+        }
+
+        /// <summary>
+        /// Creates a Vstancer config for the <paramref name="vehicle"/> with the specified values.
+        /// </summary>
+        /// <param name="vehicle"></param>
+        /// <param name="off_f_def"></param>
+        /// <param name="rot_f_def"></param>
+        /// <param name="off_r_def"></param>
+        /// <param name="rot_r_def"></param>
+        /// <param name="off_f"></param>
+        /// <param name="rot_f"></param>
+        /// <param name="off_r"></param>
+        /// <param name="rot_r"></param>
+        private void LoadVstancerConfig(int vehicle, float off_f_def, float rot_f_def, float off_r_def, float rot_r_def, float off_f, float rot_f, float off_r, float rot_r)
+        {
+            if (vehicle != currentVehicle)
+            {
+                int wheelsCount = GetVehicleNumberOfWheels(vehicle);
+                currentPreset = new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
+                currentVehicle = vehicle;
+                InitialiseMenu();
+            }
+            else
+            {
+                UpdateFloatDecorator(vehicle, decor_off_f_def, off_f_def, off_f);
+                UpdateFloatDecorator(vehicle, decor_rot_f_def, rot_f_def, rot_f);
+                UpdateFloatDecorator(vehicle, decor_off_r_def, off_r_def, off_r);
+                UpdateFloatDecorator(vehicle, decor_rot_r_def, rot_r_def, rot_r);
+
+                UpdateFloatDecorator(vehicle, decor_off_f, off_f, off_f_def);
+                UpdateFloatDecorator(vehicle, decor_rot_f, rot_f, rot_f_def);
+                UpdateFloatDecorator(vehicle, decor_off_r, off_r, off_r_def);
+                UpdateFloatDecorator(vehicle, decor_rot_r, rot_r, rot_r_def);
+            }
         }
 
         /// <summary>
@@ -487,25 +545,6 @@ namespace Vstancer.Client
                 {
                     SetVehicleWheelXOffset(vehicle, index, preset.OffsetX[index]);
                     SetVehicleWheelYRotation(vehicle, index, preset.RotationY[index]);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Refreshes all the vehicles
-        /// </summary>
-        private void RefreshVehicles(IEnumerable<int> vehiclesList)
-        {
-            Vector3 currentCoords = GetEntityCoords(playerPed, true);
-
-            foreach (int entity in vehiclesList)
-            {
-                if (DoesEntityExist(entity))
-                {
-                    Vector3 coords = GetEntityCoords(entity, true);
-
-                    if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
-                        RefreshVehicleUsingDecorators(entity);
                 }
             }
         }
