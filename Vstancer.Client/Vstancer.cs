@@ -245,8 +245,10 @@ namespace Vstancer.Client
                 }));
             }
 
-            Action<int, float, float, float, float, object, object, object, object> loadConfig = LoadVstancerConfig;
-            Exports.Add("LoadVstancerConfig", loadConfig);
+            Action<int, float, float, float, float, object, object, object, object> setPreset = SetVstancerPreset;
+            Exports.Add("SetVstancerPreset", setPreset);
+            Func<int, float[]> getPreset = GetVstancerPreset;
+            Exports.Add("GetVstancerPreset", getPreset);
 
             Tick += UpdateCurrentVehicle;
             Tick += MenuTask;
@@ -419,7 +421,33 @@ namespace Vstancer.Client
         }
 
         /// <summary>
-        /// Creates a Vstancer config for the <paramref name="vehicle"/> with the specified values.
+        /// Returns an array containing in order off_f, rot_f, off_r, rot_r, off_f_def, rot_f_def, off_r_def, rot_r_def
+        /// </summary>
+        /// <param name="vehicle"></param>
+        /// <returns></returns>
+        private float[] GetVstancerPreset(int vehicle)
+        {
+            VstancerPreset preset = null;
+            if (vehicle == currentVehicle && currentPreset != null)
+                preset = currentPreset;
+            else preset = CreatePreset(vehicle);
+
+            int frontCount = preset.FrontWheelsCount;
+
+            return new float[] {
+                preset.OffsetX[0],
+                preset.RotationY[0],
+                preset.OffsetX[frontCount],
+                preset.RotationY[frontCount],
+                preset.DefaultOffsetX[0],
+                preset.DefaultRotationY[0],
+                preset.DefaultOffsetX[frontCount],
+                preset.DefaultRotationY[frontCount],
+            };
+        }
+
+        /// <summary>
+        /// Loads a Vstancer preset for the <paramref name="vehicle"/> with the specified values.
         /// </summary>
         /// <param name="vehicle"></param>
         /// <param name="off_f"></param>
@@ -430,7 +458,7 @@ namespace Vstancer.Client
         /// <param name="defaultFrontRotation"></param>
         /// <param name="defaultRearOffset"></param>
         /// <param name="defaultRearRotation"></param>
-        private void LoadVstancerConfig(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null)
+        private void SetVstancerPreset(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null)
         {
             if(debug)
             {
