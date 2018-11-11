@@ -245,7 +245,7 @@ namespace Vstancer.Client
                 }));
             }
 
-            Action<int, float, float, float, float, float, float, float, float> loadConfig = LoadVstancerConfig;
+            Action<int, float, float, float, float, object, object, object, object> loadConfig = LoadVstancerConfig;
             Exports.Add("LoadVstancerConfig", loadConfig);
 
             Tick += UpdateCurrentVehicle;
@@ -422,19 +422,45 @@ namespace Vstancer.Client
         /// Creates a Vstancer config for the <paramref name="vehicle"/> with the specified values.
         /// </summary>
         /// <param name="vehicle"></param>
-        /// <param name="off_f_def"></param>
-        /// <param name="rot_f_def"></param>
-        /// <param name="off_r_def"></param>
-        /// <param name="rot_r_def"></param>
         /// <param name="off_f"></param>
         /// <param name="rot_f"></param>
         /// <param name="off_r"></param>
         /// <param name="rot_r"></param>
-        private void LoadVstancerConfig(int vehicle, float off_f_def, float rot_f_def, float off_r_def, float rot_r_def, float off_f, float rot_f, float off_r, float rot_r)
+        /// <param name="defaultFrontOffset"></param>
+        /// <param name="defaultFrontRotation"></param>
+        /// <param name="defaultRearOffset"></param>
+        /// <param name="defaultRearRotation"></param>
+        private void LoadVstancerConfig(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null)
         {
+            int wheelsCount = GetVehicleNumberOfWheels(vehicle);
+            int frontCount = wheelsCount / 2;
+            if (frontCount % 2 != 0)
+                frontCount -= 1;
+
+            float off_f_def, rot_f_def, off_r_def, rot_r_def;
+
+            if (defaultFrontOffset != null && defaultFrontOffset is float)
+                off_f_def = (float)defaultFrontOffset;
+            else
+                off_f_def = DecorExistOn(vehicle, decor_off_f_def) ? DecorGetFloat(vehicle, decor_off_f_def) : GetVehicleWheelXOffset(vehicle, 0);
+
+            if (defaultFrontRotation != null && defaultFrontRotation is float)
+                rot_f_def = (float)defaultFrontRotation;
+            else
+                rot_f_def = DecorExistOn(vehicle, decor_rot_f_def) ? DecorGetFloat(vehicle, decor_rot_f_def) : GetVehicleWheelYRotation(vehicle, 0);
+
+            if (defaultRearOffset != null && defaultRearOffset is float)
+                off_r_def = (float)defaultRearOffset;
+            else
+                off_r_def = DecorExistOn(vehicle, decor_off_r_def) ? DecorGetFloat(vehicle, decor_off_r_def) : GetVehicleWheelXOffset(vehicle, frontCount);
+
+            if (defaultRearRotation != null && defaultRearRotation is float)
+                rot_r_def = (float)defaultRearRotation;
+            else
+                rot_r_def = DecorExistOn(vehicle, decor_rot_r_def) ? DecorGetFloat(vehicle, decor_rot_r_def) : GetVehicleWheelYRotation(vehicle, frontCount);
+
             if (vehicle != currentVehicle)
             {
-                int wheelsCount = GetVehicleNumberOfWheels(vehicle);
                 currentPreset = new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
                 currentVehicle = vehicle;
                 InitialiseMenu();
