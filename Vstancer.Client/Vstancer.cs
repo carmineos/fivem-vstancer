@@ -432,6 +432,11 @@ namespace Vstancer.Client
         /// <param name="defaultRearRotation"></param>
         private void LoadVstancerConfig(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null)
         {
+            if(debug)
+            {
+                Debug.WriteLine($"{ScriptName}: LoadVstancerConfig parameters {off_f} {rot_f} {off_r} {rot_r} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
+            }
+
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = wheelsCount / 2;
             if (frontCount % 2 != 0)
@@ -459,7 +464,7 @@ namespace Vstancer.Client
             else
                 rot_r_def = DecorExistOn(vehicle, decor_rot_r_def) ? DecorGetFloat(vehicle, decor_rot_r_def) : GetVehicleWheelYRotation(vehicle, frontCount);
 
-            if (vehicle != currentVehicle)
+            if (vehicle == currentVehicle)
             {
                 currentPreset = new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
                 currentVehicle = vehicle;
