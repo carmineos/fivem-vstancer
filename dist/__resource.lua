@@ -10,4 +10,5 @@ client_scripts {
 	'Vstancer.Client.net.dll'
 }
 
-export 'LoadVstancerConfig'
+export 'SetVstancerPreset'
+export 'GetVstancerPreset'
