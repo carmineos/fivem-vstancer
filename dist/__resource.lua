@@ -9,3 +9,5 @@ client_scripts {
 	'NativeUI.net.dll',
 	'Vstancer.Client.net.dll'
 }
+
+export 'LoadVstancerConfig'
