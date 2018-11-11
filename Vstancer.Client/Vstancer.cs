@@ -495,7 +495,6 @@ namespace Vstancer.Client
             if (vehicle == currentVehicle)
             {
                 currentPreset = new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
-                currentVehicle = vehicle;
                 InitialiseMenu();
             }
             else
