@@ -35,6 +35,9 @@ Sets the specified float as the maximum distance used to refresh wheels of the v
 `vstancer_debug <bool>`
 Enables or disables the logs to be printed in the console
 
+`vstancer`
+Toggles the menu, this command has to be enabled in the config
+
 ### Config
 `toggleMenu=167`
 The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
@@ -82,6 +85,7 @@ private float[] GetVstancerPreset(int vehicle);
 
 Note that when using the `SetVstancerPreset`, the default values are optional and the script will get them itself if you don't pass them.
 This is an example of how to set a vstancer preset on a vehicle:
+
 C#:
 ```csharp
 Exports["vstancer"].SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r);
@@ -95,6 +99,7 @@ exports.vstancer:SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotation
 
 When using the `GetVstancerPreset` the returned array will contain the following floats in order: off_f, rot_f, off_r, rot_r, off_f_def, rot_f_def, off_r_def, rot_r_def.
 This is an example of how to get a vstancer preset (in case you want to store them):
+
 C#:
 ```csharp
 float[] preset = Exports["vstancer"].GetVstancerPreset(vehicle);
