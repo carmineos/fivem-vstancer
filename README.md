@@ -63,6 +63,47 @@ The value in milliseconds used by each client to check if its preset requires to
 `debug=false`
 Enables the debug mode, which prints some logs in the console
 
+`exposeCommand=false`
+Enables the /vstancer command to toggle the menu
+
+`exposeEvent=false`
+Enable the "vstancer:toggleMenu" event to toggle the menu
+
+### Exports
+
+Remember that exports require the resource to be called “vstancer”
+
+```csharp
+private void SetVstancerPreset(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null);
+private float[] GetVstancerPreset(int vehicle);
+```
+
+**SET**
+
+Note that when using the `SetVstancerPreset`, the default values are optional and the script will get them itself if you don't pass them.
+This is an example of how to set a vstancer preset on a vehicle:
+C#:
+```csharp
+Exports["vstancer"].SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r);
+```
+Lua:
+```lua
+exports.vstancer:SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r)
+```
+
+**GET**
+
+When using the `GetVstancerPreset` the returned array will contain the following floats in order: off_f, rot_f, off_r, rot_r, off_f_def, rot_f_def, off_r_def, rot_r_def.
+This is an example of how to get a vstancer preset (in case you want to store them):
+C#:
+```csharp
+float[] preset = Exports["vstancer"].GetVstancerPreset(vehicle);
+```
+Lua:
+```lua
+local preset = exports.vstancer:GetVstancerPreset(vehicle);
+```
+
 [Source](https://github.com/neos7/fivem-vstancer)
 [Download](https://github.com/neos7/fivem-vstancer/releases)
 I am open to any kind of feedback. Report suggestions and bugs you find.
