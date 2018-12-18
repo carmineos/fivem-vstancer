@@ -5,6 +5,7 @@ namespace Vstancer.Client
 {
     public class VstancerPreset : IEquatable<VstancerPreset>
     {
+        public static float Precision { get; private set; } = 0.001f;
         public int WheelsCount { get; private set; }
         public int FrontWheelsCount { get; private set; }
 
@@ -150,10 +151,10 @@ namespace Vstancer.Client
 
             for (int index = 0; index < WheelsCount; index++)
             {
-                if (Math.Abs(DefaultOffsetX[index] - other.DefaultOffsetX[index]) > 0.001f
-                    || Math.Abs(DefaultRotationY[index] - other.DefaultRotationY[index]) > 0.001f
-                    || Math.Abs(OffsetX[index] - other.OffsetX[index]) > 0.001f
-                    || Math.Abs(RotationY[index] - other.RotationY[index]) > 0.001f)
+                if (Math.Abs(DefaultOffsetX[index] - other.DefaultOffsetX[index]) > Precision
+                    || Math.Abs(DefaultRotationY[index] - other.DefaultRotationY[index]) > Precision
+                    || Math.Abs(OffsetX[index] - other.OffsetX[index]) > Precision
+                    || Math.Abs(RotationY[index] - other.RotationY[index]) > Precision)
                     return false;
             }
             return true;

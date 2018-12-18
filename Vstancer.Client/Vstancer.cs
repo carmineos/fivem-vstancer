@@ -17,6 +17,7 @@ namespace Vstancer.Client
         private static readonly string ScriptName = "VStancer";
 
         #region CONFIG_FIEDS
+        private static float fDecorPrecision = 0.001f;
         private static float editingFactor = 0.01f;
         private static float maxSyncDistance = 150.0f;
         private static float frontMaxOffset = 0.25f;
@@ -427,11 +428,7 @@ namespace Vstancer.Client
         /// <returns></returns>
         private float[] GetVstancerPreset(int vehicle)
         {
-            VstancerPreset preset = null;
-            if (vehicle == currentVehicle && currentPreset != null)
-                preset = currentPreset;
-            else preset = CreatePreset(vehicle);
-
+            VstancerPreset preset = (vehicle == currentVehicle && currentPreset != null) ? currentPreset : CreatePreset(vehicle);
             int frontCount = preset.FrontWheelsCount;
 
             return new float[] {
@@ -524,7 +521,7 @@ namespace Vstancer.Client
             if (DecorExistOn(vehicle, name))
             {
                 float decorValue = DecorGetFloat(vehicle, name);
-                if (Math.Abs(currentValue - decorValue) > 0.001f)
+                if (Math.Abs(currentValue - decorValue) > fDecorPrecision)
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (debug)
@@ -533,7 +530,7 @@ namespace Vstancer.Client
             }
             else // Decorator doesn't exist, create it if required
             {
-                if (Math.Abs(currentValue - defaultValue) > 0.001f)
+                if (Math.Abs(currentValue - defaultValue) > fDecorPrecision)
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (debug)
