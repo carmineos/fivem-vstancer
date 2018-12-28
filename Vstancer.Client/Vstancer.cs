@@ -17,9 +17,9 @@ namespace Vstancer.Client
         private static readonly string ScriptName = "VStancer";
 
         #region CONFIG_FIEDS
-        private static float fDecorPrecision = 0.001f;
-        private static float editingFactor = 0.01f;
-        private static float maxSyncDistance = 150.0f;
+        private static float FloatPrecision = 0.001f;
+        private static float FloatStep = 0.01f;
+        private static float ScriptRange = 150.0f;
         private static float frontMaxOffset = 0.25f;
         private static float frontMaxCamber = 0.20f;
         private static float rearMaxOffset = 0.25f;
@@ -77,7 +77,7 @@ namespace Vstancer.Client
                     RefreshVehicleUsingPreset(currentVehicle, currentPreset); // Force one single refresh to update rendering at correct position after reset
                     RemoveDecorators(currentVehicle);
 
-                    InitialiseMenu();
+                    BuildMenu();
                     EditorMenu.Visible = true;
                 }
             };
@@ -87,22 +87,22 @@ namespace Vstancer.Client
 
         private UIMenuDynamicListItem AddDynamicFloatList(UIMenu menu, string name, float defaultValue, float value, float maxEditing)
         {
-            var newitem = new UIMenuDynamicListItem(name, value.ToString("F3"), (sender, direction) =>
+            string FloatChangeCallback(UIMenuDynamicListItem sender, UIMenuDynamicListItem.ChangeDirection direction)
             {
                 var newvalue = value;
                 float min = defaultValue - maxEditing;
                 float max = defaultValue + maxEditing;
 
                 if (direction == UIMenuDynamicListItem.ChangeDirection.Left)
-                    newvalue -= editingFactor;
+                    newvalue -= FloatStep;
                 else if (direction == UIMenuDynamicListItem.ChangeDirection.Right)
-                    newvalue += editingFactor;
+                    newvalue += FloatStep;
                 else return value.ToString("F3");
 
                 if (newvalue < min)
-                    CitizenFX.Core.UI.Screen.ShowNotification($"~o~Warning~w~: Min ~b~{name}~w~ value allowed is {min} for this vehicle");
+                    Screen.ShowNotification($"~o~Warning~w~: Min ~b~{name}~w~ value allowed is {min} for this vehicle");
                 else if (newvalue > max)
-                    CitizenFX.Core.UI.Screen.ShowNotification($"~o~Warning~w~: Max ~b~{name}~w~ value allowed is {max} for this vehicle");
+                    Screen.ShowNotification($"~o~Warning~w~: Max ~b~{name}~w~ value allowed is {max} for this vehicle");
                 else
                 {
                     value = newvalue;
@@ -119,12 +119,14 @@ namespace Vstancer.Client
                         Debug.WriteLine($"{ScriptName}: Edited {sender.Text} => value:{value}");
                 }
                 return value.ToString("F3");
-            });
+            };
+
+            var newitem = new UIMenuDynamicListItem(name, value.ToString("F3"), FloatChangeCallback);
             menu.AddItem(newitem);
             return newitem;
         }
 
-        private void InitialiseMenu()
+        private void BuildMenu()
         {
             if(EditorMenu == null)
             {
@@ -169,7 +171,7 @@ namespace Vstancer.Client
             currentPreset = null;
             vehicles = Enumerable.Empty<int>();
 
-            RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
+            RegisterCommand("vstancer_range", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
                 {
@@ -179,8 +181,8 @@ namespace Vstancer.Client
 
                 if (float.TryParse(args[0], out float value))
                 {
-                    maxSyncDistance = value;
-                    Debug.WriteLine($"{ScriptName}: Received new {nameof(maxSyncDistance)} value {value}");
+                    ScriptRange = value;
+                    Debug.WriteLine($"{ScriptName}: Received new {nameof(ScriptRange)} value {value}");
                 }
                 else Debug.WriteLine($"{ScriptName}: Error parsing {args[0]} as float");
 
@@ -256,6 +258,8 @@ namespace Vstancer.Client
             Tick += VstancerTask;
         }
 
+        #region TASKS
+
         /// <summary>
         /// The GUI task of the script
         /// </summary>
@@ -301,7 +305,7 @@ namespace Vstancer.Client
                     {
                         currentPreset = CreatePreset(vehicle);
                         currentVehicle = vehicle;
-                        InitialiseMenu();
+                        BuildMenu();
                     }
                 }
                 else
@@ -355,11 +359,15 @@ namespace Vstancer.Client
                 {
                     Vector3 coords = GetEntityCoords(entity, true);
 
-                    if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
+                    if (Vector3.Distance(currentCoords, coords) <= ScriptRange)
                         RefreshVehicleUsingDecorators(entity);
                 }
             }
         }
+
+        #endregion
+
+        #region METHODS
 
         /// <summary>
         /// Disable controls for controller to use the script with the controller
@@ -492,7 +500,7 @@ namespace Vstancer.Client
             if (vehicle == currentVehicle)
             {
                 currentPreset = new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
-                InitialiseMenu();
+                BuildMenu();
             }
             else
             {
@@ -521,7 +529,7 @@ namespace Vstancer.Client
             if (DecorExistOn(vehicle, name))
             {
                 float decorValue = DecorGetFloat(vehicle, name);
-                if (Math.Abs(currentValue - decorValue) > fDecorPrecision)
+                if (Math.Abs(currentValue - decorValue) > FloatPrecision)
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (debug)
@@ -530,7 +538,7 @@ namespace Vstancer.Client
             }
             else // Decorator doesn't exist, create it if required
             {
-                if (Math.Abs(currentValue - defaultValue) > fDecorPrecision)
+                if (Math.Abs(currentValue - defaultValue) > FloatPrecision)
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (debug)
@@ -760,8 +768,8 @@ namespace Vstancer.Client
                 Config config = new Config(strings);
 
                 toggleMenu = config.GetIntValue("toggleMenu", toggleMenu);
-                editingFactor = config.GetFloatValue("editingFactor", editingFactor);
-                maxSyncDistance = config.GetFloatValue("maxSyncDistance", maxSyncDistance);
+                FloatStep = config.GetFloatValue("FloatStep", FloatStep);
+                ScriptRange = config.GetFloatValue("ScriptRange", ScriptRange);
                 frontMaxOffset = config.GetFloatValue("fontMaxOffset", frontMaxOffset);
                 frontMaxCamber = config.GetFloatValue("frontMaxCamber", frontMaxCamber);
                 rearMaxOffset = config.GetFloatValue("rearMaxOffset", rearMaxOffset);
@@ -773,8 +781,10 @@ namespace Vstancer.Client
                 screenPosX = config.GetFloatValue("screenPosX", screenPosX);
                 screenPosY = config.GetFloatValue("screenPosY", screenPosY);
 
-                Debug.WriteLine($"{ScriptName}: Settings {nameof(frontMaxOffset)}={frontMaxOffset} {nameof(frontMaxCamber)}={frontMaxCamber} {nameof(rearMaxOffset)}={rearMaxOffset} {nameof(rearMaxCamber)}={rearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance}");
+                Debug.WriteLine($"{ScriptName}: Settings {nameof(frontMaxOffset)}={frontMaxOffset} {nameof(frontMaxCamber)}={frontMaxCamber} {nameof(rearMaxOffset)}={rearMaxOffset} {nameof(rearMaxCamber)}={rearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(ScriptRange)}={ScriptRange}");
             }
         }
     }
+
+    #endregion
 }

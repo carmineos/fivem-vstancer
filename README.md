@@ -29,7 +29,7 @@ Prints the info about decorators on the vehicle with the specified int as local 
 `vstancer_print`
 Prints the list of all the vehicles with any decorator of this script
 
-`vstancer_distance <float>`
+`vstancer_range <float>`
 Sets the specified float as the maximum distance used to refresh wheels of the vehicles with decorators
 
 `vstancer_debug <bool>`
@@ -42,7 +42,7 @@ Toggles the menu, this command has to be enabled in the config
 `toggleMenu=167`
 The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
 
-`editingFactor=0.01`
+`FloatStep=0.01`
 The step used to increase and decrease a value
 
 `frontMaxOffset=0.25`
@@ -57,7 +57,7 @@ The max value you can increase or decrease the rear Track Width
 `rearMaxCamber=0.20`
 The max value you can increase or decrease the rear Camber
 
-`maxSyncDistance=150.0`
+`ScriptRange=150.0`
 The max distance within which each client refreshes others clients' vehicles
 
 `timer=1000`
