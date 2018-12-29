@@ -130,12 +130,12 @@ namespace Vstancer.Client
         {
             if(EditorMenu == null)
             {
-                EditorMenu = new UIMenu(ScriptName, "Edit Track Width and Camber", new PointF(screenPosX * Screen.Width, screenPosY * Screen.Height));
+                EditorMenu = new UIMenu(ScriptName, "Edit Track Width and Camber", new PointF(screenPosX * Screen.Width, screenPosY * Screen.Height))
                 {
-                    EditorMenu.MouseEdgeEnabled = false;
-                    EditorMenu.ControlDisablingEnabled = false;
-                    EditorMenu.MouseControlsEnabled = false;
-                }
+                    MouseEdgeEnabled = false,
+                    ControlDisablingEnabled = false,
+                    MouseControlsEnabled = false
+                };
             }else EditorMenu.Clear();
 
             frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], frontMaxOffset);
@@ -146,10 +146,10 @@ namespace Vstancer.Client
 
             if(_menuPool == null)
             {
-                _menuPool = new MenuPool();
+                _menuPool = new MenuPool()
                 {
-                    _menuPool.ResetCursorOnOpen = true;
-                }
+                    ResetCursorOnOpen = true
+                };
 
                 _menuPool.Add(EditorMenu);
             }
@@ -467,8 +467,11 @@ namespace Vstancer.Client
         {
             if(debug)
             {
-                Debug.WriteLine($"{ScriptName}: LoadVstancerConfig parameters {off_f} {rot_f} {off_r} {rot_r} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
+                Debug.WriteLine($"{ScriptName}: SetVstancerPreset parameters {off_f} {rot_f} {off_r} {rot_r} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
             }
+
+            if (!DoesEntityExist(vehicle))
+                return;
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = wheelsCount / 2;
@@ -601,14 +604,14 @@ namespace Vstancer.Client
         /// </summary>
         private void RefreshVehicleUsingPreset(int vehicle, VstancerPreset preset)
         {
-            if (DoesEntityExist(vehicle))
+            if (!DoesEntityExist(vehicle) || preset == null)
+                return;
+
+            int wheelsCount = preset.WheelsCount;
+            for (int index = 0; index < wheelsCount; index++)
             {
-                int wheelsCount = preset.WheelsCount;
-                for (int index = 0; index < wheelsCount; index++)
-                {
-                    SetVehicleWheelXOffset(vehicle, index, preset.OffsetX[index]);
-                    SetVehicleWheelYRotation(vehicle, index, preset.RotationY[index]);
-                }
+                SetVehicleWheelXOffset(vehicle, index, preset.OffsetX[index]);
+                SetVehicleWheelYRotation(vehicle, index, preset.RotationY[index]);
             }
         }
 
@@ -682,39 +685,42 @@ namespace Vstancer.Client
         /// </summary>
         private void PrintDecoratorsInfo(int vehicle)
         {
-            if (DoesEntityExist(vehicle))
+            if (!DoesEntityExist(vehicle))
             {
-                int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-                int netID = NetworkGetNetworkIdFromEntity(vehicle);
-                StringBuilder s = new StringBuilder();
-                s.AppendLine($"{ScriptName}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
-
-                if (DecorExistOn(vehicle, decor_off_f))
-                {
-                    float value = DecorGetFloat(vehicle, decor_off_f);
-                    s.AppendLine($"{decor_off_f}: {value}");
-                }
-
-                if (DecorExistOn(vehicle, decor_rot_f))
-                {
-                    float value = DecorGetFloat(vehicle, decor_rot_f);
-                    s.AppendLine($"{decor_rot_f}: {value}");
-                }
-
-                if (DecorExistOn(vehicle, decor_off_r))
-                {
-                    float value = DecorGetFloat(vehicle, decor_off_r);
-                    s.AppendLine($"{decor_off_r}: {value}");
-                }
-
-                if (DecorExistOn(vehicle, decor_rot_r))
-                {
-                    float value = DecorGetFloat(vehicle, decor_rot_r);
-                    s.AppendLine($"{decor_rot_r}: {value}");
-                }
-                Debug.WriteLine(s.ToString());
+                Debug.WriteLine($"{ScriptName}: Can't find vehicle with handle {vehicle}");
+                return;
             }
-            else Debug.WriteLine($"{ScriptName}: Can't find vehicle with handle {vehicle}");
+
+            int wheelsCount = GetVehicleNumberOfWheels(vehicle);
+            int netID = NetworkGetNetworkIdFromEntity(vehicle);
+            StringBuilder s = new StringBuilder();
+            s.AppendLine($"{ScriptName}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
+
+            if (DecorExistOn(vehicle, decor_off_f))
+            {
+                float value = DecorGetFloat(vehicle, decor_off_f);
+                s.AppendLine($"{decor_off_f}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, decor_rot_f))
+            {
+                float value = DecorGetFloat(vehicle, decor_rot_f);
+                s.AppendLine($"{decor_rot_f}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, decor_off_r))
+            {
+                float value = DecorGetFloat(vehicle, decor_off_r);
+                s.AppendLine($"{decor_off_r}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, decor_rot_r))
+            {
+                float value = DecorGetFloat(vehicle, decor_rot_r);
+                s.AppendLine($"{decor_rot_r}: {value}");
+            }
+
+            Debug.WriteLine(s.ToString());
         }
 
         /// <summary>
