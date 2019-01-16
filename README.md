@@ -1,7 +1,7 @@
 # VStancer
 |Master|Development|
 |:-:|:-:|
-|[![Build status](https://ci.appveyor.com/api/projects/status/qialhqew9j0i9528/branch/master?svg=true)](https://ci.appveyor.com/project/neos7/fivem-vstancer/branch/master) |[![Build status](https://ci.appveyor.com/api/projects/status/qialhqew9j0i9528/branch/development?svg=true)](https://ci.appveyor.com/project/neos7/fivem-vstancer/branch/development)|
+|[![Build status](https://ci.appveyor.com/api/projects/status/qialhqew9j0i9528/branch/master?svg=true)](https://ci.appveyor.com/project/carmineos/fivem-vstancer/branch/master) |[![Build status](https://ci.appveyor.com/api/projects/status/qialhqew9j0i9528/branch/development?svg=true)](https://ci.appveyor.com/project/carmineos/fivem-vstancer/branch/development)|
 
 ### Description
 An attempt to use the features from ikt's VStancer as resource for FiveM servers to synchronize the edited vehicles with all the players. It is built using FiveM API and FiveM port of NativeUI.
@@ -74,7 +74,7 @@ Enable the "vstancer:toggleMenu" event to toggle the menu
 
 ### Exports
 
-Remember that exports require the resource to be called ìvstancerî
+Remember that exports require the resource to be called ‚Äúvstancer‚Äù
 
 ```csharp
 private void SetVstancerPreset(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null);
