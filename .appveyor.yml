@@ -11,5 +11,7 @@ build:
   project: fivem-vstancer.sln
 
 after_build:
-- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_BRANCH%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
-- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_BRANCH%.zip %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\Vstancer.Client.net.dll
+- cmd: md %APPVEYOR_BUILD_FOLDER%\vstancer
+- cmd: copy %APPVEYOR_BUILD_FOLDER%\dist\* %APPVEYOR_BUILD_FOLDER%\vstancer
+- cmd: copy %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\Vstancer.Client.net.dll %APPVEYOR_BUILD_FOLDER%\vstancer
+- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_BRANCH%.zip %APPVEYOR_BUILD_FOLDER%\vstancer\
