@@ -57,7 +57,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Debug (
+    <PostBuildEvent>if '$(CI)' == '' (
 call "$(SolutionDir)postbuild.bat" "$(TargetPath)"
 call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\config.ini"
 call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\__resource.lua"
