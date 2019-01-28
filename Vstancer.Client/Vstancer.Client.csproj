@@ -35,9 +35,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>thirdparty\CitizenFX.Core.dll</HintPath>
     </Reference>
-    <Reference Include="NativeUI, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>thirdparty\NativeUI.dll</HintPath>
+    <Reference Include="MenuAPI.net">
+      <HintPath>E:\Carmine\neos7\cfx-server\server-data\resources\[customscripts]\MenuAPI\MenuAPI.net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,7 +60,6 @@
 call "$(SolutionDir)postbuild.bat" "$(TargetPath)"
 call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\config.ini"
 call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\__resource.lua"
-call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\NativeUI.net.dll"
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>

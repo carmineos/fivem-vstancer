@@ -4,7 +4,7 @@
 |[![Build status](https://ci.appveyor.com/api/projects/status/qialhqew9j0i9528/branch/master?svg=true)](https://ci.appveyor.com/project/carmineos/fivem-vstancer/branch/master) |[![Build status](https://ci.appveyor.com/api/projects/status/qialhqew9j0i9528/branch/development?svg=true)](https://ci.appveyor.com/project/carmineos/fivem-vstancer/branch/development)|
 
 ### Description
-An attempt to use the features from ikt's VStancer as resource for FiveM servers to synchronize the edited vehicles with all the players. It is built using FiveM API and FiveM port of NativeUI.
+An attempt to use the features from ikt's VStancer as resource for FiveM servers to synchronize the edited vehicles with all the players. It is built using FiveM API and MenuAPI.
 
 When a client edits a vehicle, it will be automatically synchronized with all the players.
 If a vehicle is reset to the default values it will stop from being synchronized.
@@ -92,7 +92,7 @@ Exports["vstancer"].SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotat
 ```
 Lua:
 ```lua
-exports.vstancer:SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r)
+exports["vstancer"]:SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r)
 ```
 
 **GET**
@@ -106,19 +106,23 @@ float[] preset = Exports["vstancer"].GetVstancerPreset(vehicle);
 ```
 Lua:
 ```lua
-local preset = exports.vstancer:GetVstancerPreset(vehicle);
+local preset = exports["vstancer"]:GetVstancerPreset(vehicle);
 ```
 
-[Source](https://github.com/neos7/fivem-vstancer)
-[Download](https://github.com/neos7/fivem-vstancer/releases)
+[Source](https://github.com/carmineos/fivem-vstancer)
+[Download](https://github.com/carmineos/fivem-vstancer/releases)
 I am open to any kind of feedback. Report suggestions and bugs you find.
 
 ### Build
-Open the `postbuild.bat` and edit the path of the resource folder. If in Debug configuration, the post build event will copy the following files to the specified path: the script, the `config.ini`, the `__resource.lua` and a copy of a built [NativeUI](https://github.com/citizenfx/NativeUI) script ported to FiveM.
+Open the `postbuild.bat` and edit the path of the resource folder. If in Debug configuration, the post build event will copy the following files to the specified path: the built assembly of the script, the `config.ini`, the `__resource.lua`.
+
+### Requirements
+The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to render the UI, it uses FiveM built-in resource dependency, so the script will only work if MenuAPI resource is found and running.
+
 
 ### Credits
 * VStancer by ikt: https://github.com/E66666666/GTAVStancer
 * FiveM by CitizenFX: https://github.com/citizenfx/fivem
-* NativeUI by Guad: https://github.com/Guad/NativeUI
+* MenuAPI by Vespura: https://github.com/TomGrobbe/MenuAPI
 * GTADrifting members: https://gtad.club/
 * All the testers

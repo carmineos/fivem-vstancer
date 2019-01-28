@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Drawing;
 using System.Text;
-using NativeUI;
+using MenuAPI;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
@@ -13,10 +12,9 @@ namespace Vstancer.Client
 {
     public class Vstancer : BaseScript
     {
-        private static string ResourceName;
-        private static readonly string ScriptName = "VStancer";
 
-        #region CONFIG_FIEDS
+        #region Config Fields
+
         private static float FloatPrecision = 0.001f;
         private static float FloatStep = 0.01f;
         private static float ScriptRange = 150.0f;
@@ -29,11 +27,11 @@ namespace Vstancer.Client
         private static bool exposeCommand = false;
         private static bool exposeEvent = false;
         private static int toggleMenu = 167;
-        private static float screenPosX = 1.0f;
-        private static float screenPosY = 0.0f;
+
         #endregion
 
-        #region DECORATORS_NAMES
+        #region Decorator Names
+
         private static readonly string decor_off_f = "vstancer_off_f";
         private static readonly string decor_rot_f = "vstancer_rot_f";
         private static readonly string decor_off_f_def = "vstancer_off_f_def";
@@ -43,31 +41,39 @@ namespace Vstancer.Client
         private static readonly string decor_rot_r = "vstancer_rot_r";
         private static readonly string decor_off_r_def = "vstancer_off_r_def";
         private static readonly string decor_rot_r_def = "vstancer_rot_r_def";
+
         #endregion
 
-        #region FIELDS
+        #region Fields
+
+        private static string ResourceName;
+        private static readonly string ScriptName = "VStancer";
         private long currentTime;
         private long lastTime;
         private int playerPed;
         private int currentVehicle;
         private VstancerPreset currentPreset;
         private IEnumerable<int> vehicles;
+
         #endregion
 
-        #region GUI_FIELDS
-        private MenuPool _menuPool;
-        private UIMenu EditorMenu;
-        private UIMenuDynamicListItem frontOffsetGUI;
-        private UIMenuDynamicListItem rearOffsetGUI;
-        private UIMenuDynamicListItem frontRotationGUI;
-        private UIMenuDynamicListItem rearRotationGUI;
+        #region GUI Fields
+
+        private MenuController menuController;
+        private Menu mainMenu;
+        private MenuDynamicListItem frontOffsetGUI;
+        private MenuDynamicListItem rearOffsetGUI;
+        private MenuDynamicListItem frontRotationGUI;
+        private MenuDynamicListItem rearRotationGUI;
+
         #endregion
 
-        #region GUI_METHODS
-        private UIMenuItem AddMenuReset(UIMenu menu)
+        #region GUI Methods
+
+        private MenuItem AddMenuReset(Menu menu)
         {
-            var newitem = new UIMenuItem("Reset", "Restores the default values");
-            menu.AddItem(newitem);
+            var newitem = new MenuItem("Reset", "Restores the default values");
+            menu.AddMenuItem(newitem);
 
             menu.OnItemSelect += (sender, item, index) =>
             {
@@ -78,24 +84,24 @@ namespace Vstancer.Client
                     RemoveDecorators(currentVehicle);
 
                     BuildMenu();
-                    EditorMenu.Visible = true;
+                    mainMenu.Visible = true;
                 }
             };
 
             return newitem;
         }
 
-        private UIMenuDynamicListItem AddDynamicFloatList(UIMenu menu, string name, float defaultValue, float value, float maxEditing)
+        private MenuDynamicListItem AddDynamicFloatList(Menu menu, string name, float defaultValue, float value, float maxEditing)
         {
-            string FloatChangeCallback(UIMenuDynamicListItem sender, UIMenuDynamicListItem.ChangeDirection direction)
+            string FloatChangeCallback(MenuDynamicListItem sender, bool left)
             {
                 var newvalue = value;
                 float min = defaultValue - maxEditing;
                 float max = defaultValue + maxEditing;
 
-                if (direction == UIMenuDynamicListItem.ChangeDirection.Left)
+                if (left)
                     newvalue -= FloatStep;
-                else if (direction == UIMenuDynamicListItem.ChangeDirection.Right)
+                else if (!left)
                     newvalue += FloatStep;
                 else return value.ToString("F3");
 
@@ -121,41 +127,39 @@ namespace Vstancer.Client
                 return value.ToString("F3");
             };
 
-            var newitem = new UIMenuDynamicListItem(name, value.ToString("F3"), FloatChangeCallback);
-            menu.AddItem(newitem);
+            var newitem = new MenuDynamicListItem(name, value.ToString("F3"), FloatChangeCallback);
+            menu.AddMenuItem(newitem);
             return newitem;
         }
 
         private void BuildMenu()
         {
-            if(EditorMenu == null)
+            if (mainMenu == null)
             {
-                EditorMenu = new UIMenu(ScriptName, "Edit Track Width and Camber", new PointF(screenPosX * Screen.Width, screenPosY * Screen.Height))
-                {
-                    MouseEdgeEnabled = false,
-                    ControlDisablingEnabled = false,
-                    MouseControlsEnabled = false
-                };
-            }else EditorMenu.Clear();
-
-            frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], frontMaxOffset);
-            rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], rearMaxOffset);
-            frontRotationGUI = AddDynamicFloatList(EditorMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], frontMaxCamber);
-            rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], rearMaxCamber);
-            AddMenuReset(EditorMenu);
-
-            if(_menuPool == null)
-            {
-                _menuPool = new MenuPool()
-                {
-                    ResetCursorOnOpen = true
-                };
-
-                _menuPool.Add(EditorMenu);
+                mainMenu = new Menu(ScriptName, "Editor");
             }
-            _menuPool.RefreshIndex();
+            else mainMenu.ClearMenuItems();
+
+            frontOffsetGUI = AddDynamicFloatList(mainMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], frontMaxOffset);
+            rearOffsetGUI = AddDynamicFloatList(mainMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], rearMaxOffset);
+            frontRotationGUI = AddDynamicFloatList(mainMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], frontMaxCamber);
+            rearRotationGUI = AddDynamicFloatList(mainMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], rearMaxCamber);
+            AddMenuReset(mainMenu);
+            mainMenu.RefreshIndex();
+
+            if (menuController == null)
+            {
+                menuController = new MenuController();
+                MenuController.AddMenu(mainMenu);
+                MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
+                MenuController.MenuToggleKey = (Control)toggleMenu;
+                MenuController.EnableMenuToggleKeyOnController = false;
+            }
         }
+
         #endregion
+
+        #region Constructor
 
         public Vstancer()
         {
@@ -216,7 +220,7 @@ namespace Vstancer.Client
                     else Debug.WriteLine($"{ScriptName}: Error parsing entity handle {args[0]} as int");
                 }
             }), false);
-            
+
             RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
             {
                 if (currentPreset != null)
@@ -235,7 +239,7 @@ namespace Vstancer.Client
                 RegisterCommand("vstancer", new Action<int, dynamic>((source, args) =>
                 {
                     if (currentVehicle != -1 && currentPreset != null)
-                        EditorMenu.Visible = !EditorMenu.Visible;
+                        mainMenu.Visible = !mainMenu.Visible;
                 }), false);
             }
 
@@ -244,7 +248,7 @@ namespace Vstancer.Client
                 EventHandlers.Add("vstancer:toggleMenu", new Action(() =>
                 {
                     if (currentVehicle != -1 && currentPreset != null)
-                        EditorMenu.Visible = !EditorMenu.Visible;
+                        mainMenu.Visible = !mainMenu.Visible;
                 }));
             }
 
@@ -258,7 +262,9 @@ namespace Vstancer.Client
             Tick += VstancerTask;
         }
 
-        #region TASKS
+        #endregion
+
+        #region Tasks
 
         /// <summary>
         /// The GUI task of the script
@@ -266,22 +272,15 @@ namespace Vstancer.Client
         /// <returns></returns>
         private async Task MenuTask()
         {
-            if(_menuPool != null)
+            if (menuController != null)
             {
-                _menuPool.ProcessMenus();
+                //if (MenuController.IsAnyMenuOpen())
+                //DisableControls();
 
-                if (_menuPool.IsAnyMenuOpen())
-                    DisableControls();
-
-                if (currentVehicle != -1 && currentPreset != null)
+                if (currentVehicle == -1 || currentPreset == null)
                 {
-                    if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu))
-                        EditorMenu.Visible = !EditorMenu.Visible;
-                }
-                else
-                {
-                    if (_menuPool.IsAnyMenuOpen())
-                        _menuPool.CloseAllMenus();
+                    if (MenuController.IsAnyMenuOpen())
+                        MenuController.CloseAllMenus();
                 }
             }
         }
@@ -367,7 +366,7 @@ namespace Vstancer.Client
 
         #endregion
 
-        #region METHODS
+        #region Methods
 
         /// <summary>
         /// Disable controls for controller to use the script with the controller
@@ -465,7 +464,7 @@ namespace Vstancer.Client
         /// <param name="defaultRearRotation"></param>
         private void SetVstancerPreset(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null)
         {
-            if(debug)
+            if (debug)
             {
                 Debug.WriteLine($"{ScriptName}: SetVstancerPreset parameters {off_f} {rot_f} {off_r} {rot_r} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
             }
@@ -743,9 +742,9 @@ namespace Vstancer.Client
         /// <returns></returns>
         private bool HasDecorators(int entity)
         {
-            return (    
+            return (
                 DecorExistOn(entity, decor_off_f) ||
-                DecorExistOn(entity, decor_rot_f) ||    
+                DecorExistOn(entity, decor_rot_f) ||
                 DecorExistOn(entity, decor_off_r) ||
                 DecorExistOn(entity, decor_rot_r) ||
                 DecorExistOn(entity, decor_off_f_def) ||
@@ -764,7 +763,7 @@ namespace Vstancer.Client
 
                 Debug.WriteLine($"{ScriptName}: Loaded settings from {filename}");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.WriteLine($"{ScriptName}: Impossible to load {filename}");
                 Debug.WriteLine(e.StackTrace);
@@ -784,8 +783,6 @@ namespace Vstancer.Client
                 debug = config.GetBoolValue("debug", debug);
                 exposeCommand = config.GetBoolValue("exposeCommand", exposeCommand);
                 exposeEvent = config.GetBoolValue("exposeEvent", exposeEvent);
-                screenPosX = config.GetFloatValue("screenPosX", screenPosX);
-                screenPosY = config.GetFloatValue("screenPosY", screenPosY);
 
                 Debug.WriteLine($"{ScriptName}: Settings {nameof(frontMaxOffset)}={frontMaxOffset} {nameof(frontMaxCamber)}={frontMaxCamber} {nameof(rearMaxOffset)}={rearMaxOffset} {nameof(rearMaxCamber)}={rearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(ScriptRange)}={ScriptRange}");
             }
