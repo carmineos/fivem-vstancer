@@ -776,7 +776,7 @@ namespace Vstancer.Client
                 toggleMenu = config.GetIntValue("toggleMenu", toggleMenu);
                 FloatStep = config.GetFloatValue("FloatStep", FloatStep);
                 ScriptRange = config.GetFloatValue("ScriptRange", ScriptRange);
-                frontMaxOffset = config.GetFloatValue("fontMaxOffset", frontMaxOffset);
+                frontMaxOffset = config.GetFloatValue("frontMaxOffset", frontMaxOffset);
                 frontMaxCamber = config.GetFloatValue("frontMaxCamber", frontMaxCamber);
                 rearMaxOffset = config.GetFloatValue("rearMaxOffset", rearMaxOffset);
                 rearMaxCamber = config.GetFloatValue("rearMaxCamber", rearMaxCamber);
