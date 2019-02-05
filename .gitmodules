@@ -1,0 +1,3 @@
+[submodule "MenuAPI"]
+	path = vendor/MenuAPI
+	url = https://github.com/TomGrobbe/MenuAPI

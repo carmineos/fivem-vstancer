@@ -4,36 +4,38 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5CB92879-4500-47FC-BD3E-FE29369A621D}</ProjectGuid>
+    <ProjectGuid>{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Vstancer.Client</RootNamespace>
-    <AssemblyName>Vstancer.Client.net</AssemblyName>
+    <RootNamespace>MenuAPI</RootNamespace>
+    <AssemblyName>MenuAPI.net</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>embedded</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\FXserver\vMenu\resources\MenuAPI\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>embedded</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CitizenFX.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\vendor\CitizenFX.Core.Client\CitizenFX.Core.dll</HintPath>
+      <HintPath>..\dependencies\CitizenFX.Core.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,25 +47,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Utilities.cs" />
-    <Compile Include="Vstancer.cs" />
+    <Compile Include="items\MenuCheckboxItem.cs" />
+    <Compile Include="items\MenuDynamicListItem.cs" />
+    <Compile Include="items\MenuItem.cs" />
+    <Compile Include="items\MenuListItem.cs" />
+    <Compile Include="items\MenuSliderItem.cs" />
+    <Compile Include="MenuController.cs" />
+    <Compile Include="Menu.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Config.cs" />
-    <Compile Include="VstancerPreset.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\vendor\MenuAPI\MenuAPI\MenuAPI.csproj">
-      <Project>{9c746601-9f3d-4b0d-877c-1c7bc493c5bc}</Project>
-      <Name>MenuAPI</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if '$(CI)' == '' (
-call "$(SolutionDir)postbuild.bat" "$(TargetPath)"
-call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\config.ini"
-call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\__resource.lua"
-call "$(SolutionDir)postbuild.bat" "$(TargetDir)\MenuAPI.net.dll"
-)</PostBuildEvent>
+    <PostBuildEvent>if /I "$(SolutionDir)"=="D:\Tom Grobbe\Documents\GitHub-Repos\fivem-menu-api\MenuAPI\" (
+    copy /Y "$(TargetDir)\MenuAPI.net.dll" "D:\FXserver\vMenu\resources\MenuAPI\"
+    copy /Y "$(TargetDir)\MenuAPI.net.dll" "D:\Tom Grobbe\Documents\GitHub-Repos\vMenu\vMenu\dependencies\client\"
+)
+copy /Y "$(TargetDir)\MenuAPI.net.dll" "$(TargetDir)\..\..\..\dependencies\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
