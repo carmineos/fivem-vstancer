@@ -22,6 +22,7 @@ after_build:
 - cmd: echo %VERSION_NAME%
 - 7z a vstancer-%VERSION_NAME%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
 - 7z a vstancer-%VERSION_NAME%.zip %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\Vstancer.Client.net.dll
+- 7z a vstancer-%VERSION_NAME%.zip %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\MenuAPI.net.dll
 
 artifacts:
 - path: vstancer-$(VERSION_NAME).zip
