@@ -1,15 +1,42 @@
+version: 1.0.{build}
 image: Visual Studio 2017
-
-artifacts:
-- path: vstancer-v%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_BRANCH%.zip
-  name: vstancer
-
 configuration: Release
-platform: Any CPU
+
+#assembly_info:
+#  patch: true
+#  file: AssemblyInfo.*
+#  assembly_version: "{version}"
+#  assembly_file_version: "{version}"
+#  assembly_informational_version: "{version}"
+
+install:
+- cmd: git submodule update --init --recursive
 
 build:
+  parallel: true
+  verbosity: minimal
   project: fivem-vstancer.sln
-
+  
 after_build:
-- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_BRANCH%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
-- 7z a vstancer-v%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_BRANCH%.zip %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\Vstancer.Client.net.dll
+- cmd: if %APPVEYOR_REPO_TAG%==true (appveyor SetVariable -Name VERSION_NAME -Value %APPVEYOR_REPO_TAG_NAME%) else (appveyor SetVariable -Name VERSION_NAME -Value %APPVEYOR_BUILD_VERSION%)
+- cmd: echo %VERSION_NAME%
+- cmd: md %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\dist\*.* %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\Vstancer.Client.net.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\MenuAPI.net.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- 7z a vstancer-%VERSION_NAME%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
+
+artifacts:
+- path: vstancer-$(VERSION_NAME).zip
+  name: vstancer
+
+deploy:
+  provider: GitHub
+  release: vstancer $(VERSION_NAME)
+  auth_token: 
+    secure: koH1kqQLiJXw2cH24CMO1v9OA/RZ/HKeFZA8RSKOznBMsIvodL4HhzKPciA4qyfE
+  draft: false
+  prerelease: false
+  on:
+    branch: master
+    APPVEYOR_REPO_TAG: true

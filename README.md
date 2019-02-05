@@ -1,10 +1,10 @@
 # VStancer
 |Master|Development|
 |:-:|:-:|
-|[![Build status](https://ci.appveyor.com/api/projects/status/qialhqew9j0i9528/branch/master?svg=true)](https://ci.appveyor.com/project/neos7/fivem-vstancer/branch/master) |[![Build status](https://ci.appveyor.com/api/projects/status/qialhqew9j0i9528/branch/development?svg=true)](https://ci.appveyor.com/project/neos7/fivem-vstancer/branch/development)|
+|[![Build status](https://ci.appveyor.com/api/projects/status/qialhqew9j0i9528/branch/master?svg=true)](https://ci.appveyor.com/project/carmineos/fivem-vstancer/branch/master) |[![Build status](https://ci.appveyor.com/api/projects/status/qialhqew9j0i9528/branch/development?svg=true)](https://ci.appveyor.com/project/carmineos/fivem-vstancer/branch/development)|
 
 ### Description
-An attempt to use the features from ikt's VStancer as resource for FiveM servers to synchronize the edited vehicles with all the players. It is built using FiveM API and FiveM port of NativeUI.
+An attempt to use the features from ikt's VStancer as resource for FiveM servers to synchronize the edited vehicles with all the players. It is built using FiveM API and MenuAPI.
 
 When a client edits a vehicle, it will be automatically synchronized with all the players.
 If a vehicle is reset to the default values it will stop from being synchronized.
@@ -29,7 +29,7 @@ Prints the info about decorators on the vehicle with the specified int as local 
 `vstancer_print`
 Prints the list of all the vehicles with any decorator of this script
 
-`vstancer_distance <float>`
+`vstancer_range <float>`
 Sets the specified float as the maximum distance used to refresh wheels of the vehicles with decorators
 
 `vstancer_debug <bool>`
@@ -42,7 +42,7 @@ Toggles the menu, this command has to be enabled in the config
 `toggleMenu=167`
 The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
 
-`editingFactor=0.01`
+`FloatStep=0.01`
 The step used to increase and decrease a value
 
 `frontMaxOffset=0.25`
@@ -57,7 +57,7 @@ The max value you can increase or decrease the rear Track Width
 `rearMaxCamber=0.20`
 The max value you can increase or decrease the rear Camber
 
-`maxSyncDistance=150.0`
+`ScriptRange=150.0`
 The max distance within which each client refreshes others clients' vehicles
 
 `timer=1000`
@@ -74,7 +74,7 @@ Enable the "vstancer:toggleMenu" event to toggle the menu
 
 ### Exports
 
-Remember that exports require the resource to be called ìvstancerî
+Remember that exports require the resource to be called ‚Äúvstancer‚Äù
 
 ```csharp
 private void SetVstancerPreset(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null);
@@ -92,7 +92,7 @@ Exports["vstancer"].SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotat
 ```
 Lua:
 ```lua
-exports.vstancer:SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r)
+exports["vstancer"]:SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r)
 ```
 
 **GET**
@@ -106,19 +106,23 @@ float[] preset = Exports["vstancer"].GetVstancerPreset(vehicle);
 ```
 Lua:
 ```lua
-local preset = exports.vstancer:GetVstancerPreset(vehicle);
+local preset = exports["vstancer"]:GetVstancerPreset(vehicle);
 ```
 
-[Source](https://github.com/neos7/fivem-vstancer)
-[Download](https://github.com/neos7/fivem-vstancer/releases)
+[Source](https://github.com/carmineos/fivem-vstancer)
+[Download](https://github.com/carmineos/fivem-vstancer/releases)
 I am open to any kind of feedback. Report suggestions and bugs you find.
 
 ### Build
-Open the `postbuild.bat` and edit the path of the resource folder. If in Debug configuration, the post build event will copy the following files to the specified path: the script, the `config.ini`, the `__resource.lua` and a copy of a built [NativeUI](https://github.com/citizenfx/NativeUI) script ported to FiveM.
+Open the `postbuild.bat` and edit the path of the resource folder. If in Debug configuration, the post build event will copy the following files to the specified path: the built assembly of the script, the `config.ini`, the `__resource.lua`.
+
+### Requirements
+The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to render the UI, it uses FiveM built-in resource dependency, so the script will only work if MenuAPI resource is found and running.
+
 
 ### Credits
 * VStancer by ikt: https://github.com/E66666666/GTAVStancer
 * FiveM by CitizenFX: https://github.com/citizenfx/fivem
-* NativeUI by Guad: https://github.com/Guad/NativeUI
+* MenuAPI by Vespura: https://github.com/TomGrobbe/MenuAPI
 * GTADrifting members: https://gtad.club/
 * All the testers

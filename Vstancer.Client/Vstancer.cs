@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Drawing;
 using System.Text;
-using NativeUI;
+using MenuAPI;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
@@ -13,13 +12,12 @@ namespace Vstancer.Client
 {
     public class Vstancer : BaseScript
     {
-        private static string ResourceName;
-        private static readonly string ScriptName = "VStancer";
 
-        #region CONFIG_FIEDS
-        private static float fDecorPrecision = 0.001f;
-        private static float editingFactor = 0.01f;
-        private static float maxSyncDistance = 150.0f;
+        #region Config Fields
+
+        private static float FloatPrecision = 0.001f;
+        private static float FloatStep = 0.01f;
+        private static float ScriptRange = 150.0f;
         private static float frontMaxOffset = 0.25f;
         private static float frontMaxCamber = 0.20f;
         private static float rearMaxOffset = 0.25f;
@@ -29,11 +27,11 @@ namespace Vstancer.Client
         private static bool exposeCommand = false;
         private static bool exposeEvent = false;
         private static int toggleMenu = 167;
-        private static float screenPosX = 1.0f;
-        private static float screenPosY = 0.0f;
+
         #endregion
 
-        #region DECORATORS_NAMES
+        #region Decorator Names
+
         private static readonly string decor_off_f = "vstancer_off_f";
         private static readonly string decor_rot_f = "vstancer_rot_f";
         private static readonly string decor_off_f_def = "vstancer_off_f_def";
@@ -43,31 +41,39 @@ namespace Vstancer.Client
         private static readonly string decor_rot_r = "vstancer_rot_r";
         private static readonly string decor_off_r_def = "vstancer_off_r_def";
         private static readonly string decor_rot_r_def = "vstancer_rot_r_def";
+
         #endregion
 
-        #region FIELDS
+        #region Fields
+
+        private static string ResourceName;
+        private static readonly string ScriptName = "VStancer";
         private long currentTime;
         private long lastTime;
         private int playerPed;
         private int currentVehicle;
         private VstancerPreset currentPreset;
         private IEnumerable<int> vehicles;
+
         #endregion
 
-        #region GUI_FIELDS
-        private MenuPool _menuPool;
-        private UIMenu EditorMenu;
-        private UIMenuDynamicListItem frontOffsetGUI;
-        private UIMenuDynamicListItem rearOffsetGUI;
-        private UIMenuDynamicListItem frontRotationGUI;
-        private UIMenuDynamicListItem rearRotationGUI;
+        #region GUI Fields
+
+        private MenuController menuController;
+        private Menu mainMenu;
+        private MenuDynamicListItem frontOffsetGUI;
+        private MenuDynamicListItem rearOffsetGUI;
+        private MenuDynamicListItem frontRotationGUI;
+        private MenuDynamicListItem rearRotationGUI;
+
         #endregion
 
-        #region GUI_METHODS
-        private UIMenuItem AddMenuReset(UIMenu menu)
+        #region GUI Methods
+
+        private MenuItem AddMenuReset(Menu menu)
         {
-            var newitem = new UIMenuItem("Reset", "Restores the default values");
-            menu.AddItem(newitem);
+            var newitem = new MenuItem("Reset", "Restores the default values");
+            menu.AddMenuItem(newitem);
 
             menu.OnItemSelect += (sender, item, index) =>
             {
@@ -77,32 +83,32 @@ namespace Vstancer.Client
                     RefreshVehicleUsingPreset(currentVehicle, currentPreset); // Force one single refresh to update rendering at correct position after reset
                     RemoveDecorators(currentVehicle);
 
-                    InitialiseMenu();
-                    EditorMenu.Visible = true;
+                    BuildMenu();
+                    mainMenu.Visible = true;
                 }
             };
 
             return newitem;
         }
 
-        private UIMenuDynamicListItem AddDynamicFloatList(UIMenu menu, string name, float defaultValue, float value, float maxEditing)
+        private MenuDynamicListItem AddDynamicFloatList(Menu menu, string name, float defaultValue, float value, float maxEditing)
         {
-            var newitem = new UIMenuDynamicListItem(name, value.ToString("F3"), (sender, direction) =>
+            string FloatChangeCallback(MenuDynamicListItem sender, bool left)
             {
                 var newvalue = value;
                 float min = defaultValue - maxEditing;
                 float max = defaultValue + maxEditing;
 
-                if (direction == UIMenuDynamicListItem.ChangeDirection.Left)
-                    newvalue -= editingFactor;
-                else if (direction == UIMenuDynamicListItem.ChangeDirection.Right)
-                    newvalue += editingFactor;
+                if (left)
+                    newvalue -= FloatStep;
+                else if (!left)
+                    newvalue += FloatStep;
                 else return value.ToString("F3");
 
                 if (newvalue < min)
-                    CitizenFX.Core.UI.Screen.ShowNotification($"~o~Warning~w~: Min ~b~{name}~w~ value allowed is {min} for this vehicle");
+                    Screen.ShowNotification($"~o~Warning~w~: Min ~b~{name}~w~ value allowed is {min} for this vehicle");
                 else if (newvalue > max)
-                    CitizenFX.Core.UI.Screen.ShowNotification($"~o~Warning~w~: Max ~b~{name}~w~ value allowed is {max} for this vehicle");
+                    Screen.ShowNotification($"~o~Warning~w~: Max ~b~{name}~w~ value allowed is {max} for this vehicle");
                 else
                 {
                     value = newvalue;
@@ -119,41 +125,41 @@ namespace Vstancer.Client
                         Debug.WriteLine($"{ScriptName}: Edited {sender.Text} => value:{value}");
                 }
                 return value.ToString("F3");
-            });
-            menu.AddItem(newitem);
+            };
+
+            var newitem = new MenuDynamicListItem(name, value.ToString("F3"), FloatChangeCallback);
+            menu.AddMenuItem(newitem);
             return newitem;
         }
 
-        private void InitialiseMenu()
+        private void BuildMenu()
         {
-            if(EditorMenu == null)
+            if (mainMenu == null)
             {
-                EditorMenu = new UIMenu(ScriptName, "Edit Track Width and Camber", new PointF(screenPosX * Screen.Width, screenPosY * Screen.Height));
-                {
-                    EditorMenu.MouseEdgeEnabled = false;
-                    EditorMenu.ControlDisablingEnabled = false;
-                    EditorMenu.MouseControlsEnabled = false;
-                }
-            }else EditorMenu.Clear();
-
-            frontOffsetGUI = AddDynamicFloatList(EditorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], frontMaxOffset);
-            rearOffsetGUI = AddDynamicFloatList(EditorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], rearMaxOffset);
-            frontRotationGUI = AddDynamicFloatList(EditorMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], frontMaxCamber);
-            rearRotationGUI = AddDynamicFloatList(EditorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], rearMaxCamber);
-            AddMenuReset(EditorMenu);
-
-            if(_menuPool == null)
-            {
-                _menuPool = new MenuPool();
-                {
-                    _menuPool.ResetCursorOnOpen = true;
-                }
-
-                _menuPool.Add(EditorMenu);
+                mainMenu = new Menu(ScriptName, "Editor");
             }
-            _menuPool.RefreshIndex();
+            else mainMenu.ClearMenuItems();
+
+            frontOffsetGUI = AddDynamicFloatList(mainMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], frontMaxOffset);
+            rearOffsetGUI = AddDynamicFloatList(mainMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], rearMaxOffset);
+            frontRotationGUI = AddDynamicFloatList(mainMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], frontMaxCamber);
+            rearRotationGUI = AddDynamicFloatList(mainMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], rearMaxCamber);
+            AddMenuReset(mainMenu);
+            mainMenu.RefreshIndex();
+
+            if (menuController == null)
+            {
+                menuController = new MenuController();
+                MenuController.AddMenu(mainMenu);
+                MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
+                MenuController.MenuToggleKey = (Control)toggleMenu;
+                MenuController.EnableMenuToggleKeyOnController = false;
+            }
         }
+
         #endregion
+
+        #region Constructor
 
         public Vstancer()
         {
@@ -169,7 +175,7 @@ namespace Vstancer.Client
             currentPreset = null;
             vehicles = Enumerable.Empty<int>();
 
-            RegisterCommand("vstancer_distance", new Action<int, dynamic>((source, args) =>
+            RegisterCommand("vstancer_range", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
                 {
@@ -179,8 +185,8 @@ namespace Vstancer.Client
 
                 if (float.TryParse(args[0], out float value))
                 {
-                    maxSyncDistance = value;
-                    Debug.WriteLine($"{ScriptName}: Received new {nameof(maxSyncDistance)} value {value}");
+                    ScriptRange = value;
+                    Debug.WriteLine($"{ScriptName}: Received new {nameof(ScriptRange)} value {value}");
                 }
                 else Debug.WriteLine($"{ScriptName}: Error parsing {args[0]} as float");
 
@@ -214,7 +220,7 @@ namespace Vstancer.Client
                     else Debug.WriteLine($"{ScriptName}: Error parsing entity handle {args[0]} as int");
                 }
             }), false);
-            
+
             RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
             {
                 if (currentPreset != null)
@@ -233,7 +239,7 @@ namespace Vstancer.Client
                 RegisterCommand("vstancer", new Action<int, dynamic>((source, args) =>
                 {
                     if (currentVehicle != -1 && currentPreset != null)
-                        EditorMenu.Visible = !EditorMenu.Visible;
+                        mainMenu.Visible = !mainMenu.Visible;
                 }), false);
             }
 
@@ -242,7 +248,7 @@ namespace Vstancer.Client
                 EventHandlers.Add("vstancer:toggleMenu", new Action(() =>
                 {
                     if (currentVehicle != -1 && currentPreset != null)
-                        EditorMenu.Visible = !EditorMenu.Visible;
+                        mainMenu.Visible = !mainMenu.Visible;
                 }));
             }
 
@@ -251,10 +257,16 @@ namespace Vstancer.Client
             Func<int, float[]> getPreset = GetVstancerPreset;
             Exports.Add("GetVstancerPreset", getPreset);
 
-            Tick += UpdateCurrentVehicle;
             Tick += MenuTask;
-            Tick += VstancerTask;
+            Tick += GetCurrentVehicle;
+            Tick += UpdateCurrentVehicle;
+            Tick += UpdateWorldVehicles;
+            Tick += UpdateCurrentVehicleDecorators;
         }
+
+        #endregion
+
+        #region Tasks
 
         /// <summary>
         /// The GUI task of the script
@@ -262,22 +274,15 @@ namespace Vstancer.Client
         /// <returns></returns>
         private async Task MenuTask()
         {
-            if(_menuPool != null)
+            if (menuController != null)
             {
-                _menuPool.ProcessMenus();
+                //if (MenuController.IsAnyMenuOpen())
+                //DisableControls();
 
-                if (_menuPool.IsAnyMenuOpen())
-                    DisableControls();
-
-                if (currentVehicle != -1 && currentPreset != null)
+                if (currentVehicle == -1 || currentPreset == null)
                 {
-                    if (IsControlJustPressed(1, toggleMenu) || IsDisabledControlJustPressed(1, toggleMenu))
-                        EditorMenu.Visible = !EditorMenu.Visible;
-                }
-                else
-                {
-                    if (_menuPool.IsAnyMenuOpen())
-                        _menuPool.CloseAllMenus();
+                    if (MenuController.IsAnyMenuOpen())
+                        MenuController.CloseAllMenus();
                 }
             }
         }
@@ -286,7 +291,7 @@ namespace Vstancer.Client
         /// Updates the <see cref="currentVehicle"/> and the <see cref="currentPreset"/>
         /// </summary>
         /// <returns></returns>
-        private async Task UpdateCurrentVehicle()
+        private async Task GetCurrentVehicle()
         {
             playerPed = PlayerPedId();
 
@@ -301,7 +306,8 @@ namespace Vstancer.Client
                     {
                         currentPreset = CreatePreset(vehicle);
                         currentVehicle = vehicle;
-                        InitialiseMenu();
+                        BuildMenu();
+                        Tick += UpdateCurrentVehicle;
                     }
                 }
                 else
@@ -309,6 +315,7 @@ namespace Vstancer.Client
                     // If current vehicle isn't a car or player isn't driving current vehicle or vehicle is dead
                     currentPreset = null;
                     currentVehicle = -1;
+                    Tick -= UpdateCurrentVehicle;
                 }
             }
             else
@@ -316,35 +323,30 @@ namespace Vstancer.Client
                 // If player isn't in any vehicle
                 currentPreset = null;
                 currentVehicle = -1;
+                Tick -= UpdateCurrentVehicle;
             }
         }
 
         /// <summary>
-        /// The main task of the script
+        /// The task that updates the current vehicle
         /// </summary>
         /// <returns></returns>
-        private async Task VstancerTask()
+        private async Task UpdateCurrentVehicle()
         {
-            currentTime = (GetGameTimer() - lastTime);
-
             // Check if current vehicle needs to be refreshed
             if (currentVehicle != -1 && currentPreset != null)
             {
                 if (currentPreset.IsEdited)
                     RefreshVehicleUsingPreset(currentVehicle, currentPreset);
             }
+        }
 
-            // Check if decorators needs to be updated
-            if (currentTime > timer)
-            {
-                if (currentVehicle != -1 && currentPreset != null)
-                    UpdateVehicleDecorators(currentVehicle, currentPreset);
-
-                vehicles = new VehicleEnumerable();
-
-                lastTime = GetGameTimer();
-            }
-
+        /// <summary>
+        /// The task that updates the vehicles of the world
+        /// </summary>
+        /// <returns></returns>
+        private async Task UpdateWorldVehicles()
+        {
             // Refreshes the iterated vehicles
             var vehiclesList = vehicles.Except(new List<int> { currentVehicle });
             Vector3 currentCoords = GetEntityCoords(playerPed, true);
@@ -355,11 +357,36 @@ namespace Vstancer.Client
                 {
                     Vector3 coords = GetEntityCoords(entity, true);
 
-                    if (Vector3.Distance(currentCoords, coords) <= maxSyncDistance)
+                    if (Vector3.Distance(currentCoords, coords) <= ScriptRange)
                         RefreshVehicleUsingDecorators(entity);
                 }
             }
         }
+
+        /// <summary>
+        /// The task that updates the script decorators attached on the current vehicle
+        /// </summary>
+        /// <returns></returns>
+        private async Task UpdateCurrentVehicleDecorators()
+        {
+            currentTime = (GetGameTimer() - lastTime);
+
+            // Check if decorators needs to be updated
+            if (currentTime > timer)
+            {
+                if (currentVehicle != -1 && currentPreset != null)
+                    UpdateVehicleDecorators(currentVehicle, currentPreset);
+
+                // Also update world vehicles list
+                vehicles = new VehicleEnumerable();
+
+                lastTime = GetGameTimer();
+            }
+        }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Disable controls for controller to use the script with the controller
@@ -457,10 +484,13 @@ namespace Vstancer.Client
         /// <param name="defaultRearRotation"></param>
         private void SetVstancerPreset(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null)
         {
-            if(debug)
+            if (debug)
             {
-                Debug.WriteLine($"{ScriptName}: LoadVstancerConfig parameters {off_f} {rot_f} {off_r} {rot_r} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
+                Debug.WriteLine($"{ScriptName}: SetVstancerPreset parameters {off_f} {rot_f} {off_r} {rot_r} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
             }
+
+            if (!DoesEntityExist(vehicle))
+                return;
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = wheelsCount / 2;
@@ -492,7 +522,7 @@ namespace Vstancer.Client
             if (vehicle == currentVehicle)
             {
                 currentPreset = new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
-                InitialiseMenu();
+                BuildMenu();
             }
             else
             {
@@ -521,7 +551,7 @@ namespace Vstancer.Client
             if (DecorExistOn(vehicle, name))
             {
                 float decorValue = DecorGetFloat(vehicle, name);
-                if (Math.Abs(currentValue - decorValue) > fDecorPrecision)
+                if (Math.Abs(currentValue - decorValue) > FloatPrecision)
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (debug)
@@ -530,7 +560,7 @@ namespace Vstancer.Client
             }
             else // Decorator doesn't exist, create it if required
             {
-                if (Math.Abs(currentValue - defaultValue) > fDecorPrecision)
+                if (Math.Abs(currentValue - defaultValue) > FloatPrecision)
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (debug)
@@ -593,14 +623,14 @@ namespace Vstancer.Client
         /// </summary>
         private void RefreshVehicleUsingPreset(int vehicle, VstancerPreset preset)
         {
-            if (DoesEntityExist(vehicle))
+            if (!DoesEntityExist(vehicle) || preset == null)
+                return;
+
+            int wheelsCount = preset.WheelsCount;
+            for (int index = 0; index < wheelsCount; index++)
             {
-                int wheelsCount = preset.WheelsCount;
-                for (int index = 0; index < wheelsCount; index++)
-                {
-                    SetVehicleWheelXOffset(vehicle, index, preset.OffsetX[index]);
-                    SetVehicleWheelYRotation(vehicle, index, preset.RotationY[index]);
-                }
+                SetVehicleWheelXOffset(vehicle, index, preset.OffsetX[index]);
+                SetVehicleWheelYRotation(vehicle, index, preset.RotationY[index]);
             }
         }
 
@@ -674,39 +704,42 @@ namespace Vstancer.Client
         /// </summary>
         private void PrintDecoratorsInfo(int vehicle)
         {
-            if (DoesEntityExist(vehicle))
+            if (!DoesEntityExist(vehicle))
             {
-                int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-                int netID = NetworkGetNetworkIdFromEntity(vehicle);
-                StringBuilder s = new StringBuilder();
-                s.AppendLine($"{ScriptName}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
-
-                if (DecorExistOn(vehicle, decor_off_f))
-                {
-                    float value = DecorGetFloat(vehicle, decor_off_f);
-                    s.AppendLine($"{decor_off_f}: {value}");
-                }
-
-                if (DecorExistOn(vehicle, decor_rot_f))
-                {
-                    float value = DecorGetFloat(vehicle, decor_rot_f);
-                    s.AppendLine($"{decor_rot_f}: {value}");
-                }
-
-                if (DecorExistOn(vehicle, decor_off_r))
-                {
-                    float value = DecorGetFloat(vehicle, decor_off_r);
-                    s.AppendLine($"{decor_off_r}: {value}");
-                }
-
-                if (DecorExistOn(vehicle, decor_rot_r))
-                {
-                    float value = DecorGetFloat(vehicle, decor_rot_r);
-                    s.AppendLine($"{decor_rot_r}: {value}");
-                }
-                Debug.WriteLine(s.ToString());
+                Debug.WriteLine($"{ScriptName}: Can't find vehicle with handle {vehicle}");
+                return;
             }
-            else Debug.WriteLine($"{ScriptName}: Can't find vehicle with handle {vehicle}");
+
+            int wheelsCount = GetVehicleNumberOfWheels(vehicle);
+            int netID = NetworkGetNetworkIdFromEntity(vehicle);
+            StringBuilder s = new StringBuilder();
+            s.AppendLine($"{ScriptName}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
+
+            if (DecorExistOn(vehicle, decor_off_f))
+            {
+                float value = DecorGetFloat(vehicle, decor_off_f);
+                s.AppendLine($"{decor_off_f}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, decor_rot_f))
+            {
+                float value = DecorGetFloat(vehicle, decor_rot_f);
+                s.AppendLine($"{decor_rot_f}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, decor_off_r))
+            {
+                float value = DecorGetFloat(vehicle, decor_off_r);
+                s.AppendLine($"{decor_off_r}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, decor_rot_r))
+            {
+                float value = DecorGetFloat(vehicle, decor_rot_r);
+                s.AppendLine($"{decor_rot_r}: {value}");
+            }
+
+            Debug.WriteLine(s.ToString());
         }
 
         /// <summary>
@@ -729,9 +762,9 @@ namespace Vstancer.Client
         /// <returns></returns>
         private bool HasDecorators(int entity)
         {
-            return (    
+            return (
                 DecorExistOn(entity, decor_off_f) ||
-                DecorExistOn(entity, decor_rot_f) ||    
+                DecorExistOn(entity, decor_rot_f) ||
                 DecorExistOn(entity, decor_off_r) ||
                 DecorExistOn(entity, decor_rot_r) ||
                 DecorExistOn(entity, decor_off_f_def) ||
@@ -750,7 +783,7 @@ namespace Vstancer.Client
 
                 Debug.WriteLine($"{ScriptName}: Loaded settings from {filename}");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.WriteLine($"{ScriptName}: Impossible to load {filename}");
                 Debug.WriteLine(e.StackTrace);
@@ -760,9 +793,9 @@ namespace Vstancer.Client
                 Config config = new Config(strings);
 
                 toggleMenu = config.GetIntValue("toggleMenu", toggleMenu);
-                editingFactor = config.GetFloatValue("editingFactor", editingFactor);
-                maxSyncDistance = config.GetFloatValue("maxSyncDistance", maxSyncDistance);
-                frontMaxOffset = config.GetFloatValue("fontMaxOffset", frontMaxOffset);
+                FloatStep = config.GetFloatValue("FloatStep", FloatStep);
+                ScriptRange = config.GetFloatValue("ScriptRange", ScriptRange);
+                frontMaxOffset = config.GetFloatValue("frontMaxOffset", frontMaxOffset);
                 frontMaxCamber = config.GetFloatValue("frontMaxCamber", frontMaxCamber);
                 rearMaxOffset = config.GetFloatValue("rearMaxOffset", rearMaxOffset);
                 rearMaxCamber = config.GetFloatValue("rearMaxCamber", rearMaxCamber);
@@ -770,11 +803,11 @@ namespace Vstancer.Client
                 debug = config.GetBoolValue("debug", debug);
                 exposeCommand = config.GetBoolValue("exposeCommand", exposeCommand);
                 exposeEvent = config.GetBoolValue("exposeEvent", exposeEvent);
-                screenPosX = config.GetFloatValue("screenPosX", screenPosX);
-                screenPosY = config.GetFloatValue("screenPosY", screenPosY);
 
-                Debug.WriteLine($"{ScriptName}: Settings {nameof(frontMaxOffset)}={frontMaxOffset} {nameof(frontMaxCamber)}={frontMaxCamber} {nameof(rearMaxOffset)}={rearMaxOffset} {nameof(rearMaxCamber)}={rearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(maxSyncDistance)}={maxSyncDistance}");
+                Debug.WriteLine($"{ScriptName}: Settings {nameof(frontMaxOffset)}={frontMaxOffset} {nameof(frontMaxCamber)}={frontMaxCamber} {nameof(rearMaxOffset)}={rearMaxOffset} {nameof(rearMaxCamber)}={rearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(ScriptRange)}={ScriptRange}");
             }
         }
     }
+
+    #endregion
 }
