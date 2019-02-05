@@ -257,9 +257,11 @@ namespace Vstancer.Client
             Func<int, float[]> getPreset = GetVstancerPreset;
             Exports.Add("GetVstancerPreset", getPreset);
 
-            Tick += UpdateCurrentVehicle;
             Tick += MenuTask;
-            Tick += VstancerTask;
+            Tick += GetCurrentVehicle;
+            Tick += UpdateCurrentVehicle;
+            Tick += UpdateWorldVehicles;
+            Tick += UpdateCurrentVehicleDecorators;
         }
 
         #endregion
@@ -289,7 +291,7 @@ namespace Vstancer.Client
         /// Updates the <see cref="currentVehicle"/> and the <see cref="currentPreset"/>
         /// </summary>
         /// <returns></returns>
-        private async Task UpdateCurrentVehicle()
+        private async Task GetCurrentVehicle()
         {
             playerPed = PlayerPedId();
 
@@ -305,6 +307,7 @@ namespace Vstancer.Client
                         currentPreset = CreatePreset(vehicle);
                         currentVehicle = vehicle;
                         BuildMenu();
+                        Tick += UpdateCurrentVehicle;
                     }
                 }
                 else
@@ -312,6 +315,7 @@ namespace Vstancer.Client
                     // If current vehicle isn't a car or player isn't driving current vehicle or vehicle is dead
                     currentPreset = null;
                     currentVehicle = -1;
+                    Tick -= UpdateCurrentVehicle;
                 }
             }
             else
@@ -319,35 +323,30 @@ namespace Vstancer.Client
                 // If player isn't in any vehicle
                 currentPreset = null;
                 currentVehicle = -1;
+                Tick -= UpdateCurrentVehicle;
             }
         }
 
         /// <summary>
-        /// The main task of the script
+        /// The task that updates the current vehicle
         /// </summary>
         /// <returns></returns>
-        private async Task VstancerTask()
+        private async Task UpdateCurrentVehicle()
         {
-            currentTime = (GetGameTimer() - lastTime);
-
             // Check if current vehicle needs to be refreshed
             if (currentVehicle != -1 && currentPreset != null)
             {
                 if (currentPreset.IsEdited)
                     RefreshVehicleUsingPreset(currentVehicle, currentPreset);
             }
+        }
 
-            // Check if decorators needs to be updated
-            if (currentTime > timer)
-            {
-                if (currentVehicle != -1 && currentPreset != null)
-                    UpdateVehicleDecorators(currentVehicle, currentPreset);
-
-                vehicles = new VehicleEnumerable();
-
-                lastTime = GetGameTimer();
-            }
-
+        /// <summary>
+        /// The task that updates the vehicles of the world
+        /// </summary>
+        /// <returns></returns>
+        private async Task UpdateWorldVehicles()
+        {
             // Refreshes the iterated vehicles
             var vehiclesList = vehicles.Except(new List<int> { currentVehicle });
             Vector3 currentCoords = GetEntityCoords(playerPed, true);
@@ -361,6 +360,27 @@ namespace Vstancer.Client
                     if (Vector3.Distance(currentCoords, coords) <= ScriptRange)
                         RefreshVehicleUsingDecorators(entity);
                 }
+            }
+        }
+
+        /// <summary>
+        /// The task that updates the script decorators attached on the current vehicle
+        /// </summary>
+        /// <returns></returns>
+        private async Task UpdateCurrentVehicleDecorators()
+        {
+            currentTime = (GetGameTimer() - lastTime);
+
+            // Check if decorators needs to be updated
+            if (currentTime > timer)
+            {
+                if (currentVehicle != -1 && currentPreset != null)
+                    UpdateVehicleDecorators(currentVehicle, currentPreset);
+
+                // Also update world vehicles list
+                vehicles = new VehicleEnumerable();
+
+                lastTime = GetGameTimer();
             }
         }
 
