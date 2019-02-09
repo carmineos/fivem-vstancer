@@ -12,7 +12,7 @@ namespace Vstancer.Client
 {
     public class Vstancer : BaseScript
     {
-
+        
         #region Config Fields
 
         private static float FloatPrecision = 0.001f;
@@ -41,6 +41,7 @@ namespace Vstancer.Client
         public static readonly string decor_rot_r = "vstancer_rot_r";
         public static readonly string decor_off_r_def = "vstancer_off_r_def";
         public static readonly string decor_rot_r_def = "vstancer_rot_r_def";
+        public static readonly string vstancerResetID = "vstancer_reset";
 
         #endregion
 
@@ -65,33 +66,24 @@ namespace Vstancer.Client
         private MenuDynamicListItem rearOffsetGUI;
         private MenuDynamicListItem frontRotationGUI;
         private MenuDynamicListItem rearRotationGUI;
+        private MenuItem resetButtonGUI;
 
         #endregion
 
         #region GUI Methods
 
-        private MenuItem AddMenuReset(Menu menu)
+        private MenuItem AddResetButton(Menu menu)
         {
-            var newitem = new MenuItem("Reset", "Restores the default values");
-            menu.AddMenuItem(newitem);
-
-            menu.OnItemSelect += (sender, item, index) =>
+            var newitem = new MenuItem("Reset", "Restores the default values")
             {
-                if (item == newitem)
-                {
-                    currentPreset.Reset();
-                    RefreshVehicleUsingPreset(currentVehicle, currentPreset); // Force one single refresh to update rendering at correct position after reset
-                    RemoveDecorators(currentVehicle);
-
-                    BuildMenu();
-                    mainMenu.Visible = true;
-                }
+                ItemData = vstancerResetID
             };
+            menu.AddMenuItem(newitem);
 
             return newitem;
         }
 
-        private MenuDynamicListItem AddDynamicFloatList(Menu menu, string name, float defaultValue, float value, float maxEditing)
+        private MenuDynamicListItem AddDynamicFloatList(Menu menu, string name, float defaultValue, float value, float maxEditing, string id)
         {
             string FloatChangeCallback(MenuDynamicListItem sender, bool left)
             {
@@ -105,6 +97,9 @@ namespace Vstancer.Client
                     newvalue += FloatStep;
                 else return value.ToString("F3");
 
+                // Hotfix
+                //newvalue = float.Parse((newvalue).ToString("F3"));
+
                 if (newvalue < min)
                     Screen.ShowNotification($"~o~Warning~w~: Min ~b~{name}~w~ value allowed is {min} for this vehicle");
                 else if (newvalue > max)
@@ -112,6 +107,8 @@ namespace Vstancer.Client
                 else
                 {
                     value = newvalue;
+                    
+                    // TODO: Replace this with OnValueChanged
                     if (sender == frontRotationGUI) currentPreset.SetRotationFront(value);
                     else if (sender == rearRotationGUI) currentPreset.SetRotationRear(value);
                     else if (sender == frontOffsetGUI) currentPreset.SetOffsetFront(-value);
@@ -127,7 +124,10 @@ namespace Vstancer.Client
                 return value.ToString("F3");
             };
 
-            var newitem = new MenuDynamicListItem(name, value.ToString("F3"), FloatChangeCallback);
+            var newitem = new MenuDynamicListItem(name, value.ToString("F3"), FloatChangeCallback)
+            {
+                ItemData = id
+            };
             menu.AddMenuItem(newitem);
             return newitem;
         }
@@ -137,14 +137,21 @@ namespace Vstancer.Client
             if (mainMenu == null)
             {
                 mainMenu = new Menu(ScriptName, "Editor");
+                //mainMenu.OnMenuDynamicListItemCurrentItemChange += OnValueChanged;
+                mainMenu.OnItemSelect += (menu, menuItem, itemIndex) => 
+                {
+                    // If the selected item is the reset button
+                    if (menuItem.ItemData == vstancerResetID) //if(menuItem == resetButtonGUI)
+                        OnResetButtonPressed();
+                };
             }
             else mainMenu.ClearMenuItems();
 
-            frontOffsetGUI = AddDynamicFloatList(mainMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], frontMaxOffset);
-            rearOffsetGUI = AddDynamicFloatList(mainMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], rearMaxOffset);
-            frontRotationGUI = AddDynamicFloatList(mainMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], frontMaxCamber);
-            rearRotationGUI = AddDynamicFloatList(mainMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], rearMaxCamber);
-            AddMenuReset(mainMenu);
+            frontOffsetGUI = AddDynamicFloatList(mainMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], frontMaxOffset, decor_off_f);
+            rearOffsetGUI = AddDynamicFloatList(mainMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], rearMaxOffset, decor_off_r);
+            frontRotationGUI = AddDynamicFloatList(mainMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], frontMaxCamber, decor_rot_f);
+            rearRotationGUI = AddDynamicFloatList(mainMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], rearMaxCamber, decor_rot_r);
+            resetButtonGUI = AddResetButton(mainMenu);
             mainMenu.RefreshIndex();
 
             if (menuController == null)
@@ -156,6 +163,66 @@ namespace Vstancer.Client
                 MenuController.EnableMenuToggleKeyOnController = false;
             }
         }
+
+        /// <summary>
+        /// Called when the reset button is pressed in the UI
+        /// </summary>
+        /// <param name="menu"></param>
+        /// <param name="menuItem"></param>
+        /// <param name="itemIndex"></param>
+        private void OnResetButtonPressed()
+        {
+                if(!CurrentPresetIsValid())
+                    return;
+
+                currentPreset.Reset();
+                RemoveDecorators(currentVehicle);
+
+                // Force one single refresh to update rendering at correct position after reset
+                // This is required because otherwise the vehicle won't update immediately
+                RefreshVehicleUsingPreset(currentVehicle, currentPreset); 
+
+                BuildMenu();
+                mainMenu.Visible = true;
+        }
+
+        /*private void OnValueChanged(Menu menu, MenuDynamicListItem dynamicListItem, string oldValue, string newValue)
+        {
+            if (!CurrentPresetIsValid())
+                return;
+
+            if (debug)
+                Debug.WriteLine($"OnValueChanged {dynamicListItem.ItemData} value changed from {oldValue} to {newValue}");
+
+            string id = (string)dynamicListItem.ItemData;
+            float value = float.Parse(newValue);
+            float defaultValue = value;
+
+            if (id == decor_rot_f)
+            {
+                currentPreset.SetRotationFront(value);
+                defaultValue = currentPreset.DefaultRotationY[0];
+            }
+            else if (id == decor_rot_r)
+            {
+                currentPreset.SetRotationRear(value);
+                defaultValue = currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount];
+            }
+            else if (id == decor_off_f)
+            {
+                currentPreset.SetOffsetFront(-value);
+                defaultValue = currentPreset.DefaultOffsetX[0];
+            }
+            else if (id == decor_off_r)
+            {
+                currentPreset.SetOffsetRear(-value);
+                defaultValue = currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount];
+            }
+
+            // Force one single refresh to update rendering at correct position after reset
+            if (value == defaultValue)
+                RefreshVehicleUsingPreset(currentVehicle, currentPreset);
+        }*/
 
         #endregion
 
@@ -335,7 +402,7 @@ namespace Vstancer.Client
         {
             // Check if current vehicle needs to be refreshed
             if (CurrentPresetIsValid() && currentPreset.IsEdited)
-                RefreshVehicleUsingPreset(currentVehicle, currentPreset);
+                    RefreshVehicleUsingPreset(currentVehicle, currentPreset);
         }
 
         /// <summary>
@@ -807,6 +874,6 @@ namespace Vstancer.Client
             }
         }
 
-        #endregion
+    #endregion
     }
 }
