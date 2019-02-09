@@ -493,9 +493,7 @@ namespace Vstancer.Client
                 return;
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = wheelsCount / 2;
-            if (frontCount % 2 != 0)
-                frontCount -= 1;
+            int frontCount = VstancerPreset.CalculateFrontWheelsCount(wheelsCount);
 
             float off_f_def, rot_f_def, off_r_def, rot_r_def;
 
@@ -600,9 +598,7 @@ namespace Vstancer.Client
         private VstancerPreset CreatePreset(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = wheelsCount / 2;
-            if (frontCount % 2 != 0)
-                frontCount -= 1;
+            int frontCount = VstancerPreset.CalculateFrontWheelsCount(wheelsCount);
 
             // Get default values first
             float off_f_def = DecorExistOn(vehicle, decor_off_f_def) ? DecorGetFloat(vehicle, decor_off_f_def) : GetVehicleWheelXOffset(vehicle, 0);
@@ -641,10 +637,7 @@ namespace Vstancer.Client
         private void RefreshVehicleUsingDecorators(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = wheelsCount / 2;
-
-            if (frontCount % 2 != 0)
-                frontCount -= 1;
+            int frontCount = VstancerPreset.CalculateFrontWheelsCount(wheelsCount);
 
             if (DecorExistOn(vehicle, decor_off_f))
             {

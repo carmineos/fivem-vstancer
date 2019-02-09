@@ -65,10 +65,7 @@ namespace Vstancer.Client
         public VstancerPreset(int count, float[] defRot, float[] defOff)
         {
             WheelsCount = count;
-            FrontWheelsCount = WheelsCount / 2;
-
-            if (FrontWheelsCount % 2 != 0)
-                FrontWheelsCount -= 1;
+            FrontWheelsCount = CalculateFrontWheelsCount(WheelsCount);
 
             DefaultRotationY = new float[WheelsCount];
             DefaultOffsetX = new float[WheelsCount];
@@ -94,9 +91,7 @@ namespace Vstancer.Client
             RotationY = new float[WheelsCount];
             OffsetX = new float[WheelsCount];
 
-            FrontWheelsCount = WheelsCount / 2;
-            if (FrontWheelsCount % 2 != 0)
-                FrontWheelsCount -= 1;
+            FrontWheelsCount = CalculateFrontWheelsCount(WheelsCount);
 
             for (int index = 0; index < FrontWheelsCount; index++)
             {
@@ -184,6 +179,22 @@ namespace Vstancer.Client
             s.AppendLine(defRot.ToString());
 
             return s.ToString();
+        }
+
+
+        /// <summary>
+        /// Calculate the number of front wheels of a vehicle, starting from the number of all the wheels
+        /// </summary>
+        /// <param name="wheelsCount">The number of wheels of a such vehicle</param>
+        /// <returns></returns>
+        public static int CalculateFrontWheelsCount(int wheelsCount)
+        {
+            int _frontWheelsCount = wheelsCount / 2;
+
+            if (_frontWheelsCount % 2 != 0)
+                _frontWheelsCount -= 1;
+
+            return _frontWheelsCount;
         }
 
     }
