@@ -12,7 +12,15 @@ namespace Vstancer.Client
 {
     public class Vstancer : BaseScript
     {
-        
+        #region Properties
+
+        /// <summary>
+        /// Returns wheter <see cref="currentVehicle"/> and <see cref="currentPreset"/> are valid
+        /// </summary>
+        public bool CurrentPresetIsValid => currentVehicle != -1 && currentPreset != null;
+
+        #endregion
+
         #region Config Fields
 
         private static float FloatPrecision = 0.001f;
@@ -132,7 +140,7 @@ namespace Vstancer.Client
             return newitem;
         }
 
-        private void BuildMenu()
+        private void InitializeMenu()
         {
             if (mainMenu == null)
             {
@@ -161,6 +169,7 @@ namespace Vstancer.Client
                 MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
                 MenuController.MenuToggleKey = (Control)toggleMenu;
                 MenuController.EnableMenuToggleKeyOnController = false;
+                MenuController.MainMenu = mainMenu;
             }
         }
 
@@ -172,7 +181,7 @@ namespace Vstancer.Client
         /// <param name="itemIndex"></param>
         private void OnResetButtonPressed()
         {
-                if(!CurrentPresetIsValid())
+                if(!CurrentPresetIsValid)
                     return;
 
                 currentPreset.Reset();
@@ -182,7 +191,7 @@ namespace Vstancer.Client
                 // This is required because otherwise the vehicle won't update immediately
                 RefreshVehicleUsingPreset(currentVehicle, currentPreset); 
 
-                BuildMenu();
+                InitializeMenu();
                 mainMenu.Visible = true;
         }
 
@@ -305,7 +314,7 @@ namespace Vstancer.Client
             {
                 RegisterCommand("vstancer", new Action<int, dynamic>((source, args) =>
                 {
-                    if (CurrentPresetIsValid())
+                    if (CurrentPresetIsValid)
                         mainMenu.Visible = !mainMenu.Visible;
                 }), false);
             }
@@ -314,7 +323,7 @@ namespace Vstancer.Client
             {
                 EventHandlers.Add("vstancer:toggleMenu", new Action(() =>
                 {
-                    if (CurrentPresetIsValid())
+                    if (CurrentPresetIsValid)
                         mainMenu.Visible = !mainMenu.Visible;
                 }));
             }
@@ -341,16 +350,13 @@ namespace Vstancer.Client
         /// <returns></returns>
         private async Task MenuTask()
         {
-            if (menuController != null)
-            {
-                //if (MenuController.IsAnyMenuOpen())
-                //DisableControls();
+            //if (MenuController.IsAnyMenuOpen())
+            //DisableControls();
 
-                if (!CurrentPresetIsValid())
-                {
-                    if (MenuController.IsAnyMenuOpen())
-                        MenuController.CloseAllMenus();
-                }
+            if (!CurrentPresetIsValid)
+            {
+                if (MenuController.IsAnyMenuOpen())
+                    MenuController.CloseAllMenus();
             }
         }
 
@@ -373,7 +379,7 @@ namespace Vstancer.Client
                     {
                         currentPreset = CreatePreset(vehicle);
                         currentVehicle = vehicle;
-                        BuildMenu();
+                        InitializeMenu();
                         Tick += UpdateCurrentVehicle;
                     }
                 }
@@ -401,7 +407,7 @@ namespace Vstancer.Client
         private async Task UpdateCurrentVehicle()
         {
             // Check if current vehicle needs to be refreshed
-            if (CurrentPresetIsValid() && currentPreset.IsEdited)
+            if (CurrentPresetIsValid && currentPreset.IsEdited)
                     RefreshVehicleUsingPreset(currentVehicle, currentPreset);
         }
 
@@ -438,7 +444,7 @@ namespace Vstancer.Client
             // Check if decorators needs to be updated
             if (currentTime > timer)
             {
-                if (CurrentPresetIsValid())
+                if (CurrentPresetIsValid)
                     UpdateVehicleDecorators(currentVehicle, currentPreset);
 
                 // Also update world vehicles list
@@ -451,12 +457,6 @@ namespace Vstancer.Client
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Returns wheter <see cref="currentVehicle"/> and <see cref="currentPreset"/> are valid
-        /// </summary>
-        /// <returns></returns>
-        public bool CurrentPresetIsValid() { return (currentVehicle != -1 && currentPreset != null); }
 
         /// <summary>
         /// Disable controls for controller to use the script with the controller
@@ -590,7 +590,7 @@ namespace Vstancer.Client
             if (vehicle == currentVehicle)
             {
                 currentPreset = new VstancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
-                BuildMenu();
+                InitializeMenu();
             }
             else
             {
