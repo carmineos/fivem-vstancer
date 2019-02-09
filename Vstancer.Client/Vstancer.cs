@@ -32,15 +32,15 @@ namespace Vstancer.Client
 
         #region Decorator Names
 
-        private static readonly string decor_off_f = "vstancer_off_f";
-        private static readonly string decor_rot_f = "vstancer_rot_f";
-        private static readonly string decor_off_f_def = "vstancer_off_f_def";
-        private static readonly string decor_rot_f_def = "vstancer_rot_f_def";
+        public static readonly string decor_off_f = "vstancer_off_f";
+        public static readonly string decor_rot_f = "vstancer_rot_f";
+        public static readonly string decor_off_f_def = "vstancer_off_f_def";
+        public static readonly string decor_rot_f_def = "vstancer_rot_f_def";
 
-        private static readonly string decor_off_r = "vstancer_off_r";
-        private static readonly string decor_rot_r = "vstancer_rot_r";
-        private static readonly string decor_off_r_def = "vstancer_off_r_def";
-        private static readonly string decor_rot_r_def = "vstancer_rot_r_def";
+        public static readonly string decor_off_r = "vstancer_off_r";
+        public static readonly string decor_rot_r = "vstancer_rot_r";
+        public static readonly string decor_off_r_def = "vstancer_off_r_def";
+        public static readonly string decor_rot_r_def = "vstancer_rot_r_def";
 
         #endregion
 
@@ -803,7 +803,7 @@ namespace Vstancer.Client
                 Debug.WriteLine($"{ScriptName}: Settings {nameof(frontMaxOffset)}={frontMaxOffset} {nameof(frontMaxCamber)}={frontMaxCamber} {nameof(rearMaxOffset)}={rearMaxOffset} {nameof(rearMaxCamber)}={rearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(ScriptRange)}={ScriptRange}");
             }
         }
-    }
 
-    #endregion
+        #endregion
+    }
 }
