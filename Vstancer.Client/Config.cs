@@ -12,10 +12,8 @@ namespace Vstancer.Client
         {
             Entries = new Dictionary<string, string>();
 
-            if (content == null || content.Length == 0)
-            {
+            if (string.IsNullOrEmpty(content))
                 return;
-            }
 
             var splitted = content
                 .Split('\n')
@@ -29,22 +27,18 @@ namespace Vstancer.Client
             }
         }
 
-        public string Get(string key, string defaultValue = null)
+        public string Get(string key, string fallback = null)
         {
-            if (Entries.ContainsKey(key))
-            {
-                return Entries[key];
-            }
-
-            return defaultValue;
+            if (!string.IsNullOrEmpty(key) && Entries.TryGetValue(key, out string value))
+                return value;
+            else
+                return fallback;
         }
 
         public int GetIntValue(string key, int fallback)
         {
-            if (Entries.ContainsKey(key))
+            if (!string.IsNullOrEmpty(key) && Entries.TryGetValue(key, out string value))
             {
-                var value = Entries[key];
-
                 if (int.TryParse(value, out int tmp))
                     return tmp;
             }
@@ -53,10 +47,8 @@ namespace Vstancer.Client
 
         public float GetFloatValue(string key, float fallback)
         {
-            if (Entries.ContainsKey(key))
+            if (!string.IsNullOrEmpty(key) && Entries.TryGetValue(key, out string value))
             {
-                var value = Entries[key];
-
                 if (float.TryParse(value, out float tmp))
                     return tmp;
             }
@@ -65,10 +57,8 @@ namespace Vstancer.Client
 
         public bool GetBoolValue(string key, bool fallback)
         {
-            if (Entries.ContainsKey(key))
+            if (!string.IsNullOrEmpty(key) && Entries.TryGetValue(key, out string value))
             {
-                var value = Entries[key];
-
                 if (bool.TryParse(value, out bool tmp))
                     return tmp;
             }
@@ -77,10 +67,8 @@ namespace Vstancer.Client
 
         public long GetLongValue(string key, long fallback)
         {
-            if (Entries.ContainsKey(key))
+            if (!string.IsNullOrEmpty(key) && Entries.TryGetValue(key, out string value))
             {
-                var value = Entries[key];
-
                 if (long.TryParse(value, out long tmp))
                     return tmp;
             }
