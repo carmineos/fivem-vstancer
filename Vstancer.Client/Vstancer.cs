@@ -525,7 +525,7 @@ namespace Vstancer.Client
         /// <returns></returns>
         private float[] GetVstancerPreset(int vehicle)
         {
-            VstancerPreset preset = (vehicle == currentVehicle && currentPreset != null) ? currentPreset : CreatePreset(vehicle);
+            VstancerPreset preset = (vehicle == currentVehicle && CurrentPresetIsValid) ? currentPreset : CreatePreset(vehicle);
             int frontCount = preset.FrontWheelsCount;
 
             return new float[] {
