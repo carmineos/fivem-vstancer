@@ -358,6 +358,8 @@ namespace Vstancer.Client
                 if (MenuController.IsAnyMenuOpen())
                     MenuController.CloseAllMenus();
             }
+
+            await Task.FromResult(0);
         }
 
         /// <summary>
@@ -398,6 +400,8 @@ namespace Vstancer.Client
                 currentVehicle = -1;
                 Tick -= UpdateCurrentVehicle;
             }
+
+            await Task.FromResult(0);
         }
 
         /// <summary>
@@ -409,6 +413,8 @@ namespace Vstancer.Client
             // Check if current vehicle needs to be refreshed
             if (CurrentPresetIsValid && currentPreset.IsEdited)
                     RefreshVehicleUsingPreset(currentVehicle, currentPreset);
+
+            await Task.FromResult(0);
         }
 
         /// <summary>
@@ -431,6 +437,8 @@ namespace Vstancer.Client
                         RefreshVehicleUsingDecorators(entity);
                 }
             }
+
+            await Task.FromResult(0);
         }
 
         /// <summary>
@@ -452,6 +460,8 @@ namespace Vstancer.Client
 
                 lastTime = GetGameTimer();
             }
+
+            await Task.FromResult(0);
         }
 
         #endregion
