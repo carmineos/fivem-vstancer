@@ -31,10 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CitizenFX.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\vendor\CitizenFX.Core.Client\CitizenFX.Core.dll</HintPath>
-    </Reference>
+    <PackageReference Include="CitizenFX.Core.Client">
+      <Version>1.0.1117</Version>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -63,7 +63,7 @@
 call "$(SolutionDir)postbuild.bat" "$(TargetPath)"
 call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\config.ini"
 call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\__resource.lua"
-call "$(SolutionDir)postbuild.bat" "$(TargetDir)\MenuAPI.net.dll"
+call "$(SolutionDir)postbuild.bat" "$(TargetDir)\MenuAPI.dll"
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>
