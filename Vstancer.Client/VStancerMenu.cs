@@ -165,6 +165,13 @@ namespace Vstancer.Client
         {
             _vstancerEditor = script;
             _vstancerEditor.PresetChanged += new EventHandler((sender,args) => UpdateEditorMenu());
+            _vstancerEditor.ToggleMenuVisibility += new EventHandler((sender,args) => 
+            {
+                if (editorMenu == null)
+                    return;
+
+                editorMenu.Visible = !editorMenu.Visible;
+            });
             InitializeMenu();
 
             Tick += OnTick;

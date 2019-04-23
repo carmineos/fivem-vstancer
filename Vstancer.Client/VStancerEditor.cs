@@ -72,6 +72,7 @@ namespace Vstancer.Client
         #region Public Events
 
         public event EventHandler PresetChanged;
+        public event EventHandler ToggleMenuVisibility;
 
         #endregion
 
@@ -222,13 +223,12 @@ namespace Vstancer.Client
 
             #endregion
 
-            /**
+            
             if (exposeCommand)
             {
                 RegisterCommand("vstancer", new Action<int, dynamic>((source, args) =>
                 {
-                    if (CurrentPresetIsValid)
-                        mainMenu.Visible = !mainMenu.Visible;
+                    ToggleMenuVisibility?.Invoke(this, EventArgs.Empty);
                 }), false);
             }
 
@@ -236,11 +236,9 @@ namespace Vstancer.Client
             {
                 EventHandlers.Add("vstancer:toggleMenu", new Action(() =>
                 {
-                    if (CurrentPresetIsValid)
-                        mainMenu.Visible = !mainMenu.Visible;
+                    ToggleMenuVisibility?.Invoke(this, EventArgs.Empty);
                 }));
             }
-            */
 
             Action<int, float, float, float, float, object, object, object, object> setPreset = SetVstancerPreset;
             Exports.Add("SetVstancerPreset", setPreset);
