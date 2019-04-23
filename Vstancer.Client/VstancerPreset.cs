@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Vstancer.Client
 {
-    public class VstancerPreset : IEquatable<VstancerPreset>
+    public class VStancerPreset : IEquatable<VStancerPreset>
     {
         public static float Precision { get; private set; } = 0.001f;
         public int WheelsCount { get; private set; }
@@ -51,7 +51,7 @@ namespace Vstancer.Client
             }
         }
 
-        public VstancerPreset()
+        public VStancerPreset()
         {
             WheelsCount = 4;
             FrontWheelsCount = 2;
@@ -62,7 +62,7 @@ namespace Vstancer.Client
             OffsetX = new float[] { 0, 0, 0, 0 };
         }
 
-        public VstancerPreset(int count, float[] defRot, float[] defOff)
+        public VStancerPreset(int count, float[] defRot, float[] defOff)
         {
             WheelsCount = count;
             FrontWheelsCount = CalculateFrontWheelsCount(WheelsCount);
@@ -82,7 +82,7 @@ namespace Vstancer.Client
             }
         }
 
-        public VstancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
+        public VStancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
         {
             WheelsCount = count;
 
@@ -139,7 +139,7 @@ namespace Vstancer.Client
             }
         }
 
-        public bool Equals(VstancerPreset other)
+        public bool Equals(VStancerPreset other)
         {
             if (WheelsCount != other.WheelsCount)
                 return false;
