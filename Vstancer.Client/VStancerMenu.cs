@@ -11,18 +11,40 @@ namespace Vstancer.Client
     {
         #region Private Fields
 
-        private VStancerEditor _vstancerEditor;
+        /// <summary>
+        /// The script which owns this menu
+        /// </summary>
+        private VStancerEditor vstancerEditor;
 
+        /// <summary>
+        /// The controller of the menu
+        /// </summary>
         private MenuController menuController;
+
+        /// <summary>
+        /// The main menu
+        /// </summary>
         private Menu editorMenu;
 
         #endregion
 
         #region Public Events
 
+        /// <summary>
+        /// Triggered when a property has its value changed in the UI
+        /// </summary>
+        /// <param name="id">The id of the property</param>
+        /// <param name="value">The new value of the property</param>
         public delegate void MenuPresetValueChangedEvent(string id, string value);
 
+        /// <summary>
+        /// Triggered when a property has its value changed in the UI
+        /// </summary>
         public event MenuPresetValueChangedEvent MenuPresetValueChanged;
+
+        /// <summary>
+        /// Triggered when the reset button is pressed in the UI
+        /// </summary>
         public event EventHandler MenuResetPresetButtonPressed;
 
         #endregion
@@ -35,26 +57,35 @@ namespace Vstancer.Client
         private string RearOffsetID => VStancerEditor.RearOffsetID;
         private string RearRotationID => VStancerEditor.RearRotationID;
         private string ScriptName => VStancerEditor.ScriptName;
-        private float frontMaxOffset => _vstancerEditor.frontMaxOffset;
-        private float frontMaxCamber => _vstancerEditor.frontMaxCamber;
-        private float rearMaxOffset => _vstancerEditor.rearMaxOffset;
-        private float rearMaxCamber => _vstancerEditor.rearMaxCamber;
-        private bool CurrentPresetIsValid => _vstancerEditor.CurrentPresetIsValid;
-        private VStancerPreset currentPreset => _vstancerEditor.currentPreset;
-        private int toggleMenu => _vstancerEditor.toggleMenu;
-        private float FloatStep => _vstancerEditor.FloatStep;
+        private float frontMaxOffset => vstancerEditor.frontMaxOffset;
+        private float frontMaxCamber => vstancerEditor.frontMaxCamber;
+        private float rearMaxOffset => vstancerEditor.rearMaxOffset;
+        private float rearMaxCamber => vstancerEditor.rearMaxCamber;
+        private bool CurrentPresetIsValid => vstancerEditor.CurrentPresetIsValid;
+        private VStancerPreset currentPreset => vstancerEditor.currentPreset;
+        private int toggleMenu => vstancerEditor.toggleMenu;
+        private float FloatStep => vstancerEditor.FloatStep;
 
         #endregion
 
         #region Private Methods
 
-        private MenuDynamicListItem.ChangeItemCallback FloatChangeCallback(string name, float defaultValue, float value, float maxEditing)
+        /// <summary>
+        /// Create a method to determine the logic for when the left/right arrow are pressed
+        /// </summary>
+        /// <param name="name">The name of the item</param>
+        /// <param name="value">The current value</param>
+        /// <param name="minimum">The min allowed value</param>
+        /// <param name="maximum">The max allowed value</param>
+        /// <returns>The <see cref="MenuDynamicListItem.ChangeItemCallback"/></returns>
+        private MenuDynamicListItem.ChangeItemCallback FloatChangeCallback(string name, float value, float minimum, float maximum)
         {
             string callback(MenuDynamicListItem sender, bool left)
             {
+                var min = minimum;
+                var max = maximum;
+
                 var newvalue = value;
-                float min = defaultValue - maxEditing;
-                float max = defaultValue + maxEditing;
 
                 if (left)
                     newvalue -= FloatStep;
@@ -78,9 +109,22 @@ namespace Vstancer.Client
             return callback;
         }
 
+        /// <summary>
+        /// Creates a controller for the a float property
+        /// </summary>
+        /// <param name="menu">The menu to add the controller to</param>
+        /// <param name="name">The displayed name of the controller</param>
+        /// <param name="defaultValue">The default value of the controller</param>
+        /// <param name="value">The current value of the controller</param>
+        /// <param name="maxEditing">The max delta allowed relative to the default value</param>
+        /// <param name="id">The ID of the property linked to the controller</param>
+        /// <returns></returns>
         private MenuDynamicListItem AddDynamicFloatList(Menu menu, string name, float defaultValue, float value, float maxEditing, string id)
         {
-            var callback = FloatChangeCallback(name, defaultValue, value, maxEditing);
+            float min = defaultValue - maxEditing;
+            float max = defaultValue + maxEditing;
+
+            var callback = FloatChangeCallback(name, value, min, max);
 
             var newitem = new MenuDynamicListItem(name, value.ToString("F3"), callback) { ItemData = id };
             menu.AddMenuItem(newitem);
@@ -163,9 +207,9 @@ namespace Vstancer.Client
         /// <param name="script">The script which owns this menu</param>
         public VStancerMenu(VStancerEditor script)
         {
-            _vstancerEditor = script;
-            _vstancerEditor.PresetChanged += new EventHandler((sender,args) => UpdateEditorMenu());
-            _vstancerEditor.ToggleMenuVisibility += new EventHandler((sender,args) => 
+            vstancerEditor = script;
+            vstancerEditor.PresetChanged += new EventHandler((sender,args) => UpdateEditorMenu());
+            vstancerEditor.ToggleMenuVisibility += new EventHandler((sender,args) => 
             {
                 if (editorMenu == null)
                     return;

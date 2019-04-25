@@ -13,15 +13,44 @@ namespace Vstancer.Client
     {
         #region Fields
 
-        private VStancerMenu _vstancerMenu;
+        /// <summary>
+        /// The script which renders the menu
+        /// </summary>
+        private VStancerMenu vstancerMenu;
 
+        /// <summary>
+        /// The expected resource name
+        /// </summary>
         public const string ResourceName = "vstancer";
+
+        /// <summary>
+        /// The name of the script
+        /// </summary>
         public const string ScriptName = "VStancer";
 
+        /// <summary>
+        /// The current vstancer preset
+        /// </summary>
         public VStancerPreset currentPreset;
+
+        /// <summary>
+        /// The handle of the current vehicle
+        /// </summary>
         private int currentVehicle;
+
+        /// <summary>
+        /// Indicates the last game time the timed tasks have been executed
+        /// </summary>
         private long lastTime;
+
+        /// <summary>
+        /// The handle of the current player ped
+        /// </summary>
         private int playerPed;
+
+        /// <summary>
+        /// The list of all the vehicles' handles around the client's position 
+        /// </summary>
         private IEnumerable<int> vehicles;
 
         #endregion
@@ -71,7 +100,15 @@ namespace Vstancer.Client
 
         #region Public Events
 
+        /// <summary>
+        /// Triggered when <see cref="currentPreset"/> is changed
+        /// </summary>
         public event EventHandler PresetChanged;
+
+        /// <summary>
+        /// Triggered when the client wants to manually toggle the menu visibility
+        /// using the optional command/event
+        /// </summary>
         public event EventHandler ToggleMenuVisibility;
 
         #endregion
@@ -81,9 +118,6 @@ namespace Vstancer.Client
         /// <summary>
         /// Invoked when the reset button is pressed in the UI
         /// </summary>
-        /// <param name="menu"></param>
-        /// <param name="menuItem"></param>
-        /// <param name="itemIndex"></param>
         private async void OnMenuResetPresetButtonPressed()
         {
             if (!CurrentPresetIsValid)
@@ -103,8 +137,8 @@ namespace Vstancer.Client
         /// <summary>
         /// Invoked when a value is changed in the UI
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="value"></param>
+        /// <param name="id">The id of the property</param>
+        /// <param name="value">The value of the property</param>
         private void OnMenuPresetValueChanged(string id, string newValue)
         {
             if (!CurrentPresetIsValid)
@@ -246,9 +280,13 @@ namespace Vstancer.Client
             Exports.Add("GetVstancerPreset", getPreset);
 
             // Create a script for the menu ...
-            _vstancerMenu = new VStancerMenu(this);
-            _vstancerMenu.MenuResetPresetButtonPressed += (sender,args) => OnMenuResetPresetButtonPressed();
-            _vstancerMenu.MenuPresetValueChanged += OnMenuPresetValueChanged;
+            vstancerMenu = new VStancerMenu(this);
+
+            if (vstancerMenu != null)
+                RegisterScript(vstancerMenu);
+
+            vstancerMenu.MenuResetPresetButtonPressed += (sender,args) => OnMenuResetPresetButtonPressed();
+            vstancerMenu.MenuPresetValueChanged += OnMenuPresetValueChanged;
 
             Tick += GetCurrentVehicle;
             Tick += UpdateCurrentVehicle;
@@ -398,7 +436,7 @@ namespace Vstancer.Client
         /// <summary>
         /// Removes the decorators from the <paramref name="vehicle"/>
         /// </summary>
-        /// <param name="vehicle"></param>
+        /// <param name="vehicle">The handle of the entity</param>
         private void RemoveDecorators(int vehicle)
         {
             if (DecorExistOn(vehicle, FrontOffsetID))
@@ -429,7 +467,7 @@ namespace Vstancer.Client
         /// <summary>
         /// Returns an array containing in order off_f, rot_f, off_r, rot_r, off_f_def, rot_f_def, off_r_def, rot_r_def
         /// </summary>
-        /// <param name="vehicle"></param>
+        /// <param name="vehicle">The handle of the entity</param>
         /// <returns></returns>
         private float[] GetVstancerPreset(int vehicle)
         {
@@ -451,21 +489,19 @@ namespace Vstancer.Client
         /// <summary>
         /// Loads a Vstancer preset for the <paramref name="vehicle"/> with the specified values.
         /// </summary>
-        /// <param name="vehicle"></param>
-        /// <param name="off_f"></param>
-        /// <param name="rot_f"></param>
-        /// <param name="off_r"></param>
-        /// <param name="rot_r"></param>
-        /// <param name="defaultFrontOffset"></param>
-        /// <param name="defaultFrontRotation"></param>
-        /// <param name="defaultRearOffset"></param>
-        /// <param name="defaultRearRotation"></param>
+        /// <param name="vehicle">The handle of the entity</param>
+        /// <param name="off_f">The front offset value</param>
+        /// <param name="rot_f">The front rotation value</param>
+        /// <param name="off_r">The rear offset value</param>
+        /// <param name="rot_r">The rear rotation value</param>
+        /// <param name="defaultFrontOffset">The default front offset value</param>
+        /// <param name="defaultFrontRotation">The default front rotation value</param>
+        /// <param name="defaultRearOffset">The default rear offset value</param>
+        /// <param name="defaultRearRotation">The default rear rotation value</param>
         private void SetVstancerPreset(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null)
         {
             if (debug)
-            {
                 Debug.WriteLine($"{ScriptName}: SetVstancerPreset parameters {off_f} {rot_f} {off_r} {rot_r} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
-            }
 
             if (!DoesEntityExist(vehicle))
                 return;
@@ -548,7 +584,8 @@ namespace Vstancer.Client
         /// <summary>
         /// Updates the decorators on the <paramref name="vehicle"/> with updated values from the <paramref name="preset"/>
         /// </summary>
-        /// <param name="vehicle"></param>
+        /// <param name="vehicle">The handle of the entity</param>
+        /// <param name="preset">The preset for this vehicle</param>
         private void UpdateVehicleDecorators(int vehicle, VStancerPreset preset)
         {
             float[] DefaultOffsetX = preset.DefaultOffsetX;
@@ -571,7 +608,7 @@ namespace Vstancer.Client
         /// <summary>
         /// Creates a preset for the <paramref name="vehicle"/> to edit it locally
         /// </summary>
-        /// <param name="vehicle"></param>
+        /// <param name="vehicle">The handle of the entity</param>
         /// <returns></returns>
         private VStancerPreset CreatePreset(int vehicle)
         {
@@ -614,7 +651,7 @@ namespace Vstancer.Client
         /// <summary>
         /// Refreshes the <paramref name="vehicle"/> with values from its decorators (if exist)
         /// </summary>
-        /// <param name="vehicle"></param>
+        /// <param name="vehicle">The handle of the entity</param>
         private void RefreshVehicleUsingDecorators(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
@@ -676,6 +713,7 @@ namespace Vstancer.Client
         /// <summary>
         /// Prints the values of the decorators used on the <paramref name="vehicle"/>
         /// </summary>
+        /// <param name="vehicle">The handle of the entity</param>
         private void PrintDecoratorsInfo(int vehicle)
         {
             if (!DoesEntityExist(vehicle))
@@ -719,6 +757,7 @@ namespace Vstancer.Client
         /// <summary>
         /// Prints the list of vehicles using any vstancer decorator.
         /// </summary>
+        /// <param name="vehiclesList">The list of the vehicles' handles</param>
         private void PrintVehiclesWithDecorators(IEnumerable<int> vehiclesList)
         {
             IEnumerable<int> entities = vehiclesList.Where(entity => HasDecorators(entity));
@@ -732,7 +771,7 @@ namespace Vstancer.Client
         /// <summary>
         /// Returns true if the <paramref name="entity"/> has any vstancer decorator
         /// </summary>
-        /// <param name="entity"></param>
+        /// <param name="entity">The handle of the entity</param>
         /// <returns></returns>
         private bool HasDecorators(int entity)
         {
@@ -748,6 +787,10 @@ namespace Vstancer.Client
                 );
         }
 
+        /// <summary>
+        /// Loads the config file containing all the customizable properties
+        /// </summary>
+        /// <param name="filename">The name of the file</param>
         private void LoadConfig(string filename = "config.ini")
         {
             string strings = null;
