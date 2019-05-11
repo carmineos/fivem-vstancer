@@ -194,18 +194,10 @@ namespace Vstancer.Client
         #region Constructor
 
         /// <summary>
-        /// Default Constructor
-        /// </summary>
-        public VStancerMenu()
-        {
-
-        }
-
-        /// <summary>
         /// Constructor with dependency injection
         /// </summary>
         /// <param name="script">The script which owns this menu</param>
-        public VStancerMenu(VStancerEditor script)
+        internal VStancerMenu(VStancerEditor script)
         {
             vstancerEditor = script;
             vstancerEditor.PresetChanged += new EventHandler((sender,args) => UpdateEditorMenu());
