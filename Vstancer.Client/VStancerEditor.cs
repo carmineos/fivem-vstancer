@@ -144,7 +144,9 @@ namespace Vstancer.Client
             if (!CurrentPresetIsValid)
                 return;
 
-            float value = float.Parse(newValue);
+            if(!float.TryParse(newValue, out float value))
+                return;
+
             float defaultValue = value;
 
             if (id == FrontRotationID)
