@@ -9,7 +9,7 @@ files {
 }
 
 client_scripts {
-	'Vstancer.Client.net.dll'
+	'VStancer.Client.net.dll'
 }
 
 export 'SetVstancerPreset'
