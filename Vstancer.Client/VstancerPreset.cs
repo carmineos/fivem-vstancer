@@ -201,7 +201,7 @@ namespace Vstancer.Client
         /// Returns the preset as an array of floats containing in order: 
         /// frontOffset, frontRotation, rearOffset, rearRotation, defaultFrontOffset, defaultFrontRotation, defaultRearOffset, defaultRearRotation
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The float array</returns>
         public float[] ToArray()
         {
             return new float[] {
