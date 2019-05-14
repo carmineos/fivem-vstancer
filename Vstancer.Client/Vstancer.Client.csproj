@@ -7,8 +7,8 @@
     <ProjectGuid>{5CB92879-4500-47FC-BD3E-FE29369A621D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Vstancer.Client</RootNamespace>
-    <AssemblyName>Vstancer.Client.net</AssemblyName>
+    <RootNamespace>VStancer.Client</RootNamespace>
+    <AssemblyName>VStancer.Client.net</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

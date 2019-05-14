@@ -26,8 +26,8 @@ before_build:
 after_build:
 - cmd: md %APPVEYOR_BUILD_FOLDER%\dist\vstancer
 - cmd: move /Y %APPVEYOR_BUILD_FOLDER%\dist\*.* %APPVEYOR_BUILD_FOLDER%\dist\vstancer
-- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\Vstancer.Client.net.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
-- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\MenuAPI.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\VStancer.Client.net.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\MenuAPI.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
 - 7z a vstancer-v%TAG_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
 
 artifacts:
