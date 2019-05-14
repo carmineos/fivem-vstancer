@@ -283,6 +283,8 @@ namespace Vstancer.Client
             vstancerMenu = new VStancerMenu(this);
 
             if (vstancerMenu != null)
+                // Actually only required to have its Tick event triggered
+                // TODO: Workaround this and avoid to register the script
                 RegisterScript(vstancerMenu);
 
             vstancerMenu.MenuResetPresetButtonPressed += (sender,args) => OnMenuResetPresetButtonPressed();
@@ -472,18 +474,7 @@ namespace Vstancer.Client
         private float[] GetVstancerPreset(int vehicle)
         {
             VStancerPreset preset = (vehicle == currentVehicle && CurrentPresetIsValid) ? currentPreset : CreatePreset(vehicle);
-            int frontCount = preset.FrontWheelsCount;
-
-            return new float[] {
-                preset.OffsetX[0],
-                preset.RotationY[0],
-                preset.OffsetX[frontCount],
-                preset.RotationY[frontCount],
-                preset.DefaultOffsetX[0],
-                preset.DefaultRotationY[0],
-                preset.DefaultOffsetX[frontCount],
-                preset.DefaultRotationY[frontCount],
-            };
+            return preset.ToArray();
         }
 
         /// <summary>
@@ -533,7 +524,7 @@ namespace Vstancer.Client
 
             if (vehicle == currentVehicle)
             {
-                currentPreset = new VStancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
+                currentPreset = new VStancerPreset(wheelsCount, off_f, rot_f, off_r, rot_r, off_f_def, rot_f_def, off_r_def, rot_r_def);
                 PresetChanged?.Invoke(this, EventArgs.Empty);
             }
             else
@@ -629,7 +620,7 @@ namespace Vstancer.Client
             float off_r = DecorExistOn(vehicle, RearOffsetID) ? DecorGetFloat(vehicle, RearOffsetID) : off_r_def;
             float rot_r = DecorExistOn(vehicle, RearRotationID) ? DecorGetFloat(vehicle, RearRotationID) : rot_r_def;
 
-            return new VStancerPreset(wheelsCount, rot_f, rot_r, off_f, off_r, rot_f_def, rot_r_def, off_f_def, off_r_def);
+            return new VStancerPreset(wheelsCount, off_f, rot_f, off_r, rot_r, off_f_def, rot_f_def, off_r_def, rot_r_def);
         }
 
         /// <summary>
