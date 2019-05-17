@@ -1,8 +1,7 @@
 install:
 - ps: $env:LAST_TAG = git describe --abbrev=0 --tags
 - ps: $env:TAG_NUMBER = $env:LAST_TAG.Substring($env:LAST_TAG.IndexOf('v') + 1)
-- ps: if ($env:APPVEYOR_REPO_TAG -eq $True){ $env:VERSION_NAME = $env:APPVEYOR_REPO_TAG_NAME } else { $env:VERSION_NAME = $env:TAG_NUMBER + "." +$env:APPVEYOR_BUILD_NUMBER }
-- cmd: git submodule update --init --recursive
+- ps: if ($env:APPVEYOR_REPO_TAG -ne $True){ $env:TAG_NUMBER = $env:TAG_NUMBER + "." + $env:APPVEYOR_BUILD_NUMBER } else { $env:TAG_NUMBER = $env:TAG_NUMBER + "." + 0 }
 
 version: 1.0.{build}
 image: Visual Studio 2017
@@ -11,24 +10,28 @@ configuration: Release
 assembly_info:
   patch: true
   file: AssemblyInfo.*
-  assembly_version: $(VERSION_NAME)
-  assembly_file_version: $(VERSION_NAME)
-  assembly_informational_version: $(VERSION_NAME)
+  assembly_version: $(TAG_NUMBER)
+  assembly_file_version: $(TAG_NUMBER)
+  assembly_informational_version: $(TAG_NUMBER)
 
 build:
   parallel: true
   verbosity: minimal
   project: fivem-vstancer.sln
   
+before_build:
+- cmd: git submodule update --init --recursive
+- nuget restore
+
 after_build:
 - cmd: md %APPVEYOR_BUILD_FOLDER%\dist\vstancer
 - cmd: move /Y %APPVEYOR_BUILD_FOLDER%\dist\*.* %APPVEYOR_BUILD_FOLDER%\dist\vstancer
-- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\Vstancer.Client.net.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
-- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\Vstancer.Client\bin\%CONFIGURATION%\MenuAPI.net.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
-- 7z a vstancer-v%VERSION_NAME%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
+- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\VStancer.Client.net.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\MenuAPI.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- 7z a vstancer-v%TAG_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
 
 artifacts:
-- path: vstancer-v$(VERSION_NAME).zip
+- path: vstancer-v$(TAG_NUMBER).zip
   name: vstancer
 
 deploy:

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Vstancer.Client
 {
-    public class VstancerPreset : IEquatable<VstancerPreset>
+    public class VStancerPreset : IEquatable<VStancerPreset>
     {
         public static float Precision { get; private set; } = 0.001f;
         public int WheelsCount { get; private set; }
@@ -51,7 +51,7 @@ namespace Vstancer.Client
             }
         }
 
-        public VstancerPreset()
+        public VStancerPreset()
         {
             WheelsCount = 4;
             FrontWheelsCount = 2;
@@ -62,13 +62,10 @@ namespace Vstancer.Client
             OffsetX = new float[] { 0, 0, 0, 0 };
         }
 
-        public VstancerPreset(int count, float[] defRot, float[] defOff)
+        public VStancerPreset(int count, float[] defRot, float[] defOff)
         {
             WheelsCount = count;
-            FrontWheelsCount = WheelsCount / 2;
-
-            if (FrontWheelsCount % 2 != 0)
-                FrontWheelsCount -= 1;
+            FrontWheelsCount = CalculateFrontWheelsCount(WheelsCount);
 
             DefaultRotationY = new float[WheelsCount];
             DefaultOffsetX = new float[WheelsCount];
@@ -85,7 +82,7 @@ namespace Vstancer.Client
             }
         }
 
-        public VstancerPreset(int count, float currentRotFront, float currentRotRear, float currentOffFront, float currentOffRear, float defRotFront, float defRotRear, float defOffFront, float defOffRear)
+        public VStancerPreset(int count, float frontOffset, float frontRotation, float rearOffset, float rearRotation, float defaultFrontOffset, float defaultFrontRotation, float defaultRearOffset, float defaultRearRotation)
         {
             WheelsCount = count;
 
@@ -94,25 +91,23 @@ namespace Vstancer.Client
             RotationY = new float[WheelsCount];
             OffsetX = new float[WheelsCount];
 
-            FrontWheelsCount = WheelsCount / 2;
-            if (FrontWheelsCount % 2 != 0)
-                FrontWheelsCount -= 1;
+            FrontWheelsCount = CalculateFrontWheelsCount(WheelsCount);
 
             for (int index = 0; index < FrontWheelsCount; index++)
             {
                 if (index % 2 == 0)
                 {
-                    DefaultRotationY[index] = defRotFront;
-                    DefaultOffsetX[index] = defOffFront;
-                    RotationY[index] = currentRotFront;
-                    OffsetX[index] = currentOffFront;
+                    DefaultRotationY[index] = defaultFrontRotation;
+                    DefaultOffsetX[index] = defaultFrontOffset;
+                    RotationY[index] = frontRotation;
+                    OffsetX[index] = frontOffset;
                 }
                 else
                 {
-                    DefaultRotationY[index] = -defRotFront;
-                    DefaultOffsetX[index] = -defOffFront;
-                    RotationY[index] = -currentRotFront;
-                    OffsetX[index] = -currentOffFront;
+                    DefaultRotationY[index] = -defaultFrontRotation;
+                    DefaultOffsetX[index] = -defaultFrontOffset;
+                    RotationY[index] = -frontRotation;
+                    OffsetX[index] = -frontOffset;
                 }
             }
 
@@ -120,17 +115,17 @@ namespace Vstancer.Client
             {
                 if (index % 2 == 0)
                 {
-                    DefaultRotationY[index] = defRotRear;
-                    DefaultOffsetX[index] = defOffRear;
-                    RotationY[index] = currentRotRear;
-                    OffsetX[index] = currentOffRear;
+                    DefaultRotationY[index] = defaultRearRotation;
+                    DefaultOffsetX[index] = defaultRearOffset;
+                    RotationY[index] = rearRotation;
+                    OffsetX[index] = rearOffset;
                 }
                 else
                 {
-                    DefaultRotationY[index] = -defRotRear;
-                    DefaultOffsetX[index] = -defOffRear;
-                    RotationY[index] = -currentRotRear;
-                    OffsetX[index] = -currentOffRear;
+                    DefaultRotationY[index] = -defaultRearRotation;
+                    DefaultOffsetX[index] = -defaultRearOffset;
+                    RotationY[index] = -rearRotation;
+                    OffsetX[index] = -rearOffset;
                 }
             }
         }
@@ -144,7 +139,7 @@ namespace Vstancer.Client
             }
         }
 
-        public bool Equals(VstancerPreset other)
+        public bool Equals(VStancerPreset other)
         {
             if (WheelsCount != other.WheelsCount)
                 return false;
@@ -186,5 +181,39 @@ namespace Vstancer.Client
             return s.ToString();
         }
 
+
+        /// <summary>
+        /// Calculate the number of front wheels of a vehicle, starting from the number of all the wheels
+        /// </summary>
+        /// <param name="wheelsCount">The number of wheels of a such vehicle</param>
+        /// <returns></returns>
+        public static int CalculateFrontWheelsCount(int wheelsCount)
+        {
+            int _frontWheelsCount = wheelsCount / 2;
+
+            if (_frontWheelsCount % 2 != 0)
+                _frontWheelsCount -= 1;
+
+            return _frontWheelsCount;
+        }
+
+        /// <summary>
+        /// Returns the preset as an array of floats containing in order: 
+        /// frontOffset, frontRotation, rearOffset, rearRotation, defaultFrontOffset, defaultFrontRotation, defaultRearOffset, defaultRearRotation
+        /// </summary>
+        /// <returns>The float array</returns>
+        public float[] ToArray()
+        {
+            return new float[] {
+                OffsetX[0],
+                RotationY[0],
+                OffsetX[FrontWheelsCount],
+                RotationY[FrontWheelsCount],
+                DefaultOffsetX[0],
+                DefaultRotationY[0],
+                DefaultOffsetX[FrontWheelsCount],
+                DefaultRotationY[FrontWheelsCount],
+            };
+        }
     }
 }
