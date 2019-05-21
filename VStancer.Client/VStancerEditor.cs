@@ -326,18 +326,24 @@ namespace Vstancer.Client
                 }
                 else
                 {
-                    // If current vehicle isn't a car or player isn't driving current vehicle or vehicle is dead
-                    currentPreset = null;
-                    currentVehicle = -1;
-                    Tick -= UpdateCurrentVehicle;
+                    if(CurrentPresetIsValid)
+                    {
+                        // If current vehicle isn't a car or player isn't driving current vehicle or vehicle is dead
+                        currentPreset = null;
+                        currentVehicle = -1;
+                        Tick -= UpdateCurrentVehicle;
+                    }
                 }
             }
             else
             {
-                // If player isn't in any vehicle
-                currentPreset = null;
-                currentVehicle = -1;
-                Tick -= UpdateCurrentVehicle;
+                if (CurrentPresetIsValid)
+                {
+                    // If player isn't in any vehicle
+                    currentPreset = null;
+                    currentVehicle = -1;
+                    Tick -= UpdateCurrentVehicle;
+                }
             }
 
             await Task.FromResult(0);
