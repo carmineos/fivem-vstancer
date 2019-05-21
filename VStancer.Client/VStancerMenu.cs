@@ -162,7 +162,15 @@ namespace Vstancer.Client
             {
                 menuController = new MenuController();
                 MenuController.AddMenu(editorMenu);
-                MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
+                try
+                {
+                    MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"{ScriptName}: {e.Message}");
+                    MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Left;
+                }
                 MenuController.MenuToggleKey = (Control)toggleMenu;
                 MenuController.EnableMenuToggleKeyOnController = false;
                 MenuController.MainMenu = editorMenu;
