@@ -4,6 +4,7 @@
 	<RootNamespace>VStancer.Client</RootNamespace>
     <AssemblyName>VStancer.Client.net</AssemblyName>
 	<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+	<Platform>x64</Platform>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -31,13 +32,20 @@
     </ProjectReference>
   </ItemGroup>
   
-  <PropertyGroup>
-    <PostBuildEvent>if '$(CI)' == '' (
-call "$(SolutionDir)postbuild.bat" "$(TargetPath)"
-call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\config.ini"
-call "$(SolutionDir)postbuild.bat" "$(SolutionDir)\dist\__resource.lua"
-call "$(SolutionDir)postbuild.bat" "$(TargetDir)\MenuAPI.dll"
-)</PostBuildEvent>
-  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  
+  <PropertyGroup />
+  
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="
+          if '$(CI)' == '' ( 
+          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetPath)&quot;
+          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\config.ini&quot;
+          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\__resource.lua&quot;
+          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetDir)\MenuAPI.dll&quot;)
+          " />
+  </Target>
   
 </Project>
