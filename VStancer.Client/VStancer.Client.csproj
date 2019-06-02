@@ -1,22 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
-	<RootNamespace>VStancer.Client</RootNamespace>
+    <RootNamespace>VStancer.Client</RootNamespace>
     <AssemblyName>VStancer.Client.net</AssemblyName>
-	<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-	<Platform>x64</Platform>
-  </PropertyGroup>
-  
-  <PropertyGroup>
-	<Company>carmineos</Company>
-	<Authors>Carmine Giugliano</Authors>
-	<PackageId>VStancer.Client</PackageId>
-	<Version>1.0.0</Version>
-	<AssemblyVersion>1.0.0.0</AssemblyVersion>
-	<FileVersion>1.0.0.0</FileVersion>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Platform>x64</Platform>
   </PropertyGroup>
 
-  
+  <PropertyGroup>
+    <Company>carmineos</Company>
+    <Authors>Carmine Giugliano</Authors>
+    <PackageId>VStancer.Client</PackageId>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+
   <ItemGroup>
     <PackageReference Include="CitizenFX.Core.Client">
       <Version>1.0.1208</Version>
@@ -24,20 +24,19 @@
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\vendor\MenuAPI\MenuAPI\MenuAPI.csproj">
       <Project>{9c746601-9f3d-4b0d-877c-1c7bc493c5bc}</Project>
       <Name>MenuAPI</Name>
     </ProjectReference>
   </ItemGroup>
-  
+
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-  
-  <PropertyGroup />
-  
+
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="
           if '$(CI)' == '' ( 
@@ -47,5 +46,5 @@
           call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetDir)\MenuAPI.dll&quot;)
           " />
   </Target>
-  
+
 </Project>

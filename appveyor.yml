@@ -15,8 +15,7 @@ dotnet_csproj:
   assembly_version: '$(TAG_NUMBER)'
   file_version: '$(TAG_NUMBER)'
   informational_version: '$(TAG_NUMBER)'
-
-
+  
 build:
   parallel: true
   verbosity: minimal
