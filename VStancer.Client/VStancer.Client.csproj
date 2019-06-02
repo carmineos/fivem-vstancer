@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
+	  <Product>FiveM VStancer</Product>
+    <Description>A FiveM script to edit transform of vehicles' wheels bones</Description>
     <Company>carmineos</Company>
     <Authors>Carmine Giugliano</Authors>
     <PackageId>VStancer.Client</PackageId>
@@ -16,7 +18,6 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>
-
 
   <ItemGroup>
     <PackageReference Include="CitizenFX.Core.Client">
@@ -36,7 +37,6 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="
