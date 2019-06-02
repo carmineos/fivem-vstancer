@@ -7,12 +7,15 @@ version: 1.0.{build}
 image: Visual Studio 2017
 configuration: Release
 
-assembly_info:
+dotnet_csproj:
   patch: true
-  file: AssemblyInfo.*
-  assembly_version: $(TAG_NUMBER)
-  assembly_file_version: $(TAG_NUMBER)
-  assembly_informational_version: $(TAG_NUMBER)
+  file: '**\*.csproj'
+  version: '$(TAG_NUMBER)'
+  package_version: '$(TAG_NUMBER)'
+  assembly_version: '$(TAG_NUMBER)'
+  file_version: '$(TAG_NUMBER)'
+  informational_version: '$(TAG_NUMBER)'
+
 
 build:
   parallel: true
