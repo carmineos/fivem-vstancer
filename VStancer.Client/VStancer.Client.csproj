@@ -3,7 +3,8 @@
     <TargetFramework>net452</TargetFramework>
     <RootNamespace>VStancer.Client</RootNamespace>
     <AssemblyName>VStancer.Client.net</AssemblyName>
-    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <!-- CI handles patching -->
+    <!-- <GenerateAssemblyInfo>true</GenerateAssemblyInfo> -->
     <Platform>x64</Platform>
   </PropertyGroup>
 
