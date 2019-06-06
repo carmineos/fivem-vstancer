@@ -16,6 +16,13 @@ The default key to open the menu is F6
 * Edit X Position of the wheels' bones (Track Width)
 * Edit Y Rotation of the wheels' bones (Camber)
 
+### Limitations
+When a preset is created for the first time, it will use the current wheels' state as default. So in case of damaged vehicles (e.g. deformed wheels), the default values might be incorrect. 
+Workaround: If a vehicle is damaged, be sure to fix it before to enter it and create a preset. (e.g. reset preset, fix the vehicle, exit the vehicle and enter again) 
+
+### Roadmap
+Once FiveM exposes extra-natives to edit `SubHandlingData` fields at runtime, the script will allow to edit XYZ rotation using the native handling fields of `CCarHandlingData` such as `fToeFront`, `fToeRear`, `fCamberFront`, `fCamberRear`, `fCastor`. (This will also improve a lot performances as such values won't need to be set each tick)
+
 ### Client Commands
 `vstancer_preset`
 Prints the preset of the current vehicle
@@ -117,7 +124,7 @@ I am open to any kind of feedback. Report suggestions and bugs you find.
 Open the `postbuild.bat` and edit the path of the resource folder. If in Debug configuration, the post build event will copy the following files to the specified path: the built assembly of the script, the `config.ini`, the `__resource.lua`.
 
 ### Requirements
-The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to render the UI, it uses FiveM built-in resource dependency, so the script will only work if MenuAPI resource is found and running.
+The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to render the UI, ~~it uses FiveM built-in resource dependency, so the script will only work if MenuAPI resource is found and running~~ and comes already with a built assembly so that it's ready to use.
 
 
 ### Credits
