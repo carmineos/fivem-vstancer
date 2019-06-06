@@ -7,13 +7,15 @@ version: 1.0.{build}
 image: Visual Studio 2017
 configuration: Release
 
-assembly_info:
+dotnet_csproj:
   patch: true
-  file: AssemblyInfo.*
-  assembly_version: $(TAG_NUMBER)
-  assembly_file_version: $(TAG_NUMBER)
-  assembly_informational_version: $(TAG_NUMBER)
-
+  file: '**\*.csproj'
+  version: '$(TAG_NUMBER)'
+  package_version: '$(TAG_NUMBER)'
+  assembly_version: '$(TAG_NUMBER)'
+  file_version: '$(TAG_NUMBER)'
+  informational_version: '$(TAG_NUMBER)'
+  
 build:
   parallel: true
   verbosity: minimal
@@ -26,8 +28,8 @@ before_build:
 after_build:
 - cmd: md %APPVEYOR_BUILD_FOLDER%\dist\vstancer
 - cmd: move /Y %APPVEYOR_BUILD_FOLDER%\dist\*.* %APPVEYOR_BUILD_FOLDER%\dist\vstancer
-- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\VStancer.Client.net.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
-- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\MenuAPI.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\net452\VStancer.Client.net.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\net452\MenuAPI.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
 - 7z a vstancer-v%TAG_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
 
 artifacts:
