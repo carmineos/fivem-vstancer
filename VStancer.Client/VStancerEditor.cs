@@ -283,11 +283,6 @@ namespace Vstancer.Client
             // Create a script for the menu ...
             vstancerMenu = new VStancerMenu(this);
 
-            if (vstancerMenu != null)
-                // Actually only required to have its Tick event triggered
-                // TODO: Workaround this and avoid to register the script
-                RegisterScript(vstancerMenu);
-
             vstancerMenu.MenuResetPresetButtonPressed += (sender,args) => OnMenuResetPresetButtonPressed();
             vstancerMenu.MenuPresetValueChanged += OnMenuPresetValueChanged;
 
@@ -295,11 +290,20 @@ namespace Vstancer.Client
             Tick += UpdateCurrentVehicle;
             Tick += UpdateWorldVehicles;
             Tick += UpdateCurrentVehicleDecorators;
+            Tick += HideUITask;
         }
 
         #endregion
 
         #region Tasks
+
+        private async Task HideUITask()
+        {
+            if (!CurrentPresetIsValid && vstancerMenu != null)
+                vstancerMenu.HideUI();
+
+            await Task.FromResult(0);
+        }
 
         /// <summary>
         /// Updates the <see cref="currentVehicle"/> and the <see cref="currentPreset"/>

@@ -7,7 +7,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace Vstancer.Client
 {
-    internal class VStancerMenu : BaseScript
+    internal class VStancerMenu
     {
         #region Private Fields
 
@@ -209,29 +209,14 @@ namespace Vstancer.Client
                 editorMenu.Visible = !editorMenu.Visible;
             });
             InitializeMenu();
-
-            Tick += OnTick;
         }
 
         #endregion
 
-        #region Tasks
-
-        /// <summary>
-        /// The task that checks if the menu can be open
-        /// </summary>
-        /// <returns></returns>
-        private async Task OnTick()
+        public void HideUI()
         {
-            if (!CurrentPresetIsValid)
-            {
-                if (MenuController.IsAnyMenuOpen())
-                    MenuController.CloseAllMenus();
-            }
-
-            await Task.FromResult(0);
+            if (MenuController.IsAnyMenuOpen())
+                MenuController.CloseAllMenus();
         }
-
-        #endregion
     }
 }
