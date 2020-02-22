@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VStancerConfig>
+  <Debug>false</Debug>
+  <ExposeCommand>false</ExposeCommand>
+  <ExposeEvent>false</ExposeEvent>
+  <ScriptRange>150</ScriptRange>
+  <Timer>1000</Timer>
+  <ToggleMenuControl>167</ToggleMenuControl>
+  <FloatStep>0.01</FloatStep>
+  <FrontLimits>
+    <PositionX>0.25</PositionX>
+    <RotationY>0.2</RotationY>
+  </FrontLimits>
+  <RearLimits>
+    <PositionX>0.25</PositionX>
+    <RotationY>0.2</RotationY>
+  </RearLimits>
+</VStancerConfig>

@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="&#xD;&#xA;          if '$(CI)' == '' ( &#xD;&#xA;          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetPath)&quot;&#xD;&#xA;          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\config.ini&quot;&#xD;&#xA;          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\__resource.lua&quot;&#xD;&#xA;          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetDir)\MenuAPI.dll&quot;)&#xD;&#xA;          " />
+    <Exec Command="&#xD;&#xA;          if '$(CI)' == '' ( &#xD;&#xA;          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetPath)&quot;&#xD;&#xA;          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\config.xml&quot;&#xD;&#xA;          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\fxmanifest.lua&quot;&#xD;&#xA;          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetDir)\MenuAPI.dll&quot;)&#xD;&#xA;          " />
   </Target>
 
 </Project>

@@ -58,7 +58,7 @@ namespace Vstancer.Client
         #region Config Fields
 
         public int toggleMenu = 167;
-        public float ScriptRange = 150.0f;
+        public float scriptRange = 150.0f;
         public float FloatStep = 0.01f;
         public float frontMaxOffset = 0.25f;
         public float frontMaxCamber = 0.20f;
@@ -208,8 +208,8 @@ namespace Vstancer.Client
 
                 if (float.TryParse(args[0], out float value))
                 {
-                    ScriptRange = value;
-                    Debug.WriteLine($"{ScriptName}: Received new {nameof(ScriptRange)} value {value}");
+                    scriptRange = value;
+                    Debug.WriteLine($"{ScriptName}: Received new {nameof(scriptRange)} value {value}");
                 }
                 else Debug.WriteLine($"{ScriptName}: Error parsing {args[0]} as float");
 
@@ -382,7 +382,7 @@ namespace Vstancer.Client
                 {
                     Vector3 coords = GetEntityCoords(entity, true);
 
-                    if (Vector3.Distance(currentCoords, coords) <= ScriptRange)
+                    if (Vector3.Distance(currentCoords, coords) <= scriptRange)
                         RefreshVehicleUsingDecorators(entity);
                 }
             }
@@ -794,37 +794,37 @@ namespace Vstancer.Client
         /// Loads the config file containing all the customizable properties
         /// </summary>
         /// <param name="filename">The name of the file</param>
-        private void LoadConfig(string filename = "config.ini")
+        private void LoadConfig(string filename = "config.xml")
         {
-            string strings = null;
+            VStancerConfig config = new VStancerConfig();
             try
             {
-                strings = LoadResourceFile(ResourceName, filename);
+                string strings = LoadResourceFile(ResourceName, filename);
 
-                Debug.WriteLine($"{ScriptName}: Loaded settings from {filename}");
+                config.LoadXml(strings);
+
+                Debug.WriteLine($"{ScriptName}: Loaded config from {filename}");
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"{ScriptName}: Impossible to load {filename}");
+                Debug.WriteLine($"{ScriptName}: Impossible to load {filename}", e.Message);
                 Debug.WriteLine(e.StackTrace);
             }
             finally
             {
-                Config config = new Config(strings);
+                toggleMenu = config.ToggleMenuControl;
+                FloatStep = config.FloatStep;
+                scriptRange = config.ScriptRange;
+                frontMaxOffset = config.FrontLimits.PositionX;
+                frontMaxCamber = config.FrontLimits.RotationY;
+                rearMaxOffset = config.RearLimits.PositionX;
+                rearMaxCamber = config.RearLimits.RotationY;
+                timer = config.Timer;
+                debug = config.Debug;
+                exposeCommand = config.ExposeCommand;
+                exposeEvent = config.ExposeEvent;
 
-                toggleMenu = config.GetIntValue("toggleMenu", toggleMenu);
-                FloatStep = config.GetFloatValue("FloatStep", FloatStep);
-                ScriptRange = config.GetFloatValue("ScriptRange", ScriptRange);
-                frontMaxOffset = config.GetFloatValue("frontMaxOffset", frontMaxOffset);
-                frontMaxCamber = config.GetFloatValue("frontMaxCamber", frontMaxCamber);
-                rearMaxOffset = config.GetFloatValue("rearMaxOffset", rearMaxOffset);
-                rearMaxCamber = config.GetFloatValue("rearMaxCamber", rearMaxCamber);
-                timer = config.GetLongValue("timer", timer);
-                debug = config.GetBoolValue("debug", debug);
-                exposeCommand = config.GetBoolValue("exposeCommand", exposeCommand);
-                exposeEvent = config.GetBoolValue("exposeEvent", exposeEvent);
-
-                Debug.WriteLine($"{ScriptName}: Settings {nameof(frontMaxOffset)}={frontMaxOffset} {nameof(frontMaxCamber)}={frontMaxCamber} {nameof(rearMaxOffset)}={rearMaxOffset} {nameof(rearMaxCamber)}={rearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(ScriptRange)}={ScriptRange}");
+                Debug.WriteLine($"{ScriptName}: Settings {nameof(frontMaxOffset)}={frontMaxOffset} {nameof(frontMaxCamber)}={frontMaxCamber} {nameof(rearMaxOffset)}={rearMaxOffset} {nameof(rearMaxCamber)}={rearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(scriptRange)}={scriptRange}");
             }
         }
 
