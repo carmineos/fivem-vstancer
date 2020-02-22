@@ -14,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenuAPI", "vendor\MenuAPI\MenuAPI\MenuAPI.csproj", "{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,10 +24,6 @@ Global
 		{5CB92879-4500-47FC-BD3E-FE29369A621D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CB92879-4500-47FC-BD3E-FE29369A621D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CB92879-4500-47FC-BD3E-FE29369A621D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -21,17 +21,11 @@
 
   <ItemGroup>
     <PackageReference Include="CitizenFX.Core.Client">
-      <Version>1.0.1655</Version>
+      <Version>1.0.2104</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\vendor\MenuAPI\MenuAPI\MenuAPI.csproj">
-      <Project>{9c746601-9f3d-4b0d-877c-1c7bc493c5bc}</Project>
-      <Name>MenuAPI</Name>
-    </ProjectReference>
+    <PackageReference Include="MenuAPI.FiveM" Version="3.0.4" />
   </ItemGroup>
 
   <ItemGroup>
