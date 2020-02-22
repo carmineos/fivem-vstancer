@@ -1,11 +1,12 @@
-﻿using System;
+﻿using CitizenFX.Core;
+using System;
 using System.Text;
 
 namespace Vstancer.Client
 {
     public class VStancerPreset : IEquatable<VStancerPreset>
     {
-        public static float Precision { get; private set; } = 0.001f;
+        public static float Epsilon { get; private set; } = 0.001f;
         public int WheelsCount { get; private set; }
         public int FrontWheelsCount { get; private set; }
 
@@ -44,7 +45,8 @@ namespace Vstancer.Client
             {
                 for (int index = 0; index < WheelsCount; index++)
                 {
-                    if ((DefaultOffsetX[index] != OffsetX[index]) || (DefaultRotationY[index] != RotationY[index]))
+                    if (!MathUtil.WithinEpsilon(DefaultOffsetX[index], OffsetX[index], Epsilon) ||
+                        !MathUtil.WithinEpsilon(DefaultRotationY[index], RotationY[index], Epsilon))
                         return true;
                 }
                 return false;
@@ -146,10 +148,10 @@ namespace Vstancer.Client
 
             for (int index = 0; index < WheelsCount; index++)
             {
-                if (Math.Abs(DefaultOffsetX[index] - other.DefaultOffsetX[index]) > Precision
-                    || Math.Abs(DefaultRotationY[index] - other.DefaultRotationY[index]) > Precision
-                    || Math.Abs(OffsetX[index] - other.OffsetX[index]) > Precision
-                    || Math.Abs(RotationY[index] - other.RotationY[index]) > Precision)
+                if (!MathUtil.WithinEpsilon(DefaultOffsetX[index], other.DefaultOffsetX[index], Epsilon) ||
+                    !MathUtil.WithinEpsilon(DefaultRotationY[index], other.DefaultRotationY[index], Epsilon) ||
+                    !MathUtil.WithinEpsilon(OffsetX[index], other.OffsetX[index], Epsilon) ||
+                    !MathUtil.WithinEpsilon(RotationY[index], other.RotationY[index], Epsilon))
                     return false;
             }
             return true;

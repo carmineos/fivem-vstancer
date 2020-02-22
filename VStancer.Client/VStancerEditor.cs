@@ -65,7 +65,7 @@ namespace Vstancer.Client
         public float rearMaxOffset = 0.25f;
         public float rearMaxCamber = 0.20f;
 
-        private float FloatPrecision = 0.001f;
+        private float Epsilon = 0.001f;
         private long timer = 1000;
         private bool debug = false;
         private bool exposeCommand = false;
@@ -566,7 +566,7 @@ namespace Vstancer.Client
             if (DecorExistOn(vehicle, name))
             {
                 float decorValue = DecorGetFloat(vehicle, name);
-                if (Math.Abs(currentValue - decorValue) > FloatPrecision)
+                if (!MathUtil.WithinEpsilon(currentValue, decorValue, Epsilon))
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (debug)
@@ -575,7 +575,7 @@ namespace Vstancer.Client
             }
             else // Decorator doesn't exist, create it if required
             {
-                if (Math.Abs(currentValue - defaultValue) > FloatPrecision)
+                if (!MathUtil.WithinEpsilon(currentValue, defaultValue, Epsilon))
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (debug)
