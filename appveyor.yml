@@ -4,7 +4,7 @@ install:
 - ps: if ($env:APPVEYOR_REPO_TAG -ne $True){ $env:TAG_NUMBER = $env:TAG_NUMBER + "." + $env:APPVEYOR_BUILD_NUMBER } else { $env:TAG_NUMBER = $env:TAG_NUMBER + "." + 0 }
 
 version: 1.0.{build}
-image: Visual Studio 2017
+image: Visual Studio 2019
 configuration: Release
 
 dotnet_csproj:
@@ -22,7 +22,6 @@ build:
   project: fivem-vstancer.sln
   
 before_build:
-- cmd: git submodule update --init --recursive
 - nuget restore
 
 after_build:
@@ -30,6 +29,7 @@ after_build:
 - cmd: move /Y %APPVEYOR_BUILD_FOLDER%\dist\*.* %APPVEYOR_BUILD_FOLDER%\dist\vstancer
 - cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\net452\VStancer.Client.net.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
 - cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\net452\MenuAPI.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
+- cmd: move /Y %APPVEYOR_BUILD_FOLDER%\VStancer.Client\bin\%CONFIGURATION%\net452\Newtonsoft.Json.dll %APPVEYOR_BUILD_FOLDER%\dist\vstancer
 - 7z a vstancer-v%TAG_NUMBER%.zip %APPVEYOR_BUILD_FOLDER%\dist\*
 
 artifacts:

@@ -5,7 +5,8 @@ games { 'gta5' }
 files {
 	--'@MenuAPI/MenuAPI.dll',
 	'MenuAPI.dll',
-	'config.xml'
+	'Newtonsoft.Json.dll',
+	'config.json'
 }
 
 client_scripts {

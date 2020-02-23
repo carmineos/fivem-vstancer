@@ -190,8 +190,8 @@ namespace Vstancer.Client
     {
         //public Vector3 Position { get; set; }
         //public Vector3 Rotation { get; set; }
+        //public Vector3 Scale { get; set; }
         public float PositionX { get; set; }
         public float RotationY { get; set; }
-        //public Vector3 Scale { get; set; }
     }
 }

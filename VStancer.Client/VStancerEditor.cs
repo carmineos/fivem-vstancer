@@ -6,6 +6,7 @@ using System.Text;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
+using Newtonsoft.Json;
 
 namespace Vstancer.Client
 {
@@ -790,14 +791,14 @@ namespace Vstancer.Client
         /// Loads the config file containing all the customizable properties
         /// </summary>
         /// <param name="filename">The name of the file</param>
-        private void LoadConfig(string filename = "config.xml")
+        private void LoadConfig(string filename = "config.json")
         {
-            VStancerConfig config = new VStancerConfig();
+            VStancerConfig config = null;
             try
             {
                 string strings = LoadResourceFile(ResourceName, filename);
 
-                config.LoadXml(strings);
+                config = JsonConvert.DeserializeObject<VStancerConfig>(strings);
 
                 Debug.WriteLine($"{ScriptName}: Loaded config from {filename}");
             }
@@ -805,6 +806,8 @@ namespace Vstancer.Client
             {
                 Debug.WriteLine($"{ScriptName}: Impossible to load {filename}", e.Message);
                 Debug.WriteLine(e.StackTrace);
+
+                config = new VStancerConfig();
             }
             finally
             {
