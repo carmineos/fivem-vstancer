@@ -182,10 +182,10 @@ namespace Vstancer.Client
             if (!CurrentPresetIsValid)
                 return;
 
-            AddDynamicFloatList(editorMenu, "Front Track Width", -currentPreset.DefaultOffsetX[0], -currentPreset.OffsetX[0], frontMaxOffset, FrontOffsetID);
-            AddDynamicFloatList(editorMenu, "Rear Track Width", -currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount], -currentPreset.OffsetX[currentPreset.FrontWheelsCount], rearMaxOffset, RearOffsetID);
-            AddDynamicFloatList(editorMenu, "Front Camber", currentPreset.DefaultRotationY[0], currentPreset.RotationY[0], frontMaxCamber, FrontRotationID);
-            AddDynamicFloatList(editorMenu, "Rear Camber", currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount], currentPreset.RotationY[currentPreset.FrontWheelsCount], rearMaxCamber, RearRotationID);
+            AddDynamicFloatList(editorMenu, "Front Track Width", -currentPreset.DefaultNodes[0].PositionX, -currentPreset.Nodes[0].PositionX, frontMaxOffset, FrontOffsetID);
+            AddDynamicFloatList(editorMenu, "Rear Track Width", -currentPreset.DefaultNodes[currentPreset.FrontWheelsCount].PositionX, -currentPreset.Nodes[currentPreset.FrontWheelsCount].PositionX, rearMaxOffset, RearOffsetID);
+            AddDynamicFloatList(editorMenu, "Front Camber", currentPreset.DefaultNodes[0].RotationY, currentPreset.Nodes[0].RotationY, frontMaxCamber, FrontRotationID);
+            AddDynamicFloatList(editorMenu, "Rear Camber", currentPreset.DefaultNodes[currentPreset.FrontWheelsCount].RotationY, currentPreset.Nodes[currentPreset.FrontWheelsCount].RotationY, rearMaxCamber, RearRotationID);
             editorMenu.AddMenuItem(new MenuItem("Reset", "Restores the default values") { ItemData = ResetID });
         }
 

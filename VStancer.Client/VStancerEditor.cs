@@ -152,22 +152,22 @@ namespace Vstancer.Client
             if (id == FrontRotationID)
             {
                 currentPreset.SetRotationFront(value);
-                defaultValue = currentPreset.DefaultRotationY[0];
+                defaultValue = currentPreset.DefaultNodes[0].RotationY;
             }
             else if (id == RearRotationID)
             {
                 currentPreset.SetRotationRear(value);
-                defaultValue = currentPreset.DefaultRotationY[currentPreset.FrontWheelsCount];
+                defaultValue = currentPreset.DefaultNodes[currentPreset.FrontWheelsCount].RotationY;
             }
             else if (id == FrontOffsetID)
             {
                 currentPreset.SetOffsetFront(-value);
-                defaultValue = currentPreset.DefaultOffsetX[0];
+                defaultValue = currentPreset.DefaultNodes[0].PositionX;
             }
             else if (id == RearOffsetID)
             {
                 currentPreset.SetOffsetRear(-value);
-                defaultValue = currentPreset.DefaultOffsetX[currentPreset.FrontWheelsCount];
+                defaultValue = currentPreset.DefaultNodes[currentPreset.FrontWheelsCount].PositionX;
             }
 
             // Force one single refresh to update rendering at correct position after reset
@@ -591,21 +591,17 @@ namespace Vstancer.Client
         /// <param name="preset">The preset for this vehicle</param>
         private void UpdateVehicleDecorators(int vehicle, VStancerPreset preset)
         {
-            float[] DefaultOffsetX = preset.DefaultOffsetX;
-            float[] DefaultRotationY = preset.DefaultRotationY;
-            float[] OffsetX = preset.OffsetX;
-            float[] RotationY = preset.RotationY;
             int frontCount = preset.FrontWheelsCount;
 
-            UpdateFloatDecorator(vehicle, DefaultFrontOffsetID, DefaultOffsetX[0], OffsetX[0]);
-            UpdateFloatDecorator(vehicle, DefaultFrontRotationID, DefaultRotationY[0], RotationY[0]);
-            UpdateFloatDecorator(vehicle, DefaultRearOffsetID, DefaultOffsetX[frontCount], OffsetX[frontCount]);
-            UpdateFloatDecorator(vehicle, DefaultRearRotationID, DefaultRotationY[frontCount], RotationY[frontCount]);
+            UpdateFloatDecorator(vehicle, DefaultFrontOffsetID, preset.DefaultNodes[0].PositionX, preset.Nodes[0].PositionX);
+            UpdateFloatDecorator(vehicle, DefaultFrontRotationID, preset.DefaultNodes[0].RotationY, preset.Nodes[0].RotationY);
+            UpdateFloatDecorator(vehicle, DefaultRearOffsetID, preset.DefaultNodes[frontCount].PositionX, preset.Nodes[frontCount].PositionX);
+            UpdateFloatDecorator(vehicle, DefaultRearRotationID, preset.DefaultNodes[frontCount].RotationY, preset.Nodes[frontCount].RotationY);
 
-            UpdateFloatDecorator(vehicle, FrontOffsetID, OffsetX[0], DefaultOffsetX[0]);
-            UpdateFloatDecorator(vehicle, FrontRotationID, RotationY[0], DefaultRotationY[0]);
-            UpdateFloatDecorator(vehicle, RearOffsetID, OffsetX[frontCount], DefaultOffsetX[frontCount]);
-            UpdateFloatDecorator(vehicle, RearRotationID, RotationY[frontCount], DefaultRotationY[frontCount]);
+            UpdateFloatDecorator(vehicle, FrontOffsetID, preset.Nodes[0].PositionX, preset.DefaultNodes[0].PositionX);
+            UpdateFloatDecorator(vehicle, FrontRotationID, preset.Nodes[0].RotationY, preset.DefaultNodes[0].RotationY);
+            UpdateFloatDecorator(vehicle, RearOffsetID, preset.Nodes[frontCount].PositionX, preset.DefaultNodes[frontCount].PositionX);
+            UpdateFloatDecorator(vehicle, RearRotationID, preset.Nodes[frontCount].RotationY, preset.DefaultNodes[frontCount].RotationY);
         }
 
         /// <summary>
@@ -646,8 +642,8 @@ namespace Vstancer.Client
             int wheelsCount = preset.WheelsCount;
             for (int index = 0; index < wheelsCount; index++)
             {
-                SetVehicleWheelXOffset(vehicle, index, preset.OffsetX[index]);
-                SetVehicleWheelYRotation(vehicle, index, preset.RotationY[index]);
+                SetVehicleWheelXOffset(vehicle, index, preset.Nodes[index].PositionX);
+                SetVehicleWheelYRotation(vehicle, index, preset.Nodes[index].RotationY);
             }
         }
 
