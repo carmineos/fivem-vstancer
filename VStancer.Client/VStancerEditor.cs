@@ -8,7 +8,7 @@ using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 using Newtonsoft.Json;
 
-namespace Vstancer.Client
+namespace VStancer.Client
 {
     public class VStancerEditor : BaseScript
     {

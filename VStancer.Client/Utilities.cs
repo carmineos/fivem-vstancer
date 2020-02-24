@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using static CitizenFX.Core.Native.API;
 
-namespace Vstancer.Client
+namespace VStancer.Client
 {
     public class VehicleEnumerable : IEnumerable<int>
     {

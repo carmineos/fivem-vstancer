@@ -2,7 +2,7 @@
 using System;
 using System.Text;
 
-namespace Vstancer.Client
+namespace VStancer.Client
 {
     public class VStancerPreset : IEquatable<VStancerPreset>
     {

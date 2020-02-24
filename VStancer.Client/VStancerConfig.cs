@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Vstancer.Client
+namespace VStancer.Client
 {
     public class VStancerConfig
     {
