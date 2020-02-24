@@ -14,28 +14,44 @@ namespace VStancer.Client
         public VStancerNode[] Nodes { get; set; }
         public VStancerNode[] DefaultNodes { get; private set; }
 
-        public void SetOffsetFront(float value)
+        public float FrontPositionX
         {
-            for (int index = 0; index < FrontWheelsCount; index++)
-                Nodes[index].PositionX = (index % 2 == 0) ? value : -value;     
+            get => Nodes[0].PositionX;
+            set
+            {
+                for (int index = 0; index < FrontWheelsCount; index++)
+                    Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
+            }
         }
 
-        public void SetOffsetRear(float value)
+        public float RearPositionX
         {
-            for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
+            get => Nodes[FrontWheelsCount].PositionX;
+            set
+            {
+                for (int index = FrontWheelsCount; index < WheelsCount; index++)
+                    Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
+            }
         }
 
-        public void SetRotationFront(float value)
+        public float FrontRotationY
         {
-            for (int index = 0; index < FrontWheelsCount; index++)
-                Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
+            get => Nodes[0].RotationY;
+            set
+            {
+                for (int index = 0; index < FrontWheelsCount; index++)
+                    Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
+            }
         }
 
-        public void SetRotationRear(float value)
+        public float RearRotationY
         {
-            for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
+            get => Nodes[FrontWheelsCount].RotationY;
+            set
+            {
+                for (int index = FrontWheelsCount; index < WheelsCount; index++)
+                    Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
+            }
         }
 
         public bool IsEdited

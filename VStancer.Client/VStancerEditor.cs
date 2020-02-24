@@ -20,19 +20,9 @@ namespace VStancer.Client
         private VStancerMenu vstancerMenu;
 
         /// <summary>
-        /// The expected resource name
-        /// </summary>
-        public const string ResourceName = "vstancer";
-
-        /// <summary>
         /// The name of the script
         /// </summary>
-        public const string ScriptName = "VStancer";
-
-        /// <summary>
-        /// The current vstancer preset
-        /// </summary>
-        public VStancerPreset currentPreset;
+        public const string ScriptName = Globals.ScriptName;
 
         /// <summary>
         /// The handle of the current vehicle
@@ -54,23 +44,10 @@ namespace VStancer.Client
         /// </summary>
         private IEnumerable<int> vehicles;
 
-        #endregion
-
-        #region Config Fields
-
-        public int toggleMenu = 167;
-        public float scriptRange = 150.0f;
-        public float FloatStep = 0.01f;
-        public float frontMaxOffset = 0.25f;
-        public float frontMaxCamber = 0.20f;
-        public float rearMaxOffset = 0.25f;
-        public float rearMaxCamber = 0.20f;
-
-        private float Epsilon = 0.001f;
-        private long timer = 1000;
-        private bool debug = false;
-        private bool exposeCommand = false;
-        private bool exposeEvent = false;
+        /// <summary>
+        /// The delta among which two float are considered equals
+        /// </summary>
+        private readonly float Epsilon = 0.001f;
 
         #endregion
 
@@ -93,16 +70,20 @@ namespace VStancer.Client
         #region Public Properties
 
         /// <summary>
-        /// Returns wheter <see cref="currentVehicle"/> and <see cref="currentPreset"/> are valid
+        /// Returns wheter <see cref="currentVehicle"/> and <see cref="CurrentPreset"/> are valid
         /// </summary>
-        public bool CurrentPresetIsValid => currentVehicle != -1 && currentPreset != null;
+        public bool CurrentPresetIsValid => currentVehicle != -1 && CurrentPreset != null;
+
+        public VStancerPreset CurrentPreset { get; private set; }
+
+        public VStancerConfig Config { get; private set; }
 
         #endregion
 
         #region Public Events
 
         /// <summary>
-        /// Triggered when <see cref="currentPreset"/> is changed
+        /// Triggered when <see cref="CurrentPreset"/> is changed
         /// </summary>
         public event EventHandler PresetChanged;
 
@@ -124,12 +105,12 @@ namespace VStancer.Client
             if (!CurrentPresetIsValid)
                 return;
 
-            currentPreset.Reset();
+            CurrentPreset.Reset();
             RemoveDecorators(currentVehicle);
 
             // Force one single refresh to update rendering at correct position after reset
             // This is required because otherwise the vehicle won't update immediately
-            RefreshVehicleUsingPreset(currentVehicle, currentPreset);
+            RefreshVehicleUsingPreset(currentVehicle, CurrentPreset);
 
             await Delay(200);
             PresetChanged?.Invoke(this, EventArgs.Empty);
@@ -150,30 +131,31 @@ namespace VStancer.Client
 
             float defaultValue = value;
 
-            if (id == FrontRotationID)
+            switch(id)
             {
-                currentPreset.SetRotationFront(value);
-                defaultValue = currentPreset.DefaultNodes[0].RotationY;
-            }
-            else if (id == RearRotationID)
-            {
-                currentPreset.SetRotationRear(value);
-                defaultValue = currentPreset.DefaultNodes[currentPreset.FrontWheelsCount].RotationY;
-            }
-            else if (id == FrontOffsetID)
-            {
-                currentPreset.SetOffsetFront(-value);
-                defaultValue = currentPreset.DefaultNodes[0].PositionX;
-            }
-            else if (id == RearOffsetID)
-            {
-                currentPreset.SetOffsetRear(-value);
-                defaultValue = currentPreset.DefaultNodes[currentPreset.FrontWheelsCount].PositionX;
+                case FrontRotationID:
+                    CurrentPreset.FrontRotationY = value;
+                    defaultValue = CurrentPreset.DefaultNodes[0].RotationY;
+                    break;
+                case RearRotationID:
+                    CurrentPreset.RearRotationY = value;
+                    defaultValue = CurrentPreset.DefaultNodes[CurrentPreset.FrontWheelsCount].RotationY;
+                    break;
+                case FrontOffsetID:
+                    CurrentPreset.FrontPositionX = -value;
+                    defaultValue = CurrentPreset.DefaultNodes[0].PositionX;
+                    break;
+                case RearOffsetID:
+                    CurrentPreset.RearPositionX = -value;
+                    defaultValue = CurrentPreset.DefaultNodes[CurrentPreset.FrontWheelsCount].PositionX;
+                    break;
+                default:
+                    break;
             }
 
             // Force one single refresh to update rendering at correct position after reset
             if (value == defaultValue)
-                RefreshVehicleUsingPreset(currentVehicle, currentPreset);
+                RefreshVehicleUsingPreset(currentVehicle, CurrentPreset);
         }
 
         #endregion
@@ -183,19 +165,19 @@ namespace VStancer.Client
         public VStancerEditor()
         {
             // If the resource name is not the expected one ...
-            if (GetCurrentResourceName() != ResourceName)
+            if (GetCurrentResourceName() != Globals.ResourceName)
             {
-                CitizenFX.Core.Debug.WriteLine($"{ScriptName}: Invalid resource name, be sure the resource name is {ResourceName}");
+                CitizenFX.Core.Debug.WriteLine($"{ScriptName}: Invalid resource name, be sure the resource name is {Globals.ResourceName}");
                 return;
             }
 
             lastTime = GetGameTimer();
             currentVehicle = -1;
-            currentPreset = null;
+            CurrentPreset = null;
             vehicles = Enumerable.Empty<int>();
 
             RegisterDecorators();
-            LoadConfig();
+            Config = LoadConfig();
 
             #region Register Commands
 
@@ -209,8 +191,8 @@ namespace VStancer.Client
 
                 if (float.TryParse(args[0], out float value))
                 {
-                    scriptRange = value;
-                    Debug.WriteLine($"{ScriptName}: Received new {nameof(scriptRange)} value {value}");
+                    Config.ScriptRange = value;
+                    Debug.WriteLine($"{ScriptName}: {nameof(Config.ScriptRange)} updated to {value}");
                 }
                 else Debug.WriteLine($"{ScriptName}: Error parsing {args[0]} as float");
 
@@ -226,8 +208,8 @@ namespace VStancer.Client
 
                 if (bool.TryParse(args[0], out bool value))
                 {
-                    debug = value;
-                    Debug.WriteLine($"{ScriptName}: Received new {nameof(debug)} value {value}");
+                    Config.Debug = value;
+                    Debug.WriteLine($"{ScriptName}: {nameof(Config.Debug)} updated to {value}");
                 }
                 else Debug.WriteLine($"{ScriptName}: Error parsing {args[0]} as bool");
 
@@ -247,8 +229,8 @@ namespace VStancer.Client
 
             RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
             {
-                if (currentPreset != null)
-                    Debug.WriteLine(currentPreset.ToString());
+                if (CurrentPreset != null)
+                    Debug.WriteLine(CurrentPreset.ToString());
                 else
                     Debug.WriteLine($"{ScriptName}: Current preset doesn't exist");
             }), false);
@@ -261,7 +243,7 @@ namespace VStancer.Client
             #endregion
 
             
-            if (exposeCommand)
+            if (Config.ExposeCommand)
             {
                 RegisterCommand("vstancer", new Action<int, dynamic>((source, args) =>
                 {
@@ -269,7 +251,7 @@ namespace VStancer.Client
                 }), false);
             }
 
-            if (exposeEvent)
+            if (Config.ExposeEvent)
             {
                 EventHandlers.Add("vstancer:toggleMenu", new Action(() =>
                 {
@@ -307,7 +289,7 @@ namespace VStancer.Client
         }
 
         /// <summary>
-        /// Updates the <see cref="currentVehicle"/> and the <see cref="currentPreset"/>
+        /// Updates the <see cref="currentVehicle"/> and the <see cref="CurrentPreset"/>
         /// </summary>
         /// <returns></returns>
         private async Task GetCurrentVehicle()
@@ -323,7 +305,7 @@ namespace VStancer.Client
                     // Update current vehicle and get its preset
                     if (vehicle != currentVehicle)
                     {
-                        currentPreset = CreatePreset(vehicle);
+                        CurrentPreset = CreatePreset(vehicle);
                         currentVehicle = vehicle;
                         PresetChanged?.Invoke(this, EventArgs.Empty);
                         Tick += UpdateCurrentVehicle;
@@ -334,7 +316,7 @@ namespace VStancer.Client
                     if(CurrentPresetIsValid)
                     {
                         // If current vehicle isn't a car or player isn't driving current vehicle or vehicle is dead
-                        currentPreset = null;
+                        CurrentPreset = null;
                         currentVehicle = -1;
                         Tick -= UpdateCurrentVehicle;
                     }
@@ -345,7 +327,7 @@ namespace VStancer.Client
                 if (CurrentPresetIsValid)
                 {
                     // If player isn't in any vehicle
-                    currentPreset = null;
+                    CurrentPreset = null;
                     currentVehicle = -1;
                     Tick -= UpdateCurrentVehicle;
                 }
@@ -361,8 +343,8 @@ namespace VStancer.Client
         private async Task UpdateCurrentVehicle()
         {
             // Check if current vehicle needs to be refreshed
-            if (CurrentPresetIsValid && currentPreset.IsEdited)
-                    RefreshVehicleUsingPreset(currentVehicle, currentPreset);
+            if (CurrentPresetIsValid && CurrentPreset.IsEdited)
+                    RefreshVehicleUsingPreset(currentVehicle, CurrentPreset);
 
             await Task.FromResult(0);
         }
@@ -383,7 +365,7 @@ namespace VStancer.Client
                 {
                     Vector3 coords = GetEntityCoords(entity, true);
 
-                    if (Vector3.Distance(currentCoords, coords) <= scriptRange)
+                    if (Vector3.Distance(currentCoords, coords) <= Config.ScriptRange)
                         RefreshVehicleUsingDecorators(entity);
                 }
             }
@@ -400,10 +382,10 @@ namespace VStancer.Client
             var currentTime = (GetGameTimer() - lastTime);
 
             // Check if decorators needs to be updated
-            if (currentTime > timer)
+            if (currentTime > Config.Timer)
             {
                 if (CurrentPresetIsValid)
-                    UpdateVehicleDecorators(currentVehicle, currentPreset);
+                    UpdateVehicleDecorators(currentVehicle, CurrentPreset);
 
                 // Also update world vehicles list
                 vehicles = new VehicleEnumerable();
@@ -486,7 +468,7 @@ namespace VStancer.Client
         /// <returns>The float array</returns>
         public float[] GetVstancerPreset(int vehicle)
         {
-            VStancerPreset preset = (vehicle == currentVehicle && CurrentPresetIsValid) ? currentPreset : CreatePreset(vehicle);
+            VStancerPreset preset = (vehicle == currentVehicle && CurrentPresetIsValid) ? CurrentPreset : CreatePreset(vehicle);
             return preset.ToArray();
         }
 
@@ -504,7 +486,7 @@ namespace VStancer.Client
         /// <param name="defaultRearRotation">The default rear rotation value</param>
         public void SetVstancerPreset(int vehicle, float frontOffset, float frontRotation, float rearOffset, float rearRotation, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null)
         {
-            if (debug)
+            if (Config.Debug)
                 Debug.WriteLine($"{ScriptName}: SetVstancerPreset parameters {frontOffset} {frontRotation} {rearOffset} {rearRotation} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
 
             if (!DoesEntityExist(vehicle))
@@ -537,7 +519,7 @@ namespace VStancer.Client
 
             if (vehicle == currentVehicle)
             {
-                currentPreset = new VStancerPreset(wheelsCount, frontOffset, frontRotation, rearOffset, rearRotation, off_f_def, rot_f_def, off_r_def, rot_r_def);
+                CurrentPreset = new VStancerPreset(wheelsCount, frontOffset, frontRotation, rearOffset, rearRotation, off_f_def, rot_f_def, off_r_def, rot_r_def);
                 PresetChanged?.Invoke(this, EventArgs.Empty);
             }
             else
@@ -570,7 +552,7 @@ namespace VStancer.Client
                 if (!MathUtil.WithinEpsilon(currentValue, decorValue, Epsilon))
                 {
                     DecorSetFloat(vehicle, name, currentValue);
-                    if (debug)
+                    if (Config.Debug)
                         Debug.WriteLine($"{ScriptName}: Updated decorator {name} from {decorValue} to {currentValue} on vehicle {vehicle}");
                 }
             }
@@ -579,7 +561,7 @@ namespace VStancer.Client
                 if (!MathUtil.WithinEpsilon(currentValue, defaultValue, Epsilon))
                 {
                     DecorSetFloat(vehicle, name, currentValue);
-                    if (debug)
+                    if (Config.Debug)
                         Debug.WriteLine($"{ScriptName}: Added decorator {name} with value {currentValue} to vehicle {vehicle}");
                 }
             }
@@ -612,7 +594,7 @@ namespace VStancer.Client
         /// <returns></returns>
         private VStancerPreset CreatePreset(int vehicle)
         {
-            if (debug && IsVehicleDamaged(vehicle))
+            if (Config.Debug && IsVehicleDamaged(vehicle))
                 Screen.ShowNotification($"~o~Warning~w~: You are creating a vstancer preset for a damaged vehicle, default position and rotation of the wheels might be wrong");
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
@@ -791,13 +773,13 @@ namespace VStancer.Client
         /// Loads the config file containing all the customizable properties
         /// </summary>
         /// <param name="filename">The name of the file</param>
-        private void LoadConfig(string filename = "config.json")
+        private VStancerConfig LoadConfig(string filename = "config.json")
         {
-            VStancerConfig config = null;
+            VStancerConfig config;
+            
             try
             {
-                string strings = LoadResourceFile(ResourceName, filename);
-
+                string strings = LoadResourceFile(Globals.ResourceName, filename);
                 config = JsonConvert.DeserializeObject<VStancerConfig>(strings);
 
                 Debug.WriteLine($"{ScriptName}: Loaded config from {filename}");
@@ -809,22 +791,8 @@ namespace VStancer.Client
 
                 config = new VStancerConfig();
             }
-            finally
-            {
-                toggleMenu = config.ToggleMenuControl;
-                FloatStep = config.FloatStep;
-                scriptRange = config.ScriptRange;
-                frontMaxOffset = config.FrontLimits.PositionX;
-                frontMaxCamber = config.FrontLimits.RotationY;
-                rearMaxOffset = config.RearLimits.PositionX;
-                rearMaxCamber = config.RearLimits.RotationY;
-                timer = config.Timer;
-                debug = config.Debug;
-                exposeCommand = config.ExposeCommand;
-                exposeEvent = config.ExposeEvent;
 
-                Debug.WriteLine($"{ScriptName}: Settings {nameof(frontMaxOffset)}={frontMaxOffset} {nameof(frontMaxCamber)}={frontMaxCamber} {nameof(rearMaxOffset)}={rearMaxOffset} {nameof(rearMaxCamber)}={rearMaxCamber} {nameof(timer)}={timer} {nameof(debug)}={debug} {nameof(scriptRange)}={scriptRange}");
-            }
+            return config;
         }
 
         #endregion

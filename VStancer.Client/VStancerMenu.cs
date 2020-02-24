@@ -14,7 +14,7 @@ namespace VStancer.Client
         /// <summary>
         /// The script which owns this menu
         /// </summary>
-        private VStancerEditor vstancerEditor;
+        private readonly VStancerEditor vstancerEditor;
 
         /// <summary>
         /// The controller of the menu
@@ -56,15 +56,8 @@ namespace VStancer.Client
         private string FrontRotationID => VStancerEditor.FrontRotationID;
         private string RearOffsetID => VStancerEditor.RearOffsetID;
         private string RearRotationID => VStancerEditor.RearRotationID;
-        private string ScriptName => VStancerEditor.ScriptName;
-        private float frontMaxOffset => vstancerEditor.frontMaxOffset;
-        private float frontMaxCamber => vstancerEditor.frontMaxCamber;
-        private float rearMaxOffset => vstancerEditor.rearMaxOffset;
-        private float rearMaxCamber => vstancerEditor.rearMaxCamber;
-        private bool CurrentPresetIsValid => vstancerEditor.CurrentPresetIsValid;
-        private VStancerPreset currentPreset => vstancerEditor.currentPreset;
-        private int toggleMenu => vstancerEditor.toggleMenu;
-        private float FloatStep => vstancerEditor.FloatStep;
+        private VStancerPreset CurrentPreset => vstancerEditor.CurrentPreset;
+        private float FloatStep => vstancerEditor.Config.FloatStep;
 
         #endregion
 
@@ -138,7 +131,7 @@ namespace VStancer.Client
         {
             if (editorMenu == null)
             {
-                editorMenu = new Menu(ScriptName, "Editor");
+                editorMenu = new Menu(Globals.ScriptName, "Editor");
 
                 // When the value of a MenuDynamicListItem is changed
                 editorMenu.OnDynamicListItemCurrentItemChange += (menu, dynamicListItem, oldValue, newValue) =>
@@ -163,7 +156,7 @@ namespace VStancer.Client
                 menuController = new MenuController();
                 MenuController.AddMenu(editorMenu);
                 MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
-                MenuController.MenuToggleKey = (Control)toggleMenu;
+                MenuController.MenuToggleKey = (Control)vstancerEditor.Config.ToggleMenuControl;
                 MenuController.EnableMenuToggleKeyOnController = false;
                 MenuController.MainMenu = editorMenu;
             }
@@ -179,13 +172,13 @@ namespace VStancer.Client
 
             editorMenu.ClearMenuItems();
 
-            if (!CurrentPresetIsValid)
+            if (!vstancerEditor.CurrentPresetIsValid)
                 return;
 
-            AddDynamicFloatList(editorMenu, "Front Track Width", -currentPreset.DefaultNodes[0].PositionX, -currentPreset.Nodes[0].PositionX, frontMaxOffset, FrontOffsetID);
-            AddDynamicFloatList(editorMenu, "Rear Track Width", -currentPreset.DefaultNodes[currentPreset.FrontWheelsCount].PositionX, -currentPreset.Nodes[currentPreset.FrontWheelsCount].PositionX, rearMaxOffset, RearOffsetID);
-            AddDynamicFloatList(editorMenu, "Front Camber", currentPreset.DefaultNodes[0].RotationY, currentPreset.Nodes[0].RotationY, frontMaxCamber, FrontRotationID);
-            AddDynamicFloatList(editorMenu, "Rear Camber", currentPreset.DefaultNodes[currentPreset.FrontWheelsCount].RotationY, currentPreset.Nodes[currentPreset.FrontWheelsCount].RotationY, rearMaxCamber, RearRotationID);
+            AddDynamicFloatList(editorMenu, "Front Track Width", -CurrentPreset.DefaultNodes[0].PositionX, -CurrentPreset.Nodes[0].PositionX, vstancerEditor.Config.FrontLimits.PositionX, FrontOffsetID);
+            AddDynamicFloatList(editorMenu, "Rear Track Width", -CurrentPreset.DefaultNodes[CurrentPreset.FrontWheelsCount].PositionX, -CurrentPreset.Nodes[CurrentPreset.FrontWheelsCount].PositionX, vstancerEditor.Config.RearLimits.PositionX, RearOffsetID);
+            AddDynamicFloatList(editorMenu, "Front Camber", CurrentPreset.DefaultNodes[0].RotationY, CurrentPreset.Nodes[0].RotationY, vstancerEditor.Config.FrontLimits.RotationY, FrontRotationID);
+            AddDynamicFloatList(editorMenu, "Rear Camber", CurrentPreset.DefaultNodes[CurrentPreset.FrontWheelsCount].RotationY, CurrentPreset.Nodes[CurrentPreset.FrontWheelsCount].RotationY, vstancerEditor.Config.RearLimits.RotationY, RearRotationID);
             editorMenu.AddMenuItem(new MenuItem("Reset", "Restores the default values") { ItemData = ResetID });
         }
 
