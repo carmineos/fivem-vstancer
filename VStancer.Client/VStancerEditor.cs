@@ -17,12 +17,7 @@ namespace VStancer.Client
         /// <summary>
         /// The script which renders the menu
         /// </summary>
-        private VStancerMenu vstancerMenu;
-
-        /// <summary>
-        /// The name of the script
-        /// </summary>
-        public const string ScriptName = Globals.ScriptName;
+        private readonly VStancerMenu vstancerMenu;
 
         /// <summary>
         /// The handle of the current vehicle
@@ -167,7 +162,7 @@ namespace VStancer.Client
             // If the resource name is not the expected one ...
             if (GetCurrentResourceName() != Globals.ResourceName)
             {
-                CitizenFX.Core.Debug.WriteLine($"{ScriptName}: Invalid resource name, be sure the resource name is {Globals.ResourceName}");
+                CitizenFX.Core.Debug.WriteLine($"{Globals.ScriptName}: Invalid resource name, be sure the resource name is {Globals.ResourceName}");
                 return;
             }
 
@@ -185,16 +180,16 @@ namespace VStancer.Client
             {
                 if (args.Count < 1)
                 {
-                    Debug.WriteLine($"{ScriptName}: Missing float argument");
+                    Debug.WriteLine($"{Globals.ScriptName}: Missing float argument");
                     return;
                 }
 
                 if (float.TryParse(args[0], out float value))
                 {
                     Config.ScriptRange = value;
-                    Debug.WriteLine($"{ScriptName}: {nameof(Config.ScriptRange)} updated to {value}");
+                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(Config.ScriptRange)} updated to {value}");
                 }
-                else Debug.WriteLine($"{ScriptName}: Error parsing {args[0]} as float");
+                else Debug.WriteLine($"{Globals.ScriptName}: Error parsing {args[0]} as float");
 
             }), false);
 
@@ -202,16 +197,16 @@ namespace VStancer.Client
             {
                 if (args.Count < 1)
                 {
-                    Debug.WriteLine($"{ScriptName}: Missing bool argument");
+                    Debug.WriteLine($"{Globals.ScriptName}: Missing bool argument");
                     return;
                 }
 
                 if (bool.TryParse(args[0], out bool value))
                 {
                     Config.Debug = value;
-                    Debug.WriteLine($"{ScriptName}: {nameof(Config.Debug)} updated to {value}");
+                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(Config.Debug)} updated to {value}");
                 }
-                else Debug.WriteLine($"{ScriptName}: Error parsing {args[0]} as bool");
+                else Debug.WriteLine($"{Globals.ScriptName}: Error parsing {args[0]} as bool");
 
             }), false);
 
@@ -223,7 +218,7 @@ namespace VStancer.Client
                 {
                     if (int.TryParse(args[0], out int value))
                         PrintDecoratorsInfo(value);
-                    else Debug.WriteLine($"{ScriptName}: Error parsing entity handle {args[0]} as int");
+                    else Debug.WriteLine($"{Globals.ScriptName}: Error parsing entity handle {args[0]} as int");
                 }
             }), false);
 
@@ -232,7 +227,7 @@ namespace VStancer.Client
                 if (CurrentPreset != null)
                     Debug.WriteLine(CurrentPreset.ToString());
                 else
-                    Debug.WriteLine($"{ScriptName}: Current preset doesn't exist");
+                    Debug.WriteLine($"{Globals.ScriptName}: Current preset doesn't exist");
             }), false);
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
@@ -487,7 +482,7 @@ namespace VStancer.Client
         public void SetVstancerPreset(int vehicle, float frontOffset, float frontRotation, float rearOffset, float rearRotation, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null)
         {
             if (Config.Debug)
-                Debug.WriteLine($"{ScriptName}: SetVstancerPreset parameters {frontOffset} {frontRotation} {rearOffset} {rearRotation} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
+                Debug.WriteLine($"{Globals.ScriptName}: SetVstancerPreset parameters {frontOffset} {frontRotation} {rearOffset} {rearRotation} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
 
             if (!DoesEntityExist(vehicle))
                 return;
@@ -553,7 +548,7 @@ namespace VStancer.Client
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (Config.Debug)
-                        Debug.WriteLine($"{ScriptName}: Updated decorator {name} from {decorValue} to {currentValue} on vehicle {vehicle}");
+                        Debug.WriteLine($"{Globals.ScriptName}: Updated decorator {name} from {decorValue} to {currentValue} on vehicle {vehicle}");
                 }
             }
             else // Decorator doesn't exist, create it if required
@@ -562,7 +557,7 @@ namespace VStancer.Client
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (Config.Debug)
-                        Debug.WriteLine($"{ScriptName}: Added decorator {name} with value {currentValue} to vehicle {vehicle}");
+                        Debug.WriteLine($"{Globals.ScriptName}: Added decorator {name} with value {currentValue} to vehicle {vehicle}");
                 }
             }
         }
@@ -700,14 +695,14 @@ namespace VStancer.Client
         {
             if (!DoesEntityExist(vehicle))
             {
-                Debug.WriteLine($"{ScriptName}: Can't find vehicle with handle {vehicle}");
+                Debug.WriteLine($"{Globals.ScriptName}: Can't find vehicle with handle {vehicle}");
                 return;
             }
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int netID = NetworkGetNetworkIdFromEntity(vehicle);
             StringBuilder s = new StringBuilder();
-            s.AppendLine($"{ScriptName}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
+            s.AppendLine($"{Globals.ScriptName}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
 
             if (DecorExistOn(vehicle, FrontOffsetID))
             {
@@ -744,7 +739,7 @@ namespace VStancer.Client
         {
             IEnumerable<int> entities = vehiclesList.Where(entity => HasDecorators(entity));
 
-            Debug.WriteLine($"{ScriptName}: Vehicles with decorators: {entities.Count()}");
+            Debug.WriteLine($"{Globals.ScriptName}: Vehicles with decorators: {entities.Count()}");
 
             foreach (var item in entities)
                 Debug.WriteLine($"Vehicle: {item}");
@@ -782,11 +777,11 @@ namespace VStancer.Client
                 string strings = LoadResourceFile(Globals.ResourceName, filename);
                 config = JsonConvert.DeserializeObject<VStancerConfig>(strings);
 
-                Debug.WriteLine($"{ScriptName}: Loaded config from {filename}");
+                Debug.WriteLine($"{Globals.ScriptName}: Loaded config from {filename}");
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"{ScriptName}: Impossible to load {filename}", e.Message);
+                Debug.WriteLine($"{Globals.ScriptName}: Impossible to load {filename}", e.Message);
                 Debug.WriteLine(e.StackTrace);
 
                 config = new VStancerConfig();
