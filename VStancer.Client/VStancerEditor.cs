@@ -124,32 +124,26 @@ namespace VStancer.Client
             if(!float.TryParse(newValue, out float value))
                 return;
 
-            float defaultValue = value;
-
             switch(id)
             {
                 case FrontRotationID:
                     CurrentPreset.FrontRotationY = value;
-                    defaultValue = CurrentPreset.DefaultNodes[0].RotationY;
                     break;
                 case RearRotationID:
                     CurrentPreset.RearRotationY = value;
-                    defaultValue = CurrentPreset.DefaultNodes[CurrentPreset.FrontWheelsCount].RotationY;
                     break;
                 case FrontOffsetID:
                     CurrentPreset.FrontPositionX = -value;
-                    defaultValue = CurrentPreset.DefaultNodes[0].PositionX;
                     break;
                 case RearOffsetID:
                     CurrentPreset.RearPositionX = -value;
-                    defaultValue = CurrentPreset.DefaultNodes[CurrentPreset.FrontWheelsCount].PositionX;
                     break;
                 default:
                     break;
             }
 
             // Force one single refresh to update rendering at correct position after reset
-            if (value == defaultValue)
+            if (!CurrentPreset.IsEdited)
                 RefreshVehicleUsingPreset(currentVehicle, CurrentPreset);
         }
 
