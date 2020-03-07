@@ -8,7 +8,7 @@ namespace VStancer.Client
     {
         private const float Epsilon = 0.001f;
 
-        //public event EventHandler PresetChanged;
+        public event EventHandler PresetEdited;
 
         public int WheelsCount { get; set; }
         public int FrontWheelsCount { get; set; }
@@ -25,7 +25,7 @@ namespace VStancer.Client
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
 
-                //PresetChanged?.Invoke(this, EventArgs.Empty);
+                PresetEdited?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -37,7 +37,7 @@ namespace VStancer.Client
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
 
-                //PresetChanged?.Invoke(this, EventArgs.Empty);
+                PresetEdited?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -49,7 +49,7 @@ namespace VStancer.Client
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
 
-                //PresetChanged?.Invoke(this, EventArgs.Empty);
+                PresetEdited?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -61,7 +61,7 @@ namespace VStancer.Client
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
 
-                //PresetChanged?.Invoke(this, EventArgs.Empty);
+                PresetEdited?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -136,6 +136,8 @@ namespace VStancer.Client
             {
                 Nodes[index] = DefaultNodes[index];
             }
+
+            PresetEdited?.Invoke(this, EventArgs.Empty);
         }
 
         public bool Equals(VStancerPreset other)
