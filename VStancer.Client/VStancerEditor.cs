@@ -12,41 +12,35 @@ namespace VStancer.Client
 {
     public class VStancerEditor : BaseScript
     {
-        #region Fields
-
         /// <summary>
         /// The script which renders the menu
         /// </summary>
-        private readonly VStancerMenu vstancerMenu;
+        private readonly VStancerMenu _vstancerMenu;
 
         /// <summary>
         /// The handle of the current vehicle
         /// </summary>
-        private int currentVehicle;
+        private int _playerVehicleHandle;
 
         /// <summary>
         /// Indicates the last game time the timed tasks have been executed
         /// </summary>
-        private long lastTime;
+        private long _lastTime;
 
         /// <summary>
         /// The handle of the current player ped
         /// </summary>
-        private int playerPed;
+        private int _playerPedHandle;
 
         /// <summary>
         /// The list of all the vehicles' handles around the client's position 
         /// </summary>
-        private IEnumerable<int> vehicles;
+        private IEnumerable<int> _worldVehiclesHandles;
 
         /// <summary>
         /// The delta among which two float are considered equals
         /// </summary>
-        private readonly float Epsilon = 0.001f;
-
-        #endregion
-
-        #region Decorator Names
+        private readonly float _epsilon = 0.001f;
 
         public const string FrontOffsetID = "vstancer_off_f";
         public const string FrontRotationID = "vstancer_rot_f";
@@ -60,22 +54,14 @@ namespace VStancer.Client
 
         public const string ResetID = "vstancer_reset";
 
-        #endregion
-
-        #region Public Properties
-
         /// <summary>
-        /// Returns wheter <see cref="currentVehicle"/> and <see cref="CurrentPreset"/> are valid
+        /// Returns wheter <see cref="_playerVehicleHandle"/> and <see cref="CurrentPreset"/> are valid
         /// </summary>
-        public bool CurrentPresetIsValid => currentVehicle != -1 && CurrentPreset != null;
+        public bool CurrentPresetIsValid => _playerVehicleHandle != -1 && CurrentPreset != null;
 
         public VStancerPreset CurrentPreset { get; private set; }
 
         public VStancerConfig Config { get; private set; }
-
-        #endregion
-
-        #region Public Events
 
         /// <summary>
         /// Triggered when <see cref="CurrentPreset"/> is changed
@@ -88,10 +74,6 @@ namespace VStancer.Client
         /// </summary>
         public event EventHandler ToggleMenuVisibility;
 
-        #endregion
-
-        #region GUI Event Handlers
-
         /// <summary>
         /// Invoked when the reset button is pressed in the UI
         /// </summary>
@@ -101,11 +83,11 @@ namespace VStancer.Client
                 return;
 
             CurrentPreset.Reset();
-            RemoveDecorators(currentVehicle);
+            RemoveDecoratorsFromVehicle(_playerVehicleHandle);
 
             // Force one single refresh to update rendering at correct position after reset
             // This is required because otherwise the vehicle won't update immediately
-            RefreshVehicleUsingPreset(currentVehicle, CurrentPreset);
+            UpdateVehicleUsingPreset(_playerVehicleHandle, CurrentPreset);
 
             await Delay(200);
             PresetChanged?.Invoke(this, EventArgs.Empty);
@@ -121,10 +103,10 @@ namespace VStancer.Client
             if (!CurrentPresetIsValid)
                 return;
 
-            if(!float.TryParse(newValue, out float value))
+            if (!float.TryParse(newValue, out float value))
                 return;
 
-            switch(id)
+            switch (id)
             {
                 case FrontRotationID:
                     CurrentPreset.FrontRotationY = value;
@@ -144,28 +126,24 @@ namespace VStancer.Client
 
             // Force one single refresh to update rendering at correct position after reset
             if (!CurrentPreset.IsEdited)
-                RefreshVehicleUsingPreset(currentVehicle, CurrentPreset);
+                UpdateVehicleUsingPreset(_playerVehicleHandle, CurrentPreset);
         }
-
-        #endregion
-
-        #region Constructor
 
         public VStancerEditor()
         {
             // If the resource name is not the expected one ...
             if (GetCurrentResourceName() != Globals.ResourceName)
             {
-                CitizenFX.Core.Debug.WriteLine($"{Globals.ScriptName}: Invalid resource name, be sure the resource name is {Globals.ResourceName}");
+                Debug.WriteLine($"{Globals.ScriptName}: Invalid resource name, be sure the resource name is {Globals.ResourceName}");
                 return;
             }
 
-            lastTime = GetGameTimer();
-            currentVehicle = -1;
+            _lastTime = GetGameTimer();
+            _playerVehicleHandle = -1;
             CurrentPreset = null;
-            vehicles = Enumerable.Empty<int>();
+            _worldVehiclesHandles = Enumerable.Empty<int>();
 
-            RegisterDecorators();
+            RegisterRequiredDecorators();
             Config = LoadConfig();
 
             #region Register Commands
@@ -207,7 +185,7 @@ namespace VStancer.Client
             RegisterCommand("vstancer_decorators", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
-                    PrintDecoratorsInfo(currentVehicle);
+                    PrintDecoratorsInfo(_playerVehicleHandle);
                 else
                 {
                     if (int.TryParse(args[0], out int value))
@@ -226,88 +204,75 @@ namespace VStancer.Client
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
-                PrintVehiclesWithDecorators(vehicles);
+                PrintVehiclesWithDecorators(_worldVehiclesHandles);
             }), false);
 
             #endregion
 
-            
+
             if (Config.ExposeCommand)
-            {
-                RegisterCommand("vstancer", new Action<int, dynamic>((source, args) =>
-                {
-                    ToggleMenuVisibility?.Invoke(this, EventArgs.Empty);
-                }), false);
-            }
+                RegisterCommand("vstancer", new Action<int, dynamic>((source, args) => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }), false);
 
             if (Config.ExposeEvent)
-            {
-                EventHandlers.Add("vstancer:toggleMenu", new Action(() =>
-                {
-                    ToggleMenuVisibility?.Invoke(this, EventArgs.Empty);
-                }));
-            }
+                EventHandlers.Add("vstancer:toggleMenu", new Action(() => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }));
+
 
 
             Exports.Add("SetVstancerPreset", new Action<int, float, float, float, float, object, object, object, object>(SetVstancerPreset));
             Exports.Add("GetVstancerPreset", new Func<int, float[]>(GetVstancerPreset));
 
             // Create a script for the menu ...
-            vstancerMenu = new VStancerMenu(this);
+            _vstancerMenu = new VStancerMenu(this);
 
-            vstancerMenu.MenuResetPresetButtonPressed += (sender,args) => OnMenuResetPresetButtonPressed();
-            vstancerMenu.MenuPresetValueChanged += OnMenuPresetValueChanged;
+            _vstancerMenu.MenuResetPresetButtonPressed += (sender, args) => OnMenuResetPresetButtonPressed();
+            _vstancerMenu.MenuPresetValueChanged += OnMenuPresetValueChanged;
 
-            Tick += GetCurrentVehicle;
-            Tick += UpdateCurrentVehicle;
-            Tick += UpdateWorldVehicles;
-            Tick += UpdateCurrentVehicleDecorators;
+            Tick += GetPlayerVehicleTask;
+            Tick += UpdatePlayerVehicleTask;
+            Tick += UpdateWorldVehiclesTask;
+            Tick += UpdatePlayerVehicleDecoratorsTask;
             Tick += HideUITask;
         }
 
-        #endregion
-
-        #region Tasks
-
         private async Task HideUITask()
         {
-            if (!CurrentPresetIsValid && vstancerMenu != null)
-                vstancerMenu.HideUI();
+            if (!CurrentPresetIsValid && _vstancerMenu != null)
+                _vstancerMenu.HideUI();
 
             await Task.FromResult(0);
         }
 
         /// <summary>
-        /// Updates the <see cref="currentVehicle"/> and the <see cref="CurrentPreset"/>
+        /// Updates the <see cref="_playerVehicleHandle"/> and the <see cref="CurrentPreset"/>
         /// </summary>
         /// <returns></returns>
-        private async Task GetCurrentVehicle()
+        private async Task GetPlayerVehicleTask()
         {
-            playerPed = PlayerPedId();
+            _playerPedHandle = PlayerPedId();
 
-            if (IsPedInAnyVehicle(playerPed, false))
+            if (IsPedInAnyVehicle(_playerPedHandle, false))
             {
-                int vehicle = GetVehiclePedIsIn(playerPed, false);
+                int vehicle = GetVehiclePedIsIn(_playerPedHandle, false);
 
-                if (IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle, -1) == playerPed && IsVehicleDriveable(vehicle, false))
+                if (IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle, -1) == _playerPedHandle && IsVehicleDriveable(vehicle, false))
                 {
                     // Update current vehicle and get its preset
-                    if (vehicle != currentVehicle)
+                    if (vehicle != _playerVehicleHandle)
                     {
-                        CurrentPreset = CreatePreset(vehicle);
-                        currentVehicle = vehicle;
+                        CurrentPreset = CreatePresetFromHandle(vehicle);
+                        _playerVehicleHandle = vehicle;
                         PresetChanged?.Invoke(this, EventArgs.Empty);
-                        Tick += UpdateCurrentVehicle;
+                        Tick += UpdatePlayerVehicleTask;
                     }
                 }
                 else
                 {
-                    if(CurrentPresetIsValid)
+                    if (CurrentPresetIsValid)
                     {
                         // If current vehicle isn't a car or player isn't driving current vehicle or vehicle is dead
                         CurrentPreset = null;
-                        currentVehicle = -1;
-                        Tick -= UpdateCurrentVehicle;
+                        _playerVehicleHandle = -1;
+                        Tick -= UpdatePlayerVehicleTask;
                     }
                 }
             }
@@ -317,8 +282,8 @@ namespace VStancer.Client
                 {
                     // If player isn't in any vehicle
                     CurrentPreset = null;
-                    currentVehicle = -1;
-                    Tick -= UpdateCurrentVehicle;
+                    _playerVehicleHandle = -1;
+                    Tick -= UpdatePlayerVehicleTask;
                 }
             }
 
@@ -329,11 +294,11 @@ namespace VStancer.Client
         /// The task that updates the current vehicle
         /// </summary>
         /// <returns></returns>
-        private async Task UpdateCurrentVehicle()
+        private async Task UpdatePlayerVehicleTask()
         {
             // Check if current vehicle needs to be refreshed
             if (CurrentPresetIsValid && CurrentPreset.IsEdited)
-                    RefreshVehicleUsingPreset(currentVehicle, CurrentPreset);
+                UpdateVehicleUsingPreset(_playerVehicleHandle, CurrentPreset);
 
             await Task.FromResult(0);
         }
@@ -342,11 +307,11 @@ namespace VStancer.Client
         /// The task that updates the vehicles of the world
         /// </summary>
         /// <returns></returns>
-        private async Task UpdateWorldVehicles()
+        private async Task UpdateWorldVehiclesTask()
         {
             // Refreshes the iterated vehicles
-            var vehiclesList = vehicles.Except(new List<int> { currentVehicle });
-            Vector3 currentCoords = GetEntityCoords(playerPed, true);
+            IEnumerable<int> vehiclesList = _worldVehiclesHandles.Except(new List<int> { _playerVehicleHandle });
+            Vector3 currentCoords = GetEntityCoords(_playerPedHandle, true);
 
             foreach (int entity in vehiclesList)
             {
@@ -355,7 +320,7 @@ namespace VStancer.Client
                     Vector3 coords = GetEntityCoords(entity, true);
 
                     if (Vector3.Distance(currentCoords, coords) <= Config.ScriptRange)
-                        RefreshVehicleUsingDecorators(entity);
+                        UpdateVehicleUsingDecorators(entity);
                 }
             }
 
@@ -366,54 +331,37 @@ namespace VStancer.Client
         /// The task that updates the script decorators attached on the current vehicle
         /// </summary>
         /// <returns></returns>
-        private async Task UpdateCurrentVehicleDecorators()
+        private async Task UpdatePlayerVehicleDecoratorsTask()
         {
-            var currentTime = (GetGameTimer() - lastTime);
+            long currentTime = (GetGameTimer() - _lastTime);
 
             // Check if decorators needs to be updated
             if (currentTime > Config.Timer)
             {
                 if (CurrentPresetIsValid)
-                    UpdateVehicleDecorators(currentVehicle, CurrentPreset);
+                    UpdateVehicleDecorators(_playerVehicleHandle, CurrentPreset);
 
                 // Also update world vehicles list
-                vehicles = new VehicleEnumerable();
+                _worldVehiclesHandles = new VehicleEnumerable();
 
-                lastTime = GetGameTimer();
+                _lastTime = GetGameTimer();
             }
 
             await Task.FromResult(0);
         }
 
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Disable controls for controller to use the script with the controller
-        /// </summary>
-        private void DisableControls()
-        {
-            DisableControlAction(1, 85, true); // INPUT_VEH_RADIO_WHEEL = DPAD - LEFT
-            DisableControlAction(1, 74, true); // INPUT_VEH_HEADLIGHT = DPAD - RIGHT
-            DisableControlAction(1, 48, true); // INPUT_HUD_SPECIAL = DPAD - DOWN
-            DisableControlAction(1, 27, true); // INPUT_PHONE = DPAD - UP
-            DisableControlAction(1, 80, true); // INPUT_VEH_CIN_CAM = B
-            DisableControlAction(1, 73, true); // INPUT_VEH_DUCK = A
-        }
-
         /// <summary>
         /// Registers the decorators for this script
         /// </summary>
-        private void RegisterDecorators()
+        private void RegisterRequiredDecorators()
         {
             DecorRegister(FrontOffsetID, 1);
             DecorRegister(FrontRotationID, 1);
-            DecorRegister(DefaultFrontOffsetID, 1);
-            DecorRegister(DefaultFrontRotationID, 1);
-
             DecorRegister(RearOffsetID, 1);
             DecorRegister(RearRotationID, 1);
+
+            DecorRegister(DefaultFrontOffsetID, 1);
+            DecorRegister(DefaultFrontRotationID, 1);
             DecorRegister(DefaultRearOffsetID, 1);
             DecorRegister(DefaultRearRotationID, 1);
         }
@@ -422,7 +370,7 @@ namespace VStancer.Client
         /// Removes the decorators from the <paramref name="vehicle"/>
         /// </summary>
         /// <param name="vehicle">The handle of the entity</param>
-        private void RemoveDecorators(int vehicle)
+        private void RemoveDecoratorsFromVehicle(int vehicle)
         {
             if (DecorExistOn(vehicle, FrontOffsetID))
                 DecorRemove(vehicle, FrontOffsetID);
@@ -457,8 +405,8 @@ namespace VStancer.Client
         /// <returns>The float array</returns>
         public float[] GetVstancerPreset(int vehicle)
         {
-            VStancerPreset preset = (vehicle == currentVehicle && CurrentPresetIsValid) ? CurrentPreset : CreatePreset(vehicle);
-            return preset.ToArray();
+            VStancerPreset preset = (vehicle == _playerVehicleHandle && CurrentPresetIsValid) ? CurrentPreset : CreatePresetFromHandle(vehicle);
+            return preset?.ToArray();
         }
 
         /// <summary>
@@ -484,29 +432,31 @@ namespace VStancer.Client
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = VStancerPreset.CalculateFrontWheelsCount(wheelsCount);
 
-            float off_f_def, rot_f_def, off_r_def, rot_r_def;
+            float off_f_def = defaultFrontOffset is float
+                ? (float)defaultFrontOffset
+                : DecorExistOn(vehicle, DefaultFrontOffsetID)
+                ? DecorGetFloat(vehicle, DefaultFrontOffsetID)
+                : GetVehicleWheelXOffset(vehicle, 0);
 
-            if (defaultFrontOffset != null && defaultFrontOffset is float)
-                off_f_def = (float)defaultFrontOffset;
-            else
-                off_f_def = DecorExistOn(vehicle, DefaultFrontOffsetID) ? DecorGetFloat(vehicle, DefaultFrontOffsetID) : GetVehicleWheelXOffset(vehicle, 0);
+            float rot_f_def = defaultFrontRotation is float
+                ? (float)defaultFrontRotation
+                : DecorExistOn(vehicle, DefaultFrontRotationID)
+                ? DecorGetFloat(vehicle, DefaultFrontRotationID)
+                : GetVehicleWheelYRotation(vehicle, 0);
 
-            if (defaultFrontRotation != null && defaultFrontRotation is float)
-                rot_f_def = (float)defaultFrontRotation;
-            else
-                rot_f_def = DecorExistOn(vehicle, DefaultFrontRotationID) ? DecorGetFloat(vehicle, DefaultFrontRotationID) : GetVehicleWheelYRotation(vehicle, 0);
+            float off_r_def = defaultRearOffset is float
+                ? (float)defaultRearOffset
+                : DecorExistOn(vehicle, DefaultRearOffsetID)
+                ? DecorGetFloat(vehicle, DefaultRearOffsetID)
+                : GetVehicleWheelXOffset(vehicle, frontCount);
 
-            if (defaultRearOffset != null && defaultRearOffset is float)
-                off_r_def = (float)defaultRearOffset;
-            else
-                off_r_def = DecorExistOn(vehicle, DefaultRearOffsetID) ? DecorGetFloat(vehicle, DefaultRearOffsetID) : GetVehicleWheelXOffset(vehicle, frontCount);
+            float rot_r_def = defaultRearRotation is float
+                ? (float)defaultRearRotation
+                : DecorExistOn(vehicle, DefaultRearRotationID)
+                ? DecorGetFloat(vehicle, DefaultRearRotationID)
+                : GetVehicleWheelYRotation(vehicle, frontCount);
 
-            if (defaultRearRotation != null && defaultRearRotation is float)
-                rot_r_def = (float)defaultRearRotation;
-            else
-                rot_r_def = DecorExistOn(vehicle, DefaultRearRotationID) ? DecorGetFloat(vehicle, DefaultRearRotationID) : GetVehicleWheelYRotation(vehicle, frontCount);
-
-            if (vehicle == currentVehicle)
+            if (vehicle == _playerVehicleHandle)
             {
                 CurrentPreset = new VStancerPreset(wheelsCount, frontOffset, frontRotation, rearOffset, rearRotation, off_f_def, rot_f_def, off_r_def, rot_r_def);
                 PresetChanged?.Invoke(this, EventArgs.Empty);
@@ -538,7 +488,7 @@ namespace VStancer.Client
             if (DecorExistOn(vehicle, name))
             {
                 float decorValue = DecorGetFloat(vehicle, name);
-                if (!MathUtil.WithinEpsilon(currentValue, decorValue, Epsilon))
+                if (!MathUtil.WithinEpsilon(currentValue, decorValue, _epsilon))
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (Config.Debug)
@@ -547,7 +497,7 @@ namespace VStancer.Client
             }
             else // Decorator doesn't exist, create it if required
             {
-                if (!MathUtil.WithinEpsilon(currentValue, defaultValue, Epsilon))
+                if (!MathUtil.WithinEpsilon(currentValue, defaultValue, _epsilon))
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (Config.Debug)
@@ -581,8 +531,11 @@ namespace VStancer.Client
         /// </summary>
         /// <param name="vehicle">The handle of the entity</param>
         /// <returns></returns>
-        private VStancerPreset CreatePreset(int vehicle)
+        private VStancerPreset CreatePresetFromHandle(int vehicle)
         {
+            if (!DoesEntityExist(vehicle))
+                return null;
+
             if (Config.Debug && IsVehicleDamaged(vehicle))
                 Screen.ShowNotification($"~o~Warning~w~: You are creating a vstancer preset for a damaged vehicle, default position and rotation of the wheels might be wrong");
 
@@ -606,7 +559,7 @@ namespace VStancer.Client
         /// <summary>
         /// Refreshes the <paramref name="vehicle"/> with values from the <paramref name="preset"/>
         /// </summary>
-        private void RefreshVehicleUsingPreset(int vehicle, VStancerPreset preset)
+        private void UpdateVehicleUsingPreset(int vehicle, VStancerPreset preset)
         {
             if (!DoesEntityExist(vehicle) || preset == null)
                 return;
@@ -623,7 +576,7 @@ namespace VStancer.Client
         /// Refreshes the <paramref name="vehicle"/> with values from its decorators (if exist)
         /// </summary>
         /// <param name="vehicle">The handle of the entity</param>
-        private void RefreshVehicleUsingDecorators(int vehicle)
+        private void UpdateVehicleUsingDecorators(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = VStancerPreset.CalculateFrontWheelsCount(wheelsCount);
@@ -731,11 +684,11 @@ namespace VStancer.Client
         /// <param name="vehiclesList">The list of the vehicles' handles</param>
         private void PrintVehiclesWithDecorators(IEnumerable<int> vehiclesList)
         {
-            IEnumerable<int> entities = vehiclesList.Where(entity => HasDecorators(entity));
+            IEnumerable<int> entities = vehiclesList.Where(entity => EntityHasDecorators(entity));
 
             Debug.WriteLine($"{Globals.ScriptName}: Vehicles with decorators: {entities.Count()}");
 
-            foreach (var item in entities)
+            foreach (int item in entities)
                 Debug.WriteLine($"Vehicle: {item}");
         }
 
@@ -744,7 +697,7 @@ namespace VStancer.Client
         /// </summary>
         /// <param name="entity">The handle of the entity</param>
         /// <returns></returns>
-        private bool HasDecorators(int entity)
+        private bool EntityHasDecorators(int entity)
         {
             return (
                 DecorExistOn(entity, FrontOffsetID) ||
@@ -765,7 +718,7 @@ namespace VStancer.Client
         private VStancerConfig LoadConfig(string filename = "config.json")
         {
             VStancerConfig config;
-            
+
             try
             {
                 string strings = LoadResourceFile(Globals.ResourceName, filename);
@@ -783,7 +736,5 @@ namespace VStancer.Client
 
             return config;
         }
-
-        #endregion
     }
 }
