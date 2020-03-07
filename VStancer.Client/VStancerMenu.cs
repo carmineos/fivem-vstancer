@@ -194,6 +194,7 @@ namespace VStancer.Client
             {
                 menuController = new MenuController();
                 MenuController.AddMenu(editorMenu);
+                MenuController.AddSubmenu(editorMenu, personalPresetsMenu);
                 MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
                 MenuController.MenuToggleKey = (Control)vstancerEditor.Config.ToggleMenuControl;
                 MenuController.EnableMenuToggleKeyOnController = false;
