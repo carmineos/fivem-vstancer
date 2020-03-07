@@ -7,8 +7,11 @@ namespace VStancer.Client
     public class VStancerPreset : IEquatable<VStancerPreset>
     {
         private const float Epsilon = 0.001f;
-        public int WheelsCount { get; private set; }
-        public int FrontWheelsCount { get; private set; }
+
+        //public event EventHandler PresetChanged;
+
+        public int WheelsCount { get; set; }
+        public int FrontWheelsCount { get; set; }
 
 
         public VStancerNode[] Nodes { get; set; }
@@ -21,6 +24,8 @@ namespace VStancer.Client
             {
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
+
+                //PresetChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -31,6 +36,8 @@ namespace VStancer.Client
             {
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
+
+                //PresetChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -41,6 +48,8 @@ namespace VStancer.Client
             {
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
+
+                //PresetChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -51,8 +60,15 @@ namespace VStancer.Client
             {
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
+
+                //PresetChanged?.Invoke(this, EventArgs.Empty);
             }
         }
+
+        public float DefaultFrontPositionX { get => DefaultNodes[0].PositionX; }
+        public float DefaultRearPositionX { get => DefaultNodes[FrontWheelsCount].PositionX; }
+        public float DefaultFrontRotationY { get => DefaultNodes[0].RotationY; }
+        public float DefaultRearRotationY { get => DefaultNodes[FrontWheelsCount].RotationY; }
 
         public bool IsEdited
         {

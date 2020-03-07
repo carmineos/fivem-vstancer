@@ -524,15 +524,15 @@ namespace VStancer.Client
         {
             int frontCount = preset.FrontWheelsCount;
 
-            UpdateFloatDecorator(vehicle, DefaultFrontOffsetID, preset.DefaultNodes[0].PositionX, preset.Nodes[0].PositionX);
-            UpdateFloatDecorator(vehicle, DefaultFrontRotationID, preset.DefaultNodes[0].RotationY, preset.Nodes[0].RotationY);
-            UpdateFloatDecorator(vehicle, DefaultRearOffsetID, preset.DefaultNodes[frontCount].PositionX, preset.Nodes[frontCount].PositionX);
-            UpdateFloatDecorator(vehicle, DefaultRearRotationID, preset.DefaultNodes[frontCount].RotationY, preset.Nodes[frontCount].RotationY);
+            UpdateFloatDecorator(vehicle, DefaultFrontOffsetID, preset.DefaultFrontPositionX, preset.FrontPositionX);
+            UpdateFloatDecorator(vehicle, DefaultFrontRotationID, preset.DefaultFrontRotationY, preset.FrontRotationY);
+            UpdateFloatDecorator(vehicle, DefaultRearOffsetID, preset.DefaultRearPositionX, preset.RearPositionX);
+            UpdateFloatDecorator(vehicle, DefaultRearRotationID, preset.DefaultRearRotationY, preset.RearRotationY);
 
-            UpdateFloatDecorator(vehicle, FrontOffsetID, preset.Nodes[0].PositionX, preset.DefaultNodes[0].PositionX);
-            UpdateFloatDecorator(vehicle, FrontRotationID, preset.Nodes[0].RotationY, preset.DefaultNodes[0].RotationY);
-            UpdateFloatDecorator(vehicle, RearOffsetID, preset.Nodes[frontCount].PositionX, preset.DefaultNodes[frontCount].PositionX);
-            UpdateFloatDecorator(vehicle, RearRotationID, preset.Nodes[frontCount].RotationY, preset.DefaultNodes[frontCount].RotationY);
+            UpdateFloatDecorator(vehicle, FrontOffsetID, preset.FrontPositionX, preset.DefaultFrontPositionX);
+            UpdateFloatDecorator(vehicle, FrontRotationID, preset.FrontRotationY, preset.DefaultFrontRotationY);
+            UpdateFloatDecorator(vehicle, RearOffsetID, preset.RearPositionX, preset.DefaultRearPositionX);
+            UpdateFloatDecorator(vehicle, RearRotationID, preset.RearRotationY, preset.DefaultRearRotationY);
         }
 
         /// <summary>
@@ -576,6 +576,7 @@ namespace VStancer.Client
             int wheelsCount = preset.WheelsCount;
             for (int index = 0; index < wheelsCount; index++)
             {
+                // TODO: Avoid exposing preset nodes
                 SetVehicleWheelXOffset(vehicle, index, preset.Nodes[index].PositionX);
                 SetVehicleWheelYRotation(vehicle, index, preset.Nodes[index].RotationY);
             }
@@ -751,6 +752,8 @@ namespace VStancer.Client
             var loadedPreset = LocalPresetsManager.Load(presetKey);
             if (loadedPreset != null)
             {
+                CitizenFX.Core.Debug.WriteLine(loadedPreset.ToString());
+
                 // Assign new preset
                 CurrentPreset.CopyFrom(loadedPreset);
                 

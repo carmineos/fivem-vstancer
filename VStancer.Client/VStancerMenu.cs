@@ -232,10 +232,10 @@ namespace VStancer.Client
             if (!vstancerEditor.CurrentPresetIsValid)
                 return;
 
-            AddDynamicFloatList(editorMenu, "Front Track Width", -CurrentPreset.DefaultNodes[0].PositionX, -CurrentPreset.Nodes[0].PositionX, vstancerEditor.Config.FrontLimits.PositionX, FrontOffsetID);
-            AddDynamicFloatList(editorMenu, "Rear Track Width", -CurrentPreset.DefaultNodes[CurrentPreset.FrontWheelsCount].PositionX, -CurrentPreset.Nodes[CurrentPreset.FrontWheelsCount].PositionX, vstancerEditor.Config.RearLimits.PositionX, RearOffsetID);
-            AddDynamicFloatList(editorMenu, "Front Camber", CurrentPreset.DefaultNodes[0].RotationY, CurrentPreset.Nodes[0].RotationY, vstancerEditor.Config.FrontLimits.RotationY, FrontRotationID);
-            AddDynamicFloatList(editorMenu, "Rear Camber", CurrentPreset.DefaultNodes[CurrentPreset.FrontWheelsCount].RotationY, CurrentPreset.Nodes[CurrentPreset.FrontWheelsCount].RotationY, vstancerEditor.Config.RearLimits.RotationY, RearRotationID);
+            AddDynamicFloatList(editorMenu, "Front Track Width", -CurrentPreset.DefaultFrontPositionX, -CurrentPreset.FrontPositionX, vstancerEditor.Config.FrontLimits.PositionX, FrontOffsetID);
+            AddDynamicFloatList(editorMenu, "Rear Track Width", -CurrentPreset.DefaultRearPositionX, -CurrentPreset.RearPositionX, vstancerEditor.Config.RearLimits.PositionX, RearOffsetID);
+            AddDynamicFloatList(editorMenu, "Front Camber", CurrentPreset.DefaultFrontRotationY, CurrentPreset.FrontRotationY, vstancerEditor.Config.FrontLimits.RotationY, FrontRotationID);
+            AddDynamicFloatList(editorMenu, "Rear Camber", CurrentPreset.DefaultRearRotationY, CurrentPreset.RearRotationY, vstancerEditor.Config.RearLimits.RotationY, RearRotationID);
             editorMenu.AddMenuItem(new MenuItem("Reset", "Restores the default values") { ItemData = ResetID });
 
             // Create Personal Presets sub menu and bind item to a button
