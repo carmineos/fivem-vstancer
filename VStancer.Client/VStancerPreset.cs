@@ -6,7 +6,7 @@ namespace VStancer.Client
 {
     public class VStancerPreset : IEquatable<VStancerPreset>
     {
-        public static float Epsilon { get; private set; } = 0.001f;
+        private const float Epsilon = 0.001f;
         public int WheelsCount { get; private set; }
         public int FrontWheelsCount { get; private set; }
 
@@ -197,6 +197,17 @@ namespace VStancer.Client
                 DefaultNodes[FrontWheelsCount].PositionX,
                 DefaultNodes[FrontWheelsCount].RotationY,
             };
+        }
+
+        public void CopyFrom(VStancerPreset other)
+        {
+            if (other == null)
+                return;
+
+            FrontPositionX = other.FrontPositionX;
+            FrontRotationY = other.FrontRotationY;
+            RearPositionX = other.RearPositionX;
+            RearRotationY = other.RearRotationY;
         }
     }
 

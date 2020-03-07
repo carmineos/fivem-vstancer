@@ -63,11 +63,14 @@ namespace VStancer.Client
 
         public VStancerConfig Config { get; private set; }
 
+        public IPresetManager<string, VStancerPreset> LocalPresetsManager { get; private set; }
+
         /// <summary>
         /// Triggered when <see cref="CurrentPreset"/> is changed
         /// </summary>
         public event EventHandler PresetChanged;
 
+        public event EventHandler PersonalPresetsListChanged;
         /// <summary>
         /// Triggered when the client wants to manually toggle the menu visibility
         /// using the optional command/event
@@ -145,6 +148,8 @@ namespace VStancer.Client
 
             RegisterRequiredDecorators();
             Config = LoadConfig();
+
+            LocalPresetsManager = new KvpPresetManager(Globals.KvpPrefix);
 
             #region Register Commands
 
@@ -226,6 +231,10 @@ namespace VStancer.Client
 
             _vstancerMenu.MenuResetPresetButtonPressed += (sender, args) => OnMenuResetPresetButtonPressed();
             _vstancerMenu.MenuPresetValueChanged += OnMenuPresetValueChanged;
+
+            _vstancerMenu.MenuApplyPersonalPresetButtonPressed += GUI_MenuApplyPersonalPresetButtonPressed;
+            _vstancerMenu.MenuSavePersonalPresetButtonPressed += GUI_MenuSavePersonalPresetButtonPressed;
+            _vstancerMenu.MenuDeletePersonalPresetButtonPressed += GUI_MenuDeletePersonalPresetButtonPressed;
 
             Tick += GetPlayerVehicleTask;
             Tick += UpdatePlayerVehicleTask;
@@ -735,6 +744,75 @@ namespace VStancer.Client
             }
 
             return config;
+        }
+
+        private async void GUI_MenuApplyPersonalPresetButtonPressed(object sender, string presetKey)
+        {
+            var loadedPreset = LocalPresetsManager.Load(presetKey);
+            if (loadedPreset != null)
+            {
+                // Assign new preset
+                CurrentPreset.CopyFrom(loadedPreset);
+                
+                // Force refresh 
+                UpdateVehicleUsingPreset(_playerVehicleHandle, CurrentPreset);
+                
+                await Delay(200);
+                PresetChanged?.Invoke(this, EventArgs.Empty);
+
+                Screen.ShowNotification($"Personal preset ~b~{presetKey}~w~ applied");
+            }
+            else
+                Screen.ShowNotification($"~r~ERROR~w~ Personal preset ~b~{presetKey}~w~ corrupted");
+
+            await Delay(200);
+        }
+
+        private async void GUI_MenuSavePersonalPresetButtonPressed(object sender, string presetName)
+        {
+            if (LocalPresetsManager.Save(presetName, CurrentPreset))
+            {
+                await Delay(200);
+                PersonalPresetsListChanged?.Invoke(this, EventArgs.Empty);
+                Screen.ShowNotification($"Personal preset ~g~{presetName}~w~ saved");
+            }
+            else
+                Screen.ShowNotification($"~r~ERROR~w~ The name {presetName} is invalid or already used.");
+        }
+
+        private async void GUI_MenuDeletePersonalPresetButtonPressed(object sender, string presetKey)
+        {
+            if (LocalPresetsManager.Delete(presetKey))
+            {
+                await Delay(200);
+                PersonalPresetsListChanged?.Invoke(this, EventArgs.Empty);
+                Screen.ShowNotification($"Personal preset ~r~{presetKey}~w~ deleted");
+            }
+        }
+
+
+        /// <summary>
+        /// Get a string from the user using the on screen keyboard
+        /// </summary>
+        /// <param name="defaultText">The default value to display</param>
+        /// <returns></returns>
+        public async Task<string> GetOnScreenString(string defaultText)
+        {
+            //var currentMenu = MenuController.GetCurrentMenu();
+            //currentMenu.Visible = false;
+            //MenuController.DisableMenuButtons = true;
+
+            //DisableAllControlActions(1);
+
+            DisplayOnscreenKeyboard(1, "VSTANCER_ENTER_VALUE", "", defaultText, "", "", "", 128);
+            while (UpdateOnscreenKeyboard() != 1 && UpdateOnscreenKeyboard() != 2) await Delay(100);
+
+            //EnableAllControlActions(1);
+
+            //MenuController.DisableMenuButtons = false;
+            //currentMenu.Visible = true;
+
+            return GetOnscreenKeyboardResult();
         }
     }
 }

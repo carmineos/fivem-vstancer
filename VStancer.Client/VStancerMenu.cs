@@ -26,6 +26,8 @@ namespace VStancer.Client
         /// </summary>
         private Menu editorMenu;
 
+        private Menu personalPresetsMenu;
+
         #endregion
 
         #region Public Events
@@ -47,7 +49,11 @@ namespace VStancer.Client
         /// </summary>
         public event EventHandler MenuResetPresetButtonPressed;
 
+        public event EventHandler<string> MenuApplyPersonalPresetButtonPressed;
+        public event EventHandler<string> MenuSavePersonalPresetButtonPressed;
+        public event EventHandler<string> MenuDeletePersonalPresetButtonPressed;
         #endregion
+
 
         #region Editor Properties
 
@@ -149,6 +155,39 @@ namespace VStancer.Client
                 };
             }
 
+            if (personalPresetsMenu == null)
+            {
+                personalPresetsMenu = new Menu(Globals.ScriptName, "Personal Presets");
+
+                personalPresetsMenu.OnItemSelect += PersonalPresetsMenu_OnItemSelect;
+
+                #region Save/Delete Handler
+
+                personalPresetsMenu.InstructionalButtons.Add(Control.PhoneExtraOption, GetLabelText("ITEM_SAVE"));
+                personalPresetsMenu.InstructionalButtons.Add(Control.PhoneOption, GetLabelText("ITEM_DEL"));
+
+                // Disable Controls binded on the same key
+                personalPresetsMenu.ButtonPressHandlers.Add(new Menu.ButtonPressHandler(Control.SelectWeapon, Menu.ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) => { }), true));
+                personalPresetsMenu.ButtonPressHandlers.Add(new Menu.ButtonPressHandler(Control.VehicleExit, Menu.ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) => { }), true));
+
+                personalPresetsMenu.ButtonPressHandlers.Add(new Menu.ButtonPressHandler(Control.PhoneExtraOption, Menu.ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>(async (sender, control) =>
+                {
+                    string presetName = await vstancerEditor.GetOnScreenString("");
+                    MenuSavePersonalPresetButtonPressed?.Invoke(personalPresetsMenu, presetName);
+                }), true));
+                personalPresetsMenu.ButtonPressHandlers.Add(new Menu.ButtonPressHandler(Control.PhoneOption, Menu.ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) =>
+                {
+                    if (personalPresetsMenu.GetMenuItems().Count > 0)
+                    {
+                        string presetName = personalPresetsMenu.GetMenuItems()[personalPresetsMenu.CurrentIndex].Text;
+                        MenuDeletePersonalPresetButtonPressed?.Invoke(personalPresetsMenu, presetName);
+                    }
+                }), true));
+
+                #endregion
+            }
+
+            UpdatePersonalPresetsMenu();
             UpdateEditorMenu();
 
             if (menuController == null)
@@ -159,6 +198,24 @@ namespace VStancer.Client
                 MenuController.MenuToggleKey = (Control)vstancerEditor.Config.ToggleMenuControl;
                 MenuController.EnableMenuToggleKeyOnController = false;
                 MenuController.MainMenu = editorMenu;
+            }
+        }
+
+        private void PersonalPresetsMenu_OnItemSelect(Menu menu, MenuItem menuItem, int itemIndex) => MenuApplyPersonalPresetButtonPressed?.Invoke(menu, menuItem.Text);
+
+        /// <summary>
+        /// Rebuild the personal presets menu
+        /// </summary>
+        private void UpdatePersonalPresetsMenu()
+        {
+            if (personalPresetsMenu == null)
+                return;
+
+            personalPresetsMenu.ClearMenuItems();
+
+            foreach (var key in vstancerEditor.LocalPresetsManager.GetKeys())
+            {
+                personalPresetsMenu.AddMenuItem(new MenuItem(key.Remove(0, Globals.KvpPrefix.Length)) { ItemData = key });
             }
         }
 
@@ -180,6 +237,14 @@ namespace VStancer.Client
             AddDynamicFloatList(editorMenu, "Front Camber", CurrentPreset.DefaultNodes[0].RotationY, CurrentPreset.Nodes[0].RotationY, vstancerEditor.Config.FrontLimits.RotationY, FrontRotationID);
             AddDynamicFloatList(editorMenu, "Rear Camber", CurrentPreset.DefaultNodes[CurrentPreset.FrontWheelsCount].RotationY, CurrentPreset.Nodes[CurrentPreset.FrontWheelsCount].RotationY, vstancerEditor.Config.RearLimits.RotationY, RearRotationID);
             editorMenu.AddMenuItem(new MenuItem("Reset", "Restores the default values") { ItemData = ResetID });
+
+            // Create Personal Presets sub menu and bind item to a button
+            var PersonalPresetsItem = new MenuItem("Personal Presets", "The vstancer presets saved by you.")
+            {
+                Label = "→→→"
+            };
+            editorMenu.AddMenuItem(PersonalPresetsItem);
+            MenuController.BindMenuItem(editorMenu, personalPresetsMenu, PersonalPresetsItem);
         }
 
         #endregion
@@ -202,6 +267,8 @@ namespace VStancer.Client
                 editorMenu.Visible = !editorMenu.Visible;
             });
             InitializeMenu();
+
+            vstancerEditor.PersonalPresetsListChanged += new EventHandler((sender, args) => UpdatePersonalPresetsMenu());
         }
 
         #endregion
