@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using static CitizenFX.Core.Native.API;
 
@@ -10,6 +11,8 @@ namespace VStancer.Client
     public class KvpPresetManager : IPresetManager<string, VStancerPreset>
     {
         private string mKvpPrefix;
+
+        public event EventHandler PresetsListChanged;
 
         public KvpPresetManager(string prefix)
         {
@@ -32,6 +35,9 @@ namespace VStancer.Client
             // Delete the KVP
             DeleteResourceKvp(key);
 
+            // Invoke the event
+            PresetsListChanged?.Invoke(this, EventArgs.Empty);
+
             return true;
         }
 
@@ -53,6 +59,9 @@ namespace VStancer.Client
 
             // Save the KVP
             SetResourceKvp(key, json);
+
+            // Invoke the event
+            PresetsListChanged?.Invoke(this, EventArgs.Empty);
 
             return true;
         }

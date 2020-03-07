@@ -59,18 +59,26 @@ namespace VStancer.Client
         /// </summary>
         public bool CurrentPresetIsValid => _playerVehicleHandle != -1 && CurrentPreset != null;
 
+        /// <summary>
+        /// The preset associated to the player's vehicle
+        /// </summary>
         public VStancerPreset CurrentPreset { get; private set; }
 
+        /// <summary>
+        /// The configuration of the script
+        /// </summary>
         public VStancerConfig Config { get; private set; }
 
+        /// <summary>
+        /// The service which manages the local presets
+        /// </summary>
         public IPresetManager<string, VStancerPreset> LocalPresetsManager { get; private set; }
 
         /// <summary>
-        /// Triggered when <see cref="CurrentPreset"/> is changed
+        /// Invoked when <see cref="CurrentPreset"/> is changed
         /// </summary>
         public event EventHandler PresetChanged;
 
-        public event EventHandler PersonalPresetsListChanged;
         /// <summary>
         /// Triggered when the client wants to manually toggle the menu visibility
         /// using the optional command/event
@@ -763,24 +771,20 @@ namespace VStancer.Client
             await Delay(200);
         }
 
-        private async void GUI_MenuSavePersonalPresetButtonPressed(object sender, string presetName)
+        private void GUI_MenuSavePersonalPresetButtonPressed(object sender, string presetName)
         {
             if (LocalPresetsManager.Save(presetName, CurrentPreset))
             {
-                await Delay(200);
-                PersonalPresetsListChanged?.Invoke(this, EventArgs.Empty);
                 Screen.ShowNotification($"Personal preset ~g~{presetName}~w~ saved");
             }
             else
                 Screen.ShowNotification($"~r~ERROR~w~ The name {presetName} is invalid or already used.");
         }
 
-        private async void GUI_MenuDeletePersonalPresetButtonPressed(object sender, string presetKey)
+        private void GUI_MenuDeletePersonalPresetButtonPressed(object sender, string presetKey)
         {
             if (LocalPresetsManager.Delete(presetKey))
             {
-                await Delay(200);
-                PersonalPresetsListChanged?.Invoke(this, EventArgs.Empty);
                 Screen.ShowNotification($"Personal preset ~r~{presetKey}~w~ deleted");
             }
         }

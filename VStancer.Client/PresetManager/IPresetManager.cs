@@ -1,9 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace VStancer.Client
 {
     public interface IPresetManager<TKey, TValue>
     {
+        /// <summary>
+        /// Invoked when an element is saved or deleted
+        /// </summary>
+        event EventHandler PresetsListChanged;
+
         /// <summary>
         /// Saves the <paramref name="preset"/> using the <paramref name="name"/> as preset name
         /// </summary>

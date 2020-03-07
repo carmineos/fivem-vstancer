@@ -270,7 +270,7 @@ namespace VStancer.Client
             AddTextEntry("VSTANCER_ENTER_PRESET_NAME", "Enter a name for the preset");
             InitializeMenu();
 
-            _vstancerEditor.PersonalPresetsListChanged += new EventHandler((sender, args) => UpdatePersonalPresetsMenu());
+            _vstancerEditor.LocalPresetsManager.PresetsListChanged += new EventHandler((sender, args) => UpdatePersonalPresetsMenu());
         }
 
         public void HideUI()
