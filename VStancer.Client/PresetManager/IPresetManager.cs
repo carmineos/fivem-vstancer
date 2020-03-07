@@ -20,12 +20,16 @@ namespace VStancer.Client
         bool Delete(TKey name);
 
         /// <summary>
-        /// Loads and the returns the <see cref="HandlingPreset"/> named <paramref name="name"/>
+        /// Loads and the returns the <see cref="VStancerPreset"/> named <paramref name="name"/>
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
         TValue Load(TKey name);
 
+        /// <summary>
+        /// Returns the list of all the saved keys
+        /// </summary>
+        /// <returns></returns>
         IEnumerable<TKey> GetKeys();
     }
 }

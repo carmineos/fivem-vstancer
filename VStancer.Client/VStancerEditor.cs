@@ -40,7 +40,7 @@ namespace VStancer.Client
         /// <summary>
         /// The delta among which two float are considered equals
         /// </summary>
-        private readonly float _epsilon = 0.001f;
+        private const float Epsilon = 0.001f;
 
         public const string FrontOffsetID = "vstancer_off_f";
         public const string FrontRotationID = "vstancer_rot_f";
@@ -151,8 +151,6 @@ namespace VStancer.Client
 
             LocalPresetsManager = new KvpPresetManager(Globals.KvpPrefix);
 
-            #region Register Commands
-
             RegisterCommand("vstancer_range", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
@@ -212,15 +210,11 @@ namespace VStancer.Client
                 PrintVehiclesWithDecorators(_worldVehiclesHandles);
             }), false);
 
-            #endregion
-
-
             if (Config.ExposeCommand)
                 RegisterCommand("vstancer", new Action<int, dynamic>((source, args) => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }), false);
 
             if (Config.ExposeEvent)
                 EventHandlers.Add("vstancer:toggleMenu", new Action(() => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }));
-
 
 
             Exports.Add("SetVstancerPreset", new Action<int, float, float, float, float, object, object, object, object>(SetVstancerPreset));
@@ -497,7 +491,7 @@ namespace VStancer.Client
             if (DecorExistOn(vehicle, name))
             {
                 float decorValue = DecorGetFloat(vehicle, name);
-                if (!MathUtil.WithinEpsilon(currentValue, decorValue, _epsilon))
+                if (!MathUtil.WithinEpsilon(currentValue, decorValue, Epsilon))
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (Config.Debug)
@@ -506,7 +500,7 @@ namespace VStancer.Client
             }
             else // Decorator doesn't exist, create it if required
             {
-                if (!MathUtil.WithinEpsilon(currentValue, defaultValue, _epsilon))
+                if (!MathUtil.WithinEpsilon(currentValue, defaultValue, Epsilon))
                 {
                     DecorSetFloat(vehicle, name, currentValue);
                     if (Config.Debug)
@@ -752,8 +746,6 @@ namespace VStancer.Client
             var loadedPreset = LocalPresetsManager.Load(presetKey);
             if (loadedPreset != null)
             {
-                CitizenFX.Core.Debug.WriteLine(loadedPreset.ToString());
-
                 // Assign new preset
                 CurrentPreset.CopyFrom(loadedPreset);
                 
@@ -799,7 +791,7 @@ namespace VStancer.Client
         /// </summary>
         /// <param name="defaultText">The default value to display</param>
         /// <returns></returns>
-        public async Task<string> GetOnScreenString(string defaultText)
+        public async Task<string> GetOnScreenString(string title, string defaultText)
         {
             //var currentMenu = MenuController.GetCurrentMenu();
             //currentMenu.Visible = false;
@@ -807,7 +799,7 @@ namespace VStancer.Client
 
             //DisableAllControlActions(1);
 
-            DisplayOnscreenKeyboard(1, "VSTANCER_ENTER_VALUE", "", defaultText, "", "", "", 128);
+            DisplayOnscreenKeyboard(1, title, "", defaultText, "", "", "", 128);
             while (UpdateOnscreenKeyboard() != 1 && UpdateOnscreenKeyboard() != 2) await Delay(100);
 
             //EnableAllControlActions(1);
