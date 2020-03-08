@@ -77,68 +77,13 @@ namespace VStancer.Client
         /// <summary>
         /// Invoked when <see cref="CurrentPreset"/> is changed
         /// </summary>
-        public event EventHandler PresetChanged;
+        public event EventHandler NewPresetCreated;
 
         /// <summary>
         /// Triggered when the client wants to manually toggle the menu visibility
         /// using the optional command/event
         /// </summary>
         public event EventHandler ToggleMenuVisibility;
-
-        /// <summary>
-        /// Invoked when the reset button is pressed in the UI
-        /// </summary>
-        private async void OnMenuResetPresetButtonPressed()
-        {
-            if (!CurrentPresetIsValid)
-                return;
-
-            CurrentPreset.Reset();
-            RemoveDecoratorsFromVehicle(_playerVehicleHandle);
-
-            // Force one single refresh to update rendering at correct position after reset
-            // This is required because otherwise the vehicle won't update immediately
-            UpdateVehicleUsingPreset(_playerVehicleHandle, CurrentPreset);
-
-            await Delay(200);
-            PresetChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <summary>
-        /// Invoked when a value is changed in the UI
-        /// </summary>
-        /// <param name="id">The id of the property</param>
-        /// <param name="value">The value of the property</param>
-        private void OnMenuPresetValueChanged(string id, string newValue)
-        {
-            if (!CurrentPresetIsValid)
-                return;
-
-            if (!float.TryParse(newValue, out float value))
-                return;
-
-            switch (id)
-            {
-                case FrontRotationID:
-                    CurrentPreset.FrontRotationY = value;
-                    break;
-                case RearRotationID:
-                    CurrentPreset.RearRotationY = value;
-                    break;
-                case FrontOffsetID:
-                    CurrentPreset.FrontPositionX = -value;
-                    break;
-                case RearOffsetID:
-                    CurrentPreset.RearPositionX = -value;
-                    break;
-                default:
-                    break;
-            }
-
-            // Force one single refresh to update rendering at correct position after reset
-            if (!CurrentPreset.IsEdited)
-                UpdateVehicleUsingPreset(_playerVehicleHandle, CurrentPreset);
-        }
 
         public VStancerEditor()
         {
@@ -231,12 +176,12 @@ namespace VStancer.Client
             // Create a script for the menu ...
             _vstancerMenu = new VStancerMenu(this);
 
-            _vstancerMenu.MenuResetPresetButtonPressed += (sender, args) => OnMenuResetPresetButtonPressed();
-            _vstancerMenu.MenuPresetValueChanged += OnMenuPresetValueChanged;
+            _vstancerMenu.EditorMenuResetPreset += OnEditorMenuResetPresetInvoked;
+            _vstancerMenu.EditorMenuPresetValueChanged += OnEditorMenuPresetValueChanged;
 
-            _vstancerMenu.MenuApplyPersonalPresetButtonPressed += GUI_MenuApplyPersonalPresetButtonPressed;
-            _vstancerMenu.MenuSavePersonalPresetButtonPressed += GUI_MenuSavePersonalPresetButtonPressed;
-            _vstancerMenu.MenuDeletePersonalPresetButtonPressed += GUI_MenuDeletePersonalPresetButtonPressed;
+            _vstancerMenu.PersonalPresetsMenuApplyPreset += OnPersonalPresetsMenuApplyPresetInvoked;
+            _vstancerMenu.PersonalPresetsMenuSavePreset += OnPersonalPresetsMenuSavePresetInvoked;
+            _vstancerMenu.PersonalPresetsMenuDeletePreset += OnPersonalPresetsMenuDeletePresetInvoked;
 
             Tick += GetPlayerVehicleTask;
             Tick += UpdatePlayerVehicleTask;
@@ -251,6 +196,41 @@ namespace VStancer.Client
                 _vstancerMenu.HideUI();
 
             await Task.FromResult(0);
+        }
+
+        /// <summary>
+        /// Invalidates the preset
+        /// </summary>
+        private void InvalidatePreset()
+        {
+            if(CurrentPresetIsValid)
+            {
+                CurrentPreset.PresetEdited -= OnPresetEdited;
+                CurrentPreset = null;
+
+                _playerVehicleHandle = -1;
+
+                Tick -= UpdatePlayerVehicleTask;
+            }
+        }
+
+        /// <summary>
+        /// Invoked when a value of <see cref="CurrentPreset"/> changes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
+        private void OnPresetEdited(object sender, EventArgs eventArgs)
+        {
+            if (!CurrentPresetIsValid)
+                return;
+
+            // If false then this has been invoked by after a reset
+            if(!CurrentPreset.IsEdited)
+                RemoveDecoratorsFromVehicle(_playerVehicleHandle);
+
+            // Force one single refresh to update rendering at correct position after reset
+            // This is required because otherwise the vehicle won't update immediately as
+            UpdateVehicleUsingPreset(_playerVehicleHandle, CurrentPreset);
         }
 
         /// <summary>
@@ -270,32 +250,24 @@ namespace VStancer.Client
                     // Update current vehicle and get its preset
                     if (vehicle != _playerVehicleHandle)
                     {
+                        InvalidatePreset();
+
                         CurrentPreset = CreatePresetFromHandle(vehicle);
+                        CurrentPreset.PresetEdited += OnPresetEdited;
+
                         _playerVehicleHandle = vehicle;
-                        PresetChanged?.Invoke(this, EventArgs.Empty);
+                        NewPresetCreated?.Invoke(this, EventArgs.Empty);
                         Tick += UpdatePlayerVehicleTask;
                     }
                 }
                 else
                 {
-                    if (CurrentPresetIsValid)
-                    {
-                        // If current vehicle isn't a car or player isn't driving current vehicle or vehicle is dead
-                        CurrentPreset = null;
-                        _playerVehicleHandle = -1;
-                        Tick -= UpdatePlayerVehicleTask;
-                    }
+                    InvalidatePreset();
                 }
             }
             else
             {
-                if (CurrentPresetIsValid)
-                {
-                    // If player isn't in any vehicle
-                    CurrentPreset = null;
-                    _playerVehicleHandle = -1;
-                    Tick -= UpdatePlayerVehicleTask;
-                }
+                InvalidatePreset();
             }
 
             await Task.FromResult(0);
@@ -470,7 +442,9 @@ namespace VStancer.Client
             if (vehicle == _playerVehicleHandle)
             {
                 CurrentPreset = new VStancerPreset(wheelsCount, frontOffset, frontRotation, rearOffset, rearRotation, off_f_def, rot_f_def, off_r_def, rot_r_def);
-                PresetChanged?.Invoke(this, EventArgs.Empty);
+                CurrentPreset.PresetEdited += OnPresetEdited;
+
+                NewPresetCreated?.Invoke(this, EventArgs.Empty);
             }
             else
             {
@@ -749,9 +723,10 @@ namespace VStancer.Client
             return config;
         }
 
-        private async void GUI_MenuApplyPersonalPresetButtonPressed(object sender, string presetKey)
+        private async void OnPersonalPresetsMenuApplyPresetInvoked(object sender, string presetKey)
         {
             var loadedPreset = LocalPresetsManager.Load(presetKey);
+            
             if (loadedPreset != null)
             {
                 // Assign new preset
@@ -760,18 +735,18 @@ namespace VStancer.Client
                 // Force refresh 
                 UpdateVehicleUsingPreset(_playerVehicleHandle, CurrentPreset);
                 
-                await Delay(200);
-                PresetChanged?.Invoke(this, EventArgs.Empty);
-
                 Screen.ShowNotification($"Personal preset ~b~{presetKey}~w~ applied");
+                
+                await Delay(200);
+                NewPresetCreated?.Invoke(this, EventArgs.Empty);
             }
             else
                 Screen.ShowNotification($"~r~ERROR~w~ Personal preset ~b~{presetKey}~w~ corrupted");
 
-            await Delay(200);
+            await Task.FromResult(0);
         }
 
-        private void GUI_MenuSavePersonalPresetButtonPressed(object sender, string presetName)
+        private void OnPersonalPresetsMenuSavePresetInvoked(object sender, string presetName)
         {
             if (LocalPresetsManager.Save(presetName, CurrentPreset))
             {
@@ -781,14 +756,64 @@ namespace VStancer.Client
                 Screen.ShowNotification($"~r~ERROR~w~ The name {presetName} is invalid or already used.");
         }
 
-        private void GUI_MenuDeletePersonalPresetButtonPressed(object sender, string presetKey)
+        private void OnPersonalPresetsMenuDeletePresetInvoked(object sender, string presetKey)
         {
             if (LocalPresetsManager.Delete(presetKey))
             {
                 Screen.ShowNotification($"Personal preset ~r~{presetKey}~w~ deleted");
             }
+            else
+                Screen.ShowNotification($"~r~ERROR~w~ No preset found with {presetKey} key.");
         }
 
+        /// <summary>
+        /// Invoked when the reset button is pressed in the UI
+        /// </summary>
+        private async void OnEditorMenuResetPresetInvoked(object sender, EventArgs eventArgs)
+        {
+            if (!CurrentPresetIsValid)
+                return;
+
+            CurrentPreset.Reset();
+
+            await Delay(200);
+
+            // Used to updated the UI
+            // TODO: Maybe change this
+            NewPresetCreated?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Invoked when a value is changed in the UI
+        /// </summary>
+        /// <param name="id">The id of the property</param>
+        /// <param name="value">The value of the property</param>
+        private void OnEditorMenuPresetValueChanged(string id, string newValue)
+        {
+            if (!CurrentPresetIsValid)
+                return;
+
+            if (!float.TryParse(newValue, out float value))
+                return;
+
+            switch (id)
+            {
+                case FrontRotationID:
+                    CurrentPreset.FrontRotationY = value;
+                    break;
+                case RearRotationID:
+                    CurrentPreset.RearRotationY = value;
+                    break;
+                case FrontOffsetID:
+                    CurrentPreset.FrontPositionX = -value;
+                    break;
+                case RearOffsetID:
+                    CurrentPreset.RearPositionX = -value;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         /// <summary>
         /// Get a string from the user using the on screen keyboard

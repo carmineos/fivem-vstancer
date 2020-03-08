@@ -39,27 +39,27 @@ namespace VStancer.Client
         /// <summary>
         /// Invoked when a property has its value changed in the UI
         /// </summary>
-        public event MenuPresetValueChangedEvent MenuPresetValueChanged;
+        public event MenuPresetValueChangedEvent EditorMenuPresetValueChanged;
 
         /// <summary>
         /// Invoked when the reset button is pressed in the UI
         /// </summary>
-        public event EventHandler MenuResetPresetButtonPressed;
+        public event EventHandler EditorMenuResetPreset;
 
         /// <summary>
         /// Invoked when the button to apply a personal preset is pressed
         /// </summary>
-        public event EventHandler<string> MenuApplyPersonalPresetButtonPressed;
+        public event EventHandler<string> PersonalPresetsMenuApplyPreset;
 
         /// <summary>
         /// Invoked when the button to save a personal preset is pressed
         /// </summary>
-        public event EventHandler<string> MenuSavePersonalPresetButtonPressed;
+        public event EventHandler<string> PersonalPresetsMenuSavePreset;
 
         /// <summary>
         /// Invoked when the button to delete a personal preset is pressed
         /// </summary>
-        public event EventHandler<string> MenuDeletePersonalPresetButtonPressed;
+        public event EventHandler<string> PersonalPresetsMenuDeletePreset;
 
         private string ResetID => VStancerEditor.ResetID;
         private string FrontOffsetID => VStancerEditor.FrontOffsetID;
@@ -143,7 +143,7 @@ namespace VStancer.Client
                 _editorMenu.OnDynamicListItemCurrentItemChange += (menu, dynamicListItem, oldValue, newValue) =>
                 {
                     string id = dynamicListItem.ItemData as string;
-                    MenuPresetValueChanged?.Invoke(id, newValue);
+                    EditorMenuPresetValueChanged?.Invoke(id, newValue);
                 };
 
                 // When a MenuItem is selected
@@ -151,7 +151,7 @@ namespace VStancer.Client
                 {
                     // If the selected item is the reset button
                     if (menuItem.ItemData as string == ResetID)
-                        MenuResetPresetButtonPressed.Invoke(this, EventArgs.Empty);
+                        EditorMenuResetPreset.Invoke(this, EventArgs.Empty);
                 };
             }
 
@@ -173,14 +173,14 @@ namespace VStancer.Client
                 _personalPresetsMenu.ButtonPressHandlers.Add(new Menu.ButtonPressHandler(Control.PhoneExtraOption, Menu.ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>(async (sender, control) =>
                 {
                     string presetName = await _vstancerEditor.GetOnScreenString("VSTANCER_ENTER_PRESET_NAME","");
-                    MenuSavePersonalPresetButtonPressed?.Invoke(_personalPresetsMenu, presetName.Trim());
+                    PersonalPresetsMenuSavePreset?.Invoke(_personalPresetsMenu, presetName.Trim());
                 }), true));
                 _personalPresetsMenu.ButtonPressHandlers.Add(new Menu.ButtonPressHandler(Control.PhoneOption, Menu.ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) =>
                 {
                     if (_personalPresetsMenu.GetMenuItems().Count > 0)
                     {
                         string presetName = _personalPresetsMenu.GetMenuItems()[_personalPresetsMenu.CurrentIndex].Text;
-                        MenuDeletePersonalPresetButtonPressed?.Invoke(_personalPresetsMenu, presetName);
+                        PersonalPresetsMenuDeletePreset?.Invoke(_personalPresetsMenu, presetName);
                     }
                 }), true));
 
@@ -202,7 +202,7 @@ namespace VStancer.Client
             }
         }
 
-        private void PersonalPresetsMenu_OnItemSelect(Menu menu, MenuItem menuItem, int itemIndex) => MenuApplyPersonalPresetButtonPressed?.Invoke(menu, menuItem.Text);
+        private void PersonalPresetsMenu_OnItemSelect(Menu menu, MenuItem menuItem, int itemIndex) => PersonalPresetsMenuApplyPreset?.Invoke(menu, menuItem.Text);
 
         /// <summary>
         /// Rebuild the personal presets menu
@@ -255,7 +255,7 @@ namespace VStancer.Client
         internal VStancerMenu(VStancerEditor script)
         {
             _vstancerEditor = script;
-            _vstancerEditor.PresetChanged += new EventHandler((sender,args) => UpdateEditorMenu());
+            _vstancerEditor.NewPresetCreated += new EventHandler((sender,args) => UpdateEditorMenu());
             _vstancerEditor.ToggleMenuVisibility += new EventHandler((sender,args) => 
             {
                 //var currentMenu = MenuController.GetCurrentMenu();
