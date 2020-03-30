@@ -239,38 +239,37 @@ namespace VStancer.Client
         /// <returns></returns>
         private async Task GetPlayerVehicleTask()
         {
+            await Task.FromResult(0);
+
             _playerPedHandle = PlayerPedId();
 
-            if (IsPedInAnyVehicle(_playerPedHandle, false))
-            {
-                int vehicle = GetVehiclePedIsIn(_playerPedHandle, false);
-
-                if (IsThisModelACar((uint)GetEntityModel(vehicle)) && GetPedInVehicleSeat(vehicle, -1) == _playerPedHandle && IsVehicleDriveable(vehicle, false))
-                {
-                    // Update current vehicle and get its preset
-                    if (vehicle != _playerVehicleHandle)
-                    {
-                        InvalidatePreset();
-
-                        CurrentPreset = CreatePresetFromHandle(vehicle);
-                        CurrentPreset.PresetEdited += OnPresetEdited;
-
-                        _playerVehicleHandle = vehicle;
-                        NewPresetCreated?.Invoke(this, EventArgs.Empty);
-                        Tick += UpdatePlayerVehicleTask;
-                    }
-                }
-                else
-                {
-                    InvalidatePreset();
-                }
-            }
-            else
+            if (!IsPedInAnyVehicle(_playerPedHandle, false))
             {
                 InvalidatePreset();
+                return;
             }
 
-            await Task.FromResult(0);
+            int vehicle = GetVehiclePedIsIn(_playerPedHandle, false);
+
+            // If this model isn't a car, or player isn't the driver, or vehicle is not driveable
+            if (!IsThisModelACar((uint)GetEntityModel(vehicle)) || GetPedInVehicleSeat(vehicle, -1) != _playerPedHandle || !IsVehicleDriveable(vehicle, false))
+            {
+                InvalidatePreset();
+                return;
+            }
+
+            // Update current vehicle and get its preset
+            if (vehicle != _playerVehicleHandle)
+            {
+                InvalidatePreset();
+
+                CurrentPreset = CreatePresetFromHandle(vehicle);
+                CurrentPreset.PresetEdited += OnPresetEdited;
+
+                _playerVehicleHandle = vehicle;
+                NewPresetCreated?.Invoke(this, EventArgs.Empty);
+                Tick += UpdatePlayerVehicleTask;
+            }
         }
 
         /// <summary>
