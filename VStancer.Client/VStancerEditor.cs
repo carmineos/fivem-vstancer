@@ -192,8 +192,8 @@ namespace VStancer.Client
 
         private async Task HideUITask()
         {
-            if (!CurrentPresetIsValid && _vstancerMenu != null)
-                _vstancerMenu.HideUI();
+            if (_vstancerMenu != null)
+                _vstancerMenu.HideUI = !CurrentPresetIsValid;
 
             await Task.FromResult(0);
         }

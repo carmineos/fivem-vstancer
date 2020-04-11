@@ -69,6 +69,15 @@ namespace VStancer.Client
         private VStancerPreset CurrentPreset => _vstancerEditor.CurrentPreset;
         private float FloatStep => _vstancerEditor.Config.FloatStep;
 
+        public bool HideUI
+        {
+            get => MenuController.DontOpenAnyMenu;
+            set
+            {
+                MenuController.DontOpenAnyMenu = value;
+            }
+        }
+
         /// <summary>
         /// Create a method to determine the logic for when the left/right arrow are pressed
         /// </summary>
@@ -198,6 +207,7 @@ namespace VStancer.Client
                 MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
                 MenuController.MenuToggleKey = (Control)_vstancerEditor.Config.ToggleMenuControl;
                 MenuController.EnableMenuToggleKeyOnController = false;
+                MenuController.DontOpenAnyMenu = true;
                 MenuController.MainMenu = _editorMenu;
             }
         }
@@ -271,12 +281,6 @@ namespace VStancer.Client
             InitializeMenu();
 
             _vstancerEditor.LocalPresetsManager.PresetsListChanged += new EventHandler((sender, args) => UpdatePersonalPresetsMenu());
-        }
-
-        public void HideUI()
-        {
-            if (MenuController.IsAnyMenuOpen())
-                MenuController.CloseAllMenus();
         }
     }
 }
