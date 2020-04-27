@@ -24,60 +24,38 @@ Workaround: If a vehicle is damaged, be sure to fix it before to enter it and cr
 Once FiveM exposes extra-natives to edit `SubHandlingData` fields at runtime, the script will allow to edit XYZ rotation using the native handling fields of `CCarHandlingData` such as `fToeFront`, `fToeRear`, `fCamberFront`, `fCamberRear`, `fCastor`. (This will also improve a lot performances as such values won't need to be set each tick)
 
 ### Client Commands
-`vstancer_preset`
-Prints the preset of the current vehicle
+* `vstancer_preset`: Prints the preset of the current vehicle
 
-`vstancer_decorators`
-Prints the info about decorators on the current vehicle
+* `vstancer_decorators`: Prints the info about decorators on the current vehicle
 
-`vstancer_decorators <int>` 
-Prints the info about decorators on the vehicle with the specified int as local handle
+* `vstancer_decorators <int>`: Prints the info about decorators on the vehicle with the specified int as local handle
 
-`vstancer_print`
-Prints the list of all the vehicles with any decorator of this script
+* `vstancer_print`: Prints the list of all the vehicles with any decorator of this script
 
-`vstancer_range <float>`
-Sets the specified float as the maximum distance used to refresh wheels of the vehicles with decorators
+* `vstancer_range <float>`: Sets the specified float as the maximum distance used to refresh wheels of the vehicles with decorators
 
-`vstancer_debug <bool>`
-Enables or disables the logs to be printed in the console
+* `vstancer_debug <bool>`: Enables or disables the logs to be printed in the console
 
-`vstancer`
-Toggles the menu, this command has to be enabled in the config
+* `vstancer`: Toggles the menu, this command has to be enabled in the config
 
 ### Config
-`toggleMenu=167`
-The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
+* `ToggleMenuControl`:The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
 
-`FloatStep=0.01`
-The step used to increase and decrease a value
+* `FloatStep`: The step used to increase and decrease a value
 
-`frontMaxOffset=0.25`
-The max value you can increase or decrease the front Track Width
+* `PositionX`: The max value you can increase or decrease the Track Width
 
-`frontMaxCamber=0.20`
-The max value you can increase or decrease the front Camber
+* `RotationY`: The max value you can increase or decrease the Camber
 
-`rearMaxOffset=0.25`
-The max value you can increase or decrease the rear Track Width
+* `ScriptRange`: The max distance within which each client refreshes others clients' vehicles
 
-`rearMaxCamber=0.20`
-The max value you can increase or decrease the rear Camber
+* `Timer`: The value in milliseconds used by each client to check if its preset requires to be synched again
 
-`ScriptRange=150.0`
-The max distance within which each client refreshes others clients' vehicles
+* `Debug`: Enables the debug mode, which prints some logs in the console
 
-`timer=1000`
-The value in milliseconds used by each client to check if its preset requires to be synched again
+* `ExposeCommand`: Enables the /vstancer command to toggle the menu
 
-`debug=false`
-Enables the debug mode, which prints some logs in the console
-
-`exposeCommand=false`
-Enables the /vstancer command to toggle the menu
-
-`exposeEvent=false`
-Enable the "vstancer:toggleMenu" event to toggle the menu
+* `ExposeEvent`: Enable the "vstancer:toggleMenu" event to toggle the menu
 
 ### Exports
 
@@ -121,7 +99,7 @@ local preset = exports["vstancer"]:GetVstancerPreset(vehicle);
 I am open to any kind of feedback. Report suggestions and bugs you find.
 
 ### Build
-Open the `postbuild.bat` and edit the path of the resource folder. If in Debug configuration, the post build event will copy the following files to the specified path: the built assembly of the script, the `config.ini`, the `__resource.lua`.
+Open the `postbuild.bat` and edit the path of the resource folder. If in Debug configuration, the post build event will copy the following files to the specified path: the built assembly of the script, the `config.json`, the `fxmanifest.lua`.
 
 ### Requirements
 The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to render the UI, ~~it uses FiveM built-in resource dependency, so the script will only work if MenuAPI resource is found and running~~ and comes already with a built assembly so that it's ready to use.
