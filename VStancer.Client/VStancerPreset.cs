@@ -1,42 +1,74 @@
-﻿using System;
+﻿using CitizenFX.Core;
+using System;
 using System.Text;
 
-namespace Vstancer.Client
+namespace VStancer.Client
 {
     public class VStancerPreset : IEquatable<VStancerPreset>
     {
-        public static float Precision { get; private set; } = 0.001f;
-        public int WheelsCount { get; private set; }
-        public int FrontWheelsCount { get; private set; }
+        private const float Epsilon = 0.001f;
 
-        public float[] DefaultRotationY { get; private set; }
-        public float[] DefaultOffsetX { get; private set; }
-        public float[] RotationY { get; set; }
-        public float[] OffsetX { get; set; }
+        public event EventHandler PresetEdited;
 
-        public void SetOffsetFront(float value)
+        public int WheelsCount { get; set; }
+        public int FrontWheelsCount { get; set; }
+
+
+        public VStancerNode[] Nodes { get; set; }
+        public VStancerNode[] DefaultNodes { get; private set; }
+
+        public float FrontPositionX
         {
-            for (int index = 0; index < FrontWheelsCount; index++)
-                OffsetX[index] = (index % 2 == 0) ? value : -value;     
+            get => Nodes[0].PositionX;
+            set
+            {
+                for (int index = 0; index < FrontWheelsCount; index++)
+                    Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
+
+                PresetEdited?.Invoke(this, EventArgs.Empty);
+            }
         }
 
-        public void SetOffsetRear(float value)
+        public float RearPositionX
         {
-            for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                OffsetX[index] = (index % 2 == 0) ? value : -value;
+            get => Nodes[FrontWheelsCount].PositionX;
+            set
+            {
+                for (int index = FrontWheelsCount; index < WheelsCount; index++)
+                    Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
+
+                PresetEdited?.Invoke(this, EventArgs.Empty);
+            }
         }
 
-        public void SetRotationFront(float value)
+        public float FrontRotationY
         {
-            for (int index = 0; index < FrontWheelsCount; index++)
-                RotationY[index] = (index % 2 == 0) ? value : -value;
+            get => Nodes[0].RotationY;
+            set
+            {
+                for (int index = 0; index < FrontWheelsCount; index++)
+                    Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
+
+                PresetEdited?.Invoke(this, EventArgs.Empty);
+            }
         }
 
-        public void SetRotationRear(float value)
+        public float RearRotationY
         {
-            for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                RotationY[index] = (index % 2 == 0) ? value : -value;
+            get => Nodes[FrontWheelsCount].RotationY;
+            set
+            {
+                for (int index = FrontWheelsCount; index < WheelsCount; index++)
+                    Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
+
+                PresetEdited?.Invoke(this, EventArgs.Empty);
+            }
         }
+
+        public float DefaultFrontPositionX { get => DefaultNodes[0].PositionX; }
+        public float DefaultRearPositionX { get => DefaultNodes[FrontWheelsCount].PositionX; }
+        public float DefaultFrontRotationY { get => DefaultNodes[0].RotationY; }
+        public float DefaultRearRotationY { get => DefaultNodes[FrontWheelsCount].RotationY; }
 
         public bool IsEdited
         {
@@ -44,41 +76,11 @@ namespace Vstancer.Client
             {
                 for (int index = 0; index < WheelsCount; index++)
                 {
-                    if ((DefaultOffsetX[index] != OffsetX[index]) || (DefaultRotationY[index] != RotationY[index]))
+                    if (!MathUtil.WithinEpsilon(DefaultNodes[index].PositionX, Nodes[index].PositionX, Epsilon) ||
+                        !MathUtil.WithinEpsilon(DefaultNodes[index].RotationY, Nodes[index].RotationY, Epsilon))
                         return true;
                 }
                 return false;
-            }
-        }
-
-        public VStancerPreset()
-        {
-            WheelsCount = 4;
-            FrontWheelsCount = 2;
-
-            DefaultRotationY = new float[] { 0, 0, 0, 0 };
-            DefaultOffsetX = new float[] { 0, 0, 0, 0 };
-            RotationY = new float[] { 0, 0, 0, 0 };
-            OffsetX = new float[] { 0, 0, 0, 0 };
-        }
-
-        public VStancerPreset(int count, float[] defRot, float[] defOff)
-        {
-            WheelsCount = count;
-            FrontWheelsCount = CalculateFrontWheelsCount(WheelsCount);
-
-            DefaultRotationY = new float[WheelsCount];
-            DefaultOffsetX = new float[WheelsCount];
-            RotationY = new float[WheelsCount];
-            OffsetX = new float[WheelsCount];
-
-            for (int index = 0; index < WheelsCount; index++)
-            {
-                DefaultRotationY[index] = defRot[index];
-                DefaultOffsetX[index] = defOff[index];
-
-                RotationY[index] = DefaultRotationY[index];
-                OffsetX[index] = DefaultOffsetX[index];
             }
         }
 
@@ -86,10 +88,8 @@ namespace Vstancer.Client
         {
             WheelsCount = count;
 
-            DefaultRotationY = new float[WheelsCount];
-            DefaultOffsetX = new float[WheelsCount];
-            RotationY = new float[WheelsCount];
-            OffsetX = new float[WheelsCount];
+            DefaultNodes = new VStancerNode[WheelsCount];
+            Nodes = new VStancerNode[WheelsCount];
 
             FrontWheelsCount = CalculateFrontWheelsCount(WheelsCount);
 
@@ -97,17 +97,17 @@ namespace Vstancer.Client
             {
                 if (index % 2 == 0)
                 {
-                    DefaultRotationY[index] = defaultFrontRotation;
-                    DefaultOffsetX[index] = defaultFrontOffset;
-                    RotationY[index] = frontRotation;
-                    OffsetX[index] = frontOffset;
+                    DefaultNodes[index].RotationY = defaultFrontRotation;
+                    DefaultNodes[index].PositionX = defaultFrontOffset;
+                    Nodes[index].RotationY = frontRotation;
+                    Nodes[index].PositionX = frontOffset;
                 }
                 else
                 {
-                    DefaultRotationY[index] = -defaultFrontRotation;
-                    DefaultOffsetX[index] = -defaultFrontOffset;
-                    RotationY[index] = -frontRotation;
-                    OffsetX[index] = -frontOffset;
+                    DefaultNodes[index].RotationY = -defaultFrontRotation;
+                    DefaultNodes[index].PositionX = -defaultFrontOffset;
+                    Nodes[index].RotationY = -frontRotation;
+                    Nodes[index].PositionX = - frontOffset;
                 }
             }
 
@@ -115,17 +115,17 @@ namespace Vstancer.Client
             {
                 if (index % 2 == 0)
                 {
-                    DefaultRotationY[index] = defaultRearRotation;
-                    DefaultOffsetX[index] = defaultRearOffset;
-                    RotationY[index] = rearRotation;
-                    OffsetX[index] = rearOffset;
+                    DefaultNodes[index].RotationY = defaultRearRotation;
+                    DefaultNodes[index].PositionX = defaultRearOffset;
+                    Nodes[index].RotationY = rearRotation;
+                    Nodes[index].PositionX = rearOffset;
                 }
                 else
                 {
-                    DefaultRotationY[index] = -defaultRearRotation;
-                    DefaultOffsetX[index] = -defaultRearOffset;
-                    RotationY[index] = -rearRotation;
-                    OffsetX[index] = -rearOffset;
+                    DefaultNodes[index].RotationY = -defaultRearRotation;
+                    DefaultNodes[index].PositionX = -defaultRearOffset;
+                    Nodes[index].RotationY = -rearRotation;
+                    Nodes[index].PositionX = -rearOffset;
                 }
             }
         }
@@ -134,9 +134,10 @@ namespace Vstancer.Client
         {
             for (int index = 0; index < WheelsCount; index++)
             {
-                RotationY[index] = DefaultRotationY[index];
-                OffsetX[index] = DefaultOffsetX[index];
+                Nodes[index] = DefaultNodes[index];
             }
+
+            PresetEdited?.Invoke(this, EventArgs.Empty);
         }
 
         public bool Equals(VStancerPreset other)
@@ -146,10 +147,10 @@ namespace Vstancer.Client
 
             for (int index = 0; index < WheelsCount; index++)
             {
-                if (Math.Abs(DefaultOffsetX[index] - other.DefaultOffsetX[index]) > Precision
-                    || Math.Abs(DefaultRotationY[index] - other.DefaultRotationY[index]) > Precision
-                    || Math.Abs(OffsetX[index] - other.OffsetX[index]) > Precision
-                    || Math.Abs(RotationY[index] - other.RotationY[index]) > Precision)
+                if (!MathUtil.WithinEpsilon(DefaultNodes[index].PositionX, other.DefaultNodes[index].PositionX, Epsilon) ||
+                    !MathUtil.WithinEpsilon(DefaultNodes[index].RotationY, other.DefaultNodes[index].RotationY, Epsilon) ||
+                    !MathUtil.WithinEpsilon(Nodes[index].PositionX, other.Nodes[index].PositionX, Epsilon) ||
+                    !MathUtil.WithinEpsilon(Nodes[index].RotationY, other.Nodes[index].RotationY, Epsilon))
                     return false;
             }
             return true;
@@ -167,10 +168,10 @@ namespace Vstancer.Client
 
             for (int i = 0; i < WheelsCount; i++)
             {
-                defOff.Append(string.Format("{0,15}", DefaultOffsetX[i]));
-                defRot.Append(string.Format("{0,15}", DefaultRotationY[i]));
-                curOff.Append(string.Format("{0,15}", OffsetX[i]));
-                curRot.Append(string.Format("{0,15}", RotationY[i]));
+                defOff.Append(string.Format("{0,15}", DefaultNodes[i].PositionX));
+                defRot.Append(string.Format("{0,15}", DefaultNodes[i].RotationY));
+                curOff.Append(string.Format("{0,15}", Nodes[i].PositionX));
+                curRot.Append(string.Format("{0,15}", Nodes[i].RotationY));
             }
 
             s.AppendLine(curOff.ToString());
@@ -205,15 +206,37 @@ namespace Vstancer.Client
         public float[] ToArray()
         {
             return new float[] {
-                OffsetX[0],
-                RotationY[0],
-                OffsetX[FrontWheelsCount],
-                RotationY[FrontWheelsCount],
-                DefaultOffsetX[0],
-                DefaultRotationY[0],
-                DefaultOffsetX[FrontWheelsCount],
-                DefaultRotationY[FrontWheelsCount],
+                Nodes[0].PositionX,
+                Nodes[0].RotationY,
+                Nodes[FrontWheelsCount].PositionX,
+                Nodes[FrontWheelsCount].RotationY,
+                DefaultNodes[0].PositionX,
+                DefaultNodes[0].RotationY,
+                DefaultNodes[FrontWheelsCount].PositionX,
+                DefaultNodes[FrontWheelsCount].RotationY,
             };
         }
+
+        public void CopyFrom(VStancerPreset other)
+        {
+            if (other == null)
+                return;
+
+            FrontPositionX = other.FrontPositionX;
+            FrontRotationY = other.FrontRotationY;
+            RearPositionX = other.RearPositionX;
+            RearRotationY = other.RearRotationY;
+        }
+    }
+
+
+    // TODO: Edit Preset to use nodes structs
+    public struct VStancerNode
+    {
+        //public Vector3 Position { get; set; }
+        //public Vector3 Rotation { get; set; }
+        //public Vector3 Scale { get; set; }
+        public float PositionX { get; set; }
+        public float RotationY { get; set; }
     }
 }

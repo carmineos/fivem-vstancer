@@ -3,18 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VStancer.Client", "VStancer.Client\VStancer.Client.csproj", "{5CB92879-4500-47FC-BD3E-FE29369A621D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VStancer.Client", "VStancer.Client\VStancer.Client.csproj", "{5CB92879-4500-47FC-BD3E-FE29369A621D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{886C4B07-F58C-4E89-A80F-849679435A18}"
 	ProjectSection(SolutionItems) = preProject
-		dist\__resource.lua = dist\__resource.lua
-		dist\config.ini = dist\config.ini
+		dist\config.json = dist\config.json
+		dist\fxmanifest.lua = dist\fxmanifest.lua
 		LICENSE = LICENSE
 		postbuild.bat = postbuild.bat
 		README.md = README.md
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenuAPI", "vendor\MenuAPI\MenuAPI\MenuAPI.csproj", "{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,10 +24,6 @@ Global
 		{5CB92879-4500-47FC-BD3E-FE29369A621D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CB92879-4500-47FC-BD3E-FE29369A621D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CB92879-4500-47FC-BD3E-FE29369A621D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9C746601-9F3D-4B0D-877C-1C7BC493C5BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

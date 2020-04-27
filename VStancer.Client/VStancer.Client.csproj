@@ -20,18 +20,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    
     <PackageReference Include="CitizenFX.Core.Client">
-      <Version>1.0.1208</Version>
+      <Version>1.0.2407</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
+    
+    <PackageReference Include="MenuAPI.FiveM" Version="3.1.1" />
 
-  <ItemGroup>
-    <ProjectReference Include="..\vendor\MenuAPI\MenuAPI\MenuAPI.csproj">
-      <Project>{9c746601-9f3d-4b0d-877c-1c7bc493c5bc}</Project>
-      <Name>MenuAPI</Name>
-    </ProjectReference>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" ExcludeAssets="Compile" GeneratePathProperty="true" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(PkgNewtonsoft_Json)\lib\portable-net40+sl5+win8+wp8+wpa81\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -39,13 +40,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="
-          if '$(CI)' == '' ( 
-          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetPath)&quot;
-          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\config.ini&quot;
-          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\__resource.lua&quot;
-          call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetDir)\MenuAPI.dll&quot;)
-          " />
+    <Exec Command="if '$(CI)' == '' ( &#xD;&#xA;call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetPath)&quot;&#xD;&#xA;call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\config.json&quot;&#xD;&#xA;call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\fxmanifest.lua&quot;&#xD;&#xA;call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetDir)\MenuAPI.dll&quot;&#xD;&#xA;call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetDir)\Newtonsoft.Json.dll&quot;)" />
   </Target>
 
 </Project>
