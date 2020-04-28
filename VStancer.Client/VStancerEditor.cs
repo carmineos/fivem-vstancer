@@ -225,13 +225,15 @@ namespace VStancer.Client
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="eventArgs"></param>
-        private void OnPresetEdited(object sender, EventArgs eventArgs)
+        private void OnPresetEdited(object sender, string editedProperty)
         {
             if (!CurrentPresetIsValid)
                 return;
 
+            bool isReset = !CurrentPreset.IsEdited && editedProperty.Equals("Reset");
+
             // If false then this has been invoked by after a reset
-            if(!CurrentPreset.IsEdited)
+            if (isReset)
                 RemoveDecoratorsFromVehicle(_playerVehicleHandle);
 
             // Force one single refresh to update rendering at correct position after reset

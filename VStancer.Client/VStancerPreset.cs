@@ -8,7 +8,7 @@ namespace VStancer.Client
     {
         private const float Epsilon = VStancerPresetUtilities.Epsilon;
 
-        public event EventHandler PresetEdited;
+        public event EventHandler<string> PresetEdited;
 
         public int WheelsCount { get; set; }
         public int FrontWheelsCount { get; set; }
@@ -25,7 +25,7 @@ namespace VStancer.Client
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
 
-                PresetEdited?.Invoke(this, EventArgs.Empty);
+                PresetEdited?.Invoke(this, nameof(FrontPositionX));
             }
         }
 
@@ -37,7 +37,7 @@ namespace VStancer.Client
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
 
-                PresetEdited?.Invoke(this, EventArgs.Empty);
+                PresetEdited?.Invoke(this, nameof(RearPositionX));
             }
         }
 
@@ -49,7 +49,7 @@ namespace VStancer.Client
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
 
-                PresetEdited?.Invoke(this, EventArgs.Empty);
+                PresetEdited?.Invoke(this, nameof(FrontRotationY));
             }
         }
 
@@ -61,7 +61,7 @@ namespace VStancer.Client
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
 
-                PresetEdited?.Invoke(this, EventArgs.Empty);
+                PresetEdited?.Invoke(this, nameof(RearRotationY));
             }
         }
 
@@ -74,10 +74,10 @@ namespace VStancer.Client
         {
             get
             {
-                for (int index = 0; index < WheelsCount; index++)
+                for (int i = 0; i < WheelsCount; i++)
                 {
-                    if (!MathUtil.WithinEpsilon(DefaultNodes[index].PositionX, Nodes[index].PositionX, Epsilon) ||
-                        !MathUtil.WithinEpsilon(DefaultNodes[index].RotationY, Nodes[index].RotationY, Epsilon))
+                    if (!MathUtil.WithinEpsilon(DefaultNodes[i].PositionX, Nodes[i].PositionX, Epsilon) ||
+                        !MathUtil.WithinEpsilon(DefaultNodes[i].RotationY, Nodes[i].RotationY, Epsilon))
                         return true;
                 }
                 return false;
@@ -132,12 +132,10 @@ namespace VStancer.Client
 
         public void Reset()
         {
-            for (int index = 0; index < WheelsCount; index++)
-            {
-                Nodes[index] = DefaultNodes[index];
-            }
+            for (int i = 0; i < WheelsCount; i++)
+                Nodes[i] = DefaultNodes[i];
 
-            PresetEdited?.Invoke(this, EventArgs.Empty);
+            PresetEdited?.Invoke(this, "Reset");
         }
 
         public bool Equals(VStancerPreset other)
@@ -145,12 +143,12 @@ namespace VStancer.Client
             if (WheelsCount != other.WheelsCount)
                 return false;
 
-            for (int index = 0; index < WheelsCount; index++)
+            for (int i = 0; i < WheelsCount; i++)
             {
-                if (!MathUtil.WithinEpsilon(DefaultNodes[index].PositionX, other.DefaultNodes[index].PositionX, Epsilon) ||
-                    !MathUtil.WithinEpsilon(DefaultNodes[index].RotationY, other.DefaultNodes[index].RotationY, Epsilon) ||
-                    !MathUtil.WithinEpsilon(Nodes[index].PositionX, other.Nodes[index].PositionX, Epsilon) ||
-                    !MathUtil.WithinEpsilon(Nodes[index].RotationY, other.Nodes[index].RotationY, Epsilon))
+                if (!MathUtil.WithinEpsilon(DefaultNodes[i].PositionX, other.DefaultNodes[i].PositionX, Epsilon) ||
+                    !MathUtil.WithinEpsilon(DefaultNodes[i].RotationY, other.DefaultNodes[i].RotationY, Epsilon) ||
+                    !MathUtil.WithinEpsilon(Nodes[i].PositionX, other.Nodes[i].PositionX, Epsilon) ||
+                    !MathUtil.WithinEpsilon(Nodes[i].RotationY, other.Nodes[i].RotationY, Epsilon))
                     return false;
             }
             return true;
