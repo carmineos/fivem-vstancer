@@ -642,8 +642,6 @@ namespace VStancer.Client
         /// <param name="preset">The preset for this vehicle</param>
         private void UpdateVehicleDecorators(int vehicle, VStancerPreset preset)
         {
-            int frontCount = preset.FrontWheelsCount;
-
             UpdateFloatDecorator(vehicle, DefaultFrontOffsetID, preset.DefaultFrontPositionX, preset.FrontPositionX);
             UpdateFloatDecorator(vehicle, DefaultFrontRotationID, preset.DefaultFrontRotationY, preset.FrontRotationY);
             UpdateFloatDecorator(vehicle, DefaultRearOffsetID, preset.DefaultRearPositionX, preset.RearPositionX);
@@ -706,12 +704,6 @@ namespace VStancer.Client
                 SetVehicleWheelXOffset(vehicle, index, preset.Nodes[index].PositionX);
                 SetVehicleWheelYRotation(vehicle, index, preset.Nodes[index].RotationY);
             }
-
-            //if(preset.WheelModSize != null)
-            //{
-            //    SetVehicleWheelSize(vehicle, preset.WheelModSize.FrontScaleYZ);
-            //    SetVehicleWheelWidth(vehicle, preset.WheelModSize.FrontScaleX);
-            //}
         }
 
         /// <summary>
