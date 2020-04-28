@@ -58,6 +58,8 @@ namespace VStancer.Client
         /// Returns wheter <see cref="_playerVehicleHandle"/> and <see cref="CurrentPreset"/> are valid
         /// </summary>
         public bool CurrentPresetIsValid => _playerVehicleHandle != -1 && CurrentPreset != null;
+        public bool VehicleHasFrontWheelMod { get; set; }
+        public bool VehicleHasRearWheelMod { get; set; }
 
         /// <summary>
         /// The preset associated to the player's vehicle
@@ -97,6 +99,8 @@ namespace VStancer.Client
             _lastTime = GetGameTimer();
             _playerVehicleHandle = -1;
             CurrentPreset = null;
+            VehicleHasFrontWheelMod = false;
+            VehicleHasRearWheelMod = false;
             _worldVehiclesHandles = Enumerable.Empty<int>();
 
             RegisterRequiredDecorators();
@@ -184,7 +188,6 @@ namespace VStancer.Client
             _vstancerMenu.PersonalPresetsMenuDeletePreset += OnPersonalPresetsMenuDeletePresetInvoked;
 
             Tick += GetPlayerVehicleTask;
-            Tick += UpdatePlayerVehicleTask;
             Tick += UpdateWorldVehiclesTask;
             Tick += UpdatePlayerVehicleDecoratorsTask;
             Tick += HideUITask;
@@ -211,6 +214,9 @@ namespace VStancer.Client
                 _playerVehicleHandle = -1;
 
                 Tick -= UpdatePlayerVehicleTask;
+
+                // Check this each tick to update if other scripts add wheel mods to the vehicle
+                Tick -= CheckIfVehicleHasWheelModsTask;
             }
         }
 
@@ -269,7 +275,54 @@ namespace VStancer.Client
                 _playerVehicleHandle = vehicle;
                 NewPresetCreated?.Invoke(this, EventArgs.Empty);
                 Tick += UpdatePlayerVehicleTask;
+
+                // Check this each tick to update if other scripts add wheel mods to the vehicle
+                Tick += CheckIfVehicleHasWheelModsTask;
             }
+        }
+
+        /// <summary>
+        /// Checks if <see cref="_playerVehicleHandle"/> has wheel mods installed
+        /// </summary>
+        /// <returns></returns>
+        private async Task CheckIfVehicleHasWheelModsTask()
+        {
+            await Task.FromResult(0);
+            
+            if (!CurrentPresetIsValid)
+            {
+                VehicleHasFrontWheelMod = false;
+                VehicleHasRearWheelMod = false;
+                return;
+            }
+
+            VehicleHasFrontWheelMod = GetVehicleMod(_playerVehicleHandle, 23) != -1;
+            VehicleHasRearWheelMod = GetVehicleMod(_playerVehicleHandle, 24) != -1;
+        }
+
+        private async Task UpdateVehicleWheelSizeTask()
+        {
+            await Task.FromResult(0);
+
+            if (!CurrentPresetIsValid)
+                return;
+
+            if (VehicleHasFrontWheelMod || VehicleHasRearWheelMod)
+                GetVehicleWheelSizeForPreset(_playerVehicleHandle, CurrentPreset);
+        }
+
+        private void GetVehicleWheelSizeForPreset(int vehicle, VStancerPreset preset)
+        {
+            float wheelSize_def = DecorExistOn(vehicle, DefaultFrontOffsetID) ? DecorGetFloat(vehicle, DefaultFrontOffsetID) : GetVehicleWheelSize(vehicle);
+            float wheelWidth_def = DecorExistOn(vehicle, DefaultFrontRotationID) ? DecorGetFloat(vehicle, DefaultFrontRotationID) : GetVehicleWheelWidth(vehicle);
+
+            float wheelSize = DecorExistOn(vehicle, FrontOffsetID) ? DecorGetFloat(vehicle, FrontOffsetID) : wheelSize_def;
+            float wheelWidth = DecorExistOn(vehicle, FrontRotationID) ? DecorGetFloat(vehicle, FrontRotationID) : wheelWidth_def;
+
+            // TODO:
+            // GetVehicleWheelRimColliderSize
+            // GetVehicleWheelTireColliderSize
+            // GetVehicleWheelTireColliderWidth
         }
 
         /// <summary>
@@ -412,7 +465,7 @@ namespace VStancer.Client
                 return;
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = VStancerPreset.CalculateFrontWheelsCount(wheelsCount);
+            int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
 
             float off_f_def = defaultFrontOffset is float
                 ? (float)defaultFrontOffset
@@ -524,7 +577,7 @@ namespace VStancer.Client
                 Screen.ShowNotification($"~o~Warning~w~: You are creating a vstancer preset for a damaged vehicle, default position and rotation of the wheels might be wrong");
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = VStancerPreset.CalculateFrontWheelsCount(wheelsCount);
+            int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
 
             // Get default values first
             float off_f_def = DecorExistOn(vehicle, DefaultFrontOffsetID) ? DecorGetFloat(vehicle, DefaultFrontOffsetID) : GetVehicleWheelXOffset(vehicle, 0);
@@ -564,7 +617,7 @@ namespace VStancer.Client
         private void UpdateVehicleUsingDecorators(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = VStancerPreset.CalculateFrontWheelsCount(wheelsCount);
+            int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
 
             if (DecorExistOn(vehicle, FrontOffsetID))
             {
@@ -728,6 +781,8 @@ namespace VStancer.Client
             
             if (loadedPreset != null)
             {
+                // TODO: Check if loadedPreset is within config limits
+
                 // Assign new preset
                 CurrentPreset.CopyFrom(loadedPreset);
                 
