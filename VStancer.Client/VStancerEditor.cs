@@ -123,8 +123,8 @@ namespace VStancer.Client
             VehicleWheelMod = -1;
             _worldVehiclesHandles = Enumerable.Empty<int>();
 
-            RegisterRequiredDecorators();
             Config = LoadConfig();
+            RegisterRequiredDecorators();
 
             LocalPresetsManager = new KvpPresetManager(Globals.KvpPrefix);
 
@@ -251,9 +251,13 @@ namespace VStancer.Client
             {
                 case nameof(VStancerPreset.WheelModSize.WheelWidth):
                     result = SetVehicleWheelWidth(_playerVehicleHandle, value);
+                    if (result)
+                        UpdateFloatDecorator(_playerVehicleHandle, WheelModWidthID, value, CurrentPreset.WheelModSize.DefaultWheelWidth);
                     break;
                 case nameof(VStancerPreset.WheelModSize.WheelSize):
-                    result = SetVehicleWheelSize(_playerVehicleHandle, value);
+                    result = SetVehicleWheelSize(_playerVehicleHandle, value); 
+                    if (result)
+                        UpdateFloatDecorator(_playerVehicleHandle, WheelModSizeID, value, CurrentPreset.WheelModSize.DefaultWheelSize);
                     break;
 
                 default:
@@ -326,28 +330,31 @@ namespace VStancer.Client
                 triggerEvent = true;
             }
 
-            int vehicleWheelMod = GetVehicleMod(_playerVehicleHandle, 23);
-            // If wheel mod status is different from previous one
-            if (vehicleWheelMod != VehicleWheelMod)
+            if (Config.WheelModSize.EnableWheelModSize)
             {
-                if (Config.Debug)
-                    CitizenFX.Core.Debug.WriteLine($"New vehicle mod of type 23: {vehicleWheelMod}");
-
-                if (vehicleWheelMod != -1)
+                int vehicleWheelMod = GetVehicleMod(_playerVehicleHandle, 23);
+                // If wheel mod status is different from previous one
+                if (vehicleWheelMod != VehicleWheelMod)
                 {
-                    GetVehicleWheelSizeForPreset(_playerVehicleHandle, CurrentPreset);
-                    CurrentPreset.WheelModSize.PropertyEdited += OnWheelModSizePropertyEdited;
-                }
-                else
-                {
-                    CurrentPreset.WheelModSize.PropertyEdited -= OnWheelModSizePropertyEdited;
-                    CurrentPreset.WheelModSize = null;
-                }
-                VehicleWheelMod = vehicleWheelMod;
+                    if (Config.Debug)
+                        CitizenFX.Core.Debug.WriteLine($"New vehicle mod of type 23: {vehicleWheelMod}");
+
+                    if (vehicleWheelMod != -1)
+                    {
+                        GetVehicleWheelSizeForPreset(_playerVehicleHandle, CurrentPreset);
+                        CurrentPreset.WheelModSize.PropertyEdited += OnWheelModSizePropertyEdited;
+                    }
+                    else
+                    {
+                        CurrentPreset.WheelModSize.PropertyEdited -= OnWheelModSizePropertyEdited;
+                        CurrentPreset.WheelModSize = null;
+                    }
+                    VehicleWheelMod = vehicleWheelMod;
 
 
-                // TODO: Avoid notifying the menu to redraw whole menu
-                VehicleWheelModChanged?.Invoke(this, EventArgs.Empty);
+                    // TODO: Avoid notifying the menu to redraw whole menu
+                    VehicleWheelModChanged?.Invoke(this, EventArgs.Empty);
+                }
             }
 
             if (triggerEvent)
@@ -462,8 +469,15 @@ namespace VStancer.Client
             DecorRegister(DefaultFrontRotationID, 1);
             DecorRegister(DefaultRearOffsetID, 1);
             DecorRegister(DefaultRearRotationID, 1);
-        }
 
+            if(Config.WheelModSize.EnableWheelModSize)
+            {
+                DecorRegister(WheelModWidthID, 1);
+                DecorRegister(WheelModSizeID, 1);
+                DecorRegister(DefaultWheelModWidthID, 1);
+                DecorRegister(DefaultWheelModSizeID, 1);
+            }
+        }
         /// <summary>
         /// Removes the decorators from the <paramref name="vehicle"/>
         /// </summary>
@@ -493,6 +507,15 @@ namespace VStancer.Client
 
             if (DecorExistOn(vehicle, DefaultRearRotationID))
                 DecorRemove(vehicle, DefaultRearRotationID);
+
+            if (Config.WheelModSize.EnableWheelModSize)
+            {
+                if (DecorExistOn(vehicle, WheelModSizeID))
+                    DecorRemove(vehicle, WheelModSizeID);
+
+                if (DecorExistOn(vehicle, WheelModWidthID))
+                    DecorRemove(vehicle, WheelModWidthID);
+            }
         }
 
         /// <summary>
@@ -750,6 +773,15 @@ namespace VStancer.Client
                     else
                         SetVehicleWheelYRotation(vehicle, index, -value);
                 }
+            }
+
+            if(Config.WheelModSize.EnableWheelModSize)
+            {
+                if (DecorExistOn(vehicle, WheelModSizeID))
+                    SetVehicleWheelSize(vehicle, DecorGetFloat(vehicle, WheelModSizeID));
+
+                if (DecorExistOn(vehicle, WheelModWidthID))
+                    SetVehicleWheelWidth(vehicle, DecorGetFloat(vehicle, WheelModWidthID));
             }
         }
 
