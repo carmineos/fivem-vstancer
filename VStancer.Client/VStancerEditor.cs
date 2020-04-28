@@ -54,12 +54,35 @@ namespace VStancer.Client
 
         public const string ResetID = "vstancer_reset";
 
+        public const string FrontWheelModScaleXID = "vstancer_wheelmod_scalex_f";
+        public const string FrontWheelModScaleYZID = "vstancer_wheelmod_scaleyz_f";
+        public const string FrontWheelModTireColliderScaleXID = "vstancer_wheelmod_tirecollider_scalex_f";
+        public const string FrontWheelModTireColliderScaleYZID = "vstancer_wheelmod_tirecollider_scaleyz_f";
+        public const string FrontWheelModRimColliderScaleYZID = "vstancer_wheelmod_rimcollider_scaleyz_f";
+
+        public const string RearWheelModScaleXID = "vstancer_wheelmod_scalex_r";
+        public const string RearWheelModScaleYZID = "vstancer_wheelmod_scaleyz_r";
+        public const string RearWheelModTireColliderScaleXID = "vstancer_wheelmod_tirecollider_scalex_r";
+        public const string RearWheelModTireColliderScaleYZID = "vstancer_wheelmod_tirecollider_scaleyz_r";
+        public const string RearWheelModRimColliderScaleYZID = "vstancer_wheelmod_rimcollider_scaleyz_r";
+
+        public const string DefaultFrontWheelModScaleXID = "vstancer_wheelmod_scalex_f_def";
+        public const string DefaultFrontWheelModScaleYZID = "vstancer_wheelmod_scaleyz_f_def";
+        public const string DefaultFrontWheelModTireColliderScaleXID = "vstancer_wheelmod_tirecollider_scalex_f_def";
+        public const string DefaultFrontWheelModTireColliderScaleYZID = "vstancer_wheelmod_tirecollider_scaleyz_f_def";
+        public const string DefaultFrontWheelModRimColliderScaleYZID = "vstancer_wheelmod_rimcollider_scaleyz_f_def";
+
+        public const string DefaultRearWheelModScaleXID = "vstancer_wheelmod_scalex_r_def";
+        public const string DefaultRearWheelModScaleYZID = "vstancer_wheelmod_scaleyz_r_def";
+        public const string DefaultRearWheelModTireColliderScaleXID = "vstancer_wheelmod_tirecollider_scalex_r_def";
+        public const string DefaultRearWheelModTireColliderScaleYZID = "vstancer_wheelmod_tirecollider_scaleyz_r_def";
+        public const string DefaultRearWheelModRimColliderScaleYZID = "vstancer_wheelmod_rimcollider_scaleyz_r_def";
+
         /// <summary>
         /// Returns wheter <see cref="_playerVehicleHandle"/> and <see cref="CurrentPreset"/> are valid
         /// </summary>
         public bool CurrentPresetIsValid => _playerVehicleHandle != -1 && CurrentPreset != null;
-        public bool VehicleHasFrontWheelMod { get; set; }
-        public bool VehicleHasRearWheelMod { get; set; }
+        public bool VehicleHasWheelMod { get; set; }
 
         /// <summary>
         /// The preset associated to the player's vehicle
@@ -99,8 +122,7 @@ namespace VStancer.Client
             _lastTime = GetGameTimer();
             _playerVehicleHandle = -1;
             CurrentPreset = null;
-            VehicleHasFrontWheelMod = false;
-            VehicleHasRearWheelMod = false;
+            VehicleHasWheelMod = false;
             _worldVehiclesHandles = Enumerable.Empty<int>();
 
             RegisterRequiredDecorators();
@@ -293,38 +315,61 @@ namespace VStancer.Client
             
             if (!CurrentPresetIsValid)
             {
-                VehicleHasFrontWheelMod = false;
-                VehicleHasRearWheelMod = false;
+                VehicleHasWheelMod = false;
                 return;
             }
 
-            VehicleHasFrontWheelMod = GetVehicleMod(_playerVehicleHandle, 23) != -1;
-            VehicleHasRearWheelMod = GetVehicleMod(_playerVehicleHandle, 24) != -1;
-        }
+            // Vehicle has Front Wheel Mod Type installed or Rear Wheel Mod Type installed
+            bool NewVehicleHasWheelMod = GetVehicleMod(_playerVehicleHandle, 23) != -1 || GetVehicleMod(_playerVehicleHandle, 24) != -1;
 
-        private async Task UpdateVehicleWheelSizeTask()
-        {
-            await Task.FromResult(0);
+            // If wheel mod status is different from previous one
+            if(NewVehicleHasWheelMod != VehicleHasWheelMod)
+            {
+                if (NewVehicleHasWheelMod)
+                    GetVehicleWheelSizeForPreset(_playerVehicleHandle, CurrentPreset);
+                else
+                    CurrentPreset.WheelModSize = null;
 
-            if (!CurrentPresetIsValid)
-                return;
+                VehicleHasWheelMod = NewVehicleHasWheelMod;
+            }
 
-            if (VehicleHasFrontWheelMod || VehicleHasRearWheelMod)
-                GetVehicleWheelSizeForPreset(_playerVehicleHandle, CurrentPreset);
         }
 
         private void GetVehicleWheelSizeForPreset(int vehicle, VStancerPreset preset)
         {
-            float wheelSize_def = DecorExistOn(vehicle, DefaultFrontOffsetID) ? DecorGetFloat(vehicle, DefaultFrontOffsetID) : GetVehicleWheelSize(vehicle);
-            float wheelWidth_def = DecorExistOn(vehicle, DefaultFrontRotationID) ? DecorGetFloat(vehicle, DefaultFrontRotationID) : GetVehicleWheelWidth(vehicle);
+            int wheelsCount = preset.WheelsCount;
+            int frontWheelsCount = preset.FrontWheelsCount;
 
-            float wheelSize = DecorExistOn(vehicle, FrontOffsetID) ? DecorGetFloat(vehicle, FrontOffsetID) : wheelSize_def;
-            float wheelWidth = DecorExistOn(vehicle, FrontRotationID) ? DecorGetFloat(vehicle, FrontRotationID) : wheelWidth_def;
+            float frontScaleX_def = DecorExistOn(vehicle, DefaultFrontWheelModScaleXID) ? DecorGetFloat(vehicle, DefaultFrontWheelModScaleXID) : GetVehicleWheelWidth(vehicle);
+            float frontScaleYZ_def = DecorExistOn(vehicle, DefaultFrontWheelModScaleYZID) ? DecorGetFloat(vehicle, DefaultFrontWheelModScaleYZID) : GetVehicleWheelSize(vehicle);
+            float frontTireColliderScaleX_def = DecorExistOn(vehicle, DefaultFrontWheelModTireColliderScaleXID) ? DecorGetFloat(vehicle, DefaultFrontWheelModTireColliderScaleXID) : GetVehicleWheelTireColliderWidth(vehicle, 0);
+            float frontTireColliderScaleYZ_def = DecorExistOn(vehicle, DefaultFrontWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultFrontWheelModTireColliderScaleYZID) : GetVehicleWheelTireColliderSize(vehicle, 0);
+            float frontRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultFrontWheelModRimColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultFrontWheelModRimColliderScaleYZID) : GetVehicleWheelRimColliderSize(vehicle, 0);
 
-            // TODO:
-            // GetVehicleWheelRimColliderSize
-            // GetVehicleWheelTireColliderSize
-            // GetVehicleWheelTireColliderWidth
+            float rearScaleX_def = DecorExistOn(vehicle, DefaultRearWheelModScaleXID) ? DecorGetFloat(vehicle, DefaultRearWheelModScaleXID) : frontScaleX_def;
+            float rearScaleYZ_def = DecorExistOn(vehicle, DefaultRearWheelModScaleYZID) ? DecorGetFloat(vehicle, DefaultRearWheelModScaleYZID) : frontScaleYZ_def;
+            float rearTireColliderScaleX_def = DecorExistOn(vehicle, DefaultRearWheelModTireColliderScaleXID) ? DecorGetFloat(vehicle, DefaultRearWheelModTireColliderScaleXID) : GetVehicleWheelTireColliderWidth(vehicle, frontWheelsCount);
+            float rearTireColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultRearWheelModTireColliderScaleYZID) : GetVehicleWheelTireColliderSize(vehicle, frontWheelsCount);
+            float rearRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearWheelModRimColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultRearWheelModRimColliderScaleYZID) : GetVehicleWheelRimColliderSize(vehicle, frontWheelsCount);
+
+            // Create the preset with the default values
+            preset.WheelModSize = new VStancerWheelModSize(wheelsCount,
+                frontScaleX_def, frontScaleYZ_def, frontTireColliderScaleX_def, frontTireColliderScaleYZ_def, frontRimColliderScaleYZ_def,
+                rearScaleX_def, rearScaleYZ_def, rearTireColliderScaleX_def, rearTireColliderScaleYZ_def, rearRimColliderScaleYZ_def)
+            {
+                // Assign the current values
+                FrontScaleX = DecorExistOn(vehicle, FrontWheelModScaleXID) ? DecorGetFloat(vehicle, FrontWheelModScaleXID) : frontScaleYZ_def,
+                FrontScaleYZ = DecorExistOn(vehicle, FrontWheelModScaleYZID) ? DecorGetFloat(vehicle, FrontWheelModScaleYZID) : frontScaleX_def,
+                FrontTireColliderScaleX = DecorExistOn(vehicle, FrontWheelModTireColliderScaleXID) ? DecorGetFloat(vehicle, FrontWheelModTireColliderScaleXID) : frontTireColliderScaleX_def,
+                FrontTireColliderScaleYZ = DecorExistOn(vehicle, FrontWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, FrontWheelModTireColliderScaleYZID) : frontTireColliderScaleYZ_def,
+                FrontRimColliderScaleYZ = DecorExistOn(vehicle, FrontWheelModRimColliderScaleYZID) ? DecorGetFloat(vehicle, FrontWheelModRimColliderScaleYZID) : frontRimColliderScaleYZ_def,
+
+                RearScaleX = DecorExistOn(vehicle, RearWheelModScaleXID) ? DecorGetFloat(vehicle, RearWheelModScaleXID) : rearScaleYZ_def,
+                RearScaleYZ = DecorExistOn(vehicle, RearWheelModScaleYZID) ? DecorGetFloat(vehicle, RearWheelModScaleYZID) : rearScaleX_def,
+                RearTireColliderScaleX = DecorExistOn(vehicle, RearWheelModTireColliderScaleXID) ? DecorGetFloat(vehicle, RearWheelModTireColliderScaleXID) : rearTireColliderScaleX_def,
+                RearTireColliderScaleYZ = DecorExistOn(vehicle, RearWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, RearWheelModTireColliderScaleYZID) : rearTireColliderScaleYZ_def,
+                RearRimColliderScaleYZ = DecorExistOn(vehicle, RearWheelModRimColliderScaleYZID) ? DecorGetFloat(vehicle, RearWheelModRimColliderScaleYZID) : rearRimColliderScaleYZ_def
+            };
         }
 
         /// <summary>

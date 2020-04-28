@@ -259,8 +259,8 @@ namespace VStancer.Client
         public VStancerWheelModSizeNode[] DefaultNodes { get; private set; }
 
         public VStancerWheelModSize(int wheelsCount, 
-            int frontScaleX, int frontScaleYZ, int frontTireColliderScaleX, int frontTireColliderScaleYZ, int frontRimColliderScaleYZ,
-            int rearScaleX, int rearScaleYZ, int rearTireColliderScaleX, int rearTireColliderScaleYZ, int rearRimColliderScaleYZ)
+            float frontScaleX, float frontScaleYZ, float frontTireColliderScaleX, float frontTireColliderScaleYZ, float frontRimColliderScaleYZ,
+            float rearScaleX, float rearScaleYZ, float rearTireColliderScaleX, float rearTireColliderScaleYZ, float rearRimColliderScaleYZ)
         {
             _wheelsCount = wheelsCount;
             _frontWheelsCount = VStancerPresetUtilities.CalculateFrontWheelsCount(_wheelsCount);
