@@ -25,6 +25,11 @@ namespace VStancer.Client
         private Menu _editorMenu;
 
         /// <summary>
+        /// The wheel mod size editor menu
+        /// </summary>
+        private Menu _wheelModSizeMenu;
+
+        /// <summary>
         /// The local presets menu
         /// </summary>
         private Menu _personalPresetsMenu;
@@ -61,11 +66,6 @@ namespace VStancer.Client
         /// </summary>
         public event EventHandler<string> PersonalPresetsMenuDeletePreset;
 
-        private string ResetID => VStancerEditor.ResetID;
-        private string FrontOffsetID => VStancerEditor.FrontOffsetID;
-        private string FrontRotationID => VStancerEditor.FrontRotationID;
-        private string RearOffsetID => VStancerEditor.RearOffsetID;
-        private string RearRotationID => VStancerEditor.RearRotationID;
         private VStancerPreset CurrentPreset => _vstancerEditor.CurrentPreset;
         private float FloatStep => _vstancerEditor.Config.FloatStep;
 
@@ -159,8 +159,20 @@ namespace VStancer.Client
                 _editorMenu.OnItemSelect += (menu, menuItem, itemIndex) =>
                 {
                     // If the selected item is the reset button
-                    if (menuItem.ItemData as string == ResetID)
+                    if (menuItem.ItemData as string == VStancerEditor.ResetID)
                         EditorMenuResetPreset.Invoke(this, EventArgs.Empty);
+                };
+            }
+
+            if(_wheelModSizeMenu == null)
+            {
+                _wheelModSizeMenu = new Menu(Globals.ScriptName, "Wheel Mod Size");
+
+                // When the value of a MenuDynamicListItem is changed
+                _wheelModSizeMenu.OnDynamicListItemCurrentItemChange += (menu, dynamicListItem, oldValue, newValue) =>
+                {
+                    string id = dynamicListItem.ItemData as string;
+                    EditorMenuPresetValueChanged?.Invoke(id, newValue);
                 };
             }
 
@@ -196,13 +208,16 @@ namespace VStancer.Client
                 #endregion
             }
 
+            // This goes here as doesn't need to be created everytime
             UpdatePersonalPresetsMenu();
+
             UpdateEditorMenu();
 
             if (_menuController == null)
             {
                 _menuController = new MenuController();
                 MenuController.AddMenu(_editorMenu);
+                MenuController.AddSubmenu(_editorMenu, _wheelModSizeMenu);
                 MenuController.AddSubmenu(_editorMenu, _personalPresetsMenu);
                 MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
                 MenuController.MenuToggleKey = (Control)_vstancerEditor.Config.ToggleMenuControl;
@@ -243,11 +258,29 @@ namespace VStancer.Client
             if (!_vstancerEditor.CurrentPresetIsValid)
                 return;
 
-            AddDynamicFloatList(_editorMenu, "Front Track Width", -CurrentPreset.DefaultFrontPositionX, -CurrentPreset.FrontPositionX, _vstancerEditor.Config.FrontLimits.PositionX, FrontOffsetID);
-            AddDynamicFloatList(_editorMenu, "Rear Track Width", -CurrentPreset.DefaultRearPositionX, -CurrentPreset.RearPositionX, _vstancerEditor.Config.RearLimits.PositionX, RearOffsetID);
-            AddDynamicFloatList(_editorMenu, "Front Camber", CurrentPreset.DefaultFrontRotationY, CurrentPreset.FrontRotationY, _vstancerEditor.Config.FrontLimits.RotationY, FrontRotationID);
-            AddDynamicFloatList(_editorMenu, "Rear Camber", CurrentPreset.DefaultRearRotationY, CurrentPreset.RearRotationY, _vstancerEditor.Config.RearLimits.RotationY, RearRotationID);
-            _editorMenu.AddMenuItem(new MenuItem("Reset", "Restores the default values") { ItemData = ResetID });
+            AddDynamicFloatList(_editorMenu, "Front Track Width", -CurrentPreset.DefaultFrontPositionX, -CurrentPreset.FrontPositionX, _vstancerEditor.Config.FrontLimits.PositionX, VStancerEditor.FrontOffsetID);
+            AddDynamicFloatList(_editorMenu, "Rear Track Width", -CurrentPreset.DefaultRearPositionX, -CurrentPreset.RearPositionX, _vstancerEditor.Config.RearLimits.PositionX, VStancerEditor.RearOffsetID);
+            AddDynamicFloatList(_editorMenu, "Front Camber", CurrentPreset.DefaultFrontRotationY, CurrentPreset.FrontRotationY, _vstancerEditor.Config.FrontLimits.RotationY, VStancerEditor.FrontRotationID);
+            AddDynamicFloatList(_editorMenu, "Rear Camber", CurrentPreset.DefaultRearRotationY, CurrentPreset.RearRotationY, _vstancerEditor.Config.RearLimits.RotationY, VStancerEditor.RearRotationID);
+            _editorMenu.AddMenuItem(new MenuItem("Reset", "Restores the default values") { ItemData = VStancerEditor.ResetID });
+
+            UpdateWheelModSizeMenu();
+            var wheelModSizeMenuItem = new MenuItem("Wheel Mod Size");
+            if(_wheelModSizeMenu == null)
+            {
+                wheelModSizeMenuItem.Enabled = false;
+                wheelModSizeMenuItem.RightIcon = MenuItem.Icon.LOCK;
+                wheelModSizeMenuItem.Description = "Install a wheel mod to access to this menu";
+            }
+            else
+            {
+                wheelModSizeMenuItem.Enabled = true;
+                wheelModSizeMenuItem.Label = "→→→";
+                wheelModSizeMenuItem.Description = "The menu to edit the size of the wheel mods.";
+            }
+
+            _editorMenu.AddMenuItem(wheelModSizeMenuItem);
+            MenuController.BindMenuItem(_editorMenu, _wheelModSizeMenu, wheelModSizeMenuItem);
 
             // Create personal presets button and bind it to the submenu
             var personalPresetsItem = new MenuItem("Personal Presets", "The vstancer presets saved by you.")
@@ -258,6 +291,31 @@ namespace VStancer.Client
             MenuController.BindMenuItem(_editorMenu, _personalPresetsMenu, personalPresetsItem);
         }
 
+        private void UpdateWheelModSizeMenu()
+        {
+            if (_wheelModSizeMenu == null)
+                return;
+
+            _wheelModSizeMenu.ClearMenuItems();
+
+            if (CurrentPreset == null || _vstancerEditor.CurrentPreset.WheelModSize == null)
+                return;
+
+            AddDynamicFloatList(_wheelModSizeMenu,
+                "Wheel Width",
+                CurrentPreset.WheelModSize.DefaultWheelWidth,
+                CurrentPreset.WheelModSize.WheelWidth,
+                _vstancerEditor.Config.WheelModSize.WheelWidth,
+                VStancerEditor.WheelModWidthID);
+
+            AddDynamicFloatList(_wheelModSizeMenu,
+                "Wheel Radius",
+                CurrentPreset.WheelModSize.DefaultWheelSize,
+                CurrentPreset.WheelModSize.WheelSize,
+                _vstancerEditor.Config.WheelModSize.WheelSize,
+                VStancerEditor.WheelModSizeID);
+        }
+
         /// <summary>
         /// Constructor with dependency injection
         /// </summary>
@@ -266,6 +324,7 @@ namespace VStancer.Client
         {
             _vstancerEditor = script;
             _vstancerEditor.NewPresetCreated += new EventHandler((sender,args) => UpdateEditorMenu());
+            _vstancerEditor.VehicleWheelModChanged += new EventHandler((sender,args) => UpdateWheelModSizeMenu());
             _vstancerEditor.ToggleMenuVisibility += new EventHandler((sender,args) => 
             {
                 //var currentMenu = MenuController.GetCurrentMenu();

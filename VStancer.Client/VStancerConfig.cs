@@ -11,6 +11,7 @@
         public float FloatStep { get; set; }
         public NodeLimits FrontLimits { get; set; }
         public NodeLimits RearLimits { get; set; }
+        public WheelModSize WheelModSize { get; set; }
 
         public VStancerConfig()
         {
@@ -23,6 +24,25 @@
             FloatStep = 0.01f;
             FrontLimits = new NodeLimits { PositionX = 0.25f, RotationY = 0.20f };
             RearLimits = new NodeLimits { PositionX = 0.25f, RotationY = 0.20f };
+            
+            WheelModSize = new WheelModSize
+            {
+                EnableWheelModSize = true,
+                WheelSize = 0.2f,
+                WheelWidth = 0.2f,
+                FrontWheelModSizeNodeLimit = new WheelModSizeNodeLimit
+                {
+                    TireColliderScaleX = 0.1f,
+                    TireColliderScaleYZ = 0.1f,
+                    RimColliderScaleYZ = 0.1f,
+                },
+                RearWheelModSizeNodeLimit = new WheelModSizeNodeLimit
+                {
+                    TireColliderScaleX = 0.1f,
+                    TireColliderScaleYZ = 0.1f,
+                    RimColliderScaleYZ = 0.1f,
+                },
+            };
         }
     }
 
@@ -30,5 +50,21 @@
     {
         public float PositionX { get; set; }
         public float RotationY { get; set; }
+    }
+
+    public struct WheelModSizeNodeLimit
+    {
+        public float TireColliderScaleX { get; set; }
+        public float TireColliderScaleYZ { get; set; }
+        public float RimColliderScaleYZ { get; set; }
+    }
+
+    public struct WheelModSize
+    {
+        public bool EnableWheelModSize { get; set; }
+        public float WheelSize { get; set; }
+        public float WheelWidth { get; set; }
+        public WheelModSizeNodeLimit FrontWheelModSizeNodeLimit { get; set; }
+        public WheelModSizeNodeLimit RearWheelModSizeNodeLimit { get; set; }
     }
 }
