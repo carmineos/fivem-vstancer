@@ -84,49 +84,46 @@ namespace VStancer.Client
             }
         }
 
-        public VStancerPreset(int count, float frontOffset, float frontRotation, float rearOffset, float rearRotation, float defaultFrontOffset, float defaultFrontRotation, float defaultRearOffset, float defaultRearRotation)
+        public VStancerPreset(int count, float defaultFrontOffset, float defaultFrontRotation, float defaultRearOffset, float defaultRearRotation)
         {
             WheelsCount = count;
 
             DefaultNodes = new VStancerNode[WheelsCount];
-            Nodes = new VStancerNode[WheelsCount];
 
             FrontWheelsCount = VStancerPresetUtilities.CalculateFrontWheelsCount(WheelsCount);
 
-            for (int index = 0; index < FrontWheelsCount; index++)
+            for (int i = 0; i < FrontWheelsCount; i++)
             {
-                if (index % 2 == 0)
+                if (i % 2 == 0)
                 {
-                    DefaultNodes[index].RotationY = defaultFrontRotation;
-                    DefaultNodes[index].PositionX = defaultFrontOffset;
-                    Nodes[index].RotationY = frontRotation;
-                    Nodes[index].PositionX = frontOffset;
+                    DefaultNodes[i].RotationY = defaultFrontRotation;
+                    DefaultNodes[i].PositionX = defaultFrontOffset;
                 }
                 else
                 {
-                    DefaultNodes[index].RotationY = -defaultFrontRotation;
-                    DefaultNodes[index].PositionX = -defaultFrontOffset;
-                    Nodes[index].RotationY = -frontRotation;
-                    Nodes[index].PositionX = -frontOffset;
+                    DefaultNodes[i].RotationY = -defaultFrontRotation;
+                    DefaultNodes[i].PositionX = -defaultFrontOffset;
                 }
             }
 
-            for (int index = FrontWheelsCount; index < WheelsCount; index++)
+            for (int i = FrontWheelsCount; i < WheelsCount; i++)
             {
-                if (index % 2 == 0)
+                if (i % 2 == 0)
                 {
-                    DefaultNodes[index].RotationY = defaultRearRotation;
-                    DefaultNodes[index].PositionX = defaultRearOffset;
-                    Nodes[index].RotationY = rearRotation;
-                    Nodes[index].PositionX = rearOffset;
+                    DefaultNodes[i].RotationY = defaultRearRotation;
+                    DefaultNodes[i].PositionX = defaultRearOffset;
                 }
                 else
                 {
-                    DefaultNodes[index].RotationY = -defaultRearRotation;
-                    DefaultNodes[index].PositionX = -defaultRearOffset;
-                    Nodes[index].RotationY = -rearRotation;
-                    Nodes[index].PositionX = -rearOffset;
+                    DefaultNodes[i].RotationY = -defaultRearRotation;
+                    DefaultNodes[i].PositionX = -defaultRearOffset;
                 }
+            }
+
+            Nodes = new VStancerNode[WheelsCount];
+            for (int i = 0; i < WheelsCount; i++)
+            {
+                Nodes[i] = DefaultNodes[i];
             }
         }
 

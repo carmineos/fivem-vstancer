@@ -495,9 +495,15 @@ namespace VStancer.Client
 
             if (vehicle == _playerVehicleHandle)
             {
-                CurrentPreset = new VStancerPreset(wheelsCount, frontOffset, frontRotation, rearOffset, rearRotation, off_f_def, rot_f_def, off_r_def, rot_r_def);
-                CurrentPreset.PresetEdited += OnPresetEdited;
+                CurrentPreset = new VStancerPreset(wheelsCount, off_f_def, rot_f_def, off_r_def, rot_r_def)
+                {
+                    FrontPositionX = frontOffset,
+                    FrontRotationY = frontRotation,
+                    RearPositionX = rearOffset,
+                    RearRotationY = rearRotation
+                };
 
+                CurrentPreset.PresetEdited += OnPresetEdited;
                 NewPresetCreated?.Invoke(this, EventArgs.Empty);
             }
             else
@@ -592,7 +598,13 @@ namespace VStancer.Client
             float off_r = DecorExistOn(vehicle, RearOffsetID) ? DecorGetFloat(vehicle, RearOffsetID) : off_r_def;
             float rot_r = DecorExistOn(vehicle, RearRotationID) ? DecorGetFloat(vehicle, RearRotationID) : rot_r_def;
 
-            return new VStancerPreset(wheelsCount, off_f, rot_f, off_r, rot_r, off_f_def, rot_f_def, off_r_def, rot_r_def);
+            return new VStancerPreset(wheelsCount, off_f_def, rot_f_def, off_r_def, rot_r_def)
+            {
+                FrontPositionX = off_f,
+                FrontRotationY = rot_f,
+                RearPositionX = off_r,
+                RearRotationY = rot_r,
+            };
         }
 
         /// <summary>
