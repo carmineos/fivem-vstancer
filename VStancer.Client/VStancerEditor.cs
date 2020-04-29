@@ -389,7 +389,7 @@ namespace VStancer.Client
         private VStancerExtra GetVStancerExtraFromHandle(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
+            int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
 
             float wheelWidth = DecorExistOn(vehicle, DefaultExtraWidthID) ? DecorGetFloat(vehicle, DefaultExtraWidthID) : GetVehicleWheelWidth(vehicle);
             float wheelSize = DecorExistOn(vehicle, DefaultExtraSizeID) ? DecorGetFloat(vehicle, DefaultExtraSizeID) : GetVehicleWheelSize(vehicle);
@@ -583,7 +583,7 @@ namespace VStancer.Client
                 return;
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
+            int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
 
             float off_f_def = defaultFrontOffset is float
                 ? (float)defaultFrontOffset
@@ -699,7 +699,7 @@ namespace VStancer.Client
                 Screen.ShowNotification($"~o~Warning~w~: You are creating a vstancer preset for a damaged vehicle, default position and rotation of the wheels might be wrong");
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
+            int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
 
             // Get default values first
             float off_f_def = DecorExistOn(vehicle, DefaultFrontTrackWidthID) ? DecorGetFloat(vehicle, DefaultFrontTrackWidthID) : GetVehicleWheelXOffset(vehicle, 0);
@@ -745,7 +745,7 @@ namespace VStancer.Client
         private void UpdateVehicleUsingDecorators(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
+            int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
 
             if (DecorExistOn(vehicle, FrontTrackWidthID))
             {
