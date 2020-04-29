@@ -123,6 +123,7 @@ namespace VStancer.Client
             _lastTime = GetGameTimer();
             _playerVehicleHandle = -1;
             CurrentPreset = null;
+            CurrentExtra = null;
             VehicleWheelMod = -1;
             _worldVehiclesHandles = Enumerable.Empty<int>();
 
@@ -185,12 +186,19 @@ namespace VStancer.Client
                 if (CurrentPreset != null)
                     Debug.WriteLine(CurrentPreset.ToString());
                 else
-                    Debug.WriteLine($"{Globals.ScriptName}: Current preset doesn't exist");
+                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(CurrentPreset)} is null");
+
+                if (CurrentExtra != null)
+                    Debug.WriteLine(CurrentExtra.ToString());
+                else
+                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(CurrentExtra)} is null");
             }), false);
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
                 PrintVehiclesWithDecorators(_worldVehiclesHandles);
+                if(Config.Extra.EnableExtra)
+                    PrintVehiclesWithExtraDecorators(_worldVehiclesHandles);
             }), false);
 
             if (Config.ExposeCommand)
@@ -850,6 +858,21 @@ namespace VStancer.Client
                 s.AppendLine($"{RearCamberID}: {value}");
             }
 
+            if(Config.Extra.EnableExtra)
+            {
+                if (DecorExistOn(vehicle, ExtraSizeID))
+                {
+                    float value = DecorGetFloat(vehicle, ExtraSizeID);
+                    s.AppendLine($"{ExtraSizeID}: {value}");
+                }
+
+                if (DecorExistOn(vehicle, ExtraWidthID))
+                {
+                    float value = DecorGetFloat(vehicle, ExtraWidthID);
+                    s.AppendLine($"{ExtraWidthID}: {value}");
+                }
+            }
+
             Debug.WriteLine(s.ToString());
         }
 
@@ -859,9 +882,19 @@ namespace VStancer.Client
         /// <param name="vehiclesList">The list of the vehicles' handles</param>
         private void PrintVehiclesWithDecorators(IEnumerable<int> vehiclesList)
         {
-            IEnumerable<int> entities = vehiclesList.Where(entity => EntityHasDecorators(entity));
+            IEnumerable<int> entities = vehiclesList.Where(entity => EntityHasPresetDecorators(entity));
 
             Debug.WriteLine($"{Globals.ScriptName}: Vehicles with decorators: {entities.Count()}");
+
+            foreach (int item in entities)
+                Debug.WriteLine($"Vehicle: {item}");
+        }
+
+        private void PrintVehiclesWithExtraDecorators(IEnumerable<int> vehiclesList)
+        {
+            IEnumerable<int> entities = vehiclesList.Where(entity => EntityHasExtraDecorators(entity));
+
+            Debug.WriteLine($"{Globals.ScriptName}: Vehicles with extra decorators: {entities.Count()}");
 
             foreach (int item in entities)
                 Debug.WriteLine($"Vehicle: {item}");
@@ -872,7 +905,7 @@ namespace VStancer.Client
         /// </summary>
         /// <param name="entity">The handle of the entity</param>
         /// <returns></returns>
-        private bool EntityHasDecorators(int entity)
+        private bool EntityHasPresetDecorators(int entity)
         {
             return (
                 DecorExistOn(entity, FrontTrackWidthID) ||
@@ -883,6 +916,16 @@ namespace VStancer.Client
                 DecorExistOn(entity, DefaultFrontCamberID) ||
                 DecorExistOn(entity, DefaultRearTrackWidthID) ||
                 DecorExistOn(entity, DefaultRearCamberID)
+                );
+        }
+
+        private bool EntityHasExtraDecorators(int entity)
+        {
+            return (
+                DecorExistOn(entity, ExtraSizeID) ||
+                DecorExistOn(entity, ExtraWidthID) ||
+                DecorExistOn(entity, DefaultExtraSizeID) ||
+                DecorExistOn(entity, DefaultExtraWidthID)
                 );
         }
 
