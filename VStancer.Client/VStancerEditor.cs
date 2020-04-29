@@ -100,7 +100,7 @@ namespace VStancer.Client
         /// Invoked when <see cref="CurrentPreset"/> is changed
         /// </summary>
         public event EventHandler NewPresetCreated;
-        public event EventHandler VehicleWheelModChanged;
+        public event EventHandler ExtraChanged;
 
         /// <summary>
         /// Triggered when the client wants to manually toggle the menu visibility
@@ -228,10 +228,10 @@ namespace VStancer.Client
         {
             if(CurrentPresetIsValid)
             {
-                if (CurrentPreset.WheelModSize != null)
+                if (CurrentPreset.Extra != null)
                 {
-                    CurrentPreset.WheelModSize.PropertyEdited -= OnWheelModSizePropertyEdited;
-                    CurrentPreset.WheelModSize = null;
+                    CurrentPreset.Extra.PropertyEdited -= OnWheelModSizePropertyEdited;
+                    CurrentPreset.Extra = null;
                 }
                 VehicleWheelMod = -1;
 
@@ -249,15 +249,16 @@ namespace VStancer.Client
             bool result = false;
             switch(propertyName)
             {
-                case nameof(VStancerPreset.WheelModSize.WheelWidth):
+                case nameof(VStancerPreset.Extra.WheelWidth):
                     result = SetVehicleWheelWidth(_playerVehicleHandle, value);
                     if (result)
-                        UpdateFloatDecorator(_playerVehicleHandle, WheelModWidthID, value, CurrentPreset.WheelModSize.DefaultWheelWidth);
+                        UpdateFloatDecorator(_playerVehicleHandle, WheelModWidthID, value, CurrentPreset.Extra.DefaultWheelWidth);
                     break;
-                case nameof(VStancerPreset.WheelModSize.WheelSize):
+
+                case nameof(VStancerPreset.Extra.WheelSize):
                     result = SetVehicleWheelSize(_playerVehicleHandle, value); 
                     if (result)
-                        UpdateFloatDecorator(_playerVehicleHandle, WheelModSizeID, value, CurrentPreset.WheelModSize.DefaultWheelSize);
+                        UpdateFloatDecorator(_playerVehicleHandle, WheelModSizeID, value, CurrentPreset.Extra.DefaultWheelSize);
                     break;
 
                 default:
@@ -330,30 +331,35 @@ namespace VStancer.Client
                 triggerEvent = true;
             }
 
-            if (Config.WheelModSize.EnableWheelModSize)
+            if (Config.Extra.EnableExtra)
             {
                 int vehicleWheelMod = GetVehicleMod(_playerVehicleHandle, 23);
+                
                 // If wheel mod status is different from previous one
                 if (vehicleWheelMod != VehicleWheelMod)
                 {
+                    // Unsubscribe
+                    if (CurrentPreset.Extra != null)
+                        CurrentPreset.Extra.PropertyEdited -= OnWheelModSizePropertyEdited;
+
                     if (Config.Debug)
                         CitizenFX.Core.Debug.WriteLine($"New vehicle mod of type 23: {vehicleWheelMod}");
 
-                    if (vehicleWheelMod != -1)
+                    // If new value value is "no mod installed"
+                    if (vehicleWheelMod == -1)
                     {
-                        GetVehicleWheelSizeForPreset(_playerVehicleHandle, CurrentPreset);
-                        CurrentPreset.WheelModSize.PropertyEdited += OnWheelModSizePropertyEdited;
+                        CurrentPreset.Extra = null;
                     }
                     else
                     {
-                        CurrentPreset.WheelModSize.PropertyEdited -= OnWheelModSizePropertyEdited;
-                        CurrentPreset.WheelModSize = null;
+                        // Get new data from entity
+                        CurrentPreset.Extra = GetVStancerExtraFromHandle(_playerVehicleHandle);
+                        CurrentPreset.Extra.PropertyEdited += OnWheelModSizePropertyEdited;
                     }
                     VehicleWheelMod = vehicleWheelMod;
 
-
                     // TODO: Avoid notifying the menu to redraw whole menu
-                    VehicleWheelModChanged?.Invoke(this, EventArgs.Empty);
+                    ExtraChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
 
@@ -361,10 +367,10 @@ namespace VStancer.Client
                 NewPresetCreated?.Invoke(this, EventArgs.Empty);
         }
 
-        private void GetVehicleWheelSizeForPreset(int vehicle, VStancerPreset preset)
+        private VStancerExtra GetVStancerExtraFromHandle(int vehicle)
         {
-            int wheelsCount = preset.WheelsCount;
-            int frontWheelsCount = preset.FrontWheelsCount;
+            int wheelsCount = GetVehicleNumberOfWheels(vehicle);
+            int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
 
             float wheelWidth = DecorExistOn(vehicle, DefaultWheelModWidthID) ? DecorGetFloat(vehicle, DefaultWheelModWidthID) : GetVehicleWheelWidth(vehicle);
             float wheelSize = DecorExistOn(vehicle, DefaultWheelModSizeID) ? DecorGetFloat(vehicle, DefaultWheelModSizeID) : GetVehicleWheelSize(vehicle);
@@ -372,12 +378,12 @@ namespace VStancer.Client
             float frontTireColliderScaleYZ_def = DecorExistOn(vehicle, DefaultFrontWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultFrontWheelModTireColliderScaleYZID) : GetVehicleWheelTireColliderSize(vehicle, 0);
             float frontRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultFrontWheelModRimColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultFrontWheelModRimColliderScaleYZID) : GetVehicleWheelRimColliderSize(vehicle, 0);
 
-            float rearTireColliderScaleX_def = DecorExistOn(vehicle, DefaultRearWheelModTireColliderScaleXID) ? DecorGetFloat(vehicle, DefaultRearWheelModTireColliderScaleXID) : GetVehicleWheelTireColliderWidth(vehicle, frontWheelsCount);
-            float rearTireColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultRearWheelModTireColliderScaleYZID) : GetVehicleWheelTireColliderSize(vehicle, frontWheelsCount);
-            float rearRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearWheelModRimColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultRearWheelModRimColliderScaleYZID) : GetVehicleWheelRimColliderSize(vehicle, frontWheelsCount);
+            float rearTireColliderScaleX_def = DecorExistOn(vehicle, DefaultRearWheelModTireColliderScaleXID) ? DecorGetFloat(vehicle, DefaultRearWheelModTireColliderScaleXID) : GetVehicleWheelTireColliderWidth(vehicle, frontCount);
+            float rearTireColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultRearWheelModTireColliderScaleYZID) : GetVehicleWheelTireColliderSize(vehicle, frontCount);
+            float rearRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearWheelModRimColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultRearWheelModRimColliderScaleYZID) : GetVehicleWheelRimColliderSize(vehicle, frontCount);
 
             // Create the preset with the default values
-            preset.WheelModSize = new VStancerWheelModSize(wheelsCount, wheelWidth, wheelSize,
+            return new VStancerExtra(wheelsCount, wheelWidth, wheelSize,
                 frontTireColliderScaleX_def, frontTireColliderScaleYZ_def, frontRimColliderScaleYZ_def,
                 rearTireColliderScaleX_def, rearTireColliderScaleYZ_def, rearRimColliderScaleYZ_def)
             {
@@ -470,7 +476,7 @@ namespace VStancer.Client
             DecorRegister(DefaultRearOffsetID, 1);
             DecorRegister(DefaultRearRotationID, 1);
 
-            if(Config.WheelModSize.EnableWheelModSize)
+            if(Config.Extra.EnableExtra)
             {
                 DecorRegister(WheelModWidthID, 1);
                 DecorRegister(WheelModSizeID, 1);
@@ -508,7 +514,7 @@ namespace VStancer.Client
             if (DecorExistOn(vehicle, DefaultRearRotationID))
                 DecorRemove(vehicle, DefaultRearRotationID);
 
-            if (Config.WheelModSize.EnableWheelModSize)
+            if (Config.Extra.EnableExtra)
             {
                 if (DecorExistOn(vehicle, WheelModSizeID))
                     DecorRemove(vehicle, WheelModSizeID);
@@ -767,7 +773,7 @@ namespace VStancer.Client
                 }
             }
 
-            if(Config.WheelModSize.EnableWheelModSize)
+            if(Config.Extra.EnableExtra)
             {
                 if (DecorExistOn(vehicle, WheelModSizeID))
                     SetVehicleWheelSize(vehicle, DecorGetFloat(vehicle, WheelModSizeID));
@@ -972,12 +978,12 @@ namespace VStancer.Client
 
                     // Wheel size IDs
                 case WheelModWidthID:
-                    if(CurrentPreset.WheelModSize != null)
-                        CurrentPreset.WheelModSize.WheelWidth = value;
+                    if(CurrentPreset.Extra != null)
+                        CurrentPreset.Extra.WheelWidth = value;
                     break;
                 case WheelModSizeID:
-                    if (CurrentPreset.WheelModSize != null)
-                        CurrentPreset.WheelModSize.WheelSize = value;
+                    if (CurrentPreset.Extra != null)
+                        CurrentPreset.Extra.WheelSize = value;
                     break;
 
                 default:

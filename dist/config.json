@@ -14,10 +14,10 @@
     "PositionX": 0.25,
     "RotationY": 0.2
   },
-  "WheelModSize": {
-    "EnableWheelModSize": true,
-    "WheelSize":  0.20,
-    "WheelWidth":  0.20,
+  "Extra": {
+    "EnableExtra": true,
+    "WheelSize": 0.20,
+    "WheelWidth": 0.20,
     "FrontWheelModSizeNodeLimit": {
       "TireColliderScaleX": 0.20,
       "TireColliderScaleYZ": 0.20,

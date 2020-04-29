@@ -34,6 +34,8 @@ namespace VStancer.Client
         /// </summary>
         private Menu _personalPresetsMenu;
 
+        private MenuItem _wheelModSizeMenuItem;
+
         /// <summary>
         /// Invoked when a property has its value changed in the UI
         /// </summary>
@@ -265,22 +267,11 @@ namespace VStancer.Client
             _editorMenu.AddMenuItem(new MenuItem("Reset", "Restores the default values") { ItemData = VStancerEditor.ResetID });
 
             UpdateWheelModSizeMenu();
-            var wheelModSizeMenuItem = new MenuItem("Wheel Mod Size");
-            if(_wheelModSizeMenu == null)
-            {
-                wheelModSizeMenuItem.Enabled = false;
-                wheelModSizeMenuItem.RightIcon = MenuItem.Icon.LOCK;
-                wheelModSizeMenuItem.Description = "Install a wheel mod to access to this menu";
-            }
-            else
-            {
-                wheelModSizeMenuItem.Enabled = true;
-                wheelModSizeMenuItem.Label = "→→→";
-                wheelModSizeMenuItem.Description = "The menu to edit the size of the wheel mods.";
-            }
+            _wheelModSizeMenuItem = new MenuItem("Wheel Mod Size");
+            UpdateWheelModSizeMenuItem();
 
-            _editorMenu.AddMenuItem(wheelModSizeMenuItem);
-            MenuController.BindMenuItem(_editorMenu, _wheelModSizeMenu, wheelModSizeMenuItem);
+            _editorMenu.AddMenuItem(_wheelModSizeMenuItem);
+            MenuController.BindMenuItem(_editorMenu, _wheelModSizeMenu, _wheelModSizeMenuItem);
 
             // Create personal presets button and bind it to the submenu
             var personalPresetsItem = new MenuItem("Personal Presets", "The vstancer presets saved by you.")
@@ -291,6 +282,27 @@ namespace VStancer.Client
             MenuController.BindMenuItem(_editorMenu, _personalPresetsMenu, personalPresetsItem);
         }
 
+        private void UpdateWheelModSizeMenuItem()
+        {
+            if(_wheelModSizeMenuItem == null)
+                return;
+            
+            if (_vstancerEditor.CurrentPreset?.Extra == null)
+            {
+                _wheelModSizeMenuItem.Enabled = false;
+                _wheelModSizeMenuItem.RightIcon = MenuItem.Icon.LOCK;
+                _wheelModSizeMenuItem.Label = string.Empty;
+                _wheelModSizeMenuItem.Description = "Install a wheel mod to access to this menu";
+            }
+            else
+            {
+                _wheelModSizeMenuItem.Enabled = true;
+                _wheelModSizeMenuItem.RightIcon = MenuItem.Icon.NONE;
+                _wheelModSizeMenuItem.Label = "→→→";
+                _wheelModSizeMenuItem.Description = "The menu to edit the size of the wheel mods.";
+            }
+        }
+
         private void UpdateWheelModSizeMenu()
         {
             if (_wheelModSizeMenu == null)
@@ -298,21 +310,21 @@ namespace VStancer.Client
 
             _wheelModSizeMenu.ClearMenuItems();
 
-            if (CurrentPreset == null || _vstancerEditor.CurrentPreset.WheelModSize == null)
+            if (CurrentPreset == null || _vstancerEditor.CurrentPreset.Extra == null)
                 return;
 
             AddDynamicFloatList(_wheelModSizeMenu,
                 "Wheel Width",
-                CurrentPreset.WheelModSize.DefaultWheelWidth,
-                CurrentPreset.WheelModSize.WheelWidth,
-                _vstancerEditor.Config.WheelModSize.WheelWidth,
+                CurrentPreset.Extra.DefaultWheelWidth,
+                CurrentPreset.Extra.WheelWidth,
+                _vstancerEditor.Config.Extra.WheelWidth,
                 VStancerEditor.WheelModWidthID);
 
             AddDynamicFloatList(_wheelModSizeMenu,
                 "Wheel Radius",
-                CurrentPreset.WheelModSize.DefaultWheelSize,
-                CurrentPreset.WheelModSize.WheelSize,
-                _vstancerEditor.Config.WheelModSize.WheelSize,
+                CurrentPreset.Extra.DefaultWheelSize,
+                CurrentPreset.Extra.WheelSize,
+                _vstancerEditor.Config.Extra.WheelSize,
                 VStancerEditor.WheelModSizeID);
         }
 
@@ -324,7 +336,12 @@ namespace VStancer.Client
         {
             _vstancerEditor = script;
             _vstancerEditor.NewPresetCreated += new EventHandler((sender,args) => UpdateEditorMenu());
-            _vstancerEditor.VehicleWheelModChanged += new EventHandler((sender,args) => UpdateWheelModSizeMenu());
+            _vstancerEditor.ExtraChanged += new EventHandler((sender,args) => 
+            {
+                UpdateWheelModSizeMenu();
+                UpdateWheelModSizeMenuItem();
+                
+            });
             _vstancerEditor.ToggleMenuVisibility += new EventHandler((sender,args) => 
             {
                 //var currentMenu = MenuController.GetCurrentMenu();

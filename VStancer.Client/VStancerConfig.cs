@@ -11,7 +11,7 @@
         public float FloatStep { get; set; }
         public NodeLimits FrontLimits { get; set; }
         public NodeLimits RearLimits { get; set; }
-        public WheelModSize WheelModSize { get; set; }
+        public Extra Extra { get; set; }
 
         public VStancerConfig()
         {
@@ -25,9 +25,9 @@
             FrontLimits = new NodeLimits { PositionX = 0.25f, RotationY = 0.20f };
             RearLimits = new NodeLimits { PositionX = 0.25f, RotationY = 0.20f };
             
-            WheelModSize = new WheelModSize
+            Extra = new Extra
             {
-                EnableWheelModSize = true,
+                EnableExtra = true,
                 WheelSize = 0.2f,
                 WheelWidth = 0.2f,
                 FrontWheelModSizeNodeLimit = new WheelModSizeNodeLimit
@@ -59,9 +59,9 @@
         public float RimColliderScaleYZ { get; set; }
     }
 
-    public struct WheelModSize
+    public struct Extra
     {
-        public bool EnableWheelModSize { get; set; }
+        public bool EnableExtra { get; set; }
         public float WheelSize { get; set; }
         public float WheelWidth { get; set; }
         public WheelModSizeNodeLimit FrontWheelModSizeNodeLimit { get; set; }

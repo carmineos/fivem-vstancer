@@ -156,10 +156,10 @@ namespace VStancer.Client
             StringBuilder s = new StringBuilder();
             s.AppendLine($"Edited:{IsEdited} Wheels count:{WheelsCount} Front count:{FrontWheelsCount}");
 
-            StringBuilder defOff = new StringBuilder(string.Format("{0,20}", "Default offset:"));
-            StringBuilder defRot = new StringBuilder(string.Format("{0,20}", "Default rotation:"));
-            StringBuilder curOff = new StringBuilder(string.Format("{0,20}", "Current offset:"));
-            StringBuilder curRot = new StringBuilder(string.Format("{0,20}", "Current rotation:"));
+            StringBuilder defOff = new StringBuilder(string.Format("{0,20}", "Default track width:"));
+            StringBuilder defRot = new StringBuilder(string.Format("{0,20}", "Default camber:"));
+            StringBuilder curOff = new StringBuilder(string.Format("{0,20}", "Current track width:"));
+            StringBuilder curRot = new StringBuilder(string.Format("{0,20}", "Current camber:"));
 
             for (int i = 0; i < WheelsCount; i++)
             {
@@ -173,6 +173,11 @@ namespace VStancer.Client
             s.AppendLine(defOff.ToString());
             s.AppendLine(curRot.ToString());
             s.AppendLine(defRot.ToString());
+
+            if(Extra != null)
+            {
+                s.AppendLine(Extra.ToString());
+            }
 
             return s.ToString();
         }
@@ -210,7 +215,7 @@ namespace VStancer.Client
         /// <summary>
         /// The size of the modded wheels in case they are installed
         /// </summary>
-        public VStancerWheelModSize WheelModSize { get; set; } = null;
+        public VStancerExtra Extra { get; set; } = null;
     }
 
 
@@ -229,7 +234,7 @@ namespace VStancer.Client
     }
 
 
-    public class VStancerWheelModSize
+    public class VStancerExtra
     {
         private const float Epsilon = VStancerPresetUtilities.Epsilon;
         private readonly int _wheelsCount;
@@ -251,7 +256,7 @@ namespace VStancer.Client
                     return;
 
                 wheelSize = value;
-                PropertyEdited(nameof(WheelSize), value);
+                PropertyEdited?.Invoke(nameof(WheelSize), value);
             }
         }
 
@@ -264,7 +269,7 @@ namespace VStancer.Client
                     return;
 
                 wheelWidth = value;
-                PropertyEdited(nameof(WheelWidth), value);
+                PropertyEdited?.Invoke(nameof(WheelWidth), value);
             }
         }
 
@@ -274,7 +279,7 @@ namespace VStancer.Client
          public VStancerWheelModSizeNode[] Nodes { get; set; }
         public VStancerWheelModSizeNode[] DefaultNodes { get; private set; }
 
-        public VStancerWheelModSize(int wheelsCount, float width, float radius, 
+        public VStancerExtra(int wheelsCount, float width, float radius, 
             float frontTireColliderScaleX, float frontTireColliderScaleYZ, float frontRimColliderScaleYZ,
             float rearTireColliderScaleX, float rearTireColliderScaleYZ, float rearRimColliderScaleYZ)
         {
@@ -437,14 +442,25 @@ namespace VStancer.Client
                 return false;
             }
         }
+
+        public override string ToString()
+        {
+            StringBuilder s = new StringBuilder();
+            s.AppendLine($"{nameof(VStancerExtra)}, Edited:{IsEdited}");
+            s.AppendLine($"{nameof(WheelSize)}: {WheelSize} ({DefaultWheelSize})");
+            s.AppendLine($"{nameof(WheelWidth)}: {WheelWidth} ({DefaultWheelWidth})");
+            
+            for (int i = 0; i < _wheelsCount; i++)
+            {
+                var defNode = DefaultNodes[i];
+                var node = Nodes[i];
+                s.Append($"Wheel {i}: {nameof(VStancerWheelModSizeNode.TireColliderScaleX)}: {node.TireColliderScaleX} ({defNode.TireColliderScaleX})");
+                s.Append($" {nameof(VStancerWheelModSizeNode.TireColliderScaleYZ)}: {node.TireColliderScaleYZ} ({defNode.TireColliderScaleYZ})");
+                s.AppendLine($" {nameof(VStancerWheelModSizeNode.RimColliderScaleYZ)}: {node.RimColliderScaleYZ} ({defNode.RimColliderScaleYZ})");
+            }
+            return s.ToString();
+        }
     }
-
-
-
-
-
-
-
 
     public struct VStancerWheelModSizeNode
     {
