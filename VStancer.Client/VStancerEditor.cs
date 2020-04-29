@@ -42,50 +42,52 @@ namespace VStancer.Client
         /// </summary>
         private const float Epsilon = 0.001f;
 
-        public const string FrontOffsetID = "vstancer_off_f";
-        public const string FrontRotationID = "vstancer_rot_f";
-        public const string RearOffsetID = "vstancer_off_r";
-        public const string RearRotationID = "vstancer_rot_r";
+        public const string FrontTrackWidthID = "vstancer_trackwidth_f";
+        public const string RearTrackWidthID = "vstancer_trackwidth_r";
+        public const string FrontCamberID = "vstancer_camber_f";
+        public const string RearCamberID = "vstancer_camber_r";
 
-        public const string DefaultFrontOffsetID = "vstancer_off_f_def";
-        public const string DefaultFrontRotationID = "vstancer_rot_f_def";
-        public const string DefaultRearOffsetID = "vstancer_off_r_def";
-        public const string DefaultRearRotationID = "vstancer_rot_r_def";
+        public const string DefaultFrontTrackWidthID = "vstancer_trackwidth_f_def";
+        public const string DefaultRearTrackWidthID = "vstancer_trackwidth_r_def";
+        public const string DefaultFrontCamberID = "vstancer_camber_f_def";
+        public const string DefaultRearCamberID = "vstancer_camber_r_def";
 
         public const string ResetID = "vstancer_reset";
         public const string ExtraResetID = "vstancer_extra_reset";
 
-        public const string WheelModWidthID = "vstancer_wheelmod_width";
-        public const string WheelModSizeID = "vstancer_wheelmod_size";
-        public const string DefaultWheelModWidthID = "vstancer_wheelmod_width_def";
-        public const string DefaultWheelModSizeID = "vstancer_wheelmod_size_def";
+        public const string ExtraWidthID = "vstancer_extra_width";
+        public const string ExtraSizeID = "vstancer_extra_size";
+        public const string DefaultExtraWidthID = "vstancer_extra_width_def";
+        public const string DefaultExtraSizeID = "vstancer_extra_size_def";
 
-        public const string FrontWheelModTireColliderScaleXID = "vstancer_wheelmod_tirecollider_scalex_f";
-        public const string FrontWheelModTireColliderScaleYZID = "vstancer_wheelmod_tirecollider_scaleyz_f";
-        public const string FrontWheelModRimColliderScaleYZID = "vstancer_wheelmod_rimcollider_scaleyz_f";
+        public const string FrontExtraTireColliderWidthID = "vstancer_extra_tirecollider_width_f";
+        public const string FrontExtraTireColliderSizeID = "vstancer_extra_tirecollider_size_f";
+        public const string FrontExtraRimColliderSizeID = "vstancer_extra_rimcollider_size_f";
 
-        public const string RearWheelModTireColliderScaleXID = "vstancer_wheelmod_tirecollider_scalex_r";
-        public const string RearWheelModTireColliderScaleYZID = "vstancer_wheelmod_tirecollider_scaleyz_r";
-        public const string RearWheelModRimColliderScaleYZID = "vstancer_wheelmod_rimcollider_scaleyz_r";
+        public const string RearExtraTireColliderWidthID = "vstancer_extra_tirecollider_width_r";
+        public const string RearExtraTireColliderSizeID = "vstancer_extra_tirecollider_size_r";
+        public const string RearExtraRimColliderSizeID = "vstancer_extra_rimcollider_size_r";
 
-        public const string DefaultFrontWheelModTireColliderScaleXID = "vstancer_wheelmod_tirecollider_scalex_f_def";
-        public const string DefaultFrontWheelModTireColliderScaleYZID = "vstancer_wheelmod_tirecollider_scaleyz_f_def";
-        public const string DefaultFrontWheelModRimColliderScaleYZID = "vstancer_wheelmod_rimcollider_scaleyz_f_def";
+        public const string DefaultFrontExtraTireColliderWidthID = "vstancer_extra_tirecollider_width_f_def";
+        public const string DefaultFrontExtraTireColliderSizeID = "vstancer_extra_tirecollider_size_f_def";
+        public const string DefaultFrontExtraRimColliderSizeZID = "vstancer_extra_rimcollider_size_f_def";
 
-        public const string DefaultRearWheelModTireColliderScaleXID = "vstancer_wheelmod_tirecollider_scalex_r_def";
-        public const string DefaultRearWheelModTireColliderScaleYZID = "vstancer_wheelmod_tirecollider_scaleyz_r_def";
-        public const string DefaultRearWheelModRimColliderScaleYZID = "vstancer_wheelmod_rimcollider_scaleyz_r_def";
+        public const string DefaultRearExtraTireColliderWidthID = "vstancer_extra_tirecollider_width_r_def";
+        public const string DefaultRearExtraTireColliderSizeID = "vstancer_extra_tirecollider_size_r_def";
+        public const string DefaultRearExtraRimColliderSizeID = "vstancer_extra_rimcollider_size_r_def";
 
         /// <summary>
         /// Returns wheter <see cref="_playerVehicleHandle"/> and <see cref="CurrentPreset"/> are valid
         /// </summary>
         public bool CurrentPresetIsValid => _playerVehicleHandle != -1 && CurrentPreset != null;
+        public bool CurrentExtraIsValid => _playerVehicleHandle != -1 && CurrentExtra != null && VehicleWheelMod != -1;
         public int VehicleWheelMod { get; set; }
 
         /// <summary>
         /// The preset associated to the player's vehicle
         /// </summary>
         public VStancerPreset CurrentPreset { get; private set; }
+        public VStancerExtra CurrentExtra { get; private set; }
 
         /// <summary>
         /// The configuration of the script
@@ -205,8 +207,9 @@ namespace VStancer.Client
             _vstancerMenu = new VStancerMenu(this);
 
             _vstancerMenu.EditorMenuResetPreset += OnEditorMenuResetPresetInvoked;
-            _vstancerMenu.ExtraMenuResetPreset += OnExtraMenuResetPresetInvoked;
             _vstancerMenu.EditorMenuPresetValueChanged += OnEditorMenuPresetValueChanged;
+            _vstancerMenu.ExtraMenuPresetValueChanged += OnExtraMenuPresetValueChanged;
+            _vstancerMenu.ExtraMenuResetPreset += OnExtraMenuResetPresetInvoked;
 
             _vstancerMenu.PersonalPresetsMenuApplyPreset += OnPersonalPresetsMenuApplyPresetInvoked;
             _vstancerMenu.PersonalPresetsMenuSavePreset += OnPersonalPresetsMenuSavePresetInvoked;
@@ -233,8 +236,6 @@ namespace VStancer.Client
         {
             if(CurrentPresetIsValid)
             {
-                InvalidateExtra();
-
                 CurrentPreset.PropertyChanged -= OnPresetEdited;
                 CurrentPreset = null;
 
@@ -246,10 +247,10 @@ namespace VStancer.Client
 
         private void InvalidateExtra()
         {
-            if (CurrentPreset?.Extra != null)
+            if (CurrentExtraIsValid)
             {
-                CurrentPreset.Extra.PropertyChanged -= OnExtraPropertyEdited;
-                CurrentPreset.Extra = null;
+                CurrentExtra.PropertyChanged -= OnExtraPropertyEdited;
+                CurrentExtra = null;
             }
             VehicleWheelMod = -1;
         }
@@ -259,25 +260,25 @@ namespace VStancer.Client
             bool result = false;
             switch(propertyName)
             {
-                case nameof(VStancerPreset.Extra.WheelWidth):
+                case nameof(VStancerExtra.WheelWidth):
                     result = SetVehicleWheelWidth(_playerVehicleHandle, value);
                     if (result)
                     {
-                        UpdateFloatDecorator(_playerVehicleHandle, DefaultWheelModWidthID, CurrentPreset.Extra.DefaultWheelWidth, value);
-                        UpdateFloatDecorator(_playerVehicleHandle, WheelModWidthID, value, CurrentPreset.Extra.DefaultWheelWidth);
+                        UpdateFloatDecorator(_playerVehicleHandle, DefaultExtraWidthID, CurrentExtra.DefaultWheelWidth, value);
+                        UpdateFloatDecorator(_playerVehicleHandle, ExtraWidthID, value, CurrentExtra.DefaultWheelWidth);
                     }
                     break;
 
-                case nameof(VStancerPreset.Extra.WheelSize):
+                case nameof(VStancerExtra.WheelSize):
                     result = SetVehicleWheelSize(_playerVehicleHandle, value); 
                     if (result)
                     {
-                        UpdateFloatDecorator(_playerVehicleHandle, DefaultWheelModSizeID, CurrentPreset.Extra.DefaultWheelSize, value);
-                        UpdateFloatDecorator(_playerVehicleHandle, WheelModSizeID, value, CurrentPreset.Extra.DefaultWheelSize);
+                        UpdateFloatDecorator(_playerVehicleHandle, DefaultExtraSizeID, CurrentExtra.DefaultWheelSize, value);
+                        UpdateFloatDecorator(_playerVehicleHandle, ExtraSizeID, value, CurrentExtra.DefaultWheelSize);
                     }
                     break;
 
-                case nameof(VStancerPreset.Extra.Reset):
+                case nameof(VStancerExtra.Reset):
                     RemoveExtraDecoratorsFromVehicle(_playerVehicleHandle);
                     break;
 
@@ -321,6 +322,7 @@ namespace VStancer.Client
             if (!IsPedInAnyVehicle(_playerPedHandle, false))
             {
                 InvalidatePreset();
+                InvalidateExtra();
                 return;
             }
 
@@ -330,6 +332,7 @@ namespace VStancer.Client
             if (!IsThisModelACar((uint)GetEntityModel(vehicle)) || GetPedInVehicleSeat(vehicle, -1) != _playerPedHandle || !IsVehicleDriveable(vehicle, false))
             {
                 InvalidatePreset();
+                InvalidateExtra();
                 return;
             }
             
@@ -339,6 +342,7 @@ namespace VStancer.Client
             if (vehicle != _playerVehicleHandle)
             {
                 InvalidatePreset();
+                InvalidateExtra();
 
                 CurrentPreset = CreatePresetFromHandle(vehicle);
                 CurrentPreset.PropertyChanged += OnPresetEdited;
@@ -367,8 +371,8 @@ namespace VStancer.Client
                         // TODO: Find out why on first change it shows value 1
 
                         // Get new data from entity
-                        CurrentPreset.Extra = GetVStancerExtraFromHandle(_playerVehicleHandle);
-                        CurrentPreset.Extra.PropertyChanged += OnExtraPropertyEdited;
+                        CurrentExtra = GetVStancerExtraFromHandle(_playerVehicleHandle);
+                        CurrentExtra.PropertyChanged += OnExtraPropertyEdited;
                     }
 
                     VehicleWheelMod = vehicleWheelMod;
@@ -387,15 +391,15 @@ namespace VStancer.Client
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
 
-            float wheelWidth = DecorExistOn(vehicle, DefaultWheelModWidthID) ? DecorGetFloat(vehicle, DefaultWheelModWidthID) : GetVehicleWheelWidth(vehicle);
-            float wheelSize = DecorExistOn(vehicle, DefaultWheelModSizeID) ? DecorGetFloat(vehicle, DefaultWheelModSizeID) : GetVehicleWheelSize(vehicle);
-            float frontTireColliderScaleX_def = DecorExistOn(vehicle, DefaultFrontWheelModTireColliderScaleXID) ? DecorGetFloat(vehicle, DefaultFrontWheelModTireColliderScaleXID) : GetVehicleWheelTireColliderWidth(vehicle, 0);
-            float frontTireColliderScaleYZ_def = DecorExistOn(vehicle, DefaultFrontWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultFrontWheelModTireColliderScaleYZID) : GetVehicleWheelTireColliderSize(vehicle, 0);
-            float frontRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultFrontWheelModRimColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultFrontWheelModRimColliderScaleYZID) : GetVehicleWheelRimColliderSize(vehicle, 0);
+            float wheelWidth = DecorExistOn(vehicle, DefaultExtraWidthID) ? DecorGetFloat(vehicle, DefaultExtraWidthID) : GetVehicleWheelWidth(vehicle);
+            float wheelSize = DecorExistOn(vehicle, DefaultExtraSizeID) ? DecorGetFloat(vehicle, DefaultExtraSizeID) : GetVehicleWheelSize(vehicle);
+            float frontTireColliderScaleX_def = DecorExistOn(vehicle, DefaultFrontExtraTireColliderWidthID) ? DecorGetFloat(vehicle, DefaultFrontExtraTireColliderWidthID) : GetVehicleWheelTireColliderWidth(vehicle, 0);
+            float frontTireColliderScaleYZ_def = DecorExistOn(vehicle, DefaultFrontExtraTireColliderSizeID) ? DecorGetFloat(vehicle, DefaultFrontExtraTireColliderSizeID) : GetVehicleWheelTireColliderSize(vehicle, 0);
+            float frontRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultFrontExtraRimColliderSizeZID) ? DecorGetFloat(vehicle, DefaultFrontExtraRimColliderSizeZID) : GetVehicleWheelRimColliderSize(vehicle, 0);
 
-            float rearTireColliderScaleX_def = DecorExistOn(vehicle, DefaultRearWheelModTireColliderScaleXID) ? DecorGetFloat(vehicle, DefaultRearWheelModTireColliderScaleXID) : GetVehicleWheelTireColliderWidth(vehicle, frontCount);
-            float rearTireColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultRearWheelModTireColliderScaleYZID) : GetVehicleWheelTireColliderSize(vehicle, frontCount);
-            float rearRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearWheelModRimColliderScaleYZID) ? DecorGetFloat(vehicle, DefaultRearWheelModRimColliderScaleYZID) : GetVehicleWheelRimColliderSize(vehicle, frontCount);
+            float rearTireColliderScaleX_def = DecorExistOn(vehicle, DefaultRearExtraTireColliderWidthID) ? DecorGetFloat(vehicle, DefaultRearExtraTireColliderWidthID) : GetVehicleWheelTireColliderWidth(vehicle, frontCount);
+            float rearTireColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearExtraTireColliderSizeID) ? DecorGetFloat(vehicle, DefaultRearExtraTireColliderSizeID) : GetVehicleWheelTireColliderSize(vehicle, frontCount);
+            float rearRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearExtraRimColliderSizeID) ? DecorGetFloat(vehicle, DefaultRearExtraRimColliderSizeID) : GetVehicleWheelRimColliderSize(vehicle, frontCount);
 
             // Create the preset with the default values
             return new VStancerExtra(wheelsCount, wheelWidth, wheelSize,
@@ -403,8 +407,8 @@ namespace VStancer.Client
                 rearTireColliderScaleX_def, rearTireColliderScaleYZ_def, rearRimColliderScaleYZ_def)
             {
                 // Assign the current values
-                WheelWidth = DecorExistOn(vehicle, WheelModWidthID) ? DecorGetFloat(vehicle, WheelModWidthID) : wheelWidth,
-                WheelSize = DecorExistOn(vehicle, WheelModSizeID) ? DecorGetFloat(vehicle, WheelModSizeID) : wheelSize,
+                WheelWidth = DecorExistOn(vehicle, ExtraWidthID) ? DecorGetFloat(vehicle, ExtraWidthID) : wheelWidth,
+                WheelSize = DecorExistOn(vehicle, ExtraSizeID) ? DecorGetFloat(vehicle, ExtraSizeID) : wheelSize,
                 
                 //FrontTireColliderScaleX = DecorExistOn(vehicle, FrontWheelModTireColliderScaleXID) ? DecorGetFloat(vehicle, FrontWheelModTireColliderScaleXID) : frontTireColliderScaleX_def,
                 //FrontTireColliderScaleYZ = DecorExistOn(vehicle, FrontWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, FrontWheelModTireColliderScaleYZID) : frontTireColliderScaleYZ_def,
@@ -481,23 +485,23 @@ namespace VStancer.Client
         /// </summary>
         private void RegisterRequiredDecorators()
         {
-            DecorRegister(FrontOffsetID, 1);
-            DecorRegister(FrontRotationID, 1);
-            DecorRegister(RearOffsetID, 1);
-            DecorRegister(RearRotationID, 1);
+            DecorRegister(FrontTrackWidthID, 1);
+            DecorRegister(FrontCamberID, 1);
+            DecorRegister(RearTrackWidthID, 1);
+            DecorRegister(RearCamberID, 1);
 
-            DecorRegister(DefaultFrontOffsetID, 1);
-            DecorRegister(DefaultFrontRotationID, 1);
-            DecorRegister(DefaultRearOffsetID, 1);
-            DecorRegister(DefaultRearRotationID, 1);
+            DecorRegister(DefaultFrontTrackWidthID, 1);
+            DecorRegister(DefaultFrontCamberID, 1);
+            DecorRegister(DefaultRearTrackWidthID, 1);
+            DecorRegister(DefaultRearCamberID, 1);
         }
 
         private void RegisterExtraDecorators()
         {
-            DecorRegister(WheelModWidthID, 1);
-            DecorRegister(WheelModSizeID, 1);
-            DecorRegister(DefaultWheelModWidthID, 1);
-            DecorRegister(DefaultWheelModSizeID, 1);
+            DecorRegister(ExtraWidthID, 1);
+            DecorRegister(ExtraSizeID, 1);
+            DecorRegister(DefaultExtraWidthID, 1);
+            DecorRegister(DefaultExtraSizeID, 1);
         }
 
         /// <summary>
@@ -506,44 +510,44 @@ namespace VStancer.Client
         /// <param name="vehicle">The handle of the entity</param>
         private void RemoveDecoratorsFromVehicle(int vehicle)
         {
-            if (DecorExistOn(vehicle, FrontOffsetID))
-                DecorRemove(vehicle, FrontOffsetID);
+            if (DecorExistOn(vehicle, FrontTrackWidthID))
+                DecorRemove(vehicle, FrontTrackWidthID);
 
-            if (DecorExistOn(vehicle, FrontRotationID))
-                DecorRemove(vehicle, FrontRotationID);
+            if (DecorExistOn(vehicle, FrontCamberID))
+                DecorRemove(vehicle, FrontCamberID);
 
-            if (DecorExistOn(vehicle, DefaultFrontOffsetID))
-                DecorRemove(vehicle, DefaultFrontOffsetID);
+            if (DecorExistOn(vehicle, DefaultFrontTrackWidthID))
+                DecorRemove(vehicle, DefaultFrontTrackWidthID);
 
-            if (DecorExistOn(vehicle, DefaultFrontRotationID))
-                DecorRemove(vehicle, DefaultFrontRotationID);
+            if (DecorExistOn(vehicle, DefaultFrontCamberID))
+                DecorRemove(vehicle, DefaultFrontCamberID);
 
-            if (DecorExistOn(vehicle, RearOffsetID))
-                DecorRemove(vehicle, RearOffsetID);
+            if (DecorExistOn(vehicle, RearTrackWidthID))
+                DecorRemove(vehicle, RearTrackWidthID);
 
-            if (DecorExistOn(vehicle, RearRotationID))
-                DecorRemove(vehicle, RearRotationID);
+            if (DecorExistOn(vehicle, RearCamberID))
+                DecorRemove(vehicle, RearCamberID);
 
-            if (DecorExistOn(vehicle, DefaultRearOffsetID))
-                DecorRemove(vehicle, DefaultRearOffsetID);
+            if (DecorExistOn(vehicle, DefaultRearTrackWidthID))
+                DecorRemove(vehicle, DefaultRearTrackWidthID);
 
-            if (DecorExistOn(vehicle, DefaultRearRotationID))
-                DecorRemove(vehicle, DefaultRearRotationID);
+            if (DecorExistOn(vehicle, DefaultRearCamberID))
+                DecorRemove(vehicle, DefaultRearCamberID);
         }
 
         private void RemoveExtraDecoratorsFromVehicle(int vehicle)
         {
-            if (DecorExistOn(vehicle, WheelModSizeID))
-                DecorRemove(vehicle, WheelModSizeID);
+            if (DecorExistOn(vehicle, ExtraSizeID))
+                DecorRemove(vehicle, ExtraSizeID);
 
-            if (DecorExistOn(vehicle, WheelModWidthID))
-                DecorRemove(vehicle, WheelModWidthID);
+            if (DecorExistOn(vehicle, ExtraWidthID))
+                DecorRemove(vehicle, ExtraWidthID);
 
-            if (DecorExistOn(vehicle, DefaultWheelModSizeID))
-                DecorRemove(vehicle, DefaultWheelModSizeID);
+            if (DecorExistOn(vehicle, DefaultExtraSizeID))
+                DecorRemove(vehicle, DefaultExtraSizeID);
 
-            if (DecorExistOn(vehicle, DefaultWheelModWidthID))
-                DecorRemove(vehicle, DefaultWheelModWidthID);
+            if (DecorExistOn(vehicle, DefaultExtraWidthID))
+                DecorRemove(vehicle, DefaultExtraWidthID);
         }
 
         /// <summary>
@@ -583,36 +587,36 @@ namespace VStancer.Client
 
             float off_f_def = defaultFrontOffset is float
                 ? (float)defaultFrontOffset
-                : DecorExistOn(vehicle, DefaultFrontOffsetID)
-                ? DecorGetFloat(vehicle, DefaultFrontOffsetID)
+                : DecorExistOn(vehicle, DefaultFrontTrackWidthID)
+                ? DecorGetFloat(vehicle, DefaultFrontTrackWidthID)
                 : GetVehicleWheelXOffset(vehicle, 0);
 
             float rot_f_def = defaultFrontRotation is float
                 ? (float)defaultFrontRotation
-                : DecorExistOn(vehicle, DefaultFrontRotationID)
-                ? DecorGetFloat(vehicle, DefaultFrontRotationID)
+                : DecorExistOn(vehicle, DefaultFrontCamberID)
+                ? DecorGetFloat(vehicle, DefaultFrontCamberID)
                 : GetVehicleWheelYRotation(vehicle, 0);
 
             float off_r_def = defaultRearOffset is float
                 ? (float)defaultRearOffset
-                : DecorExistOn(vehicle, DefaultRearOffsetID)
-                ? DecorGetFloat(vehicle, DefaultRearOffsetID)
+                : DecorExistOn(vehicle, DefaultRearTrackWidthID)
+                ? DecorGetFloat(vehicle, DefaultRearTrackWidthID)
                 : GetVehicleWheelXOffset(vehicle, frontCount);
 
             float rot_r_def = defaultRearRotation is float
                 ? (float)defaultRearRotation
-                : DecorExistOn(vehicle, DefaultRearRotationID)
-                ? DecorGetFloat(vehicle, DefaultRearRotationID)
+                : DecorExistOn(vehicle, DefaultRearCamberID)
+                ? DecorGetFloat(vehicle, DefaultRearCamberID)
                 : GetVehicleWheelYRotation(vehicle, frontCount);
 
             if (vehicle == _playerVehicleHandle)
             {
                 CurrentPreset = new VStancerPreset(wheelsCount, off_f_def, rot_f_def, off_r_def, rot_r_def)
                 {
-                    FrontPositionX = frontOffset,
-                    FrontRotationY = frontRotation,
-                    RearPositionX = rearOffset,
-                    RearRotationY = rearRotation
+                    FrontTrackWidth = frontOffset,
+                    FrontCamber = frontRotation,
+                    RearTrackWidth = rearOffset,
+                    RearCamber = rearRotation
                 };
 
                 CurrentPreset.PropertyChanged += OnPresetEdited;
@@ -620,15 +624,15 @@ namespace VStancer.Client
             }
             else
             {
-                UpdateFloatDecorator(vehicle, DefaultFrontOffsetID, off_f_def, frontOffset);
-                UpdateFloatDecorator(vehicle, DefaultFrontRotationID, rot_f_def, frontRotation);
-                UpdateFloatDecorator(vehicle, DefaultRearOffsetID, off_r_def, rearOffset);
-                UpdateFloatDecorator(vehicle, DefaultRearRotationID, rot_r_def, rearRotation);
+                UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, off_f_def, frontOffset);
+                UpdateFloatDecorator(vehicle, DefaultFrontCamberID, rot_f_def, frontRotation);
+                UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, off_r_def, rearOffset);
+                UpdateFloatDecorator(vehicle, DefaultRearCamberID, rot_r_def, rearRotation);
 
-                UpdateFloatDecorator(vehicle, FrontOffsetID, frontOffset, off_f_def);
-                UpdateFloatDecorator(vehicle, FrontRotationID, frontRotation, rot_f_def);
-                UpdateFloatDecorator(vehicle, RearOffsetID, rearOffset, off_r_def);
-                UpdateFloatDecorator(vehicle, RearRotationID, rearRotation, rot_r_def);
+                UpdateFloatDecorator(vehicle, FrontTrackWidthID, frontOffset, off_f_def);
+                UpdateFloatDecorator(vehicle, FrontCamberID, frontRotation, rot_f_def);
+                UpdateFloatDecorator(vehicle, RearTrackWidthID, rearOffset, off_r_def);
+                UpdateFloatDecorator(vehicle, RearCamberID, rearRotation, rot_r_def);
             }
         }
 
@@ -670,15 +674,15 @@ namespace VStancer.Client
         /// <param name="preset">The preset for this vehicle</param>
         private void UpdateVehicleDecorators(int vehicle, VStancerPreset preset)
         {
-            UpdateFloatDecorator(vehicle, DefaultFrontOffsetID, preset.DefaultFrontPositionX, preset.FrontPositionX);
-            UpdateFloatDecorator(vehicle, DefaultFrontRotationID, preset.DefaultFrontRotationY, preset.FrontRotationY);
-            UpdateFloatDecorator(vehicle, DefaultRearOffsetID, preset.DefaultRearPositionX, preset.RearPositionX);
-            UpdateFloatDecorator(vehicle, DefaultRearRotationID, preset.DefaultRearRotationY, preset.RearRotationY);
+            UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, preset.DefaultFrontTrackWidth, preset.FrontTrackWidth);
+            UpdateFloatDecorator(vehicle, DefaultFrontCamberID, preset.DefaultFrontCamber, preset.FrontCamber);
+            UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, preset.DefaultRearTrackWidth, preset.RearTrackWidth);
+            UpdateFloatDecorator(vehicle, DefaultRearCamberID, preset.DefaultRearCamber, preset.RearCamber);
 
-            UpdateFloatDecorator(vehicle, FrontOffsetID, preset.FrontPositionX, preset.DefaultFrontPositionX);
-            UpdateFloatDecorator(vehicle, FrontRotationID, preset.FrontRotationY, preset.DefaultFrontRotationY);
-            UpdateFloatDecorator(vehicle, RearOffsetID, preset.RearPositionX, preset.DefaultRearPositionX);
-            UpdateFloatDecorator(vehicle, RearRotationID, preset.RearRotationY, preset.DefaultRearRotationY);
+            UpdateFloatDecorator(vehicle, FrontTrackWidthID, preset.FrontTrackWidth, preset.DefaultFrontTrackWidth);
+            UpdateFloatDecorator(vehicle, FrontCamberID, preset.FrontCamber, preset.DefaultFrontCamber);
+            UpdateFloatDecorator(vehicle, RearTrackWidthID, preset.RearTrackWidth, preset.DefaultRearTrackWidth);
+            UpdateFloatDecorator(vehicle, RearCamberID, preset.RearCamber, preset.DefaultRearCamber);
         }
 
         /// <summary>
@@ -698,22 +702,22 @@ namespace VStancer.Client
             int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
 
             // Get default values first
-            float off_f_def = DecorExistOn(vehicle, DefaultFrontOffsetID) ? DecorGetFloat(vehicle, DefaultFrontOffsetID) : GetVehicleWheelXOffset(vehicle, 0);
-            float rot_f_def = DecorExistOn(vehicle, DefaultFrontRotationID) ? DecorGetFloat(vehicle, DefaultFrontRotationID) : GetVehicleWheelYRotation(vehicle, 0);
-            float off_r_def = DecorExistOn(vehicle, DefaultRearOffsetID) ? DecorGetFloat(vehicle, DefaultRearOffsetID) : GetVehicleWheelXOffset(vehicle, frontCount);
-            float rot_r_def = DecorExistOn(vehicle, DefaultRearRotationID) ? DecorGetFloat(vehicle, DefaultRearRotationID) : GetVehicleWheelYRotation(vehicle, frontCount);
+            float off_f_def = DecorExistOn(vehicle, DefaultFrontTrackWidthID) ? DecorGetFloat(vehicle, DefaultFrontTrackWidthID) : GetVehicleWheelXOffset(vehicle, 0);
+            float rot_f_def = DecorExistOn(vehicle, DefaultFrontCamberID) ? DecorGetFloat(vehicle, DefaultFrontCamberID) : GetVehicleWheelYRotation(vehicle, 0);
+            float off_r_def = DecorExistOn(vehicle, DefaultRearTrackWidthID) ? DecorGetFloat(vehicle, DefaultRearTrackWidthID) : GetVehicleWheelXOffset(vehicle, frontCount);
+            float rot_r_def = DecorExistOn(vehicle, DefaultRearCamberID) ? DecorGetFloat(vehicle, DefaultRearCamberID) : GetVehicleWheelYRotation(vehicle, frontCount);
 
-            float off_f = DecorExistOn(vehicle, FrontOffsetID) ? DecorGetFloat(vehicle, FrontOffsetID) : off_f_def;
-            float rot_f = DecorExistOn(vehicle, FrontRotationID) ? DecorGetFloat(vehicle, FrontRotationID) : rot_f_def;
-            float off_r = DecorExistOn(vehicle, RearOffsetID) ? DecorGetFloat(vehicle, RearOffsetID) : off_r_def;
-            float rot_r = DecorExistOn(vehicle, RearRotationID) ? DecorGetFloat(vehicle, RearRotationID) : rot_r_def;
+            float off_f = DecorExistOn(vehicle, FrontTrackWidthID) ? DecorGetFloat(vehicle, FrontTrackWidthID) : off_f_def;
+            float rot_f = DecorExistOn(vehicle, FrontCamberID) ? DecorGetFloat(vehicle, FrontCamberID) : rot_f_def;
+            float off_r = DecorExistOn(vehicle, RearTrackWidthID) ? DecorGetFloat(vehicle, RearTrackWidthID) : off_r_def;
+            float rot_r = DecorExistOn(vehicle, RearCamberID) ? DecorGetFloat(vehicle, RearCamberID) : rot_r_def;
 
             return new VStancerPreset(wheelsCount, off_f_def, rot_f_def, off_r_def, rot_r_def)
             {
-                FrontPositionX = off_f,
-                FrontRotationY = rot_f,
-                RearPositionX = off_r,
-                RearRotationY = rot_r,
+                FrontTrackWidth = off_f,
+                FrontCamber = rot_f,
+                RearTrackWidth = off_r,
+                RearCamber = rot_r,
             };
         }
 
@@ -743,9 +747,9 @@ namespace VStancer.Client
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = VStancerPresetUtilities.CalculateFrontWheelsCount(wheelsCount);
 
-            if (DecorExistOn(vehicle, FrontOffsetID))
+            if (DecorExistOn(vehicle, FrontTrackWidthID))
             {
-                float value = DecorGetFloat(vehicle, FrontOffsetID);
+                float value = DecorGetFloat(vehicle, FrontTrackWidthID);
 
                 for (int index = 0; index < frontCount; index++)
                 {
@@ -756,9 +760,9 @@ namespace VStancer.Client
                 }
             }
 
-            if (DecorExistOn(vehicle, FrontRotationID))
+            if (DecorExistOn(vehicle, FrontCamberID))
             {
-                float value = DecorGetFloat(vehicle, FrontRotationID);
+                float value = DecorGetFloat(vehicle, FrontCamberID);
 
                 for (int index = 0; index < frontCount; index++)
                 {
@@ -769,9 +773,9 @@ namespace VStancer.Client
                 }
             }
 
-            if (DecorExistOn(vehicle, RearOffsetID))
+            if (DecorExistOn(vehicle, RearTrackWidthID))
             {
-                float value = DecorGetFloat(vehicle, RearOffsetID);
+                float value = DecorGetFloat(vehicle, RearTrackWidthID);
 
                 for (int index = frontCount; index < wheelsCount; index++)
                 {
@@ -782,9 +786,9 @@ namespace VStancer.Client
                 }
             }
 
-            if (DecorExistOn(vehicle, RearRotationID))
+            if (DecorExistOn(vehicle, RearCamberID))
             {
-                float value = DecorGetFloat(vehicle, RearRotationID);
+                float value = DecorGetFloat(vehicle, RearCamberID);
 
                 for (int index = frontCount; index < wheelsCount; index++)
                 {
@@ -797,11 +801,11 @@ namespace VStancer.Client
 
             if(Config.Extra.EnableExtra)
             {
-                if (DecorExistOn(vehicle, WheelModSizeID))
-                    SetVehicleWheelSize(vehicle, DecorGetFloat(vehicle, WheelModSizeID));
+                if (DecorExistOn(vehicle, ExtraSizeID))
+                    SetVehicleWheelSize(vehicle, DecorGetFloat(vehicle, ExtraSizeID));
 
-                if (DecorExistOn(vehicle, WheelModWidthID))
-                    SetVehicleWheelWidth(vehicle, DecorGetFloat(vehicle, WheelModWidthID));
+                if (DecorExistOn(vehicle, ExtraWidthID))
+                    SetVehicleWheelWidth(vehicle, DecorGetFloat(vehicle, ExtraWidthID));
             }
         }
 
@@ -822,28 +826,28 @@ namespace VStancer.Client
             StringBuilder s = new StringBuilder();
             s.AppendLine($"{Globals.ScriptName}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
 
-            if (DecorExistOn(vehicle, FrontOffsetID))
+            if (DecorExistOn(vehicle, FrontTrackWidthID))
             {
-                float value = DecorGetFloat(vehicle, FrontOffsetID);
-                s.AppendLine($"{FrontOffsetID}: {value}");
+                float value = DecorGetFloat(vehicle, FrontTrackWidthID);
+                s.AppendLine($"{FrontTrackWidthID}: {value}");
             }
 
-            if (DecorExistOn(vehicle, FrontRotationID))
+            if (DecorExistOn(vehicle, FrontCamberID))
             {
-                float value = DecorGetFloat(vehicle, FrontRotationID);
-                s.AppendLine($"{FrontRotationID}: {value}");
+                float value = DecorGetFloat(vehicle, FrontCamberID);
+                s.AppendLine($"{FrontCamberID}: {value}");
             }
 
-            if (DecorExistOn(vehicle, RearOffsetID))
+            if (DecorExistOn(vehicle, RearTrackWidthID))
             {
-                float value = DecorGetFloat(vehicle, RearOffsetID);
-                s.AppendLine($"{RearOffsetID}: {value}");
+                float value = DecorGetFloat(vehicle, RearTrackWidthID);
+                s.AppendLine($"{RearTrackWidthID}: {value}");
             }
 
-            if (DecorExistOn(vehicle, RearRotationID))
+            if (DecorExistOn(vehicle, RearCamberID))
             {
-                float value = DecorGetFloat(vehicle, RearRotationID);
-                s.AppendLine($"{RearRotationID}: {value}");
+                float value = DecorGetFloat(vehicle, RearCamberID);
+                s.AppendLine($"{RearCamberID}: {value}");
             }
 
             Debug.WriteLine(s.ToString());
@@ -871,14 +875,14 @@ namespace VStancer.Client
         private bool EntityHasDecorators(int entity)
         {
             return (
-                DecorExistOn(entity, FrontOffsetID) ||
-                DecorExistOn(entity, FrontRotationID) ||
-                DecorExistOn(entity, RearOffsetID) ||
-                DecorExistOn(entity, RearRotationID) ||
-                DecorExistOn(entity, DefaultFrontOffsetID) ||
-                DecorExistOn(entity, DefaultFrontRotationID) ||
-                DecorExistOn(entity, DefaultRearOffsetID) ||
-                DecorExistOn(entity, DefaultRearRotationID)
+                DecorExistOn(entity, FrontTrackWidthID) ||
+                DecorExistOn(entity, FrontCamberID) ||
+                DecorExistOn(entity, RearTrackWidthID) ||
+                DecorExistOn(entity, RearCamberID) ||
+                DecorExistOn(entity, DefaultFrontTrackWidthID) ||
+                DecorExistOn(entity, DefaultFrontCamberID) ||
+                DecorExistOn(entity, DefaultRearTrackWidthID) ||
+                DecorExistOn(entity, DefaultRearCamberID)
                 );
         }
 
@@ -972,13 +976,10 @@ namespace VStancer.Client
 
         private async void OnExtraMenuResetPresetInvoked(object sender, EventArgs eventArgs)
         {
-            if (!CurrentPresetIsValid)
+            if (!CurrentExtraIsValid)
                 return;
 
-            if (CurrentPreset.Extra == null)
-                return;
-
-            CurrentPreset.Extra.Reset();
+            CurrentExtra.Reset();
 
             await Delay(200);
 
@@ -1000,27 +1001,40 @@ namespace VStancer.Client
 
             switch (id)
             {
-                case FrontRotationID:
-                    CurrentPreset.FrontRotationY = value;
+                case FrontCamberID:
+                    CurrentPreset.FrontCamber = value;
                     break;
-                case RearRotationID:
-                    CurrentPreset.RearRotationY = value;
+                case RearCamberID:
+                    CurrentPreset.RearCamber = value;
                     break;
-                case FrontOffsetID:
-                    CurrentPreset.FrontPositionX = -value;
+                case FrontTrackWidthID:
+                    CurrentPreset.FrontTrackWidth = -value;
                     break;
-                case RearOffsetID:
-                    CurrentPreset.RearPositionX = -value;
+                case RearTrackWidthID:
+                    CurrentPreset.RearTrackWidth = -value;
                     break;
 
-                    // Wheel size IDs
-                case WheelModWidthID:
-                    if(CurrentPreset.Extra != null)
-                        CurrentPreset.Extra.WheelWidth = value;
+                default:
                     break;
-                case WheelModSizeID:
-                    if (CurrentPreset.Extra != null)
-                        CurrentPreset.Extra.WheelSize = value;
+            }
+        }
+
+        private void OnExtraMenuPresetValueChanged(string id, string newValue)
+        {
+            if (!CurrentExtraIsValid)
+                return;
+
+            if (!float.TryParse(newValue, out float value))
+                return;
+
+            switch (id)
+            {
+                // Wheel size IDs
+                case ExtraWidthID:
+                    CurrentExtra.WheelWidth = value;
+                    break;
+                case ExtraSizeID:
+                    CurrentExtra.WheelSize = value;
                     break;
 
                 default:

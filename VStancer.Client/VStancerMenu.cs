@@ -47,6 +47,7 @@ namespace VStancer.Client
         /// Invoked when a property has its value changed in the UI
         /// </summary>
         public event MenuPresetValueChangedEvent EditorMenuPresetValueChanged;
+        public event MenuPresetValueChangedEvent ExtraMenuPresetValueChanged;
 
         /// <summary>
         /// Invoked when the reset button is pressed in the UI
@@ -69,8 +70,6 @@ namespace VStancer.Client
         /// </summary>
         public event EventHandler<string> PersonalPresetsMenuDeletePreset;
 
-        private VStancerPreset CurrentPreset => _vstancerEditor.CurrentPreset;
-        private float FloatStep => _vstancerEditor.Config.FloatStep;
 
         public bool HideUI
         {
@@ -99,9 +98,9 @@ namespace VStancer.Client
                 var newvalue = value;
 
                 if (left)
-                    newvalue -= FloatStep;
+                    newvalue -= _vstancerEditor.Config.FloatStep;
                 else if (!left)
-                    newvalue += FloatStep;
+                    newvalue += _vstancerEditor.Config.FloatStep;
                 else return value.ToString("F3");
 
                 // Hotfix to trim the value to 3 digits
@@ -175,7 +174,7 @@ namespace VStancer.Client
                 _extraMenu.OnDynamicListItemCurrentItemChange += (menu, dynamicListItem, oldValue, newValue) =>
                 {
                     string id = dynamicListItem.ItemData as string;
-                    EditorMenuPresetValueChanged?.Invoke(id, newValue);
+                    ExtraMenuPresetValueChanged?.Invoke(id, newValue);
                 };
 
                 _extraMenu.OnItemSelect += (menu, menuItem, itemIndex) =>
@@ -268,10 +267,30 @@ namespace VStancer.Client
             if (!_vstancerEditor.CurrentPresetIsValid)
                 return;
 
-            AddDynamicFloatList(_editorMenu, "Front Track Width", -CurrentPreset.DefaultFrontPositionX, -CurrentPreset.FrontPositionX, _vstancerEditor.Config.FrontLimits.PositionX, VStancerEditor.FrontOffsetID);
-            AddDynamicFloatList(_editorMenu, "Rear Track Width", -CurrentPreset.DefaultRearPositionX, -CurrentPreset.RearPositionX, _vstancerEditor.Config.RearLimits.PositionX, VStancerEditor.RearOffsetID);
-            AddDynamicFloatList(_editorMenu, "Front Camber", CurrentPreset.DefaultFrontRotationY, CurrentPreset.FrontRotationY, _vstancerEditor.Config.FrontLimits.RotationY, VStancerEditor.FrontRotationID);
-            AddDynamicFloatList(_editorMenu, "Rear Camber", CurrentPreset.DefaultRearRotationY, CurrentPreset.RearRotationY, _vstancerEditor.Config.RearLimits.RotationY, VStancerEditor.RearRotationID);
+            AddDynamicFloatList(_editorMenu, "Front Track Width",
+                -_vstancerEditor.CurrentPreset.DefaultFrontTrackWidth,
+                -_vstancerEditor.CurrentPreset.FrontTrackWidth,
+                _vstancerEditor.Config.FrontLimits.PositionX,
+                VStancerEditor.FrontTrackWidthID);
+            
+            AddDynamicFloatList(_editorMenu, "Rear Track Width",
+                -_vstancerEditor.CurrentPreset.DefaultRearTrackWidth,
+                -_vstancerEditor.CurrentPreset.RearTrackWidth,
+                _vstancerEditor.Config.RearLimits.PositionX,
+                VStancerEditor.RearTrackWidthID);
+
+            AddDynamicFloatList(_editorMenu, "Front Camber",
+                _vstancerEditor.CurrentPreset.DefaultFrontCamber,
+                _vstancerEditor.CurrentPreset.FrontCamber,
+                _vstancerEditor.Config.FrontLimits.RotationY,
+                VStancerEditor.FrontCamberID);
+
+            AddDynamicFloatList(_editorMenu, "Rear Camber",
+                _vstancerEditor.CurrentPreset.DefaultRearCamber,
+                _vstancerEditor.CurrentPreset.RearCamber,
+                _vstancerEditor.Config.RearLimits.RotationY,
+                VStancerEditor.RearCamberID);
+
             _editorMenu.AddMenuItem(new MenuItem("Reset", "Restores the default values") { ItemData = VStancerEditor.ResetID });
 
             _extraMenuItem = new MenuItem("Extra");
@@ -295,7 +314,7 @@ namespace VStancer.Client
             if(_extraMenuItem == null)
                 return;
 
-            var enabled = _vstancerEditor.CurrentPreset?.Extra != null;
+            var enabled = _vstancerEditor.CurrentExtraIsValid;
 
             _extraMenuItem.Enabled = enabled;
             _extraMenuItem.RightIcon = enabled ? MenuItem.Icon.NONE : MenuItem.Icon.LOCK;
@@ -310,22 +329,22 @@ namespace VStancer.Client
 
             _extraMenu.ClearMenuItems();
 
-            if (CurrentPreset == null || _vstancerEditor.CurrentPreset.Extra == null)
+            if (!_vstancerEditor.CurrentExtraIsValid)
                 return;
 
             AddDynamicFloatList(_extraMenu,
                 "Wheel Width",
-                CurrentPreset.Extra.DefaultWheelWidth,
-                CurrentPreset.Extra.WheelWidth,
+                _vstancerEditor.CurrentExtra.DefaultWheelWidth,
+                _vstancerEditor.CurrentExtra.WheelWidth,
                 _vstancerEditor.Config.Extra.WheelWidth,
-                VStancerEditor.WheelModWidthID);
+                VStancerEditor.ExtraWidthID);
 
             AddDynamicFloatList(_extraMenu,
                 "Wheel Radius",
-                CurrentPreset.Extra.DefaultWheelSize,
-                CurrentPreset.Extra.WheelSize,
+                _vstancerEditor.CurrentExtra.DefaultWheelSize,
+                _vstancerEditor.CurrentExtra.WheelSize,
                 _vstancerEditor.Config.Extra.WheelSize,
-                VStancerEditor.WheelModSizeID);
+                VStancerEditor.ExtraSizeID);
 
             _extraMenu.AddMenuItem(new MenuItem("Reset", "Restores the default values") { ItemData = VStancerEditor.ExtraResetID });
         }

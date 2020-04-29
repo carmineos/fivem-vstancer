@@ -17,7 +17,7 @@ namespace VStancer.Client
         public VStancerNode[] Nodes { get; set; }
         public VStancerNode[] DefaultNodes { get; private set; }
 
-        public float FrontPositionX
+        public float FrontTrackWidth
         {
             get => Nodes[0].PositionX;
             set
@@ -25,11 +25,11 @@ namespace VStancer.Client
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
 
-                PropertyChanged?.Invoke(this, nameof(FrontPositionX));
+                PropertyChanged?.Invoke(this, nameof(FrontTrackWidth));
             }
         }
 
-        public float RearPositionX
+        public float RearTrackWidth
         {
             get => Nodes[FrontWheelsCount].PositionX;
             set
@@ -37,11 +37,11 @@ namespace VStancer.Client
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
 
-                PropertyChanged?.Invoke(this, nameof(RearPositionX));
+                PropertyChanged?.Invoke(this, nameof(RearTrackWidth));
             }
         }
 
-        public float FrontRotationY
+        public float FrontCamber
         {
             get => Nodes[0].RotationY;
             set
@@ -49,11 +49,11 @@ namespace VStancer.Client
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
 
-                PropertyChanged?.Invoke(this, nameof(FrontRotationY));
+                PropertyChanged?.Invoke(this, nameof(FrontCamber));
             }
         }
 
-        public float RearRotationY
+        public float RearCamber
         {
             get => Nodes[FrontWheelsCount].RotationY;
             set
@@ -61,14 +61,14 @@ namespace VStancer.Client
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
 
-                PropertyChanged?.Invoke(this, nameof(RearRotationY));
+                PropertyChanged?.Invoke(this, nameof(RearCamber));
             }
         }
 
-        public float DefaultFrontPositionX { get => DefaultNodes[0].PositionX; }
-        public float DefaultRearPositionX { get => DefaultNodes[FrontWheelsCount].PositionX; }
-        public float DefaultFrontRotationY { get => DefaultNodes[0].RotationY; }
-        public float DefaultRearRotationY { get => DefaultNodes[FrontWheelsCount].RotationY; }
+        public float DefaultFrontTrackWidth { get => DefaultNodes[0].PositionX; }
+        public float DefaultRearTrackWidth { get => DefaultNodes[FrontWheelsCount].PositionX; }
+        public float DefaultFrontCamber { get => DefaultNodes[0].RotationY; }
+        public float DefaultRearCamber { get => DefaultNodes[FrontWheelsCount].RotationY; }
 
         public bool IsEdited
         {
@@ -174,11 +174,6 @@ namespace VStancer.Client
             s.AppendLine(curRot.ToString());
             s.AppendLine(defRot.ToString());
 
-            if(Extra != null)
-            {
-                s.AppendLine(Extra.ToString());
-            }
-
             return s.ToString();
         }
 
@@ -206,16 +201,11 @@ namespace VStancer.Client
             if (other == null)
                 return;
 
-            FrontPositionX = other.FrontPositionX;
-            FrontRotationY = other.FrontRotationY;
-            RearPositionX = other.RearPositionX;
-            RearRotationY = other.RearRotationY;
+            FrontTrackWidth = other.FrontTrackWidth;
+            FrontCamber = other.FrontCamber;
+            RearTrackWidth = other.RearTrackWidth;
+            RearCamber = other.RearCamber;
         }
-
-        /// <summary>
-        /// The size of the modded wheels in case they are installed
-        /// </summary>
-        public VStancerExtra Extra { get; set; } = null;
     }
 
 
