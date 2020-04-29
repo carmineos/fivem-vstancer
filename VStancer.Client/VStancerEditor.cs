@@ -233,12 +233,7 @@ namespace VStancer.Client
         {
             if(CurrentPresetIsValid)
             {
-                if (CurrentPreset.Extra != null)
-                {
-                    CurrentPreset.Extra.PropertyChanged -= OnWheelModSizePropertyEdited;
-                    CurrentPreset.Extra = null;
-                }
-                VehicleWheelMod = -1;
+                InvalidateExtra();
 
                 CurrentPreset.PropertyChanged -= OnPresetEdited;
                 CurrentPreset = null;
@@ -249,7 +244,17 @@ namespace VStancer.Client
             }
         }
 
-        private void OnWheelModSizePropertyEdited(string propertyName, float value)
+        private void InvalidateExtra()
+        {
+            if (CurrentPreset?.Extra != null)
+            {
+                CurrentPreset.Extra.PropertyChanged -= OnExtraPropertyEdited;
+                CurrentPreset.Extra = null;
+            }
+            VehicleWheelMod = -1;
+        }
+
+        private void OnExtraPropertyEdited(string propertyName, float value)
         {
             bool result = false;
             switch(propertyName)
@@ -272,7 +277,7 @@ namespace VStancer.Client
                     }
                     break;
 
-                case "Reset":
+                case nameof(VStancerPreset.Extra.Reset):
                     RemoveExtraDecoratorsFromVehicle(_playerVehicleHandle);
                     break;
 
@@ -294,10 +299,8 @@ namespace VStancer.Client
             if (!CurrentPresetIsValid)
                 return;
 
-            bool isReset = editedProperty.Equals("Reset");
-
-            // If false then this has been invoked by after a reset
-            if (isReset)
+             // If false then this has been invoked by after a reset
+            if (editedProperty == nameof(VStancerPreset.Reset))
                 RemoveDecoratorsFromVehicle(_playerVehicleHandle);
 
             // Force one single refresh to update rendering at correct position after reset
@@ -353,26 +356,21 @@ namespace VStancer.Client
                 // If wheel mod status is different from previous one
                 if (vehicleWheelMod != VehicleWheelMod)
                 {
-                    // Unsubscribe
-                    if (CurrentPreset.Extra != null)
-                        CurrentPreset.Extra.PropertyChanged -= OnWheelModSizePropertyEdited;
+                    InvalidateExtra();
 
                     if (Config.Debug)
                         CitizenFX.Core.Debug.WriteLine($"New vehicle mod of type 23: {vehicleWheelMod}");
 
-                    // If new value value is "no mod installed"
-                    if (vehicleWheelMod == -1)
-                    {
-                        CurrentPreset.Extra = null;
-                    }
-                    else
+                    // If new value value isn't "no mod installed"
+                    if (vehicleWheelMod != -1)
                     {
                         // TODO: Find out why on first change it shows value 1
 
                         // Get new data from entity
                         CurrentPreset.Extra = GetVStancerExtraFromHandle(_playerVehicleHandle);
-                        CurrentPreset.Extra.PropertyChanged += OnWheelModSizePropertyEdited;
+                        CurrentPreset.Extra.PropertyChanged += OnExtraPropertyEdited;
                     }
+
                     VehicleWheelMod = vehicleWheelMod;
 
                     // Notify UI to redraw extra menu

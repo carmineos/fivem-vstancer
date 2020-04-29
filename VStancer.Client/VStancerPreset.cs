@@ -132,7 +132,7 @@ namespace VStancer.Client
             for (int i = 0; i < WheelsCount; i++)
                 Nodes[i] = DefaultNodes[i];
 
-            PropertyChanged?.Invoke(this, "Reset");
+            PropertyChanged?.Invoke(this, nameof(Reset));
         }
 
         public bool Equals(VStancerPreset other)
@@ -420,7 +420,7 @@ namespace VStancer.Client
             for (int i = 0; i < _wheelsCount; i++)
                 Nodes[i] = DefaultNodes[i];
 
-            PropertyChanged?.Invoke("Reset", 0f);
+            PropertyChanged?.Invoke(nameof(Reset), 0f);
         }
 
         public bool IsEdited
