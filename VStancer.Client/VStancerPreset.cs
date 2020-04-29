@@ -8,7 +8,7 @@ namespace VStancer.Client
     {
         private const float Epsilon = VStancerPresetUtilities.Epsilon;
 
-        public event EventHandler<string> PresetEdited;
+        public event EventHandler<string> PropertyChanged;
 
         public int WheelsCount { get; set; }
         public int FrontWheelsCount { get; set; }
@@ -25,7 +25,7 @@ namespace VStancer.Client
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
 
-                PresetEdited?.Invoke(this, nameof(FrontPositionX));
+                PropertyChanged?.Invoke(this, nameof(FrontPositionX));
             }
         }
 
@@ -37,7 +37,7 @@ namespace VStancer.Client
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
 
-                PresetEdited?.Invoke(this, nameof(RearPositionX));
+                PropertyChanged?.Invoke(this, nameof(RearPositionX));
             }
         }
 
@@ -49,7 +49,7 @@ namespace VStancer.Client
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
 
-                PresetEdited?.Invoke(this, nameof(FrontRotationY));
+                PropertyChanged?.Invoke(this, nameof(FrontRotationY));
             }
         }
 
@@ -61,7 +61,7 @@ namespace VStancer.Client
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
 
-                PresetEdited?.Invoke(this, nameof(RearRotationY));
+                PropertyChanged?.Invoke(this, nameof(RearRotationY));
             }
         }
 
@@ -132,7 +132,7 @@ namespace VStancer.Client
             for (int i = 0; i < WheelsCount; i++)
                 Nodes[i] = DefaultNodes[i];
 
-            PresetEdited?.Invoke(this, "Reset");
+            PropertyChanged?.Invoke(this, "Reset");
         }
 
         public bool Equals(VStancerPreset other)
@@ -241,8 +241,7 @@ namespace VStancer.Client
         private readonly int _frontWheelsCount;
 
         public delegate void WheelModSizePropertyEdited(string name, float value);
-        public event WheelModSizePropertyEdited PropertyEdited;
-        public event EventHandler PropertyReset;
+        public event WheelModSizePropertyEdited PropertyChanged;
 
         private float wheelSize;
         private float wheelWidth;
@@ -256,7 +255,7 @@ namespace VStancer.Client
                     return;
 
                 wheelSize = value;
-                PropertyEdited?.Invoke(nameof(WheelSize), value);
+                PropertyChanged?.Invoke(nameof(WheelSize), value);
             }
         }
 
@@ -269,7 +268,7 @@ namespace VStancer.Client
                     return;
 
                 wheelWidth = value;
-                PropertyEdited?.Invoke(nameof(WheelWidth), value);
+                PropertyChanged?.Invoke(nameof(WheelWidth), value);
             }
         }
 
@@ -421,7 +420,7 @@ namespace VStancer.Client
             for (int i = 0; i < _wheelsCount; i++)
                 Nodes[i] = DefaultNodes[i];
 
-            PropertyReset?.Invoke(this, EventArgs.Empty);
+            PropertyChanged?.Invoke("Reset", 0f);
         }
 
         public bool IsEdited

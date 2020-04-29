@@ -53,6 +53,7 @@ namespace VStancer.Client
         public const string DefaultRearRotationID = "vstancer_rot_r_def";
 
         public const string ResetID = "vstancer_reset";
+        public const string ExtraResetID = "vstancer_extra_reset";
 
         public const string WheelModWidthID = "vstancer_wheelmod_width";
         public const string WheelModSizeID = "vstancer_wheelmod_size";
@@ -125,6 +126,9 @@ namespace VStancer.Client
 
             Config = LoadConfig();
             RegisterRequiredDecorators();
+
+            if (Config.Extra.EnableExtra)
+                RegisterExtraDecorators();
 
             LocalPresetsManager = new KvpPresetManager(Globals.KvpPrefix);
 
@@ -201,6 +205,7 @@ namespace VStancer.Client
             _vstancerMenu = new VStancerMenu(this);
 
             _vstancerMenu.EditorMenuResetPreset += OnEditorMenuResetPresetInvoked;
+            _vstancerMenu.ExtraMenuResetPreset += OnExtraMenuResetPresetInvoked;
             _vstancerMenu.EditorMenuPresetValueChanged += OnEditorMenuPresetValueChanged;
 
             _vstancerMenu.PersonalPresetsMenuApplyPreset += OnPersonalPresetsMenuApplyPresetInvoked;
@@ -230,12 +235,12 @@ namespace VStancer.Client
             {
                 if (CurrentPreset.Extra != null)
                 {
-                    CurrentPreset.Extra.PropertyEdited -= OnWheelModSizePropertyEdited;
+                    CurrentPreset.Extra.PropertyChanged -= OnWheelModSizePropertyEdited;
                     CurrentPreset.Extra = null;
                 }
                 VehicleWheelMod = -1;
 
-                CurrentPreset.PresetEdited -= OnPresetEdited;
+                CurrentPreset.PropertyChanged -= OnPresetEdited;
                 CurrentPreset = null;
 
                 _playerVehicleHandle = -1;
@@ -252,13 +257,23 @@ namespace VStancer.Client
                 case nameof(VStancerPreset.Extra.WheelWidth):
                     result = SetVehicleWheelWidth(_playerVehicleHandle, value);
                     if (result)
+                    {
+                        UpdateFloatDecorator(_playerVehicleHandle, DefaultWheelModWidthID, CurrentPreset.Extra.DefaultWheelWidth, value);
                         UpdateFloatDecorator(_playerVehicleHandle, WheelModWidthID, value, CurrentPreset.Extra.DefaultWheelWidth);
+                    }
                     break;
 
                 case nameof(VStancerPreset.Extra.WheelSize):
                     result = SetVehicleWheelSize(_playerVehicleHandle, value); 
                     if (result)
+                    {
+                        UpdateFloatDecorator(_playerVehicleHandle, DefaultWheelModSizeID, CurrentPreset.Extra.DefaultWheelSize, value);
                         UpdateFloatDecorator(_playerVehicleHandle, WheelModSizeID, value, CurrentPreset.Extra.DefaultWheelSize);
+                    }
+                    break;
+
+                case "Reset":
+                    RemoveExtraDecoratorsFromVehicle(_playerVehicleHandle);
                     break;
 
                 default:
@@ -279,7 +294,7 @@ namespace VStancer.Client
             if (!CurrentPresetIsValid)
                 return;
 
-            bool isReset = !CurrentPreset.IsEdited && editedProperty.Equals("Reset");
+            bool isReset = editedProperty.Equals("Reset");
 
             // If false then this has been invoked by after a reset
             if (isReset)
@@ -323,7 +338,7 @@ namespace VStancer.Client
                 InvalidatePreset();
 
                 CurrentPreset = CreatePresetFromHandle(vehicle);
-                CurrentPreset.PresetEdited += OnPresetEdited;
+                CurrentPreset.PropertyChanged += OnPresetEdited;
 
                 _playerVehicleHandle = vehicle;
                 Tick += UpdatePlayerVehicleTask;
@@ -340,7 +355,7 @@ namespace VStancer.Client
                 {
                     // Unsubscribe
                     if (CurrentPreset.Extra != null)
-                        CurrentPreset.Extra.PropertyEdited -= OnWheelModSizePropertyEdited;
+                        CurrentPreset.Extra.PropertyChanged -= OnWheelModSizePropertyEdited;
 
                     if (Config.Debug)
                         CitizenFX.Core.Debug.WriteLine($"New vehicle mod of type 23: {vehicleWheelMod}");
@@ -352,13 +367,15 @@ namespace VStancer.Client
                     }
                     else
                     {
+                        // TODO: Find out why on first change it shows value 1
+
                         // Get new data from entity
                         CurrentPreset.Extra = GetVStancerExtraFromHandle(_playerVehicleHandle);
-                        CurrentPreset.Extra.PropertyEdited += OnWheelModSizePropertyEdited;
+                        CurrentPreset.Extra.PropertyChanged += OnWheelModSizePropertyEdited;
                     }
                     VehicleWheelMod = vehicleWheelMod;
 
-                    // TODO: Avoid notifying the menu to redraw whole menu
+                    // Notify UI to redraw extra menu
                     ExtraChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
@@ -475,15 +492,16 @@ namespace VStancer.Client
             DecorRegister(DefaultFrontRotationID, 1);
             DecorRegister(DefaultRearOffsetID, 1);
             DecorRegister(DefaultRearRotationID, 1);
-
-            if(Config.Extra.EnableExtra)
-            {
-                DecorRegister(WheelModWidthID, 1);
-                DecorRegister(WheelModSizeID, 1);
-                DecorRegister(DefaultWheelModWidthID, 1);
-                DecorRegister(DefaultWheelModSizeID, 1);
-            }
         }
+
+        private void RegisterExtraDecorators()
+        {
+            DecorRegister(WheelModWidthID, 1);
+            DecorRegister(WheelModSizeID, 1);
+            DecorRegister(DefaultWheelModWidthID, 1);
+            DecorRegister(DefaultWheelModSizeID, 1);
+        }
+
         /// <summary>
         /// Removes the decorators from the <paramref name="vehicle"/>
         /// </summary>
@@ -513,15 +531,21 @@ namespace VStancer.Client
 
             if (DecorExistOn(vehicle, DefaultRearRotationID))
                 DecorRemove(vehicle, DefaultRearRotationID);
+        }
 
-            if (Config.Extra.EnableExtra)
-            {
-                if (DecorExistOn(vehicle, WheelModSizeID))
-                    DecorRemove(vehicle, WheelModSizeID);
+        private void RemoveExtraDecoratorsFromVehicle(int vehicle)
+        {
+            if (DecorExistOn(vehicle, WheelModSizeID))
+                DecorRemove(vehicle, WheelModSizeID);
 
-                if (DecorExistOn(vehicle, WheelModWidthID))
-                    DecorRemove(vehicle, WheelModWidthID);
-            }
+            if (DecorExistOn(vehicle, WheelModWidthID))
+                DecorRemove(vehicle, WheelModWidthID);
+
+            if (DecorExistOn(vehicle, DefaultWheelModSizeID))
+                DecorRemove(vehicle, DefaultWheelModSizeID);
+
+            if (DecorExistOn(vehicle, DefaultWheelModWidthID))
+                DecorRemove(vehicle, DefaultWheelModWidthID);
         }
 
         /// <summary>
@@ -593,7 +617,7 @@ namespace VStancer.Client
                     RearRotationY = rearRotation
                 };
 
-                CurrentPreset.PresetEdited += OnPresetEdited;
+                CurrentPreset.PropertyChanged += OnPresetEdited;
                 NewPresetCreated?.Invoke(this, EventArgs.Empty);
             }
             else
@@ -946,6 +970,21 @@ namespace VStancer.Client
             // Used to updated the UI
             // TODO: Maybe change this
             NewPresetCreated?.Invoke(this, EventArgs.Empty);
+        }
+
+        private async void OnExtraMenuResetPresetInvoked(object sender, EventArgs eventArgs)
+        {
+            if (!CurrentPresetIsValid)
+                return;
+
+            if (CurrentPreset.Extra == null)
+                return;
+
+            CurrentPreset.Extra.Reset();
+
+            await Delay(200);
+
+            ExtraChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
