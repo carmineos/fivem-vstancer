@@ -399,8 +399,8 @@ namespace VStancer.Client
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
 
-            float wheelWidth = DecorExistOn(vehicle, DefaultExtraWidthID) ? DecorGetFloat(vehicle, DefaultExtraWidthID) : GetVehicleWheelWidth(vehicle);
-            float wheelSize = DecorExistOn(vehicle, DefaultExtraSizeID) ? DecorGetFloat(vehicle, DefaultExtraSizeID) : GetVehicleWheelSize(vehicle);
+            float wheelWidth_def = DecorExistOn(vehicle, DefaultExtraWidthID) ? DecorGetFloat(vehicle, DefaultExtraWidthID) : GetVehicleWheelWidth(vehicle);
+            float wheelSize_def = DecorExistOn(vehicle, DefaultExtraSizeID) ? DecorGetFloat(vehicle, DefaultExtraSizeID) : GetVehicleWheelSize(vehicle);
             float frontTireColliderScaleX_def = DecorExistOn(vehicle, DefaultFrontExtraTireColliderWidthID) ? DecorGetFloat(vehicle, DefaultFrontExtraTireColliderWidthID) : GetVehicleWheelTireColliderWidth(vehicle, 0);
             float frontTireColliderScaleYZ_def = DecorExistOn(vehicle, DefaultFrontExtraTireColliderSizeID) ? DecorGetFloat(vehicle, DefaultFrontExtraTireColliderSizeID) : GetVehicleWheelTireColliderSize(vehicle, 0);
             float frontRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultFrontExtraRimColliderSizeZID) ? DecorGetFloat(vehicle, DefaultFrontExtraRimColliderSizeZID) : GetVehicleWheelRimColliderSize(vehicle, 0);
@@ -410,13 +410,13 @@ namespace VStancer.Client
             float rearRimColliderScaleYZ_def = DecorExistOn(vehicle, DefaultRearExtraRimColliderSizeID) ? DecorGetFloat(vehicle, DefaultRearExtraRimColliderSizeID) : GetVehicleWheelRimColliderSize(vehicle, frontCount);
 
             // Create the preset with the default values
-            return new VStancerExtra(wheelsCount, wheelWidth, wheelSize,
+            return new VStancerExtra(wheelsCount, wheelWidth_def, wheelSize_def,
                 frontTireColliderScaleX_def, frontTireColliderScaleYZ_def, frontRimColliderScaleYZ_def,
                 rearTireColliderScaleX_def, rearTireColliderScaleYZ_def, rearRimColliderScaleYZ_def)
             {
                 // Assign the current values
-                WheelWidth = DecorExistOn(vehicle, ExtraWidthID) ? DecorGetFloat(vehicle, ExtraWidthID) : wheelWidth,
-                WheelSize = DecorExistOn(vehicle, ExtraSizeID) ? DecorGetFloat(vehicle, ExtraSizeID) : wheelSize,
+                WheelWidth = DecorExistOn(vehicle, ExtraWidthID) ? DecorGetFloat(vehicle, ExtraWidthID) : wheelWidth_def,
+                WheelSize = DecorExistOn(vehicle, ExtraSizeID) ? DecorGetFloat(vehicle, ExtraSizeID) : wheelSize_def,
                 
                 //FrontTireColliderScaleX = DecorExistOn(vehicle, FrontWheelModTireColliderScaleXID) ? DecorGetFloat(vehicle, FrontWheelModTireColliderScaleXID) : frontTireColliderScaleX_def,
                 //FrontTireColliderScaleYZ = DecorExistOn(vehicle, FrontWheelModTireColliderScaleYZID) ? DecorGetFloat(vehicle, FrontWheelModTireColliderScaleYZID) : frontTireColliderScaleYZ_def,
@@ -481,11 +481,43 @@ namespace VStancer.Client
 
                 // Also update world vehicles list
                 _worldVehiclesHandles = new VehicleEnumerable();
+                
+                // TODO: Move this
+                if(Config.Extra.EnableExtra)
+                    UpdateWorldVehiclesWithExtraDecorators();
 
                 _lastTime = GetGameTimer();
             }
 
             await Task.FromResult(0);
+        }
+
+        // TODO: Avoid duplicating things
+        private void UpdateWorldVehiclesWithExtraDecorators()
+        {
+            // Refreshes the iterated vehicles
+            IEnumerable<int> vehiclesList = _worldVehiclesHandles.Except(new List<int> { _playerVehicleHandle });
+            Vector3 currentCoords = GetEntityCoords(_playerPedHandle, true);
+
+            foreach (int entity in vehiclesList)
+            {
+                if (DoesEntityExist(entity))
+                {
+                    Vector3 coords = GetEntityCoords(entity, true);
+
+                    if (Vector3.Distance(currentCoords, coords) <= Config.ScriptRange)
+                        UpdateVehicleExtraUsingDecorators(entity);
+                }
+            }
+        }
+
+        private void UpdateVehicleExtraUsingDecorators(int vehicle)
+        {
+            if (DecorExistOn(vehicle, ExtraSizeID))
+                SetVehicleWheelSize(vehicle, DecorGetFloat(vehicle, ExtraSizeID));
+
+            if (DecorExistOn(vehicle, ExtraWidthID))
+                SetVehicleWheelWidth(vehicle, DecorGetFloat(vehicle, ExtraWidthID));
         }
 
         /// <summary>
@@ -805,15 +837,6 @@ namespace VStancer.Client
                     else
                         SetVehicleWheelYRotation(vehicle, index, -value);
                 }
-            }
-
-            if(Config.Extra.EnableExtra)
-            {
-                if (DecorExistOn(vehicle, ExtraSizeID))
-                    SetVehicleWheelSize(vehicle, DecorGetFloat(vehicle, ExtraSizeID));
-
-                if (DecorExistOn(vehicle, ExtraWidthID))
-                    SetVehicleWheelWidth(vehicle, DecorGetFloat(vehicle, ExtraWidthID));
             }
         }
 
