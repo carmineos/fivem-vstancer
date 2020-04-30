@@ -78,19 +78,20 @@ namespace VStancer.Client
             if (vehicleWheelMod == _vehicleWheelMod)
                 return;
 
-            if(vehicleWheelMod == -1)
-                InvalidateExtra();
-            else
+            InvalidateExtra();
+
+            if (vehicleWheelMod != -1)
             {
                 _vehicleWheelMod = vehicleWheelMod;
 
                 // Get new data from entity
                 VStancerExtra = GetVStancerExtraFromHandle(_playerVehicleHandle);
                 VStancerExtra.PropertyChanged += OnExtraPropertyEdited;
-            }
 
-            // Notify UI to redraw extra menu
-            VStancerExtraChanged?.Invoke(this, EventArgs.Empty);
+                // Avoid invoking this if InvalidateExtra already did it
+                // Find out why UI doesn't update
+                VStancerExtraChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private async Task TimedTask()
@@ -121,12 +122,16 @@ namespace VStancer.Client
 
         private void InvalidateExtra()
         {
-            if (ExtraIsValid)
+            _vehicleWheelMod = -1;
+
+            if (VStancerExtra != null)
             {
+                //VStancerExtra.Reset();
                 VStancerExtra.PropertyChanged -= OnExtraPropertyEdited;
                 VStancerExtra = null;
-            }
-            _vehicleWheelMod = -1;
+
+                VStancerExtraChanged?.Invoke(this, EventArgs.Empty);
+            }       
         }
 
         private void PlayerVehicleChanged(int vehicle)
@@ -137,10 +142,7 @@ namespace VStancer.Client
             _playerVehicleHandle = vehicle;
 
             if (_playerVehicleHandle == -1)
-            {
                 InvalidateExtra();
-                return;
-            }
         }
 
         private VStancerExtra GetVStancerExtraFromHandle(int vehicle)
@@ -202,6 +204,7 @@ namespace VStancer.Client
 
                 case nameof(VStancerExtra.Reset):
                     RemoveExtraDecoratorsFromVehicle(_playerVehicleHandle);
+                    VStancerExtraChanged?.Invoke(this, EventArgs.Empty);
                     break;
 
                 default:

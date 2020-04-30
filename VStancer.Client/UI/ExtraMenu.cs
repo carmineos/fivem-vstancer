@@ -15,7 +15,6 @@ namespace VStancer.Client.UI
             _manager.VStancerExtraChanged += new EventHandler((sender, args) =>
             {
                 Update();
-                //UpdateExtraMenuItem();
             });
 
             Update();
