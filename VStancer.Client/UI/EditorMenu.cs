@@ -8,7 +8,7 @@ namespace VStancer.Client.UI
     {
         private readonly VStancerEditor _vstancerEditor;
 
-        internal EditorMenu(VStancerEditor editor, string name = Globals.ScriptName, string subtitle = "Editor") : base(name, subtitle)
+        internal EditorMenu(VStancerEditor editor, string name = Globals.ScriptName, string subtitle = "Editor Menu") : base(name, subtitle)
         {
             _vstancerEditor = editor;
 

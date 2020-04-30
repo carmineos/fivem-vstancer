@@ -85,7 +85,7 @@ namespace VStancer.Client.UI
                 Label = "→→→"
             };
 
-            ExtraMenuItem = new MenuItem("Extra Menu", "The menu to edit extra properties.")
+            ExtraMenuItem = new MenuItem("Extra Menu")
             {
                 Label = "→→→"
             };
@@ -129,7 +129,7 @@ namespace VStancer.Client.UI
             ExtraMenuItem.Enabled = enabled;
             ExtraMenuItem.RightIcon = enabled ? MenuItem.Icon.NONE : MenuItem.Icon.LOCK;
             ExtraMenuItem.Label = enabled ? "→→→" : string.Empty;
-            ExtraMenuItem.Description = enabled ? "The menu to edit the size of the wheel mods." : "Install a wheel mod to access to this menu";
+            ExtraMenuItem.Description = enabled ? "The menu to edit extra properties." : "Install a wheel mod to access to this menu";
         }
     }
 }

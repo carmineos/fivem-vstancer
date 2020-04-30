@@ -9,7 +9,7 @@ namespace VStancer.Client.UI
     {
         private readonly VStancerEditor _vstancerEditor;
 
-        internal PresetsMenu(VStancerEditor editor, string name = Globals.ScriptName, string subtitle = "Personal Presets") : base(name, subtitle)
+        internal PresetsMenu(VStancerEditor editor, string name = Globals.ScriptName, string subtitle = "Personal Presets Menu") : base(name, subtitle)
         {
             _vstancerEditor = editor;
 
