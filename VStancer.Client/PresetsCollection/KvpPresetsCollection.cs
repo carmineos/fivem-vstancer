@@ -8,13 +8,13 @@ namespace VStancer.Client
     /// <summary>
     /// The vstancer preset manager which saves the presets as key-value pairs built-in FiveM
     /// </summary>
-    public class KvpPresetManager : IPresetManager<string, VStancerPreset>
+    public class KvpPresetsCollection : IPresetsCollection<string, VStancerData>
     {
         private string mKvpPrefix;
 
-        public event EventHandler PresetsListChanged;
+        public event EventHandler PresetsCollectionChanged;
 
-        public KvpPresetManager(string prefix)
+        public KvpPresetsCollection(string prefix)
         {
             mKvpPrefix = prefix;
         }
@@ -36,12 +36,12 @@ namespace VStancer.Client
             DeleteResourceKvp(key);
 
             // Invoke the event
-            PresetsListChanged?.Invoke(this, EventArgs.Empty);
+            PresetsCollectionChanged?.Invoke(this, EventArgs.Empty);
 
             return true;
         }
 
-        public bool Save(string name, VStancerPreset preset)
+        public bool Save(string name, VStancerData preset)
         {
             // Check if the preset and the ID are valid
             if (string.IsNullOrEmpty(name) || preset == null)
@@ -61,12 +61,12 @@ namespace VStancer.Client
             SetResourceKvp(key, json);
 
             // Invoke the event
-            PresetsListChanged?.Invoke(this, EventArgs.Empty);
+            PresetsCollectionChanged?.Invoke(this, EventArgs.Empty);
 
             return true;
         }
 
-        public VStancerPreset Load(string name)
+        public VStancerData Load(string name)
         {
             // Check if the preset ID is valid
             if (string.IsNullOrEmpty(name))
@@ -83,14 +83,14 @@ namespace VStancer.Client
                 return null;
 
             // Create a preset
-            VStancerPreset preset = JsonConvert.DeserializeObject<VStancerPreset>(value);
+            VStancerData preset = JsonConvert.DeserializeObject<VStancerData>(value);
 
             return preset;
         }
 
         public IEnumerable<string> GetKeys()
         {
-            return new KvpEnumerable(mKvpPrefix);
+            return VStancerUtilities.GetKeyValuePairs(mKvpPrefix);
         }
     }
 }
