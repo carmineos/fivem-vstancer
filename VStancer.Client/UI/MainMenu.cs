@@ -8,7 +8,7 @@ namespace VStancer.Client.UI
 {
     internal class MainMenu : Menu
     {
-        private readonly VStancerEditor _vstancerEditor;
+        private readonly MainScript _mainScript;
 
         private EditorMenu EditorMenu { get; set; }
         private ExtraMenu ExtraMenu { get; set; }
@@ -18,31 +18,13 @@ namespace VStancer.Client.UI
         private MenuItem ExtraMenuItem { get; set; }
         private MenuItem PresetsMenuItem { get; set; }
 
-        /// <summary>
-        /// Invoked when a property has its value changed in the UI
-        /// </summary>
-        public event FloatPropertyChanged FloatPropertyChangedEvent;
-        public event EventHandler<string> CommandInvokedEvent;
 
-        public event EventHandler<string> PersonalPresetsMenuApplyPreset;
-        public event EventHandler<string> PersonalPresetsMenuSavePreset;
-        public event EventHandler<string> PersonalPresetsMenuDeletePreset;
-
-        internal MainMenu(VStancerEditor vstancerEditor, string name = Globals.ScriptName, string subtitle = "Main Menu") : base(name, subtitle)
+        internal MainMenu(MainScript mainScript, string name = Globals.ScriptName, string subtitle = "Main Menu") : base(name, subtitle)
         {
-            _vstancerEditor = vstancerEditor;
+            _mainScript = mainScript;
 
-            _vstancerEditor.NewPresetCreated += new EventHandler((sender, args) => EditorMenu?.Update());
-
-            _vstancerEditor.ExtraChanged += new EventHandler((sender, args) =>
+            _mainScript.ToggleMenuVisibility += new EventHandler((sender, args) =>
             {
-                ExtraMenu?.Update();
-                UpdateExtraMenuItem();
-            });
-
-            _vstancerEditor.ToggleMenuVisibility += new EventHandler((sender, args) =>
-            {
-                //var currentMenu = MenuController.GetCurrentMenu();
                 var currentMenu = MenuController.MainMenu;
 
                 if (currentMenu == null)
@@ -51,27 +33,17 @@ namespace VStancer.Client.UI
                 currentMenu.Visible = !currentMenu.Visible;
             });
 
-            _vstancerEditor.LocalPresetsManager.PresetsListChanged += new EventHandler((sender, args) => PresetsMenu?.Update());
+            _mainScript.VStancerExtraManager.VStancerExtraChanged += (sender, args) => UpdateExtraMenuItem();
 
             MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
-            MenuController.MenuToggleKey = (Control)_vstancerEditor.Config.ToggleMenuControl;
+            MenuController.MenuToggleKey = (Control)_mainScript.Config.ToggleMenuControl;
             MenuController.EnableMenuToggleKeyOnController = false;
             MenuController.DontOpenAnyMenu = true;
             MenuController.MainMenu = this;
 
-            EditorMenu = new EditorMenu(_vstancerEditor);
-            ExtraMenu = new ExtraMenu(_vstancerEditor);
-            PresetsMenu = new PresetsMenu(_vstancerEditor);
-
-            EditorMenu.FloatPropertyChangedEvent += (id, value) => FloatPropertyChangedEvent?.Invoke(id, value);
-            ExtraMenu.FloatPropertyChangedEvent += (id, value) => FloatPropertyChangedEvent?.Invoke(id, value);
-
-            EditorMenu.ResetPropertiesEvent += (sender, id) => CommandInvokedEvent?.Invoke(this, id);
-            ExtraMenu.ResetPropertiesEvent += (sender, id) => CommandInvokedEvent?.Invoke(this, id);
-
-            PresetsMenu.ApplyPresetEvent += (sender, id) => PersonalPresetsMenuApplyPreset?.Invoke(this, id);
-            PresetsMenu.SavePresetEvent += (sender, id) => PersonalPresetsMenuSavePreset?.Invoke(this, id);
-            PresetsMenu.DeletePresetEvent += (sender, id) => PersonalPresetsMenuDeletePreset?.Invoke(this, id);
+            EditorMenu = _mainScript.VStancerDataManager.EditorMenu;
+            ExtraMenu = _mainScript.VStancerExtraManager.ExtraMenu;
+            PresetsMenu = _mainScript.LocalPresetsManager.PresetsMenu;
 
             Update();
         }
@@ -90,7 +62,8 @@ namespace VStancer.Client.UI
                 Label = "→→→"
             };
             UpdateExtraMenuItem();
-
+            
+            
             PresetsMenuItem = new MenuItem("Personal Presets", "The menu to manage the presets saved by you.")
             {
                 Label = "→→→"
@@ -123,9 +96,9 @@ namespace VStancer.Client.UI
         {
             if (ExtraMenuItem == null)
                 return;
-
-            var enabled = _vstancerEditor.CurrentExtraIsValid;
-
+        
+            var enabled = _mainScript.VStancerExtraManager.ExtraIsValid;
+        
             ExtraMenuItem.Enabled = enabled;
             ExtraMenuItem.RightIcon = enabled ? MenuItem.Icon.NONE : MenuItem.Icon.LOCK;
             ExtraMenuItem.Label = enabled ? "→→→" : string.Empty;

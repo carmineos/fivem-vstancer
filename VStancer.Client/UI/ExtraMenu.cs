@@ -6,11 +6,17 @@ namespace VStancer.Client.UI
 {
     internal class ExtraMenu : Menu
     {
-        private readonly VStancerEditor _vstancerEditor;
+        private readonly VStancerExtraManager _manager;
 
-        internal ExtraMenu(VStancerEditor editor, string name = Globals.ScriptName, string subtitle = "Extra Menu") : base(name, subtitle)
+        internal ExtraMenu(VStancerExtraManager manager, string name = Globals.ScriptName, string subtitle = "Extra Menu") : base(name, subtitle)
         {
-            _vstancerEditor = editor;
+            _manager = manager;
+
+            _manager.VStancerExtraChanged += new EventHandler((sender, args) =>
+            {
+                Update();
+                //UpdateExtraMenuItem();
+            });
 
             Update();
 
@@ -45,24 +51,24 @@ namespace VStancer.Client.UI
         {
             ClearMenuItems();
 
-            if (!_vstancerEditor.CurrentExtraIsValid)
+            if (!_manager.ExtraIsValid)
                 return;
 
             WheelSizeListItem = MenuUtilities.CreateDynamicFloatList("Wheel Size",
-                _vstancerEditor.CurrentExtra.DefaultWheelSize,
-                _vstancerEditor.CurrentExtra.WheelSize,
-                _vstancerEditor.Config.Extra.WheelSize,
-                VStancerEditor.ExtraSizeID,
-                _vstancerEditor.Config.FloatStep);
+                _manager.VStancerExtra.DefaultWheelSize,
+                _manager.VStancerExtra.WheelSize,
+                _manager.Config.Extra.WheelSize,
+                VStancerExtraManager.ExtraSizeID,
+                _manager.Config.FloatStep);
 
             WheelWidthListItem = MenuUtilities.CreateDynamicFloatList("Wheel Width",
-                _vstancerEditor.CurrentExtra.DefaultWheelWidth,
-                _vstancerEditor.CurrentExtra.WheelWidth,
-                _vstancerEditor.Config.Extra.WheelWidth,
-                VStancerEditor.ExtraWidthID,
-                _vstancerEditor.Config.FloatStep);
+                _manager.VStancerExtra.DefaultWheelWidth,
+                _manager.VStancerExtra.WheelWidth,
+                _manager.Config.Extra.WheelWidth,
+                VStancerExtraManager.ExtraWidthID,
+                _manager.Config.FloatStep);
 
-            ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = VStancerEditor.ExtraResetID };
+            ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = VStancerExtraManager.ExtraResetID };
 
             AddMenuItem(WheelSizeListItem);
             AddMenuItem(WheelWidthListItem);

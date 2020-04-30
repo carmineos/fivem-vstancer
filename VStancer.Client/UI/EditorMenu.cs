@@ -6,11 +6,13 @@ namespace VStancer.Client.UI
 {
     internal class EditorMenu : Menu
     {
-        private readonly VStancerEditor _vstancerEditor;
+        private readonly VStancerDataManager _manager;
 
-        internal EditorMenu(VStancerEditor editor, string name = Globals.ScriptName, string subtitle = "Editor Menu") : base(name, subtitle)
+        internal EditorMenu(VStancerDataManager manager, string name = Globals.ScriptName, string subtitle = "Editor Menu") : base(name, subtitle)
         {
-            _vstancerEditor = editor;
+            _manager = manager;
+
+            _manager.VStancerDataChanged += new EventHandler((sender, args) => Update());
 
             Update();
 
@@ -47,38 +49,38 @@ namespace VStancer.Client.UI
         {
             ClearMenuItems(); 
             
-            if (!_vstancerEditor.CurrentPresetIsValid)
+            if (!_manager.DataIsValid)
                 return;
 
             FrontTrackWidthListItem = MenuUtilities.CreateDynamicFloatList("Front Track Width",
-                -_vstancerEditor.CurrentPreset.DefaultFrontTrackWidth,
-                -_vstancerEditor.CurrentPreset.FrontTrackWidth,
-                _vstancerEditor.Config.FrontLimits.PositionX,
-                VStancerEditor.FrontTrackWidthID,
-                _vstancerEditor.Config.FloatStep);
+                -_manager.VStancerData.DefaultFrontTrackWidth,
+                -_manager.VStancerData.FrontTrackWidth,
+                _manager.Config.FrontLimits.PositionX,
+                VStancerDataManager.FrontTrackWidthID,
+                _manager.Config.FloatStep);
 
             RearTrackWidthListItem = MenuUtilities.CreateDynamicFloatList("Rear Track Width",
-                -_vstancerEditor.CurrentPreset.DefaultRearTrackWidth,
-                -_vstancerEditor.CurrentPreset.RearTrackWidth,
-                _vstancerEditor.Config.RearLimits.PositionX,
-                VStancerEditor.RearTrackWidthID,
-                _vstancerEditor.Config.FloatStep);
+                -_manager.VStancerData.DefaultRearTrackWidth,
+                -_manager.VStancerData.RearTrackWidth,
+                _manager.Config.RearLimits.PositionX,
+                VStancerDataManager.RearTrackWidthID,
+                _manager.Config.FloatStep);
 
             FrontCamberListItem = MenuUtilities.CreateDynamicFloatList("Front Camber",
-                _vstancerEditor.CurrentPreset.DefaultFrontCamber,
-                _vstancerEditor.CurrentPreset.FrontCamber,
-                _vstancerEditor.Config.FrontLimits.RotationY,
-                VStancerEditor.FrontCamberID,
-                _vstancerEditor.Config.FloatStep);
+                _manager.VStancerData.DefaultFrontCamber,
+                _manager.VStancerData.FrontCamber,
+                _manager.Config.FrontLimits.RotationY,
+                VStancerDataManager.FrontCamberID,
+                _manager.Config.FloatStep);
 
             RearCamberListItem = MenuUtilities.CreateDynamicFloatList("Rear Camber",
-                _vstancerEditor.CurrentPreset.DefaultRearCamber,
-                _vstancerEditor.CurrentPreset.RearCamber,
-                _vstancerEditor.Config.RearLimits.RotationY,
-                VStancerEditor.RearCamberID,
-                _vstancerEditor.Config.FloatStep);
+                _manager.VStancerData.DefaultRearCamber,
+                _manager.VStancerData.RearCamber,
+                _manager.Config.RearLimits.RotationY,
+                VStancerDataManager.RearCamberID,
+                _manager.Config.FloatStep);
                 
-            ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = VStancerEditor.ResetID };
+            ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = VStancerDataManager.ResetID };
 
             AddMenuItem(FrontTrackWidthListItem);
             AddMenuItem(RearTrackWidthListItem);

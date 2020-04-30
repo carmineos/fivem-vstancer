@@ -4,7 +4,7 @@ using System.Text;
 
 namespace VStancer.Client
 {
-    public class VStancerPreset : IEquatable<VStancerPreset>
+    public class VStancerData : IEquatable<VStancerData>
     {
         private const float Epsilon = VStancerUtilities.Epsilon;
 
@@ -84,7 +84,7 @@ namespace VStancer.Client
             }
         }
 
-        public VStancerPreset(int count, float defaultFrontOffset, float defaultFrontRotation, float defaultRearOffset, float defaultRearRotation)
+        public VStancerData(int count, float defaultFrontOffset, float defaultFrontRotation, float defaultRearOffset, float defaultRearRotation)
         {
             WheelsCount = count;
 
@@ -135,7 +135,7 @@ namespace VStancer.Client
             PropertyChanged?.Invoke(this, nameof(Reset));
         }
 
-        public bool Equals(VStancerPreset other)
+        public bool Equals(VStancerData other)
         {
             if (WheelsCount != other.WheelsCount)
                 return false;
@@ -196,7 +196,7 @@ namespace VStancer.Client
             };
         }
 
-        public void CopyFrom(VStancerPreset other)
+        public void CopyFrom(VStancerData other)
         {
             if (other == null)
                 return;

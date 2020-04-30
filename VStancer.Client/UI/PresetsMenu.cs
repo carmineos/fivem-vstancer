@@ -7,11 +7,13 @@ namespace VStancer.Client.UI
 {
     internal class PresetsMenu : Menu
     {
-        private readonly VStancerEditor _vstancerEditor;
+        private readonly LocalPresetsManager _manager;
 
-        internal PresetsMenu(VStancerEditor editor, string name = Globals.ScriptName, string subtitle = "Personal Presets Menu") : base(name, subtitle)
+        internal PresetsMenu(LocalPresetsManager manager, string name = Globals.ScriptName, string subtitle = "Personal Presets Menu") : base(name, subtitle)
         {
-            _vstancerEditor = editor;
+            _manager = manager;
+
+            _manager.Presets.PresetsCollectionChanged += new EventHandler((sender, args) => Update());
 
             Update();
 
@@ -32,7 +34,7 @@ namespace VStancer.Client.UI
 
             ButtonPressHandlers.Add(new ButtonPressHandler(Control.PhoneExtraOption, ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>(async (sender, control) =>
             {
-                string presetName = await _vstancerEditor.GetOnScreenString("VSTANCER_ENTER_PRESET_NAME", "");
+                string presetName = await _manager.GetPresetNameFromUser("VSTANCER_ENTER_PRESET_NAME", "");
                 SavePresetEvent?.Invoke(this, presetName.Trim());
             }), true));
 
@@ -54,10 +56,10 @@ namespace VStancer.Client.UI
         {
             ClearMenuItems();
 
-            if (_vstancerEditor.LocalPresetsManager == null)
+            if (_manager.Presets == null)
                 return;
 
-            foreach (var key in _vstancerEditor.LocalPresetsManager.GetKeys())
+            foreach (var key in _manager.Presets.GetKeys())
             {
                 AddMenuItem(new MenuItem(key.Remove(0, Globals.KvpPrefix.Length)) { ItemData = key });
             }
