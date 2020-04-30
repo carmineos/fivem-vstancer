@@ -451,5 +451,29 @@ namespace VStancer.Client
 
             Debug.WriteLine(s.ToString());
         }
+
+        private bool EntityHasDecorators(int entity)
+        {
+            return (
+                DecorExistOn(entity, FrontTrackWidthID) ||
+                DecorExistOn(entity, FrontCamberID) ||
+                DecorExistOn(entity, RearTrackWidthID) ||
+                DecorExistOn(entity, RearCamberID) ||
+                DecorExistOn(entity, DefaultFrontTrackWidthID) ||
+                DecorExistOn(entity, DefaultFrontCamberID) ||
+                DecorExistOn(entity, DefaultRearTrackWidthID) ||
+                DecorExistOn(entity, DefaultRearCamberID)
+                );
+        }
+
+        internal void PrintVehiclesWithDecorators(IEnumerable<int> vehiclesList)
+        {
+            IEnumerable<int> entities = vehiclesList.Where(entity => EntityHasDecorators(entity));
+
+            Debug.WriteLine($"{nameof(VStancerDataManager)}: Vehicles with decorators: {entities.Count()}");
+
+            foreach (int item in entities)
+                Debug.WriteLine($"Vehicle: {item}");
+        }
     }
 }

@@ -33,17 +33,23 @@ namespace VStancer.Client.UI
                 currentMenu.Visible = !currentMenu.Visible;
             });
 
-            _mainScript.VStancerExtraManager.VStancerExtraChanged += (sender, args) => UpdateExtraMenuItem();
-
             MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
             MenuController.MenuToggleKey = (Control)_mainScript.Config.ToggleMenuControl;
             MenuController.EnableMenuToggleKeyOnController = false;
             MenuController.DontOpenAnyMenu = true;
             MenuController.MainMenu = this;
 
-            EditorMenu = _mainScript.VStancerDataManager.EditorMenu;
-            ExtraMenu = _mainScript.VStancerExtraManager.ExtraMenu;
-            PresetsMenu = _mainScript.LocalPresetsManager.PresetsMenu;
+            if (_mainScript.VStancerDataManager != null)
+                EditorMenu = _mainScript.VStancerDataManager.EditorMenu;
+
+            if (_mainScript.VStancerExtraManager != null)
+            {
+                _mainScript.VStancerExtraManager.VStancerExtraChanged += (sender, args) => UpdateExtraMenuItem();
+                ExtraMenu = _mainScript.VStancerExtraManager.ExtraMenu;
+            }
+            
+            if (_mainScript.LocalPresetsManager?.Presets != null)
+                PresetsMenu = _mainScript.LocalPresetsManager.PresetsMenu;
 
             Update();
         }
@@ -75,12 +81,24 @@ namespace VStancer.Client.UI
 
             MenuController.Menus.Clear();
             MenuController.AddMenu(this);
-            MenuController.AddSubmenu(this, EditorMenu);
-            MenuController.AddSubmenu(this, ExtraMenu);
-            MenuController.AddSubmenu(this, PresetsMenu);
-            MenuController.BindMenuItem(this, EditorMenu, EditorMenuItem);
-            MenuController.BindMenuItem(this, ExtraMenu, ExtraMenuItem);
-            MenuController.BindMenuItem(this, PresetsMenu, PresetsMenuItem);
+
+            if(EditorMenu != null)
+            {
+                MenuController.AddSubmenu(this, EditorMenu);
+                MenuController.BindMenuItem(this, EditorMenu, EditorMenuItem);
+            }
+
+            if (ExtraMenu != null)
+            {
+                MenuController.AddSubmenu(this, ExtraMenu);
+                MenuController.BindMenuItem(this, ExtraMenu, ExtraMenuItem);
+            }
+
+            if (PresetsMenu != null)
+            {
+                MenuController.AddSubmenu(this, PresetsMenu);
+                MenuController.BindMenuItem(this, PresetsMenu, PresetsMenuItem);
+            }
         }
 
         internal bool HideMenu
@@ -96,8 +114,11 @@ namespace VStancer.Client.UI
         {
             if (ExtraMenuItem == null)
                 return;
-        
-            var enabled = _mainScript.VStancerExtraManager.ExtraIsValid;
+
+            var enabled = false;
+            
+            if(_mainScript.VStancerExtraManager != null)
+                enabled = _mainScript.VStancerExtraManager.ExtraIsValid;
         
             ExtraMenuItem.Enabled = enabled;
             ExtraMenuItem.RightIcon = enabled ? MenuItem.Icon.NONE : MenuItem.Icon.LOCK;

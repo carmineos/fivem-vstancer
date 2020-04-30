@@ -275,5 +275,53 @@ namespace VStancer.Client
                     break;
             }
         }
+
+        private bool EntityHasDecorators(int entity)
+        {
+            return (
+                DecorExistOn(entity, ExtraSizeID) ||
+                DecorExistOn(entity, ExtraWidthID) ||
+                DecorExistOn(entity, DefaultExtraSizeID) ||
+                DecorExistOn(entity, DefaultExtraWidthID)
+                );
+        }
+
+        internal void PrintVehiclesWithDecorators(IEnumerable<int> vehiclesList)
+        {
+            IEnumerable<int> entities = vehiclesList.Where(entity => EntityHasDecorators(entity));
+
+            Debug.WriteLine($"{nameof(VStancerExtraManager)}: Vehicles with decorators: {entities.Count()}");
+
+            foreach (int item in entities)
+                Debug.WriteLine($"Vehicle: {item}");
+        }
+
+        internal void PrintDecoratorsInfo(int vehicle)
+        {
+            if (!DoesEntityExist(vehicle))
+            {
+                Debug.WriteLine($"{Globals.ScriptName}: Can't find vehicle with handle {vehicle}");
+                return;
+            }
+
+            int wheelsCount = GetVehicleNumberOfWheels(vehicle);
+            int netID = NetworkGetNetworkIdFromEntity(vehicle);
+            StringBuilder s = new StringBuilder();
+            s.AppendLine($"{nameof(VStancerExtraManager)}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
+
+            if (DecorExistOn(vehicle, ExtraSizeID))
+            {
+                float value = DecorGetFloat(vehicle, ExtraSizeID);
+                s.AppendLine($"{ExtraSizeID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, ExtraWidthID))
+            {
+                float value = DecorGetFloat(vehicle, ExtraWidthID);
+                s.AppendLine($"{ExtraWidthID}: {value}");
+            }
+
+            Debug.WriteLine(s.ToString());
+        }
     }
 }

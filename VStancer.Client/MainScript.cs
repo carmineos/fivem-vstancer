@@ -72,8 +72,15 @@ namespace VStancer.Client
             _worldVehiclesHandles = new List<int>();
 
             Config = LoadConfig();
-            VStancerDataManager = new VStancerDataManager(this);
-            VStancerExtraManager = new VStancerExtraManager(this);
+            VStancerDataManager = new VStancerDataManager(this); 
+            RegisterScript(VStancerDataManager);
+
+            if (Config.Extra.EnableExtra)
+            {
+                VStancerExtraManager = new VStancerExtraManager(this);
+                RegisterScript(VStancerExtraManager);
+            }
+
             LocalPresetsManager = new LocalPresetsManager(this);
 
             _mainMenu = new MainMenu(this);
@@ -81,9 +88,6 @@ namespace VStancer.Client
             Tick += GetPlayerAndVehicleTask;
             Tick += TimedTask;
             Tick += HideUITask;
-
-            RegisterScript(VStancerDataManager);
-            RegisterScript(VStancerExtraManager);
 
             RegisterCommands();
         }
@@ -191,15 +195,21 @@ namespace VStancer.Client
             RegisterCommand("vstancer_decorators", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
+                {
                     VStancerDataManager.PrintDecoratorsInfo(_playerVehicleHandle);
+                    VStancerExtraManager.PrintDecoratorsInfo(_playerVehicleHandle);
+                }
                 else
                 {
                     if (int.TryParse(args[0], out int value))
+                    {
                         VStancerDataManager.PrintDecoratorsInfo(value);
+                        VStancerExtraManager.PrintDecoratorsInfo(value);
+                    }
                     else Debug.WriteLine($"{Globals.ScriptName}: Error parsing entity handle {args[0]} as int");
                 }
             }), false);
-            /**
+            
             RegisterCommand("vstancer_range", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
@@ -217,6 +227,7 @@ namespace VStancer.Client
 
             }), false);
 
+            
             RegisterCommand("vstancer_debug", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
@@ -234,24 +245,27 @@ namespace VStancer.Client
 
             }), false);
 
+            
             RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
             {
-                if (CurrentPreset != null)
-                    Debug.WriteLine(CurrentPreset.ToString());
+                if (VStancerDataManager?.VStancerData != null)
+                    Debug.WriteLine(VStancerDataManager.VStancerData.ToString());
                 else
-                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(CurrentPreset)} is null");
+                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(VStancerDataManager.VStancerData)} is null");
 
-                if (CurrentExtra != null)
-                    Debug.WriteLine(CurrentExtra.ToString());
+                if (VStancerExtraManager?.VStancerExtra != null)
+                    Debug.WriteLine(VStancerExtraManager.VStancerExtra.ToString());
                 else
-                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(CurrentExtra)} is null");
+                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(VStancerExtraManager.VStancerExtra)} is null");
             }), false);
 
+            
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
-                PrintVehiclesWithDecorators(_worldVehiclesHandles);
-                if (Config.Extra.EnableExtra)
-                    PrintVehiclesWithExtraDecorators(_worldVehiclesHandles);
+                if(VStancerDataManager != null)
+                    VStancerDataManager.PrintVehiclesWithDecorators(_worldVehiclesHandles);
+                if (VStancerExtraManager != null)
+                    VStancerExtraManager.PrintVehiclesWithDecorators(_worldVehiclesHandles);
             }), false);
 
             if (Config.ExposeCommand)
@@ -259,8 +273,8 @@ namespace VStancer.Client
 
             if (Config.ExposeEvent)
                 EventHandlers.Add("vstancer:toggleMenu", new Action(() => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }));
-
-
+            
+            /*
             Exports.Add("SetVstancerPreset", new Action<int, float, float, float, float, object, object, object, object>(SetVstancerPreset));
             Exports.Add("GetVstancerPreset", new Func<int, float[]>(GetVstancerPreset));
             */
