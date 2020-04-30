@@ -55,7 +55,7 @@ namespace VStancer.Client
 
             if (handle != -1)
             {
-                handles.Add(entity);
+                do handles.Add(entity);
                 while (FindNextVehicle(handle, ref entity)) ;
 
                 EndFindVehicle(handle);
