@@ -7,6 +7,7 @@ using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 using Newtonsoft.Json;
+using VStancer.Client.UI;
 
 namespace VStancer.Client
 {
@@ -15,7 +16,7 @@ namespace VStancer.Client
         /// <summary>
         /// The script which renders the menu
         /// </summary>
-        private readonly VStancerMenu _vstancerMenu;
+        private readonly MainMenu _vstancerMenu;
 
         /// <summary>
         /// The handle of the current vehicle
@@ -212,12 +213,10 @@ namespace VStancer.Client
             Exports.Add("GetVstancerPreset", new Func<int, float[]>(GetVstancerPreset));
 
             // Create a script for the menu ...
-            _vstancerMenu = new VStancerMenu(this);
+            _vstancerMenu = new MainMenu(this);
 
-            _vstancerMenu.EditorMenuResetPreset += OnEditorMenuResetPresetInvoked;
-            _vstancerMenu.EditorMenuPresetValueChanged += OnEditorMenuPresetValueChanged;
-            _vstancerMenu.ExtraMenuPresetValueChanged += OnExtraMenuPresetValueChanged;
-            _vstancerMenu.ExtraMenuResetPreset += OnExtraMenuResetPresetInvoked;
+            _vstancerMenu.CommandInvokedEvent += OnMenuCommandInvoked;
+            _vstancerMenu.FloatPropertyChangedEvent += OnEditorMenuPresetValueChanged;
 
             _vstancerMenu.PersonalPresetsMenuApplyPreset += OnPersonalPresetsMenuApplyPresetInvoked;
             _vstancerMenu.PersonalPresetsMenuSavePreset += OnPersonalPresetsMenuSavePresetInvoked;
@@ -232,7 +231,7 @@ namespace VStancer.Client
         private async Task HideUITask()
         {
             if (_vstancerMenu != null)
-                _vstancerMenu.HideUI = !CurrentPresetIsValid;
+                _vstancerMenu.HideMenu = !CurrentPresetIsValid;
 
             await Task.FromResult(0);
         }
@@ -1026,30 +1025,35 @@ namespace VStancer.Client
         /// <summary>
         /// Invoked when the reset button is pressed in the UI
         /// </summary>
-        private async void OnEditorMenuResetPresetInvoked(object sender, EventArgs eventArgs)
+        private async void OnMenuCommandInvoked(object sender, string id)
         {
-            if (!CurrentPresetIsValid)
-                return;
+            switch(id)
+            {
+                case ResetID:
+                    if (!CurrentPresetIsValid)
+                        return;
 
-            CurrentPreset.Reset();
+                    CurrentPreset.Reset();
 
-            await Delay(200);
+                    await Delay(200);
 
-            // Used to updated the UI
-            // TODO: Maybe change this
-            NewPresetCreated?.Invoke(this, EventArgs.Empty);
-        }
+                    // Used to updated the UI
+                    // TODO: Maybe change this
+                    NewPresetCreated?.Invoke(this, EventArgs.Empty);
+                    break;
 
-        private async void OnExtraMenuResetPresetInvoked(object sender, EventArgs eventArgs)
-        {
-            if (!CurrentExtraIsValid)
-                return;
+                case ExtraResetID:
+                    if (!CurrentExtraIsValid)
+                        return;
 
-            CurrentExtra.Reset();
+                    CurrentExtra.Reset();
 
-            await Delay(200);
+                    await Delay(200);
 
-            ExtraChanged?.Invoke(this, EventArgs.Empty);
+                    ExtraChanged?.Invoke(this, EventArgs.Empty);
+                    break;
+            }
+            
         }
 
         /// <summary>
@@ -1057,52 +1061,30 @@ namespace VStancer.Client
         /// </summary>
         /// <param name="id">The id of the property</param>
         /// <param name="value">The value of the property</param>
-        private void OnEditorMenuPresetValueChanged(string id, string newValue)
+        private void OnEditorMenuPresetValueChanged(string id, float value)
         {
-            if (!CurrentPresetIsValid)
-                return;
-
-            if (!float.TryParse(newValue, out float value))
-                return;
-
             switch (id)
             {
                 case FrontCamberID:
-                    CurrentPreset.FrontCamber = value;
+                    if (CurrentPresetIsValid) CurrentPreset.FrontCamber = value;
                     break;
                 case RearCamberID:
-                    CurrentPreset.RearCamber = value;
+                    if (CurrentPresetIsValid) CurrentPreset.RearCamber = value;
                     break;
                 case FrontTrackWidthID:
-                    CurrentPreset.FrontTrackWidth = -value;
+                    if (CurrentPresetIsValid) CurrentPreset.FrontTrackWidth = -value;
                     break;
                 case RearTrackWidthID:
-                    CurrentPreset.RearTrackWidth = -value;
+                    if (CurrentPresetIsValid) CurrentPreset.RearTrackWidth = -value;
                     break;
 
-                default:
-                    break;
-            }
-        }
-
-        private void OnExtraMenuPresetValueChanged(string id, string newValue)
-        {
-            if (!CurrentExtraIsValid)
-                return;
-
-            if (!float.TryParse(newValue, out float value))
-                return;
-
-            switch (id)
-            {
-                // Wheel size IDs
+                // Extra
                 case ExtraWidthID:
-                    CurrentExtra.WheelWidth = value;
+                    if (CurrentExtraIsValid) CurrentExtra.WheelWidth = value;
                     break;
                 case ExtraSizeID:
-                    CurrentExtra.WheelSize = value;
+                    if (CurrentExtraIsValid) CurrentExtra.WheelSize = value;
                     break;
-
                 default:
                     break;
             }

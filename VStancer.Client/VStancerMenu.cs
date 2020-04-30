@@ -6,7 +6,7 @@ using CitizenFX.Core.UI;
 using static CitizenFX.Core.Native.API;
 
 namespace VStancer.Client
-{
+{/*
     internal class VStancerMenu
     {
         /// <summary>
@@ -22,17 +22,17 @@ namespace VStancer.Client
         /// <summary>
         /// The editor menu
         /// </summary>
-        private Menu _editorMenu;
+        private MenuAPI.Menu _editorMenu;
 
         /// <summary>
         /// The wheel mod size editor menu
         /// </summary>
-        private Menu _extraMenu;
+        private MenuAPI.Menu _extraMenu;
 
         /// <summary>
         /// The local presets menu
         /// </summary>
-        private Menu _personalPresetsMenu;
+        private MenuAPI.Menu _personalPresetsMenu;
 
         private MenuItem _extraMenuItem;
 
@@ -129,7 +129,7 @@ namespace VStancer.Client
         /// <param name="maxEditing">The max delta allowed relative to the default value</param>
         /// <param name="id">The ID of the property linked to the controller</param>
         /// <returns></returns>
-        private MenuDynamicListItem AddDynamicFloatList(Menu menu, string name, float defaultValue, float value, float maxEditing, string id)
+        private MenuDynamicListItem AddDynamicFloatList(MenuAPI.Menu menu, string name, float defaultValue, float value, float maxEditing, string id)
         {
             float min = defaultValue - maxEditing;
             float max = defaultValue + maxEditing;
@@ -148,7 +148,7 @@ namespace VStancer.Client
         {
             if (_editorMenu == null)
             {
-                _editorMenu = new Menu(Globals.ScriptName, "Editor");
+                _editorMenu = new MenuAPI.Menu(Globals.ScriptName, "Editor");
 
                 // When the value of a MenuDynamicListItem is changed
                 _editorMenu.OnDynamicListItemCurrentItemChange += (menu, dynamicListItem, oldValue, newValue) =>
@@ -168,7 +168,7 @@ namespace VStancer.Client
 
             if(_extraMenu == null)
             {
-                _extraMenu = new Menu(Globals.ScriptName, "Extra");
+                _extraMenu = new MenuAPI.Menu(Globals.ScriptName, "Extra");
 
                 // When the value of a MenuDynamicListItem is changed
                 _extraMenu.OnDynamicListItemCurrentItemChange += (menu, dynamicListItem, oldValue, newValue) =>
@@ -187,7 +187,7 @@ namespace VStancer.Client
 
             if (_personalPresetsMenu == null)
             {
-                _personalPresetsMenu = new Menu(Globals.ScriptName, "Personal Presets");
+                _personalPresetsMenu = new MenuAPI.Menu(Globals.ScriptName, "Personal Presets");
 
                 _personalPresetsMenu.OnItemSelect += PersonalPresetsMenu_OnItemSelect;
 
@@ -197,15 +197,15 @@ namespace VStancer.Client
                 _personalPresetsMenu.InstructionalButtons.Add(Control.PhoneOption, GetLabelText("ITEM_DEL"));
 
                 // Disable Controls binded on the same key
-                _personalPresetsMenu.ButtonPressHandlers.Add(new Menu.ButtonPressHandler(Control.SelectWeapon, Menu.ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) => { }), true));
-                _personalPresetsMenu.ButtonPressHandlers.Add(new Menu.ButtonPressHandler(Control.VehicleExit, Menu.ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) => { }), true));
+                _personalPresetsMenu.ButtonPressHandlers.Add(new MenuAPI.Menu.ButtonPressHandler(Control.SelectWeapon, MenuAPI.Menu.ControlPressCheckType.JUST_PRESSED, new Action<MenuAPI.Menu, Control>((sender, control) => { }), true));
+                _personalPresetsMenu.ButtonPressHandlers.Add(new MenuAPI.Menu.ButtonPressHandler(Control.VehicleExit, MenuAPI.Menu.ControlPressCheckType.JUST_PRESSED, new Action<MenuAPI.Menu, Control>((sender, control) => { }), true));
 
-                _personalPresetsMenu.ButtonPressHandlers.Add(new Menu.ButtonPressHandler(Control.PhoneExtraOption, Menu.ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>(async (sender, control) =>
+                _personalPresetsMenu.ButtonPressHandlers.Add(new MenuAPI.Menu.ButtonPressHandler(Control.PhoneExtraOption, MenuAPI.Menu.ControlPressCheckType.JUST_PRESSED, new Action<MenuAPI.Menu, Control>(async (sender, control) =>
                 {
                     string presetName = await _vstancerEditor.GetOnScreenString("VSTANCER_ENTER_PRESET_NAME","");
                     PersonalPresetsMenuSavePreset?.Invoke(_personalPresetsMenu, presetName.Trim());
                 }), true));
-                _personalPresetsMenu.ButtonPressHandlers.Add(new Menu.ButtonPressHandler(Control.PhoneOption, Menu.ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) =>
+                _personalPresetsMenu.ButtonPressHandlers.Add(new MenuAPI.Menu.ButtonPressHandler(Control.PhoneOption, MenuAPI.Menu.ControlPressCheckType.JUST_PRESSED, new Action<MenuAPI.Menu, Control>((sender, control) =>
                 {
                     if (_personalPresetsMenu.GetMenuItems().Count > 0)
                     {
@@ -236,7 +236,7 @@ namespace VStancer.Client
             }
         }
 
-        private void PersonalPresetsMenu_OnItemSelect(Menu menu, MenuItem menuItem, int itemIndex) => PersonalPresetsMenuApplyPreset?.Invoke(menu, menuItem.Text);
+        private void PersonalPresetsMenu_OnItemSelect(MenuAPI.Menu menu, MenuItem menuItem, int itemIndex) => PersonalPresetsMenuApplyPreset?.Invoke(menu, menuItem.Text);
 
         /// <summary>
         /// Rebuild the personal presets menu
@@ -378,5 +378,5 @@ namespace VStancer.Client
 
             _vstancerEditor.LocalPresetsManager.PresetsListChanged += new EventHandler((sender, args) => UpdatePersonalPresetsMenu());
         }
-    }
+    }*/
 }
