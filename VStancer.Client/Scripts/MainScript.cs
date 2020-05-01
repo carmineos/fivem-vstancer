@@ -160,9 +160,7 @@ namespace VStancer.Client.Scripts
                 return;
             }
 
-            // Update current vehicle and get its preset
-            if (vehicle != _playerVehicleHandle)
-                PlayerVehicleHandle = vehicle;
+            PlayerVehicleHandle = vehicle;
         }
 
         private VStancerConfig LoadConfig(string filename = "config.json")
