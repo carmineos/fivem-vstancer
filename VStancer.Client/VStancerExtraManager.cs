@@ -16,11 +16,25 @@ namespace VStancer.Client
         private long _lastTime;
         private int _playerVehicleHandle;
         private int _vehicleWheelMod;
+        
+        internal int VehicleWheelMod
+        {
+            get => _vehicleWheelMod;
+            set
+            {
+                if (Equals(_vehicleWheelMod, value))
+                    return;
+
+                _vehicleWheelMod = value;
+                VehicleWheelModChanged();
+            }
+        }
+
 
         internal VStancerExtra VStancerExtra { get; set; }
         internal VStancerConfig Config => _mainScript.Config;
         internal ExtraMenu ExtraMenu { get; private set; }
-        public bool ExtraIsValid => _playerVehicleHandle != -1 && VStancerExtra != null && _vehicleWheelMod != -1;
+        public bool ExtraIsValid => _playerVehicleHandle != -1 && VStancerExtra != null && VehicleWheelMod != -1;
 
         internal const string ExtraResetID = "vstancer_extra_reset";
 
@@ -55,7 +69,6 @@ namespace VStancer.Client
 
             _lastTime = GetGameTimer();
             _playerVehicleHandle = _mainScript.PlayerVehicleHandle;
-            _vehicleWheelMod = -1;
 
             ExtraMenu = new ExtraMenu(this);
 
@@ -63,7 +76,9 @@ namespace VStancer.Client
             ExtraMenu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
 
             if(_playerVehicleHandle != -1)
+            {
                 Tick += GetVehicleWheelModTask;
+            }
 
             Tick += TimedTask;
 
@@ -72,23 +87,32 @@ namespace VStancer.Client
 
         private async Task GetVehicleWheelModTask()
         {
-            await Task.FromResult(0);
-
             if (_playerVehicleHandle == -1)
                 return;
 
-            int vehicleWheelMod = GetVehicleMod(_playerVehicleHandle, 23);
+            VehicleWheelMod = GetVehicleMod(_playerVehicleHandle, 23);
+            //Debug.WriteLine($"VehicleWheelMod: {VehicleWheelMod}");
 
-            // If wheel mod didn't change
-            if (vehicleWheelMod == _vehicleWheelMod)
-                return;
+            await Task.FromResult(0);
+        }
 
+        private async void VehicleWheelModChanged()
+        {
+            await Delay(1000);
+
+            //Debug.WriteLine($"{nameof(VehicleWheelModChanged)}: {VehicleWheelMod}");
+            //Debug.WriteLine($"Width: {GetVehicleWheelWidth(_playerVehicleHandle)}");
+            //Debug.WriteLine($"Size: {GetVehicleWheelSize(_playerVehicleHandle)}");
+            
+            RemoveExtraDecoratorsFromVehicle(_playerVehicleHandle);
             InvalidateExtra();
 
-            if (vehicleWheelMod != -1)
+            if (VehicleWheelMod == -1)
             {
-                _vehicleWheelMod = vehicleWheelMod;
-
+                return;
+            }
+            else
+            {
                 // Get new data from entity
                 VStancerExtra = GetVStancerExtraFromHandle(_playerVehicleHandle);
                 VStancerExtra.PropertyChanged += OnExtraPropertyEdited;
@@ -97,6 +121,35 @@ namespace VStancer.Client
                 // Find out why UI doesn't update
                 VStancerExtraChanged?.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        private void InvalidateExtra()
+        {          
+            if (VStancerExtra != null)
+            {
+                //VStancerExtra.Reset();
+                VStancerExtra.PropertyChanged -= OnExtraPropertyEdited;
+                VStancerExtra = null;
+            }
+
+            VStancerExtraChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void PlayerVehicleChanged(int vehicle)
+        {
+            if (vehicle == _playerVehicleHandle)
+                return;
+
+            _playerVehicleHandle = vehicle;
+            
+            InvalidateExtra();
+
+            if (_playerVehicleHandle == -1)
+            {
+                Tick -= GetVehicleWheelModTask;
+            }
+            else
+                Tick += GetVehicleWheelModTask;
         }
 
         private async Task TimedTask()
@@ -123,35 +176,6 @@ namespace VStancer.Client
 
                 UpdateVehicleExtraUsingDecorators(entity);
             }
-        }
-
-        private void InvalidateExtra()
-        {
-            _vehicleWheelMod = -1;
-
-            if (VStancerExtra != null)
-            {
-                //VStancerExtra.Reset();
-                VStancerExtra.PropertyChanged -= OnExtraPropertyEdited;
-                VStancerExtra = null;
-
-                VStancerExtraChanged?.Invoke(this, EventArgs.Empty);
-            }       
-        }
-
-        private void PlayerVehicleChanged(int vehicle)
-        {
-            if (vehicle == _playerVehicleHandle)
-                return;
-
-            InvalidateExtra();
-
-            _playerVehicleHandle = vehicle;
-
-            if (_playerVehicleHandle == -1)
-                Tick -= GetVehicleWheelModTask;
-            else
-                Tick += GetVehicleWheelModTask;
         }
 
         private VStancerExtra GetVStancerExtraFromHandle(int vehicle)
