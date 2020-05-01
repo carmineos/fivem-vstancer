@@ -44,7 +44,7 @@ namespace VStancer.Client.Scripts
             _mainScript = mainScript;
 
             _lastTime = GetGameTimer();
-            _playerVehicleHandle = _mainScript.PlayerVehicleHandle;
+            _playerVehicleHandle = -1;
 
             RegisterRequiredDecorators();
 
@@ -57,6 +57,7 @@ namespace VStancer.Client.Scripts
             Tick += UpdatePlayerVehicleTask;
 
             mainScript.PlayerVehicleHandleChanged += (sender, handle) => PlayerVehicleChanged(handle);
+            PlayerVehicleChanged(_mainScript.PlayerVehicleHandle);
         }
 
         internal async Task LoadPreset(VStancerData data)
