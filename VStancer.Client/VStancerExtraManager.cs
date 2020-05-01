@@ -62,7 +62,9 @@ namespace VStancer.Client
             ExtraMenu.FloatPropertyChangedEvent += OnMenuFloatPropertyChanged;
             ExtraMenu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
 
-            Tick += GetVehicleWheelModTask;
+            if(_playerVehicleHandle != -1)
+                Tick += GetVehicleWheelModTask;
+
             Tick += TimedTask;
 
             mainScript.PlayerVehicleHandleChanged += (sender, handle) => PlayerVehicleChanged(handle);
@@ -71,6 +73,9 @@ namespace VStancer.Client
         private async Task GetVehicleWheelModTask()
         {
             await Task.FromResult(0);
+
+            if (_playerVehicleHandle == -1)
+                return;
 
             int vehicleWheelMod = GetVehicleMod(_playerVehicleHandle, 23);
 
@@ -139,10 +144,14 @@ namespace VStancer.Client
             if (vehicle == _playerVehicleHandle)
                 return;
 
+            InvalidateExtra();
+
             _playerVehicleHandle = vehicle;
 
             if (_playerVehicleHandle == -1)
-                InvalidateExtra();
+                Tick -= GetVehicleWheelModTask;
+            else
+                Tick += GetVehicleWheelModTask;
         }
 
         private VStancerExtra GetVStancerExtraFromHandle(int vehicle)
