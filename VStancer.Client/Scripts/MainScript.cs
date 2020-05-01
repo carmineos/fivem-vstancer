@@ -115,8 +115,9 @@ namespace VStancer.Client.Scripts
                     continue;
 
                 Vector3 coords = GetEntityCoords(handle, true);
+                float maxDistanceSquared = (float)Math.Sqrt(Config.ScriptRange);
 
-                if (Vector3.Distance(_playerPedCoords, coords) <= Config.ScriptRange)
+                if (Vector3.DistanceSquared(_playerPedCoords, coords) <= maxDistanceSquared)
                     closeVehicles.Add(handle);
             }
 
