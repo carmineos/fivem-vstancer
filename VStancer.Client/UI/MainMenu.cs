@@ -48,7 +48,7 @@ namespace VStancer.Client.UI
                 ExtraMenu = _mainScript.VStancerExtraManager.ExtraMenu;
             }
             
-            if (_mainScript.LocalPresetsManager?.Presets != null)
+            if (_mainScript.LocalPresetsManager != null)
                 PresetsMenu = _mainScript.LocalPresetsManager.PresetsMenu;
 
             Update();
@@ -58,44 +58,45 @@ namespace VStancer.Client.UI
         {
             ClearMenuItems();
 
-            EditorMenuItem = new MenuItem("Editor Menu", "The menu to edit main properties.")
-            {
-                Label = "→→→"
-            };
-
-            ExtraMenuItem = new MenuItem("Extra Menu")
-            {
-                Label = "→→→"
-            };
-            UpdateExtraMenuItem();
-            
-            
-            PresetsMenuItem = new MenuItem("Personal Presets", "The menu to manage the presets saved by you.")
-            {
-                Label = "→→→"
-            };
-
-            AddMenuItem(EditorMenuItem);
-            AddMenuItem(ExtraMenuItem);
-            AddMenuItem(PresetsMenuItem);
-
             MenuController.Menus.Clear();
             MenuController.AddMenu(this);
 
             if(EditorMenu != null)
             {
+                EditorMenuItem = new MenuItem("Editor Menu", "The menu to edit main properties.")
+                {
+                    Label = "→→→"
+                };
+
+                AddMenuItem(EditorMenuItem);
+
                 MenuController.AddSubmenu(this, EditorMenu);
                 MenuController.BindMenuItem(this, EditorMenu, EditorMenuItem);
             }
 
             if (ExtraMenu != null)
             {
+                ExtraMenuItem = new MenuItem("Extra Menu")
+                {
+                    Label = "→→→"
+                };
+                UpdateExtraMenuItem();
+
+                AddMenuItem(ExtraMenuItem);
+
                 MenuController.AddSubmenu(this, ExtraMenu);
                 MenuController.BindMenuItem(this, ExtraMenu, ExtraMenuItem);
             }
 
             if (PresetsMenu != null)
             {
+                PresetsMenuItem = new MenuItem("Personal Presets", "The menu to manage the presets saved by you.")
+                {
+                    Label = "→→→"
+                };
+
+                AddMenuItem(PresetsMenuItem);
+
                 MenuController.AddSubmenu(this, PresetsMenu);
                 MenuController.BindMenuItem(this, PresetsMenu, PresetsMenuItem);
             }
