@@ -177,10 +177,26 @@ namespace VStancer.Client.Scripts
             {
                 UpdateWorldVehiclesWithExtraDecorators();
 
+                // This might be required as if a script edits and mod on the vehicle, wheel size and width will restore to default values
+                if (ExtraIsValid)
+                    UpdateVehicleUsingVStancerExtra(_playerVehicleHandle, VStancerExtra);
+
                 _lastTime = GetGameTimer();
             }
 
             await Task.FromResult(0);
+        }
+
+        private void UpdateVehicleUsingVStancerExtra(int vehicle, VStancerExtra extra)
+        {
+            if (!DoesEntityExist(vehicle) || extra == null)
+                return;
+
+            if(!MathUtil.WithinEpsilon(GetVehicleWheelWidth(vehicle), extra.WheelWidth, VStancerUtilities.Epsilon))
+                SetVehicleWheelWidth(vehicle, extra.WheelWidth);
+
+            if (!MathUtil.WithinEpsilon(GetVehicleWheelSize(vehicle), extra.WheelSize, VStancerUtilities.Epsilon))
+                SetVehicleWheelSize(vehicle, extra.WheelSize);
         }
 
         private void UpdateWorldVehiclesWithExtraDecorators()
