@@ -2,18 +2,19 @@
 using MenuAPI;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
+using VStancer.Client.Scripts;
 
 namespace VStancer.Client.UI
 {
     internal class PresetsMenu : Menu
     {
-        private readonly LocalPresetsManager _manager;
+        private readonly LocalPresetsScript _script;
 
-        internal PresetsMenu(LocalPresetsManager manager, string name = Globals.ScriptName, string subtitle = "Personal Presets Menu") : base(name, subtitle)
+        internal PresetsMenu(LocalPresetsScript script, string name = Globals.ScriptName, string subtitle = "Personal Presets Menu") : base(name, subtitle)
         {
-            _manager = manager;
+            _script = script;
 
-            _manager.Presets.PresetsCollectionChanged += new EventHandler((sender, args) => Update());
+            _script.Presets.PresetsCollectionChanged += new EventHandler((sender, args) => Update());
 
             Update();
 
@@ -25,16 +26,16 @@ namespace VStancer.Client.UI
 
             // Disable Controls binded on the same key
             ButtonPressHandlers.Add(new ButtonPressHandler(Control.SelectWeapon, ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) =>
-            { 
+            {
             }), true));
 
-            ButtonPressHandlers.Add(new ButtonPressHandler(Control.VehicleExit, ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) => 
-            { 
+            ButtonPressHandlers.Add(new ButtonPressHandler(Control.VehicleExit, ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) =>
+            {
             }), true));
 
             ButtonPressHandlers.Add(new ButtonPressHandler(Control.PhoneExtraOption, ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>(async (sender, control) =>
             {
-                string presetName = await _manager.GetPresetNameFromUser("VSTANCER_ENTER_PRESET_NAME", "");
+                string presetName = await _script.GetPresetNameFromUser("VSTANCER_ENTER_PRESET_NAME", "");
                 SavePresetEvent?.Invoke(this, presetName.Trim());
             }), true));
 
@@ -56,10 +57,10 @@ namespace VStancer.Client.UI
         {
             ClearMenuItems();
 
-            if (_manager.Presets == null)
+            if (_script.Presets == null)
                 return;
 
-            foreach (var key in _manager.Presets.GetKeys())
+            foreach (var key in _script.Presets.GetKeys())
             {
                 AddMenuItem(new MenuItem(key.Remove(0, Globals.KvpPrefix.Length)) { ItemData = key });
             }

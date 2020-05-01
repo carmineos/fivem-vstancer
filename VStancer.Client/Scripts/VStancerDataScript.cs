@@ -1,23 +1,27 @@
-﻿using CitizenFX.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using VStancer.Client.Data;
 using VStancer.Client.UI;
+
+using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-namespace VStancer.Client
+
+namespace VStancer.Client.Scripts
 {
-    internal class VStancerDataManager : BaseScript
+    internal class VStancerDataScript : BaseScript
     {
         private readonly MainScript _mainScript;
-        
+
         private long _lastTime;
         private int _playerVehicleHandle;
 
         internal VStancerData VStancerData { get; set; }
         internal VStancerConfig Config => _mainScript.Config;
-        internal EditorMenu EditorMenu { get; private set; }
+        internal DataMenu Menu { get; private set; }
 
         internal bool DataIsValid => _playerVehicleHandle != -1 && VStancerData != null;
 
@@ -35,7 +39,7 @@ namespace VStancer.Client
 
         internal event EventHandler VStancerDataChanged;
 
-        internal VStancerDataManager(MainScript mainScript)
+        internal VStancerDataScript(MainScript mainScript)
         {
             _mainScript = mainScript;
 
@@ -43,10 +47,10 @@ namespace VStancer.Client
             _playerVehicleHandle = _mainScript.PlayerVehicleHandle;
 
             RegisterRequiredDecorators();
-            
-            EditorMenu = new EditorMenu(this);
-            EditorMenu.FloatPropertyChangedEvent += OnMenuFloatPropertyChanged;
-            EditorMenu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
+
+            Menu = new DataMenu(this);
+            Menu.FloatPropertyChangedEvent += OnMenuFloatPropertyChanged;
+            Menu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
 
             Tick += UpdateWorldVehiclesTask;
             Tick += TimedTask;
@@ -85,7 +89,7 @@ namespace VStancer.Client
                 return;
 
             _playerVehicleHandle = vehicle;
-            
+
             if (_playerVehicleHandle == -1)
             {
                 InvalidateData();
@@ -94,7 +98,7 @@ namespace VStancer.Client
 
             VStancerData = GetVStancerDataFromEntity(vehicle);
             VStancerData.PropertyChanged += OnVStancerDataPropertyChanged;
-            
+
             Tick += UpdatePlayerVehicleTask;
 
             VStancerDataChanged?.Invoke(this, EventArgs.Empty);
@@ -147,7 +151,7 @@ namespace VStancer.Client
             if (editedProperty == nameof(VStancerData.Reset))
             {
                 RemoveDecoratorsFromVehicle(_playerVehicleHandle);
-                
+
                 await Delay(50);
                 VStancerDataChanged?.Invoke(this, EventArgs.Empty);
             }
@@ -423,7 +427,7 @@ namespace VStancer.Client
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int netID = NetworkGetNetworkIdFromEntity(vehicle);
             StringBuilder s = new StringBuilder();
-            s.AppendLine($"{nameof(VStancerDataManager)}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
+            s.AppendLine($"{nameof(VStancerDataScript)}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
 
             if (DecorExistOn(vehicle, FrontTrackWidthID))
             {
@@ -470,7 +474,7 @@ namespace VStancer.Client
         {
             IEnumerable<int> entities = vehiclesList.Where(entity => EntityHasDecorators(entity));
 
-            Debug.WriteLine($"{nameof(VStancerDataManager)}: Vehicles with decorators: {entities.Count()}");
+            Debug.WriteLine($"{nameof(VStancerDataScript)}: Vehicles with decorators: {entities.Count()}");
 
             foreach (int item in entities)
                 Debug.WriteLine($"Vehicle: {item}");

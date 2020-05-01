@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using CitizenFX.Core;
-using CitizenFX.Core.UI;
-using Newtonsoft.Json;
-using VStancer.Client.UI;
-using static CitizenFX.Core.Native.API;
 
-namespace VStancer.Client
+using VStancer.Client.UI;
+
+using CitizenFX.Core;
+using static CitizenFX.Core.Native.API;
+using Newtonsoft.Json;
+
+namespace VStancer.Client.Scripts
 {
     public class MainScript : BaseScript
     {
-        private readonly MainMenu _mainMenu;
+        private readonly MainMenu Menu;
 
         private long _lastTime;
         private int _playerVehicleHandle;
@@ -21,8 +20,8 @@ namespace VStancer.Client
         private Vector3 _playerPedCoords;
         private List<int> _worldVehiclesHandles;
 
-        internal int PlayerVehicleHandle 
-        { 
+        internal int PlayerVehicleHandle
+        {
             get => _playerVehicleHandle;
             private set
             {
@@ -31,7 +30,7 @@ namespace VStancer.Client
 
                 _playerVehicleHandle = value;
                 PlayerVehicleHandleChanged?.Invoke(this, value);
-            } 
+            }
         }
 
         internal int PlayerPedHandle
@@ -49,13 +48,13 @@ namespace VStancer.Client
 
         internal event EventHandler<int> PlayerVehicleHandleChanged;
         internal event EventHandler<int> PlayerPedHandleChanged;
-        
+
         internal event EventHandler ToggleMenuVisibility;
 
         internal VStancerConfig Config { get; private set; }
-        internal VStancerDataManager VStancerDataManager { get; private set; }
-        internal VStancerExtraManager VStancerExtraManager { get; private set; }
-        internal LocalPresetsManager LocalPresetsManager { get; private set; }
+        internal VStancerDataScript VStancerDataScript { get; private set; }
+        internal VStancerExtraScript VStancerExtraScript { get; private set; }
+        internal LocalPresetsScript LocalPresetScript { get; private set; }
 
         public MainScript()
         {
@@ -72,30 +71,36 @@ namespace VStancer.Client
             _worldVehiclesHandles = new List<int>();
 
             Config = LoadConfig();
-            VStancerDataManager = new VStancerDataManager(this); 
-            RegisterScript(VStancerDataManager);
+            VStancerDataScript = new VStancerDataScript(this);
+            RegisterScript(VStancerDataScript);
 
             if (Config.Extra.EnableExtra)
             {
-                VStancerExtraManager = new VStancerExtraManager(this);
-                RegisterScript(VStancerExtraManager);
+                VStancerExtraScript = new VStancerExtraScript(this);
+                RegisterScript(VStancerExtraScript);
             }
 
-            LocalPresetsManager = new LocalPresetsManager(this);
+            LocalPresetScript = new LocalPresetsScript(this);
 
-            _mainMenu = new MainMenu(this);
+            Menu = new MainMenu(this);
 
             Tick += GetPlayerAndVehicleTask;
             Tick += TimedTask;
             Tick += HideUITask;
 
             RegisterCommands();
+
+            if (VStancerDataScript != null)
+            {
+                Exports.Add("SetVstancerPreset", new Action<int, float, float, float, float, object, object, object, object>(VStancerDataScript.SetVstancerPreset));
+                Exports.Add("GetVstancerPreset", new Func<int, float[]>(VStancerDataScript.GetVstancerPreset));
+            }
         }
 
         private async Task HideUITask()
         {
-            if (_mainMenu != null)
-                _mainMenu.HideMenu = _playerVehicleHandle == -1;
+            if (Menu != null)
+                Menu.HideMenu = _playerVehicleHandle == -1;
 
             await Task.FromResult(0);
         }
@@ -196,20 +201,20 @@ namespace VStancer.Client
             {
                 if (args.Count < 1)
                 {
-                    VStancerDataManager.PrintDecoratorsInfo(_playerVehicleHandle);
-                    VStancerExtraManager.PrintDecoratorsInfo(_playerVehicleHandle);
+                    VStancerDataScript.PrintDecoratorsInfo(_playerVehicleHandle);
+                    VStancerExtraScript.PrintDecoratorsInfo(_playerVehicleHandle);
                 }
                 else
                 {
                     if (int.TryParse(args[0], out int value))
                     {
-                        VStancerDataManager.PrintDecoratorsInfo(value);
-                        VStancerExtraManager.PrintDecoratorsInfo(value);
+                        VStancerDataScript.PrintDecoratorsInfo(value);
+                        VStancerExtraScript.PrintDecoratorsInfo(value);
                     }
                     else Debug.WriteLine($"{Globals.ScriptName}: Error parsing entity handle {args[0]} as int");
                 }
             }), false);
-            
+
             RegisterCommand("vstancer_range", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
@@ -227,7 +232,7 @@ namespace VStancer.Client
 
             }), false);
 
-            
+
             RegisterCommand("vstancer_debug", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
@@ -245,27 +250,27 @@ namespace VStancer.Client
 
             }), false);
 
-            
+
             RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
             {
-                if (VStancerDataManager?.VStancerData != null)
-                    Debug.WriteLine(VStancerDataManager.VStancerData.ToString());
+                if (VStancerDataScript?.VStancerData != null)
+                    Debug.WriteLine(VStancerDataScript.VStancerData.ToString());
                 else
-                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(VStancerDataManager.VStancerData)} is null");
+                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(VStancerDataScript.VStancerData)} is null");
 
-                if (VStancerExtraManager?.VStancerExtra != null)
-                    Debug.WriteLine(VStancerExtraManager.VStancerExtra.ToString());
+                if (VStancerExtraScript?.VStancerExtra != null)
+                    Debug.WriteLine(VStancerExtraScript.VStancerExtra.ToString());
                 else
-                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(VStancerExtraManager.VStancerExtra)} is null");
+                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(VStancerExtraScript.VStancerExtra)} is null");
             }), false);
 
-            
+
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
-                if(VStancerDataManager != null)
-                    VStancerDataManager.PrintVehiclesWithDecorators(_worldVehiclesHandles);
-                if (VStancerExtraManager != null)
-                    VStancerExtraManager.PrintVehiclesWithDecorators(_worldVehiclesHandles);
+                if (VStancerDataScript != null)
+                    VStancerDataScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
+                if (VStancerExtraScript != null)
+                    VStancerExtraScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
             }), false);
 
             if (Config.ExposeCommand)
@@ -273,11 +278,6 @@ namespace VStancer.Client
 
             if (Config.ExposeEvent)
                 EventHandlers.Add("vstancer:toggleMenu", new Action(() => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }));
-            
-            /*
-            Exports.Add("SetVstancerPreset", new Action<int, float, float, float, float, object, object, object, object>(SetVstancerPreset));
-            Exports.Add("GetVstancerPreset", new Func<int, float[]>(GetVstancerPreset));
-            */
         }
     }
 }

@@ -24,7 +24,7 @@
             FloatStep = 0.01f;
             FrontLimits = new ConfigNodeLimits { PositionX = 0.25f, RotationY = 0.20f };
             RearLimits = new ConfigNodeLimits { PositionX = 0.25f, RotationY = 0.20f };
-            
+
             Extra = new ConfigExtra
             {
                 EnableExtra = true,

@@ -1,26 +1,29 @@
-﻿using CitizenFX.Core.UI;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+
+using VStancer.Client.Data;
 using VStancer.Client.UI;
 
-namespace VStancer.Client
+using CitizenFX.Core.UI;
+
+namespace VStancer.Client.Scripts
 {
-    internal class LocalPresetsManager
+    internal class LocalPresetsScript
     {
         private readonly MainScript _mainScript;
 
         internal IPresetsCollection<string, VStancerData> Presets { get; private set; }
-        internal PresetsMenu PresetsMenu { get; private set; }
+        internal PresetsMenu Menu { get; private set; }
 
-        public LocalPresetsManager(MainScript mainScript)
+        public LocalPresetsScript(MainScript mainScript)
         {
             _mainScript = mainScript;
             Presets = new KvpPresetsCollection(Globals.KvpPrefix);
 
-            PresetsMenu = new PresetsMenu(this);
+            Menu = new PresetsMenu(this);
 
-            PresetsMenu.DeletePresetEvent += (sender, presetID) => OnDeletePresetInvoked(presetID);
-            PresetsMenu.SavePresetEvent += (sender, presetID) => OnSavePresetInvoked(presetID);
-            PresetsMenu.ApplyPresetEvent += (sender, presetID) => OnApplyPresetInvoked(presetID);
+            Menu.DeletePresetEvent += (sender, presetID) => OnDeletePresetInvoked(presetID);
+            Menu.SavePresetEvent += (sender, presetID) => OnSavePresetInvoked(presetID);
+            Menu.ApplyPresetEvent += (sender, presetID) => OnApplyPresetInvoked(presetID);
         }
 
         internal async Task<string> GetPresetNameFromUser(string title, string defaultText)
@@ -38,7 +41,7 @@ namespace VStancer.Client
 
         private void OnSavePresetInvoked(string presetKey)
         {
-            if (Presets.Save(presetKey, _mainScript.VStancerDataManager.VStancerData))
+            if (Presets.Save(presetKey, _mainScript.VStancerDataScript.VStancerData))
                 Screen.ShowNotification($"Personal preset ~g~{presetKey}~w~ saved");
             else
                 Screen.ShowNotification($"~r~ERROR~w~ The name {presetKey} is invalid or already used.");
@@ -55,7 +58,7 @@ namespace VStancer.Client
                 return;
             }
 
-            await _mainScript.VStancerDataManager.LoadPreset(loadedPreset);
+            await _mainScript.VStancerDataScript.LoadPreset(loadedPreset);
             Screen.ShowNotification($"Personal preset ~b~{presetKey}~w~ applied");
         }
     }

@@ -1,7 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using VStancer.Client.Data;
+
 using static CitizenFX.Core.Native.API;
+using Newtonsoft.Json;
 
 namespace VStancer.Client
 {

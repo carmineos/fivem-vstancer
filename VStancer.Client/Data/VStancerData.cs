@@ -1,8 +1,9 @@
-﻿using CitizenFX.Core;
-using System;
+﻿using System;
 using System.Text;
 
-namespace VStancer.Client
+using CitizenFX.Core;
+
+namespace VStancer.Client.Data
 {
     public class VStancerData : IEquatable<VStancerData>
     {
@@ -14,8 +15,8 @@ namespace VStancer.Client
         public int FrontWheelsCount { get; set; }
 
 
-        public VStancerNode[] Nodes { get; set; }
-        public VStancerNode[] DefaultNodes { get; private set; }
+        public VStancerDataNode[] Nodes { get; set; }
+        public VStancerDataNode[] DefaultNodes { get; private set; }
 
         public float FrontTrackWidth
         {
@@ -88,7 +89,7 @@ namespace VStancer.Client
         {
             WheelsCount = count;
 
-            DefaultNodes = new VStancerNode[WheelsCount];
+            DefaultNodes = new VStancerDataNode[WheelsCount];
 
             FrontWheelsCount = VStancerUtilities.CalculateFrontWheelsCount(WheelsCount);
 
@@ -120,7 +121,7 @@ namespace VStancer.Client
                 }
             }
 
-            Nodes = new VStancerNode[WheelsCount];
+            Nodes = new VStancerDataNode[WheelsCount];
             for (int i = 0; i < WheelsCount; i++)
             {
                 Nodes[i] = DefaultNodes[i];
@@ -208,7 +209,7 @@ namespace VStancer.Client
         }
     }
 
-    public struct VStancerNode
+    public struct VStancerDataNode
     {
         /// <summary>
         /// The track width of the wheel

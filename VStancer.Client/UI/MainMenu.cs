@@ -1,16 +1,17 @@
 ﻿using System;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using MenuAPI;
 using static VStancer.Client.UI.MenuUtilities;
+using MenuAPI;
+using VStancer.Client.Scripts;
 
 namespace VStancer.Client.UI
 {
     internal class MainMenu : Menu
     {
-        private readonly MainScript _mainScript;
+        private readonly MainScript _script;
 
-        private EditorMenu EditorMenu { get; set; }
+        private DataMenu DataMenu { get; set; }
         private ExtraMenu ExtraMenu { get; set; }
         private PresetsMenu PresetsMenu { get; set; }
 
@@ -19,11 +20,11 @@ namespace VStancer.Client.UI
         private MenuItem PresetsMenuItem { get; set; }
 
 
-        internal MainMenu(MainScript mainScript, string name = Globals.ScriptName, string subtitle = "Main Menu") : base(name, subtitle)
+        internal MainMenu(MainScript script, string name = Globals.ScriptName, string subtitle = "Main Menu") : base(name, subtitle)
         {
-            _mainScript = mainScript;
+            _script = script;
 
-            _mainScript.ToggleMenuVisibility += new EventHandler((sender, args) =>
+            _script.ToggleMenuVisibility += new EventHandler((sender, args) =>
             {
                 var currentMenu = MenuController.MainMenu;
 
@@ -34,22 +35,22 @@ namespace VStancer.Client.UI
             });
 
             MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
-            MenuController.MenuToggleKey = (Control)_mainScript.Config.ToggleMenuControl;
+            MenuController.MenuToggleKey = (Control)_script.Config.ToggleMenuControl;
             MenuController.EnableMenuToggleKeyOnController = false;
             MenuController.DontOpenAnyMenu = true;
             MenuController.MainMenu = this;
 
-            if (_mainScript.VStancerDataManager != null)
-                EditorMenu = _mainScript.VStancerDataManager.EditorMenu;
+            if (_script.VStancerDataScript != null)
+                DataMenu = _script.VStancerDataScript.Menu;
 
-            if (_mainScript.VStancerExtraManager != null)
+            if (_script.VStancerExtraScript != null)
             {
-                _mainScript.VStancerExtraManager.VStancerExtraChanged += (sender, args) => UpdateExtraMenuItem();
-                ExtraMenu = _mainScript.VStancerExtraManager.ExtraMenu;
+                _script.VStancerExtraScript.VStancerExtraChanged += (sender, args) => UpdateExtraMenuItem();
+                ExtraMenu = _script.VStancerExtraScript.Menu;
             }
-            
-            if (_mainScript.LocalPresetsManager != null)
-                PresetsMenu = _mainScript.LocalPresetsManager.PresetsMenu;
+
+            if (_script.LocalPresetScript != null)
+                PresetsMenu = _script.LocalPresetScript.Menu;
 
             Update();
         }
@@ -61,7 +62,7 @@ namespace VStancer.Client.UI
             MenuController.Menus.Clear();
             MenuController.AddMenu(this);
 
-            if(EditorMenu != null)
+            if (DataMenu != null)
             {
                 EditorMenuItem = new MenuItem("Editor Menu", "The menu to edit main properties.")
                 {
@@ -70,8 +71,8 @@ namespace VStancer.Client.UI
 
                 AddMenuItem(EditorMenuItem);
 
-                MenuController.AddSubmenu(this, EditorMenu);
-                MenuController.BindMenuItem(this, EditorMenu, EditorMenuItem);
+                MenuController.AddSubmenu(this, DataMenu);
+                MenuController.BindMenuItem(this, DataMenu, EditorMenuItem);
             }
 
             if (ExtraMenu != null)
@@ -117,10 +118,10 @@ namespace VStancer.Client.UI
                 return;
 
             var enabled = false;
-            
-            if(_mainScript.VStancerExtraManager != null)
-                enabled = _mainScript.VStancerExtraManager.ExtraIsValid;
-        
+
+            if (_script.VStancerExtraScript != null)
+                enabled = _script.VStancerExtraScript.ExtraIsValid;
+
             ExtraMenuItem.Enabled = enabled;
             ExtraMenuItem.RightIcon = enabled ? MenuItem.Icon.NONE : MenuItem.Icon.LOCK;
             ExtraMenuItem.Label = enabled ? "→→→" : string.Empty;

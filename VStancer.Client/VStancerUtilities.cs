@@ -1,5 +1,6 @@
-﻿using CitizenFX.Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
 namespace VStancer.Client
@@ -56,7 +57,7 @@ namespace VStancer.Client
             if (handle != -1)
             {
                 do handles.Add(entity);
-                while (FindNextVehicle(handle, ref entity)) ;
+                while (FindNextVehicle(handle, ref entity));
 
                 EndFindVehicle(handle);
             }
