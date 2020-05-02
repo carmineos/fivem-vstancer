@@ -124,7 +124,7 @@ namespace VStancer.Client.Scripts
             if (_playerVehicleHandle == -1)
                 return;
 
-            await Delay(1000);
+            //await Delay(1000);
 #if DEBUG
             Debug.WriteLine($"{nameof(VehicleWheelModChanged)}: {VehicleWheelMod}");
             Debug.WriteLine($"Width: {GetVehicleWheelWidth(_playerVehicleHandle)}");
@@ -141,7 +141,7 @@ namespace VStancer.Client.Scripts
                 return;
             }
 
-            VStancerExtra = GetVStancerExtraFromHandle(_playerVehicleHandle);
+            VStancerExtra = await GetVStancerExtraFromHandle(_playerVehicleHandle);
         }
 
         private void PlayerVehicleChanged(int vehicle)
@@ -212,7 +212,7 @@ namespace VStancer.Client.Scripts
             }
         }
 
-        private WheelExtra GetVStancerExtraFromHandle(int vehicle)
+        private async Task<WheelExtra> GetVStancerExtraFromHandle(int vehicle)
         {
             if (!DoesEntityExist(vehicle))
                 return null;
@@ -223,6 +223,8 @@ namespace VStancer.Client.Scripts
             Debug.WriteLine($"Vehicle has {nameof(DefaultWidthID)}: {DecorExistOn(vehicle, DefaultWidthID)}");
             Debug.WriteLine($"Vehicle has {nameof(DefaultSizeID)}: {DecorExistOn(vehicle, DefaultSizeID)}");
 #endif
+            await Delay(1000);
+
             float wheelWidth_def = DecorExistOn(vehicle, DefaultWidthID) ? DecorGetFloat(vehicle, DefaultWidthID) : GetVehicleWheelWidth(vehicle);
             float wheelSize_def = DecorExistOn(vehicle, DefaultSizeID) ? DecorGetFloat(vehicle, DefaultSizeID) : GetVehicleWheelSize(vehicle);
             float frontTireColliderWidth_def = DecorExistOn(vehicle, DefaultFrontTireColliderWidthID) ? DecorGetFloat(vehicle, DefaultFrontTireColliderWidthID) : GetVehicleWheelTireColliderWidth(vehicle, 0);
@@ -334,6 +336,9 @@ namespace VStancer.Client.Scripts
 
         private void UpdateVehicleExtraUsingDecorators(int vehicle)
         {
+            int wheelsCount = GetVehicleNumberOfWheels(vehicle);
+            int frontWheelsCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
+
             if (DecorExistOn(vehicle, WheelSizeID))
                 SetVehicleWheelSize(vehicle, DecorGetFloat(vehicle, WheelSizeID));
 
@@ -343,43 +348,43 @@ namespace VStancer.Client.Scripts
             if (DecorExistOn(vehicle, FrontTireColliderWidthID))
             {
                 float value = DecorGetFloat(vehicle, FrontTireColliderWidthID);
-                for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
-                    SetVehicleWheelTireColliderWidth(_playerVehicleHandle, i, value);
+                for (int i = 0; i < frontWheelsCount; i++)
+                    SetVehicleWheelTireColliderWidth(vehicle, i, value);
             }
 
             if (DecorExistOn(vehicle, FrontTireColliderSizeID))
             {
                 float value = DecorGetFloat(vehicle, FrontTireColliderSizeID);
-                for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
-                    SetVehicleWheelTireColliderSize(_playerVehicleHandle, i, value);
+                for (int i = 0; i < frontWheelsCount; i++)
+                    SetVehicleWheelTireColliderSize(vehicle, i, value);
             }
 
             if (DecorExistOn(vehicle, FrontRimColliderSizeID))
             {
                 float value = DecorGetFloat(vehicle, FrontRimColliderSizeID);
-                for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
-                    SetVehicleWheelRimColliderSize(_playerVehicleHandle, i, value);
+                for (int i = 0; i < frontWheelsCount; i++)
+                    SetVehicleWheelRimColliderSize(vehicle, i, value);
             }
 
             if (DecorExistOn(vehicle, RearTireColliderWidthID))
             {
                 float value = DecorGetFloat(vehicle, RearTireColliderWidthID);
-                for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
-                    SetVehicleWheelTireColliderWidth(_playerVehicleHandle, i, value);
+                for (int i = frontWheelsCount; i < wheelsCount; i++)
+                    SetVehicleWheelTireColliderWidth(vehicle, i, value);
             }
 
             if (DecorExistOn(vehicle, RearTireColliderSizeID))
             {
                 float value = DecorGetFloat(vehicle, RearTireColliderSizeID);
-                for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
-                    SetVehicleWheelTireColliderSize(_playerVehicleHandle, i, value);
+                for (int i = frontWheelsCount; i < wheelsCount; i++)
+                    SetVehicleWheelTireColliderSize(vehicle, i, value);
             }
 
             if (DecorExistOn(vehicle, RearRimColliderSizeID))
             {
                 float value = DecorGetFloat(vehicle, RearRimColliderSizeID);
-                for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
-                    SetVehicleWheelRimColliderSize(_playerVehicleHandle, i, value);
+                for (int i = frontWheelsCount; i < wheelsCount; i++)
+                    SetVehicleWheelRimColliderSize(vehicle, i, value);
             }
         }
 
