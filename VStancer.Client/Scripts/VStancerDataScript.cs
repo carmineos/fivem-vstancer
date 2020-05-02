@@ -319,7 +319,7 @@ namespace VStancer.Client.Scripts
         public void SetVstancerPreset(int vehicle, float frontOffset, float frontRotation, float rearOffset, float rearRotation, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null)
         {
 #if DEBUG
-            Debug.WriteLine($"{Globals.ScriptName}: SetVstancerPreset parameters {frontOffset} {frontRotation} {rearOffset} {rearRotation} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
+            Debug.WriteLine($"{nameof(VStancerDataScript)}: SetVstancerPreset parameters {frontOffset} {frontRotation} {rearOffset} {rearRotation} {defaultFrontOffset} {defaultFrontRotation} {defaultRearOffset} {defaultRearRotation}");
 #endif
             if (!DoesEntityExist(vehicle))
                 return;
@@ -421,7 +421,7 @@ namespace VStancer.Client.Scripts
         {
             if (!DoesEntityExist(vehicle))
             {
-                Debug.WriteLine($"{Globals.ScriptName}: Can't find vehicle with handle {vehicle}");
+                Debug.WriteLine($"{nameof(VStancerDataScript)}: Can't find vehicle with handle {vehicle}");
                 return;
             }
 

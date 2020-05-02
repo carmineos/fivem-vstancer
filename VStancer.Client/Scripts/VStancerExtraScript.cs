@@ -53,26 +53,26 @@ namespace VStancer.Client.Scripts
 
         internal const string ExtraResetID = "vstancer_extra_reset";
 
-        internal const string ExtraWidthID = "vstancer_extra_width";
-        internal const string ExtraSizeID = "vstancer_extra_size";
-        internal const string DefaultExtraWidthID = "vstancer_extra_width_def";
-        internal const string DefaultExtraSizeID = "vstancer_extra_size_def";
+        internal const string WheelWidthID = "vstancer_extra_width";
+        internal const string WheelSizeID = "vstancer_extra_size";
+        internal const string DefaultWidthID = "vstancer_extra_width_def";
+        internal const string DefaultSizeID = "vstancer_extra_size_def";
 
-        internal const string FrontExtraTireColliderWidthID = "vstancer_extra_tirecollider_width_f";
-        internal const string FrontExtraTireColliderSizeID = "vstancer_extra_tirecollider_size_f";
-        internal const string FrontExtraRimColliderSizeID = "vstancer_extra_rimcollider_size_f";
+        internal const string FrontTireColliderWidthID = "vstancer_extra_tirecollider_width_f";
+        internal const string FrontTireColliderSizeID = "vstancer_extra_tirecollider_size_f";
+        internal const string FrontRimColliderSizeID = "vstancer_extra_rimcollider_size_f";
 
-        internal const string RearExtraTireColliderWidthID = "vstancer_extra_tirecollider_width_r";
-        internal const string RearExtraTireColliderSizeID = "vstancer_extra_tirecollider_size_r";
-        internal const string RearExtraRimColliderSizeID = "vstancer_extra_rimcollider_size_r";
+        internal const string RearTireColliderWidthID = "vstancer_extra_tirecollider_width_r";
+        internal const string RearTireColliderSizeID = "vstancer_extra_tirecollider_size_r";
+        internal const string RearRimColliderSizeID = "vstancer_extra_rimcollider_size_r";
 
-        internal const string DefaultFrontExtraTireColliderWidthID = "vstancer_extra_tirecollider_width_f_def";
-        internal const string DefaultFrontExtraTireColliderSizeID = "vstancer_extra_tirecollider_size_f_def";
-        internal const string DefaultFrontExtraRimColliderSizeZID = "vstancer_extra_rimcollider_size_f_def";
+        internal const string DefaultFrontTireColliderWidthID = "vstancer_extra_tirecollider_width_f_def";
+        internal const string DefaultFrontTireColliderSizeID = "vstancer_extra_tirecollider_size_f_def";
+        internal const string DefaultFrontRimColliderSizeID = "vstancer_extra_rimcollider_size_f_def";
 
-        internal const string DefaultRearExtraTireColliderWidthID = "vstancer_extra_tirecollider_width_r_def";
-        internal const string DefaultRearExtraTireColliderSizeID = "vstancer_extra_tirecollider_size_r_def";
-        internal const string DefaultRearExtraRimColliderSizeID = "vstancer_extra_rimcollider_size_r_def";
+        internal const string DefaultRearTireColliderWidthID = "vstancer_extra_tirecollider_width_r_def";
+        internal const string DefaultRearTireColliderSizeID = "vstancer_extra_tirecollider_size_r_def";
+        internal const string DefaultRearRimColliderSizeID = "vstancer_extra_rimcollider_size_r_def";
 
         public event EventHandler VStancerExtraChanged;
 
@@ -178,8 +178,8 @@ namespace VStancer.Client.Scripts
                 UpdateWorldVehiclesWithExtraDecorators();
 
                 // This might be required as if a script edits and mod on the vehicle, wheel size and width will restore to default values
-                if (ExtraIsValid)
-                    UpdateVehicleUsingVStancerExtra(_playerVehicleHandle, VStancerExtra);
+                //if (ExtraIsValid)
+                //    UpdateVehicleUsingVStancerExtra(_playerVehicleHandle, VStancerExtra);
 
                 _lastTime = GetGameTimer();
             }
@@ -218,18 +218,18 @@ namespace VStancer.Client.Scripts
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
 #if DEBUG
-            Debug.WriteLine($"Vehicle has {nameof(DefaultExtraWidthID)}: {DecorExistOn(vehicle, DefaultExtraWidthID)}");
-            Debug.WriteLine($"Vehicle has {nameof(DefaultExtraSizeID)}: {DecorExistOn(vehicle, DefaultExtraSizeID)}");
+            Debug.WriteLine($"Vehicle has {nameof(DefaultWidthID)}: {DecorExistOn(vehicle, DefaultWidthID)}");
+            Debug.WriteLine($"Vehicle has {nameof(DefaultSizeID)}: {DecorExistOn(vehicle, DefaultSizeID)}");
 #endif
-            float wheelWidth_def = DecorExistOn(vehicle, DefaultExtraWidthID) ? DecorGetFloat(vehicle, DefaultExtraWidthID) : GetVehicleWheelWidth(vehicle);
-            float wheelSize_def = DecorExistOn(vehicle, DefaultExtraSizeID) ? DecorGetFloat(vehicle, DefaultExtraSizeID) : GetVehicleWheelSize(vehicle);
-            float frontTireColliderWidth_def = DecorExistOn(vehicle, DefaultFrontExtraTireColliderWidthID) ? DecorGetFloat(vehicle, DefaultFrontExtraTireColliderWidthID) : GetVehicleWheelTireColliderWidth(vehicle, 0);
-            float frontTireColliderSize_def = DecorExistOn(vehicle, DefaultFrontExtraTireColliderSizeID) ? DecorGetFloat(vehicle, DefaultFrontExtraTireColliderSizeID) : GetVehicleWheelTireColliderSize(vehicle, 0);
-            float frontRimColliderSize_def = DecorExistOn(vehicle, DefaultFrontExtraRimColliderSizeZID) ? DecorGetFloat(vehicle, DefaultFrontExtraRimColliderSizeZID) : GetVehicleWheelRimColliderSize(vehicle, 0);
+            float wheelWidth_def = DecorExistOn(vehicle, DefaultWidthID) ? DecorGetFloat(vehicle, DefaultWidthID) : GetVehicleWheelWidth(vehicle);
+            float wheelSize_def = DecorExistOn(vehicle, DefaultSizeID) ? DecorGetFloat(vehicle, DefaultSizeID) : GetVehicleWheelSize(vehicle);
+            float frontTireColliderWidth_def = DecorExistOn(vehicle, DefaultFrontTireColliderWidthID) ? DecorGetFloat(vehicle, DefaultFrontTireColliderWidthID) : GetVehicleWheelTireColliderWidth(vehicle, 0);
+            float frontTireColliderSize_def = DecorExistOn(vehicle, DefaultFrontTireColliderSizeID) ? DecorGetFloat(vehicle, DefaultFrontTireColliderSizeID) : GetVehicleWheelTireColliderSize(vehicle, 0);
+            float frontRimColliderSize_def = DecorExistOn(vehicle, DefaultFrontRimColliderSizeID) ? DecorGetFloat(vehicle, DefaultFrontRimColliderSizeID) : GetVehicleWheelRimColliderSize(vehicle, 0);
 
-            float rearTireColliderWidth_def = DecorExistOn(vehicle, DefaultRearExtraTireColliderWidthID) ? DecorGetFloat(vehicle, DefaultRearExtraTireColliderWidthID) : GetVehicleWheelTireColliderWidth(vehicle, frontCount);
-            float rearTireColliderSize_def = DecorExistOn(vehicle, DefaultRearExtraTireColliderSizeID) ? DecorGetFloat(vehicle, DefaultRearExtraTireColliderSizeID) : GetVehicleWheelTireColliderSize(vehicle, frontCount);
-            float rearRimColliderSize_def = DecorExistOn(vehicle, DefaultRearExtraRimColliderSizeID) ? DecorGetFloat(vehicle, DefaultRearExtraRimColliderSizeID) : GetVehicleWheelRimColliderSize(vehicle, frontCount);
+            float rearTireColliderWidth_def = DecorExistOn(vehicle, DefaultRearTireColliderWidthID) ? DecorGetFloat(vehicle, DefaultRearTireColliderWidthID) : GetVehicleWheelTireColliderWidth(vehicle, frontCount);
+            float rearTireColliderSize_def = DecorExistOn(vehicle, DefaultRearTireColliderSizeID) ? DecorGetFloat(vehicle, DefaultRearTireColliderSizeID) : GetVehicleWheelTireColliderSize(vehicle, frontCount);
+            float rearRimColliderSize_def = DecorExistOn(vehicle, DefaultRearRimColliderSizeID) ? DecorGetFloat(vehicle, DefaultRearRimColliderSizeID) : GetVehicleWheelRimColliderSize(vehicle, frontCount);
 
             // Create the preset with the default values
             return new VStancerExtra(wheelsCount, wheelWidth_def, wheelSize_def,
@@ -237,16 +237,16 @@ namespace VStancer.Client.Scripts
                 rearTireColliderWidth_def, rearTireColliderSize_def, rearRimColliderSize_def)
             {
                 // Assign the current values
-                WheelWidth = DecorExistOn(vehicle, ExtraWidthID) ? DecorGetFloat(vehicle, ExtraWidthID) : wheelWidth_def,
-                WheelSize = DecorExistOn(vehicle, ExtraSizeID) ? DecorGetFloat(vehicle, ExtraSizeID) : wheelSize_def,
+                WheelWidth = DecorExistOn(vehicle, WheelWidthID) ? DecorGetFloat(vehicle, WheelWidthID) : wheelWidth_def,
+                WheelSize = DecorExistOn(vehicle, WheelSizeID) ? DecorGetFloat(vehicle, WheelSizeID) : wheelSize_def,
 
-                FrontTireColliderWidth = DecorExistOn(vehicle, FrontExtraTireColliderWidthID) ? DecorGetFloat(vehicle, FrontExtraTireColliderWidthID) : frontTireColliderWidth_def,
-                FrontTireColliderSize = DecorExistOn(vehicle, FrontExtraTireColliderSizeID) ? DecorGetFloat(vehicle, FrontExtraTireColliderSizeID) : frontTireColliderSize_def,
-                FrontRimColliderSize = DecorExistOn(vehicle, FrontExtraRimColliderSizeID) ? DecorGetFloat(vehicle, FrontExtraRimColliderSizeID) : frontRimColliderSize_def,
+                FrontTireColliderWidth = DecorExistOn(vehicle, FrontTireColliderWidthID) ? DecorGetFloat(vehicle, FrontTireColliderWidthID) : frontTireColliderWidth_def,
+                FrontTireColliderSize = DecorExistOn(vehicle, FrontTireColliderSizeID) ? DecorGetFloat(vehicle, FrontTireColliderSizeID) : frontTireColliderSize_def,
+                FrontRimColliderSize = DecorExistOn(vehicle, FrontRimColliderSizeID) ? DecorGetFloat(vehicle, FrontRimColliderSizeID) : frontRimColliderSize_def,
 
-                RearTireColliderWidth = DecorExistOn(vehicle, RearExtraTireColliderWidthID) ? DecorGetFloat(vehicle, RearExtraTireColliderWidthID) : rearTireColliderWidth_def,
-                RearTireColliderSize = DecorExistOn(vehicle, RearExtraTireColliderSizeID) ? DecorGetFloat(vehicle, RearExtraTireColliderSizeID) : rearTireColliderSize_def,
-                RearRimColliderSize = DecorExistOn(vehicle, RearExtraRimColliderSizeID) ? DecorGetFloat(vehicle, RearExtraRimColliderSizeID) : rearRimColliderSize_def
+                RearTireColliderWidth = DecorExistOn(vehicle, RearTireColliderWidthID) ? DecorGetFloat(vehicle, RearTireColliderWidthID) : rearTireColliderWidth_def,
+                RearTireColliderSize = DecorExistOn(vehicle, RearTireColliderSizeID) ? DecorGetFloat(vehicle, RearTireColliderSizeID) : rearTireColliderSize_def,
+                RearRimColliderSize = DecorExistOn(vehicle, RearRimColliderSizeID) ? DecorGetFloat(vehicle, RearRimColliderSizeID) : rearRimColliderSize_def
             };
         }
 
@@ -259,8 +259,8 @@ namespace VStancer.Client.Scripts
                     result = SetVehicleWheelWidth(_playerVehicleHandle, value);
                     if (result)
                     {
-                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultExtraWidthID, VStancerExtra.DefaultWheelWidth, value);
-                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, ExtraWidthID, value, VStancerExtra.DefaultWheelWidth);
+                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultWidthID, VStancerExtra.DefaultWheelWidth, value);
+                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, WheelWidthID, value, VStancerExtra.DefaultWheelWidth);
                     }
                     break;
 
@@ -268,18 +268,54 @@ namespace VStancer.Client.Scripts
                     result = SetVehicleWheelSize(_playerVehicleHandle, value);
                     if (result)
                     {
-                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultExtraSizeID, VStancerExtra.DefaultWheelSize, value);
-                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, ExtraSizeID, value, VStancerExtra.DefaultWheelSize);
+                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultSizeID, VStancerExtra.DefaultWheelSize, value);
+                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, WheelSizeID, value, VStancerExtra.DefaultWheelSize);
                     }
                     break;
 
-               //case nameof(VStancerExtra.FrontTireColliderWidth):
-               //case nameof(VStancerExtra.FrontTireColliderSize):
-               //case nameof(VStancerExtra.FrontRimColliderSize):
-               //case nameof(VStancerExtra.RearTireColliderWidth):
-               //case nameof(VStancerExtra.RearTireColliderSize):
-               //case nameof(VStancerExtra.RearRimColliderSize):
-               //    break;
+               case nameof(VStancerExtra.FrontTireColliderWidth):
+                    for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+                        SetVehicleWheelTireColliderWidth(_playerVehicleHandle, i, value);
+
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultFrontTireColliderWidthID, VStancerExtra.DefaultFrontTireColliderWidth, value);
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, FrontTireColliderWidthID, value, VStancerExtra.DefaultFrontTireColliderWidth);
+                    break;
+                case nameof(VStancerExtra.FrontTireColliderSize):
+                    for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+                        SetVehicleWheelTireColliderSize(_playerVehicleHandle, i, value);
+
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultFrontTireColliderSizeID, VStancerExtra.DefaultFrontTireColliderSize, value);
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, FrontTireColliderSizeID, value, VStancerExtra.DefaultFrontTireColliderSize);
+                    break;
+                case nameof(VStancerExtra.FrontRimColliderSize):
+                    for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+                        SetVehicleWheelRimColliderSize(_playerVehicleHandle, i, value);
+
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultFrontRimColliderSizeID, VStancerExtra.DefaultFrontRimColliderSize, value);
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, FrontRimColliderSizeID, value, VStancerExtra.DefaultFrontRimColliderSize);
+                    break;
+
+                case nameof(VStancerExtra.RearTireColliderWidth):
+                    for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+                        SetVehicleWheelTireColliderWidth(_playerVehicleHandle, i, value);
+
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultRearTireColliderWidthID, VStancerExtra.DefaultRearTireColliderWidth, value);
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, RearTireColliderWidthID, value, VStancerExtra.DefaultRearTireColliderWidth);
+                    break;
+                case nameof(VStancerExtra.RearTireColliderSize):
+                    for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+                        SetVehicleWheelTireColliderSize(_playerVehicleHandle, i, value);
+
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultRearTireColliderSizeID, VStancerExtra.DefaultRearTireColliderSize, value);
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, RearTireColliderSizeID, value, VStancerExtra.DefaultRearTireColliderSize);
+                    break;
+                case nameof(VStancerExtra.RearRimColliderSize):
+                    for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+                        SetVehicleWheelRimColliderSize(_playerVehicleHandle, i, value);
+
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultRearRimColliderSizeID, VStancerExtra.DefaultRearRimColliderSize, value);
+                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, RearRimColliderSizeID, value, VStancerExtra.DefaultRearRimColliderSize);
+                    break;
 
                 case nameof(VStancerExtra.Reset):
                     RemoveExtraDecoratorsFromVehicle(_playerVehicleHandle);
@@ -296,34 +332,127 @@ namespace VStancer.Client.Scripts
 
         private void UpdateVehicleExtraUsingDecorators(int vehicle)
         {
-            if (DecorExistOn(vehicle, ExtraSizeID))
-                SetVehicleWheelSize(vehicle, DecorGetFloat(vehicle, ExtraSizeID));
+            if (DecorExistOn(vehicle, WheelSizeID))
+                SetVehicleWheelSize(vehicle, DecorGetFloat(vehicle, WheelSizeID));
 
-            if (DecorExistOn(vehicle, ExtraWidthID))
-                SetVehicleWheelWidth(vehicle, DecorGetFloat(vehicle, ExtraWidthID));
+            if (DecorExistOn(vehicle, WheelWidthID))
+                SetVehicleWheelWidth(vehicle, DecorGetFloat(vehicle, WheelWidthID));
+
+            if (DecorExistOn(vehicle, FrontTireColliderWidthID))
+            {
+                float value = DecorGetFloat(vehicle, FrontTireColliderWidthID);
+                for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+                    SetVehicleWheelTireColliderWidth(_playerVehicleHandle, i, value);
+            }
+
+            if (DecorExistOn(vehicle, FrontTireColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, FrontTireColliderSizeID);
+                for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+                    SetVehicleWheelTireColliderSize(_playerVehicleHandle, i, value);
+            }
+
+            if (DecorExistOn(vehicle, FrontRimColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, FrontRimColliderSizeID);
+                for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+                    SetVehicleWheelRimColliderSize(_playerVehicleHandle, i, value);
+            }
+
+            if (DecorExistOn(vehicle, RearTireColliderWidthID))
+            {
+                float value = DecorGetFloat(vehicle, RearTireColliderWidthID);
+                for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+                    SetVehicleWheelTireColliderWidth(_playerVehicleHandle, i, value);
+            }
+
+            if (DecorExistOn(vehicle, RearTireColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, RearTireColliderSizeID);
+                for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+                    SetVehicleWheelTireColliderSize(_playerVehicleHandle, i, value);
+            }
+
+            if (DecorExistOn(vehicle, RearRimColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, RearRimColliderSizeID);
+                for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+                    SetVehicleWheelRimColliderSize(_playerVehicleHandle, i, value);
+            }
         }
 
         private void RegisterExtraDecorators()
         {
-            DecorRegister(ExtraWidthID, 1);
-            DecorRegister(ExtraSizeID, 1);
-            DecorRegister(DefaultExtraWidthID, 1);
-            DecorRegister(DefaultExtraSizeID, 1);
+            DecorRegister(WheelWidthID, 1);
+            DecorRegister(DefaultWidthID, 1);
+            
+            DecorRegister(WheelSizeID, 1);
+            DecorRegister(DefaultSizeID, 1);
+            
+            DecorRegister(FrontTireColliderWidthID, 1);
+            DecorRegister(FrontTireColliderSizeID, 1);
+            DecorRegister(FrontRimColliderSizeID, 1);
+            DecorRegister(DefaultFrontTireColliderWidthID, 1);
+            DecorRegister(DefaultFrontTireColliderSizeID, 1);
+            DecorRegister(DefaultFrontRimColliderSizeID, 1);
+
+            DecorRegister(RearTireColliderWidthID, 1);
+            DecorRegister(RearTireColliderSizeID, 1);
+            DecorRegister(RearRimColliderSizeID, 1);
+            DecorRegister(DefaultRearTireColliderWidthID, 1);
+            DecorRegister(DefaultRearTireColliderSizeID, 1);
+            DecorRegister(DefaultRearRimColliderSizeID, 1);
         }
 
         private void RemoveExtraDecoratorsFromVehicle(int vehicle)
         {
-            if (DecorExistOn(vehicle, ExtraSizeID))
-                DecorRemove(vehicle, ExtraSizeID);
+            if (DecorExistOn(vehicle, WheelSizeID))
+                DecorRemove(vehicle, WheelSizeID);
 
-            if (DecorExistOn(vehicle, ExtraWidthID))
-                DecorRemove(vehicle, ExtraWidthID);
+            if (DecorExistOn(vehicle, WheelWidthID))
+                DecorRemove(vehicle, WheelWidthID);
 
-            if (DecorExistOn(vehicle, DefaultExtraSizeID))
-                DecorRemove(vehicle, DefaultExtraSizeID);
+            if (DecorExistOn(vehicle, DefaultSizeID))
+                DecorRemove(vehicle, DefaultSizeID);
 
-            if (DecorExistOn(vehicle, DefaultExtraWidthID))
-                DecorRemove(vehicle, DefaultExtraWidthID);
+            if (DecorExistOn(vehicle, DefaultWidthID))
+                DecorRemove(vehicle, DefaultWidthID);
+
+            if (DecorExistOn(vehicle, FrontTireColliderWidthID))
+                DecorRemove(vehicle, FrontTireColliderWidthID);
+
+            if (DecorExistOn(vehicle, FrontTireColliderSizeID))
+                DecorRemove(vehicle, FrontTireColliderSizeID);
+
+            if (DecorExistOn(vehicle, FrontRimColliderSizeID))
+                DecorRemove(vehicle, FrontRimColliderSizeID);
+
+            if (DecorExistOn(vehicle, DefaultFrontTireColliderWidthID))
+                DecorRemove(vehicle, DefaultFrontTireColliderWidthID);
+
+            if (DecorExistOn(vehicle, DefaultFrontTireColliderSizeID))
+                DecorRemove(vehicle, DefaultFrontTireColliderSizeID);
+
+            if (DecorExistOn(vehicle, DefaultFrontRimColliderSizeID))
+                DecorRemove(vehicle, DefaultFrontRimColliderSizeID);
+
+            if (DecorExistOn(vehicle, RearTireColliderWidthID))
+                DecorRemove(vehicle, RearTireColliderWidthID);
+
+            if (DecorExistOn(vehicle, RearTireColliderSizeID))
+                DecorRemove(vehicle, RearTireColliderSizeID);
+
+            if (DecorExistOn(vehicle, RearRimColliderSizeID))
+                DecorRemove(vehicle, RearRimColliderSizeID);
+
+            if (DecorExistOn(vehicle, DefaultRearTireColliderWidthID))
+                DecorRemove(vehicle, DefaultRearTireColliderWidthID);
+
+            if (DecorExistOn(vehicle, DefaultRearTireColliderSizeID))
+                DecorRemove(vehicle, DefaultRearTireColliderSizeID);
+
+            if (DecorExistOn(vehicle, DefaultRearRimColliderSizeID))
+                DecorRemove(vehicle, DefaultRearRimColliderSizeID);
         }
 
         private void OnMenuCommandInvoked(string commandID)
@@ -346,11 +475,31 @@ namespace VStancer.Client.Scripts
 
             switch (id)
             {
-                case ExtraSizeID:
+                case WheelSizeID:
                     VStancerExtra.WheelSize = value;
                     break;
-                case ExtraWidthID:
+                case WheelWidthID:
                     VStancerExtra.WheelWidth = value;
+                    break;
+
+                case FrontTireColliderWidthID:
+                    VStancerExtra.FrontTireColliderWidth = value;
+                    break;
+                case FrontTireColliderSizeID:
+                    VStancerExtra.FrontTireColliderSize = value;
+                    break;
+                case FrontRimColliderSizeID:
+                    VStancerExtra.FrontRimColliderSize = value;
+                    break;
+
+                case RearTireColliderWidthID:
+                    VStancerExtra.RearTireColliderWidth = value;
+                    break;
+                case RearTireColliderSizeID:
+                    VStancerExtra.RearTireColliderSize = value;
+                    break;
+                case RearRimColliderSizeID:
+                    VStancerExtra.RearRimColliderSize = value;
                     break;
             }
         }
@@ -358,10 +507,22 @@ namespace VStancer.Client.Scripts
         private bool EntityHasDecorators(int entity)
         {
             return (
-                DecorExistOn(entity, ExtraSizeID) ||
-                DecorExistOn(entity, ExtraWidthID) ||
-                DecorExistOn(entity, DefaultExtraSizeID) ||
-                DecorExistOn(entity, DefaultExtraWidthID)
+                DecorExistOn(entity, WheelSizeID) ||
+                DecorExistOn(entity, WheelWidthID) ||
+                DecorExistOn(entity, DefaultSizeID) ||
+                DecorExistOn(entity, DefaultWidthID) ||
+                DecorExistOn(entity, FrontTireColliderWidthID) ||
+                DecorExistOn(entity, FrontTireColliderSizeID) ||
+                DecorExistOn(entity, FrontRimColliderSizeID) ||
+                DecorExistOn(entity, DefaultFrontTireColliderWidthID) ||
+                DecorExistOn(entity, DefaultFrontTireColliderSizeID) ||
+                DecorExistOn(entity, DefaultFrontRimColliderSizeID) ||
+                DecorExistOn(entity, RearTireColliderWidthID) ||
+                DecorExistOn(entity, RearTireColliderSizeID) ||
+                DecorExistOn(entity, RearRimColliderSizeID) ||
+                DecorExistOn(entity, DefaultRearTireColliderWidthID) ||
+                DecorExistOn(entity, DefaultRearTireColliderSizeID) ||
+                DecorExistOn(entity, DefaultRearRimColliderSizeID)
                 );
         }
 
@@ -379,7 +540,7 @@ namespace VStancer.Client.Scripts
         {
             if (!DoesEntityExist(vehicle))
             {
-                Debug.WriteLine($"{Globals.ScriptName}: Can't find vehicle with handle {vehicle}");
+                Debug.WriteLine($"{nameof(VStancerExtraScript)}: Can't find vehicle with handle {vehicle}");
                 return;
             }
 
@@ -388,28 +549,100 @@ namespace VStancer.Client.Scripts
             StringBuilder s = new StringBuilder();
             s.AppendLine($"{nameof(VStancerExtraScript)}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
 
-            if (DecorExistOn(vehicle, ExtraSizeID))
+            if (DecorExistOn(vehicle, WheelSizeID))
             {
-                float value = DecorGetFloat(vehicle, ExtraSizeID);
-                s.AppendLine($"{ExtraSizeID}: {value}");
+                float value = DecorGetFloat(vehicle, WheelSizeID);
+                s.AppendLine($"{WheelSizeID}: {value}");
             }
 
-            if (DecorExistOn(vehicle, DefaultExtraSizeID))
+            if (DecorExistOn(vehicle, DefaultSizeID))
             {
-                float value = DecorGetFloat(vehicle, DefaultExtraSizeID);
-                s.AppendLine($"{DefaultExtraSizeID}: {value}");
+                float value = DecorGetFloat(vehicle, DefaultSizeID);
+                s.AppendLine($"{DefaultSizeID}: {value}");
             }
 
-            if (DecorExistOn(vehicle, ExtraWidthID))
+            if (DecorExistOn(vehicle, WheelWidthID))
             {
-                float value = DecorGetFloat(vehicle, ExtraWidthID);
-                s.AppendLine($"{ExtraWidthID}: {value}");
+                float value = DecorGetFloat(vehicle, WheelWidthID);
+                s.AppendLine($"{WheelWidthID}: {value}");
             }
 
-            if (DecorExistOn(vehicle, DefaultExtraWidthID))
+            if (DecorExistOn(vehicle, DefaultWidthID))
             {
-                float value = DecorGetFloat(vehicle, DefaultExtraWidthID);
-                s.AppendLine($"{DefaultExtraWidthID}: {value}");
+                float value = DecorGetFloat(vehicle, DefaultWidthID);
+                s.AppendLine($"{DefaultWidthID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, FrontTireColliderWidthID))
+            {
+                float value = DecorGetFloat(vehicle, FrontTireColliderWidthID);
+                s.AppendLine($"{FrontTireColliderWidthID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, DefaultFrontTireColliderWidthID))
+            {
+                float value = DecorGetFloat(vehicle, DefaultFrontTireColliderWidthID);
+                s.AppendLine($"{DefaultFrontTireColliderWidthID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, RearTireColliderWidthID))
+            {
+                float value = DecorGetFloat(vehicle, RearTireColliderWidthID);
+                s.AppendLine($"{RearTireColliderWidthID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, DefaultRearTireColliderWidthID))
+            {
+                float value = DecorGetFloat(vehicle, DefaultRearTireColliderWidthID);
+                s.AppendLine($"{DefaultRearTireColliderWidthID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, FrontTireColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, FrontTireColliderSizeID);
+                s.AppendLine($"{FrontTireColliderSizeID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, DefaultFrontTireColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, DefaultFrontTireColliderSizeID);
+                s.AppendLine($"{DefaultFrontTireColliderSizeID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, RearTireColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, RearTireColliderSizeID);
+                s.AppendLine($"{RearTireColliderSizeID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, DefaultRearTireColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, DefaultRearTireColliderSizeID);
+                s.AppendLine($"{DefaultRearTireColliderSizeID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, FrontRimColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, FrontRimColliderSizeID);
+                s.AppendLine($"{FrontRimColliderSizeID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, DefaultFrontRimColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, DefaultFrontRimColliderSizeID);
+                s.AppendLine($"{DefaultFrontRimColliderSizeID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, RearRimColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, RearRimColliderSizeID);
+                s.AppendLine($"{RearRimColliderSizeID}: {value}");
+            }
+
+            if (DecorExistOn(vehicle, DefaultRearRimColliderSizeID))
+            {
+                float value = DecorGetFloat(vehicle, DefaultRearRimColliderSizeID);
+                s.AppendLine($"{DefaultRearRimColliderSizeID}: {value}");
             }
 
             Debug.WriteLine(s.ToString());

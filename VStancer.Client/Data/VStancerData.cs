@@ -11,8 +11,8 @@ namespace VStancer.Client.Data
 
         public event EventHandler<string> PropertyChanged;
 
-        public int WheelsCount { get; set; }
-        public int FrontWheelsCount { get; set; }
+        public int WheelsCount { get; private set; }
+        public int FrontWheelsCount { get; private set; }
 
 
         public VStancerDataNode[] Nodes { get; set; }
