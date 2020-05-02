@@ -254,75 +254,151 @@ namespace VStancer.Client.Scripts
             };
         }
 
+        private void SetWheelWidthUsingExtra(int vehicle, WheelExtra extra)
+        {
+            float value = extra.WheelWidth;
+
+            bool result = SetVehicleWheelWidth(vehicle, value);
+            if (result)
+            {
+                float defValue = extra.DefaultWheelWidth;
+                VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultWidthID, defValue, value);
+                VStancerUtilities.UpdateFloatDecorator(vehicle, WheelWidthID, value, defValue);
+            }
+        }
+
+        private void SetWheelSizeUsingExtra(int vehicle, WheelExtra extra)
+        {
+            float value = extra.WheelSize;
+
+            bool result = SetVehicleWheelSize(vehicle, value);
+            if (result)
+            {
+                float defValue = extra.DefaultWheelSize;
+                VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultSizeID, defValue, value);
+                VStancerUtilities.UpdateFloatDecorator(vehicle, WheelSizeID, value, defValue);
+            }
+        }
+
+        private void SetFrontTireColliderWidthUsingExtra(int vehicle, WheelExtra extra)
+        {
+            float value = extra.FrontTireColliderWidth;
+            float defValue = extra.DefaultFrontTireColliderWidth;
+
+            for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+                SetVehicleWheelTireColliderWidth(vehicle, i, value);
+
+            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTireColliderWidthID, defValue, value);
+            VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTireColliderWidthID, value, defValue);
+        }
+
+        private void SetFrontTireColliderSizeUsingExtra(int vehicle, WheelExtra extra)
+        {
+            float value = extra.FrontTireColliderSize;
+            float defValue = extra.DefaultFrontTireColliderSize;
+
+            for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+                SetVehicleWheelTireColliderSize(vehicle, i, value);
+
+            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTireColliderSizeID, defValue, value);
+            VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTireColliderSizeID, value, defValue);
+        }
+
+        private void SetFrontRimColliderSizeUsingExtra(int vehicle, WheelExtra extra)
+        {
+            float value = extra.FrontRimColliderSize;
+            float defValue = extra.DefaultFrontRimColliderSize;
+
+            for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+                SetVehicleWheelRimColliderSize(vehicle, i, value);
+
+            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontRimColliderSizeID, defValue, value);
+            VStancerUtilities.UpdateFloatDecorator(vehicle, FrontRimColliderSizeID, value, defValue);
+        }
+
+        private void SetRearTireColliderWidthUsingExtra(int vehicle, WheelExtra extra)
+        {
+            float value = extra.RearTireColliderWidth;
+            float defValue = extra.DefaultRearTireColliderWidth;
+
+            for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+                SetVehicleWheelTireColliderWidth(vehicle, i, value);
+
+            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTireColliderWidthID, defValue, value);
+            VStancerUtilities.UpdateFloatDecorator(vehicle, RearTireColliderWidthID, value, defValue);
+        }
+
+        private void SetRearTireColliderSizeUsingExtra(int vehicle, WheelExtra extra)
+        {
+            float value = extra.RearTireColliderSize;
+            float defValue = extra.DefaultRearTireColliderSize;
+
+            for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+                SetVehicleWheelTireColliderSize(vehicle, i, value);
+
+            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTireColliderSizeID, defValue, value);
+            VStancerUtilities.UpdateFloatDecorator(vehicle, RearTireColliderSizeID, value, defValue);
+        }
+
+        private void SetRearRimColliderSizeUsingExtra(int vehicle, WheelExtra extra)
+        {
+            float value = extra.RearRimColliderSize;
+            float defValue = extra.DefaultRearRimColliderSize;
+
+            for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+                SetVehicleWheelRimColliderSize(vehicle, i, value);
+
+            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearRimColliderSizeID, defValue, value);
+            VStancerUtilities.UpdateFloatDecorator(vehicle, RearRimColliderSizeID, value, defValue);
+        }
+
         private void OnExtraPropertyEdited(string propertyName, float value)
         {
             bool result = false;
             switch (propertyName)
             {
                 case nameof(VStancerExtra.WheelWidth):
-                    result = SetVehicleWheelWidth(_playerVehicleHandle, value);
-                    if (result)
-                    {
-                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultWidthID, VStancerExtra.DefaultWheelWidth, value);
-                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, WheelWidthID, value, VStancerExtra.DefaultWheelWidth);
-                    }
+                    SetWheelWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
                     break;
 
                 case nameof(VStancerExtra.WheelSize):
-                    result = SetVehicleWheelSize(_playerVehicleHandle, value);
-                    if (result)
-                    {
-                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultSizeID, VStancerExtra.DefaultWheelSize, value);
-                        VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, WheelSizeID, value, VStancerExtra.DefaultWheelSize);
-                    }
+                    SetWheelSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
                     break;
 
                case nameof(VStancerExtra.FrontTireColliderWidth):
-                    for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
-                        SetVehicleWheelTireColliderWidth(_playerVehicleHandle, i, value);
-
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultFrontTireColliderWidthID, VStancerExtra.DefaultFrontTireColliderWidth, value);
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, FrontTireColliderWidthID, value, VStancerExtra.DefaultFrontTireColliderWidth);
+                    SetFrontTireColliderWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
                     break;
                 case nameof(VStancerExtra.FrontTireColliderSize):
-                    for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
-                        SetVehicleWheelTireColliderSize(_playerVehicleHandle, i, value);
-
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultFrontTireColliderSizeID, VStancerExtra.DefaultFrontTireColliderSize, value);
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, FrontTireColliderSizeID, value, VStancerExtra.DefaultFrontTireColliderSize);
+                    SetFrontTireColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
                     break;
                 case nameof(VStancerExtra.FrontRimColliderSize):
-                    for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
-                        SetVehicleWheelRimColliderSize(_playerVehicleHandle, i, value);
-
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultFrontRimColliderSizeID, VStancerExtra.DefaultFrontRimColliderSize, value);
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, FrontRimColliderSizeID, value, VStancerExtra.DefaultFrontRimColliderSize);
+                    SetFrontRimColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
                     break;
 
                 case nameof(VStancerExtra.RearTireColliderWidth):
-                    for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
-                        SetVehicleWheelTireColliderWidth(_playerVehicleHandle, i, value);
-
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultRearTireColliderWidthID, VStancerExtra.DefaultRearTireColliderWidth, value);
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, RearTireColliderWidthID, value, VStancerExtra.DefaultRearTireColliderWidth);
+                    SetRearTireColliderWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
                     break;
                 case nameof(VStancerExtra.RearTireColliderSize):
-                    for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
-                        SetVehicleWheelTireColliderSize(_playerVehicleHandle, i, value);
-
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultRearTireColliderSizeID, VStancerExtra.DefaultRearTireColliderSize, value);
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, RearTireColliderSizeID, value, VStancerExtra.DefaultRearTireColliderSize);
+                    SetRearTireColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
                     break;
                 case nameof(VStancerExtra.RearRimColliderSize):
-                    for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
-                        SetVehicleWheelRimColliderSize(_playerVehicleHandle, i, value);
-
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, DefaultRearRimColliderSizeID, VStancerExtra.DefaultRearRimColliderSize, value);
-                    VStancerUtilities.UpdateFloatDecorator(_playerVehicleHandle, RearRimColliderSizeID, value, VStancerExtra.DefaultRearRimColliderSize);
+                    SetRearRimColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
                     break;
 
                 case nameof(VStancerExtra.Reset):
+
+                    // TODO: Avoid updating decorators if we have to remove them anyway
+                    SetWheelWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
+                    SetWheelSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
+                    SetFrontTireColliderWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
+                    SetFrontTireColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
+                    SetFrontRimColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
+                    SetRearTireColliderWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
+                    SetRearTireColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
+                    SetRearRimColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
+
                     RemoveExtraDecoratorsFromVehicle(_playerVehicleHandle);
+
                     VStancerExtraChanged?.Invoke(this, EventArgs.Empty);
                     break;
 
