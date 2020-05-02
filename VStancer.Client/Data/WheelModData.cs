@@ -4,7 +4,7 @@ using CitizenFX.Core;
 
 namespace VStancer.Client.Data
 {
-    public class WheelExtra
+    public class WheelModData
     {
         private const float Epsilon = VStancerUtilities.Epsilon;
 
@@ -46,10 +46,10 @@ namespace VStancer.Client.Data
         public float DefaultWheelSize { get; private set; }
         public float DefaultWheelWidth { get; private set; }
 
-        public ExtraNode[] Nodes { get; set; }
-        public ExtraNode[] DefaultNodes { get; private set; }
+        public WheelModNode[] Nodes { get; set; }
+        public WheelModNode[] DefaultNodes { get; private set; }
 
-        public WheelExtra(int wheelsCount, float width, float radius,
+        public WheelModData(int wheelsCount, float width, float radius,
             float frontTireColliderScaleX, float frontTireColliderScaleYZ, float frontRimColliderScaleYZ,
             float rearTireColliderScaleX, float rearTireColliderScaleYZ, float rearRimColliderScaleYZ)
         {
@@ -62,7 +62,7 @@ namespace VStancer.Client.Data
             wheelSize = radius;
             wheelWidth = width;
 
-            DefaultNodes = new ExtraNode[WheelsCount];
+            DefaultNodes = new WheelModNode[WheelsCount];
 
             for (int i = 0; i < FrontWheelsCount; i++)
             {
@@ -96,7 +96,7 @@ namespace VStancer.Client.Data
                 }
             }
 
-            Nodes = new ExtraNode[WheelsCount];
+            Nodes = new WheelModNode[WheelsCount];
             for (int i = 0; i < WheelsCount; i++)
                 Nodes[i] = DefaultNodes[i];
         }
@@ -219,7 +219,7 @@ namespace VStancer.Client.Data
         public override string ToString()
         {
             StringBuilder s = new StringBuilder();
-            s.AppendLine($"{nameof(WheelExtra)}, Edited:{IsEdited}");
+            s.AppendLine($"{nameof(WheelModData)}, Edited:{IsEdited}");
             s.AppendLine($"{nameof(WheelSize)}: {WheelSize} ({DefaultWheelSize})");
             s.AppendLine($"{nameof(WheelWidth)}: {WheelWidth} ({DefaultWheelWidth})");
 
@@ -227,15 +227,15 @@ namespace VStancer.Client.Data
             {
                 var defNode = DefaultNodes[i];
                 var node = Nodes[i];
-                s.Append($"Wheel {i}: {nameof(ExtraNode.TireColliderScaleX)}: {node.TireColliderScaleX} ({defNode.TireColliderScaleX})");
-                s.Append($" {nameof(ExtraNode.TireColliderScaleYZ)}: {node.TireColliderScaleYZ} ({defNode.TireColliderScaleYZ})");
-                s.AppendLine($" {nameof(ExtraNode.RimColliderScaleYZ)}: {node.RimColliderScaleYZ} ({defNode.RimColliderScaleYZ})");
+                s.Append($"Wheel {i}: {nameof(WheelModNode.TireColliderScaleX)}: {node.TireColliderScaleX} ({defNode.TireColliderScaleX})");
+                s.Append($" {nameof(WheelModNode.TireColliderScaleYZ)}: {node.TireColliderScaleYZ} ({defNode.TireColliderScaleYZ})");
+                s.AppendLine($" {nameof(WheelModNode.RimColliderScaleYZ)}: {node.RimColliderScaleYZ} ({defNode.RimColliderScaleYZ})");
             }
             return s.ToString();
         }
     }
 
-    public struct ExtraNode
+    public struct WheelModNode
     {
         /// <summary>
         /// The collider wheel thread size

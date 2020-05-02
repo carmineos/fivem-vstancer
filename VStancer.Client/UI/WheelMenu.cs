@@ -5,15 +5,15 @@ using static VStancer.Client.UI.MenuUtilities;
 
 namespace VStancer.Client.UI
 {
-    internal class DataMenu : Menu
+    internal class WheelMenu : Menu
     {
-        private readonly VStancerDataScript _script;
+        private readonly WheelScript _script;
 
-        internal DataMenu(VStancerDataScript script, string name = Globals.ScriptName, string subtitle = "Wheel Menu") : base(name, subtitle)
+        internal WheelMenu(WheelScript script, string name = Globals.ScriptName, string subtitle = "Wheel Menu") : base(name, subtitle)
         {
             _script = script;
 
-            _script.VStancerDataChanged += new EventHandler((sender, args) => Update());
+            _script.WheelDataChanged += new EventHandler((sender, args) => Update());
 
             Update();
 
@@ -54,34 +54,34 @@ namespace VStancer.Client.UI
                 return;
 
             FrontTrackWidthListItem = CreateDynamicFloatList("Front Track Width",
-                -_script.VStancerData.DefaultFrontTrackWidth,
-                -_script.VStancerData.FrontTrackWidth,
+                -_script.WheelData.DefaultFrontTrackWidth,
+                -_script.WheelData.FrontTrackWidth,
                 _script.Config.FrontLimits.PositionX,
-                VStancerDataScript.FrontTrackWidthID,
+                WheelScript.FrontTrackWidthID,
                 _script.Config.FloatStep);
 
             RearTrackWidthListItem = CreateDynamicFloatList("Rear Track Width",
-                -_script.VStancerData.DefaultRearTrackWidth,
-                -_script.VStancerData.RearTrackWidth,
+                -_script.WheelData.DefaultRearTrackWidth,
+                -_script.WheelData.RearTrackWidth,
                 _script.Config.RearLimits.PositionX,
-                VStancerDataScript.RearTrackWidthID,
+                WheelScript.RearTrackWidthID,
                 _script.Config.FloatStep);
 
             FrontCamberListItem = CreateDynamicFloatList("Front Camber",
-                _script.VStancerData.DefaultFrontCamber,
-                _script.VStancerData.FrontCamber,
+                _script.WheelData.DefaultFrontCamber,
+                _script.WheelData.FrontCamber,
                 _script.Config.FrontLimits.RotationY,
-                VStancerDataScript.FrontCamberID,
+                WheelScript.FrontCamberID,
                 _script.Config.FloatStep);
 
             RearCamberListItem = CreateDynamicFloatList("Rear Camber",
-                _script.VStancerData.DefaultRearCamber,
-                _script.VStancerData.RearCamber,
+                _script.WheelData.DefaultRearCamber,
+                _script.WheelData.RearCamber,
                 _script.Config.RearLimits.RotationY,
-                VStancerDataScript.RearCamberID,
+                WheelScript.RearCamberID,
                 _script.Config.FloatStep);
 
-            ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = VStancerDataScript.ResetID };
+            ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = WheelScript.ResetID };
 
             AddMenuItem(FrontTrackWidthListItem);
             AddMenuItem(RearTrackWidthListItem);

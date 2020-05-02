@@ -52,8 +52,8 @@ namespace VStancer.Client.Scripts
         internal event EventHandler ToggleMenuVisibility;
 
         internal VStancerConfig Config { get; private set; }
-        internal VStancerDataScript VStancerDataScript { get; private set; }
-        internal VStancerExtraScript VStancerExtraScript { get; private set; }
+        internal WheelScript WheelScript { get; private set; }
+        internal WheelModScript WheelModScript { get; private set; }
         internal LocalPresetsScript LocalPresetScript { get; private set; }
 
         public MainScript()
@@ -71,13 +71,13 @@ namespace VStancer.Client.Scripts
             _worldVehiclesHandles = new List<int>();
 
             Config = LoadConfig();
-            VStancerDataScript = new VStancerDataScript(this);
-            RegisterScript(VStancerDataScript);
+            WheelScript = new WheelScript(this);
+            RegisterScript(WheelScript);
 
             if (Config.Extra.EnableExtra)
             {
-                VStancerExtraScript = new VStancerExtraScript(this);
-                RegisterScript(VStancerExtraScript);
+                WheelModScript = new WheelModScript(this);
+                RegisterScript(WheelModScript);
             }
 
             LocalPresetScript = new LocalPresetsScript(this);
@@ -90,10 +90,10 @@ namespace VStancer.Client.Scripts
 
             RegisterCommands();
 
-            if (VStancerDataScript != null)
+            if (WheelScript != null)
             {
-                Exports.Add("SetVstancerPreset", new Action<int, float, float, float, float, object, object, object, object>(VStancerDataScript.SetVstancerPreset));
-                Exports.Add("GetVstancerPreset", new Func<int, float[]>(VStancerDataScript.GetVstancerPreset));
+                Exports.Add("SetVstancerPreset", new Action<int, float, float, float, float, object, object, object, object>(WheelScript.SetVstancerPreset));
+                Exports.Add("GetVstancerPreset", new Func<int, float[]>(WheelScript.GetVstancerPreset));
             }
         }
 
@@ -200,15 +200,15 @@ namespace VStancer.Client.Scripts
             {
                 if (args.Count < 1)
                 {
-                    VStancerDataScript.PrintDecoratorsInfo(_playerVehicleHandle);
-                    VStancerExtraScript.PrintDecoratorsInfo(_playerVehicleHandle);
+                    WheelScript.PrintDecoratorsInfo(_playerVehicleHandle);
+                    WheelModScript.PrintDecoratorsInfo(_playerVehicleHandle);
                 }
                 else
                 {
                     if (int.TryParse(args[0], out int value))
                     {
-                        VStancerDataScript.PrintDecoratorsInfo(value);
-                        VStancerExtraScript.PrintDecoratorsInfo(value);
+                        WheelScript.PrintDecoratorsInfo(value);
+                        WheelModScript.PrintDecoratorsInfo(value);
                     }
                     else Debug.WriteLine($"{Globals.ScriptName}: Error parsing entity handle {args[0]} as int");
                 }
@@ -252,24 +252,24 @@ namespace VStancer.Client.Scripts
 
             RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
             {
-                if (VStancerDataScript?.VStancerData != null)
-                    Debug.WriteLine(VStancerDataScript.VStancerData.ToString());
+                if (WheelScript?.WheelData != null)
+                    Debug.WriteLine(WheelScript.WheelData.ToString());
                 else
-                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(VStancerDataScript.VStancerData)} is null");
+                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(WheelScript.WheelData)} is null");
 
-                if (VStancerExtraScript?.VStancerExtra != null)
-                    Debug.WriteLine(VStancerExtraScript.VStancerExtra.ToString());
+                if (WheelModScript?.WheelModData != null)
+                    Debug.WriteLine(WheelModScript.WheelModData.ToString());
                 else
-                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(VStancerExtraScript.VStancerExtra)} is null");
+                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(WheelModScript.WheelModData)} is null");
             }), false);
 
 
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
-                if (VStancerDataScript != null)
-                    VStancerDataScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
-                if (VStancerExtraScript != null)
-                    VStancerExtraScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
+                if (WheelScript != null)
+                    WheelScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
+                if (WheelModScript != null)
+                    WheelModScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
             }), false);
 
             if (Config.ExposeCommand)

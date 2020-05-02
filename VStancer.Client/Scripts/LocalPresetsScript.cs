@@ -41,7 +41,7 @@ namespace VStancer.Client.Scripts
 
         private void OnSavePresetInvoked(string presetKey)
         {
-            if (Presets.Save(presetKey, _mainScript.VStancerDataScript.VStancerData))
+            if (Presets.Save(presetKey, _mainScript.WheelScript.WheelData))
                 Screen.ShowNotification($"Personal preset ~g~{presetKey}~w~ saved");
             else
                 Screen.ShowNotification($"~r~ERROR~w~ The name {presetKey} is invalid or already used.");
@@ -58,7 +58,7 @@ namespace VStancer.Client.Scripts
                 return;
             }
 
-            await _mainScript.VStancerDataScript.LoadPreset(loadedPreset);
+            await _mainScript.WheelScript.LoadPreset(loadedPreset);
             Screen.ShowNotification($"Personal preset ~b~{presetKey}~w~ applied");
         }
     }

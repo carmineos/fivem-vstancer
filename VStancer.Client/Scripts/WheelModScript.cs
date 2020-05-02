@@ -12,7 +12,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace VStancer.Client.Scripts
 {
-    internal class VStancerExtraScript : BaseScript
+    internal class WheelModScript : BaseScript
     {
         private readonly MainScript _mainScript;
 
@@ -33,23 +33,23 @@ namespace VStancer.Client.Scripts
             }
         }
 
-        private WheelExtra _vstancerExtra;
-        internal WheelExtra VStancerExtra 
+        private WheelModData _wheelModData;
+        internal WheelModData WheelModData 
         { 
-            get => _vstancerExtra; 
+            get => _wheelModData; 
             set
             {
-                if (Equals(_vstancerExtra, value))
+                if (Equals(_wheelModData, value))
                     return;
 
-                _vstancerExtra = value;
-                VStancerExtraChanged?.Invoke(this, EventArgs.Empty);
+                _wheelModData = value;
+                WheelModDataChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
         internal VStancerConfig Config => _mainScript.Config;
-        internal ExtraMenu Menu { get; private set; }
-        public bool ExtraIsValid => _playerVehicleHandle != -1 && VStancerExtra != null && VehicleWheelMod != -1;
+        internal WheelModMenu Menu { get; private set; }
+        public bool DataIsValid => _playerVehicleHandle != -1 && WheelModData != null && VehicleWheelMod != -1;
 
         internal const string ExtraResetID = "vstancer_extra_reset";
 
@@ -74,21 +74,21 @@ namespace VStancer.Client.Scripts
         internal const string DefaultRearTireColliderSizeID = "vstancer_extra_tirecollider_size_r_def";
         internal const string DefaultRearRimColliderSizeID = "vstancer_extra_rimcollider_size_r_def";
 
-        public event EventHandler VStancerExtraChanged;
+        public event EventHandler WheelModDataChanged;
 
-        internal VStancerExtraScript(MainScript mainScript)
+        internal WheelModScript(MainScript mainScript)
         {
             _mainScript = mainScript;
 
-            RegisterExtraDecorators();
+            RegisterDecorators();
 
             _lastTime = GetGameTimer();
             
             _playerVehicleHandle = -1;
             VehicleWheelMod = -1;
-            VStancerExtra = null;
+            WheelModData = null;
 
-            Menu = new ExtraMenu(this);
+            Menu = new WheelModMenu(this);
 
             Menu.FloatPropertyChangedEvent += OnMenuFloatPropertyChanged;
             Menu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
@@ -98,7 +98,7 @@ namespace VStancer.Client.Scripts
 
             mainScript.PlayerVehicleHandleChanged += (sender, handle) => PlayerVehicleChanged(handle);
             
-            VStancerExtraChanged += (sender, args) => OnVStancerExtraChanged();
+            WheelModDataChanged += (sender, args) => OnWheelModDataChanged();
 
             PlayerVehicleChanged(_mainScript.PlayerVehicleHandle);
         }
@@ -113,10 +113,10 @@ namespace VStancer.Client.Scripts
             await Task.FromResult(0);
         }
 
-        private void OnVStancerExtraChanged()
+        private void OnWheelModDataChanged()
         {
-            if (VStancerExtra != null)
-                VStancerExtra.PropertyChanged += OnExtraPropertyEdited;
+            if (WheelModData != null)
+                WheelModData.PropertyChanged += OnWheelModDataPropertyChanged;
         }
 
         private async void VehicleWheelModChanged()
@@ -131,17 +131,17 @@ namespace VStancer.Client.Scripts
             Debug.WriteLine($"Size: {GetVehicleWheelSize(_playerVehicleHandle)}");
 #endif
 
-            if (VStancerExtra != null)
-                VStancerExtra.PropertyChanged -= OnExtraPropertyEdited;
+            if (WheelModData != null)
+                WheelModData.PropertyChanged -= OnWheelModDataPropertyChanged;
 
             if(VehicleWheelMod == -1)
             {
-                VStancerExtra = null;
-                RemoveExtraDecoratorsFromVehicle(_playerVehicleHandle);
+                WheelModData = null;
+                RemoveDecoratorsFromVehicle(_playerVehicleHandle);
                 return;
             }
 
-            VStancerExtra = await GetVStancerExtraFromHandle(_playerVehicleHandle);
+            WheelModData = await GetWheelModDataFromEntity(_playerVehicleHandle);
         }
 
         private void PlayerVehicleChanged(int vehicle)
@@ -154,13 +154,13 @@ namespace VStancer.Client.Scripts
 
             _playerVehicleHandle = vehicle;
 
-            if (VStancerExtra != null)
-                VStancerExtra.PropertyChanged -= OnExtraPropertyEdited;
+            if (WheelModData != null)
+                WheelModData.PropertyChanged -= OnWheelModDataPropertyChanged;
 
             if (_playerVehicleHandle == -1)
             {
                 VehicleWheelMod = -1;
-                VStancerExtra = null;
+                WheelModData = null;
                 return;
             }
 
@@ -175,7 +175,7 @@ namespace VStancer.Client.Scripts
             // Check if decorators needs to be updated
             if (currentTime > _mainScript.Config.Timer)
             {
-                UpdateWorldVehiclesWithExtraDecorators();
+                UpdateWorldVehiclesUsingDecorators();
 
                 // This might be required as if a script edits and mod on the vehicle, wheel size and width will restore to default values
                 //if (ExtraIsValid)
@@ -187,32 +187,32 @@ namespace VStancer.Client.Scripts
             await Task.FromResult(0);
         }
 
-        private void UpdateVehicleUsingVStancerExtra(int vehicle, WheelExtra extra)
+        private void UpdateVehicleUsingData(int vehicle, WheelModData data)
         {
-            if (!DoesEntityExist(vehicle) || extra == null)
+            if (!DoesEntityExist(vehicle) || data == null)
                 return;
 
-            if(!MathUtil.WithinEpsilon(GetVehicleWheelWidth(vehicle), extra.WheelWidth, VStancerUtilities.Epsilon))
-                SetVehicleWheelWidth(vehicle, extra.WheelWidth);
+            if(!MathUtil.WithinEpsilon(GetVehicleWheelWidth(vehicle), data.WheelWidth, VStancerUtilities.Epsilon))
+                SetVehicleWheelWidth(vehicle, data.WheelWidth);
 
-            if (!MathUtil.WithinEpsilon(GetVehicleWheelSize(vehicle), extra.WheelSize, VStancerUtilities.Epsilon))
-                SetVehicleWheelSize(vehicle, extra.WheelSize);
+            if (!MathUtil.WithinEpsilon(GetVehicleWheelSize(vehicle), data.WheelSize, VStancerUtilities.Epsilon))
+                SetVehicleWheelSize(vehicle, data.WheelSize);
 
             // TODO: Also refresh colliders
         }
 
-        private void UpdateWorldVehiclesWithExtraDecorators()
+        private void UpdateWorldVehiclesUsingDecorators()
         {
             foreach (int entity in _mainScript.GetCloseVehicleHandles())
             {
                 if (entity == _playerVehicleHandle)
                     continue;
 
-                UpdateVehicleExtraUsingDecorators(entity);
+                UpdateVehicleUsingDecorators(entity);
             }
         }
 
-        private async Task<WheelExtra> GetVStancerExtraFromHandle(int vehicle)
+        private async Task<WheelModData> GetWheelModDataFromEntity(int vehicle)
         {
             if (!DoesEntityExist(vehicle))
                 return null;
@@ -236,7 +236,7 @@ namespace VStancer.Client.Scripts
             float rearRimColliderSize_def = DecorExistOn(vehicle, DefaultRearRimColliderSizeID) ? DecorGetFloat(vehicle, DefaultRearRimColliderSizeID) : GetVehicleWheelRimColliderSize(vehicle, frontCount);
 
             // Create the preset with the default values
-            return new WheelExtra(wheelsCount, wheelWidth_def, wheelSize_def,
+            return new WheelModData(wheelsCount, wheelWidth_def, wheelSize_def,
                 frontTireColliderWidth_def, frontTireColliderSize_def, frontRimColliderSize_def,
                 rearTireColliderWidth_def, rearTireColliderSize_def, rearRimColliderSize_def)
             {
@@ -254,163 +254,159 @@ namespace VStancer.Client.Scripts
             };
         }
 
-        private void SetWheelWidthUsingExtra(int vehicle, WheelExtra extra)
+        private void SetWheelWidthUsingData(int vehicle, WheelModData data)
         {
-            float value = extra.WheelWidth;
+            float value = data.WheelWidth;
 
             bool result = SetVehicleWheelWidth(vehicle, value);
             if (result)
             {
-                float defValue = extra.DefaultWheelWidth;
+                float defValue = data.DefaultWheelWidth;
                 VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultWidthID, defValue, value);
                 VStancerUtilities.UpdateFloatDecorator(vehicle, WheelWidthID, value, defValue);
             }
         }
 
-        private void SetWheelSizeUsingExtra(int vehicle, WheelExtra extra)
+        private void SetWheelSizeUsingData(int vehicle, WheelModData data)
         {
-            float value = extra.WheelSize;
+            float value = data.WheelSize;
 
             bool result = SetVehicleWheelSize(vehicle, value);
             if (result)
             {
-                float defValue = extra.DefaultWheelSize;
+                float defValue = data.DefaultWheelSize;
                 VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultSizeID, defValue, value);
                 VStancerUtilities.UpdateFloatDecorator(vehicle, WheelSizeID, value, defValue);
             }
         }
 
-        private void SetFrontTireColliderWidthUsingExtra(int vehicle, WheelExtra extra)
+        private void SetFrontTireColliderWidthUsingData(int vehicle, WheelModData data)
         {
-            float value = extra.FrontTireColliderWidth;
-            float defValue = extra.DefaultFrontTireColliderWidth;
+            float value = data.FrontTireColliderWidth;
+            float defValue = data.DefaultFrontTireColliderWidth;
 
-            for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+            for (int i = 0; i < WheelModData.FrontWheelsCount; i++)
                 SetVehicleWheelTireColliderWidth(vehicle, i, value);
 
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTireColliderWidthID, defValue, value);
             VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTireColliderWidthID, value, defValue);
         }
 
-        private void SetFrontTireColliderSizeUsingExtra(int vehicle, WheelExtra extra)
+        private void SetFrontTireColliderSizeUsingData(int vehicle, WheelModData data)
         {
-            float value = extra.FrontTireColliderSize;
-            float defValue = extra.DefaultFrontTireColliderSize;
+            float value = data.FrontTireColliderSize;
+            float defValue = data.DefaultFrontTireColliderSize;
 
-            for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+            for (int i = 0; i < WheelModData.FrontWheelsCount; i++)
                 SetVehicleWheelTireColliderSize(vehicle, i, value);
 
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTireColliderSizeID, defValue, value);
             VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTireColliderSizeID, value, defValue);
         }
 
-        private void SetFrontRimColliderSizeUsingExtra(int vehicle, WheelExtra extra)
+        private void SetFrontRimColliderSizeUsingData(int vehicle, WheelModData data)
         {
-            float value = extra.FrontRimColliderSize;
-            float defValue = extra.DefaultFrontRimColliderSize;
+            float value = data.FrontRimColliderSize;
+            float defValue = data.DefaultFrontRimColliderSize;
 
-            for (int i = 0; i < VStancerExtra.FrontWheelsCount; i++)
+            for (int i = 0; i < WheelModData.FrontWheelsCount; i++)
                 SetVehicleWheelRimColliderSize(vehicle, i, value);
 
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontRimColliderSizeID, defValue, value);
             VStancerUtilities.UpdateFloatDecorator(vehicle, FrontRimColliderSizeID, value, defValue);
         }
 
-        private void SetRearTireColliderWidthUsingExtra(int vehicle, WheelExtra extra)
+        private void SetRearTireColliderWidthUsingData(int vehicle, WheelModData data)
         {
-            float value = extra.RearTireColliderWidth;
-            float defValue = extra.DefaultRearTireColliderWidth;
+            float value = data.RearTireColliderWidth;
+            float defValue = data.DefaultRearTireColliderWidth;
 
-            for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+            for (int i = WheelModData.FrontWheelsCount; i < WheelModData.WheelsCount; i++)
                 SetVehicleWheelTireColliderWidth(vehicle, i, value);
 
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTireColliderWidthID, defValue, value);
             VStancerUtilities.UpdateFloatDecorator(vehicle, RearTireColliderWidthID, value, defValue);
         }
 
-        private void SetRearTireColliderSizeUsingExtra(int vehicle, WheelExtra extra)
+        private void SetRearTireColliderSizeUsingData(int vehicle, WheelModData data)
         {
-            float value = extra.RearTireColliderSize;
-            float defValue = extra.DefaultRearTireColliderSize;
+            float value = data.RearTireColliderSize;
+            float defValue = data.DefaultRearTireColliderSize;
 
-            for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+            for (int i = WheelModData.FrontWheelsCount; i < WheelModData.WheelsCount; i++)
                 SetVehicleWheelTireColliderSize(vehicle, i, value);
 
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTireColliderSizeID, defValue, value);
             VStancerUtilities.UpdateFloatDecorator(vehicle, RearTireColliderSizeID, value, defValue);
         }
 
-        private void SetRearRimColliderSizeUsingExtra(int vehicle, WheelExtra extra)
+        private void SetRearRimColliderSizeUsingData(int vehicle, WheelModData data)
         {
-            float value = extra.RearRimColliderSize;
-            float defValue = extra.DefaultRearRimColliderSize;
+            float value = data.RearRimColliderSize;
+            float defValue = data.DefaultRearRimColliderSize;
 
-            for (int i = VStancerExtra.FrontWheelsCount; i < VStancerExtra.WheelsCount; i++)
+            for (int i = WheelModData.FrontWheelsCount; i < WheelModData.WheelsCount; i++)
                 SetVehicleWheelRimColliderSize(vehicle, i, value);
 
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearRimColliderSizeID, defValue, value);
             VStancerUtilities.UpdateFloatDecorator(vehicle, RearRimColliderSizeID, value, defValue);
         }
 
-        private void OnExtraPropertyEdited(string propertyName, float value)
+        private void OnWheelModDataPropertyChanged(string propertyName, float value)
         {
-            bool result = false;
             switch (propertyName)
             {
-                case nameof(VStancerExtra.WheelWidth):
-                    SetWheelWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
+                case nameof(WheelModData.WheelWidth):
+                    SetWheelWidthUsingData(_playerVehicleHandle, WheelModData);
                     break;
 
-                case nameof(VStancerExtra.WheelSize):
-                    SetWheelSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
+                case nameof(WheelModData.WheelSize):
+                    SetWheelSizeUsingData(_playerVehicleHandle, WheelModData);
                     break;
 
-               case nameof(VStancerExtra.FrontTireColliderWidth):
-                    SetFrontTireColliderWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
+               case nameof(WheelModData.FrontTireColliderWidth):
+                    SetFrontTireColliderWidthUsingData(_playerVehicleHandle, WheelModData);
                     break;
-                case nameof(VStancerExtra.FrontTireColliderSize):
-                    SetFrontTireColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
+                case nameof(WheelModData.FrontTireColliderSize):
+                    SetFrontTireColliderSizeUsingData(_playerVehicleHandle, WheelModData);
                     break;
-                case nameof(VStancerExtra.FrontRimColliderSize):
-                    SetFrontRimColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
-                    break;
-
-                case nameof(VStancerExtra.RearTireColliderWidth):
-                    SetRearTireColliderWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
-                    break;
-                case nameof(VStancerExtra.RearTireColliderSize):
-                    SetRearTireColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
-                    break;
-                case nameof(VStancerExtra.RearRimColliderSize):
-                    SetRearRimColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
+                case nameof(WheelModData.FrontRimColliderSize):
+                    SetFrontRimColliderSizeUsingData(_playerVehicleHandle, WheelModData);
                     break;
 
-                case nameof(VStancerExtra.Reset):
+                case nameof(WheelModData.RearTireColliderWidth):
+                    SetRearTireColliderWidthUsingData(_playerVehicleHandle, WheelModData);
+                    break;
+                case nameof(WheelModData.RearTireColliderSize):
+                    SetRearTireColliderSizeUsingData(_playerVehicleHandle, WheelModData);
+                    break;
+                case nameof(WheelModData.RearRimColliderSize):
+                    SetRearRimColliderSizeUsingData(_playerVehicleHandle, WheelModData);
+                    break;
+
+                case nameof(WheelModData.Reset):
 
                     // TODO: Avoid updating decorators if we have to remove them anyway
-                    SetWheelWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
-                    SetWheelSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
-                    SetFrontTireColliderWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
-                    SetFrontTireColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
-                    SetFrontRimColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
-                    SetRearTireColliderWidthUsingExtra(_playerVehicleHandle, VStancerExtra);
-                    SetRearTireColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
-                    SetRearRimColliderSizeUsingExtra(_playerVehicleHandle, VStancerExtra);
+                    SetWheelWidthUsingData(_playerVehicleHandle, WheelModData);
+                    SetWheelSizeUsingData(_playerVehicleHandle, WheelModData);
+                    SetFrontTireColliderWidthUsingData(_playerVehicleHandle, WheelModData);
+                    SetFrontTireColliderSizeUsingData(_playerVehicleHandle, WheelModData);
+                    SetFrontRimColliderSizeUsingData(_playerVehicleHandle, WheelModData);
+                    SetRearTireColliderWidthUsingData(_playerVehicleHandle, WheelModData);
+                    SetRearTireColliderSizeUsingData(_playerVehicleHandle, WheelModData);
+                    SetRearRimColliderSizeUsingData(_playerVehicleHandle, WheelModData);
 
-                    RemoveExtraDecoratorsFromVehicle(_playerVehicleHandle);
+                    RemoveDecoratorsFromVehicle(_playerVehicleHandle);
 
-                    VStancerExtraChanged?.Invoke(this, EventArgs.Empty);
+                    WheelModDataChanged?.Invoke(this, EventArgs.Empty);
                     break;
 
                 default:
                     break;
             }
-
-            if (Config.Debug)
-                CitizenFX.Core.Debug.WriteLine($"Edited: {propertyName}, value: {value}, result: {result}");
         }
 
-        private void UpdateVehicleExtraUsingDecorators(int vehicle)
+        private void UpdateVehicleUsingDecorators(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontWheelsCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
@@ -464,7 +460,7 @@ namespace VStancer.Client.Scripts
             }
         }
 
-        private void RegisterExtraDecorators()
+        private void RegisterDecorators()
         {
             DecorRegister(WheelWidthID, 1);
             DecorRegister(DefaultWidthID, 1);
@@ -487,7 +483,7 @@ namespace VStancer.Client.Scripts
             DecorRegister(DefaultRearRimColliderSizeID, 1);
         }
 
-        private void RemoveExtraDecoratorsFromVehicle(int vehicle)
+        private void RemoveDecoratorsFromVehicle(int vehicle)
         {
             if (DecorExistOn(vehicle, WheelSizeID))
                 DecorRemove(vehicle, WheelSizeID);
@@ -540,49 +536,49 @@ namespace VStancer.Client.Scripts
 
         private void OnMenuCommandInvoked(string commandID)
         {
-            if (!ExtraIsValid)
+            if (!DataIsValid)
                 return;
 
             switch (commandID)
             {
                 case ExtraResetID:
-                    VStancerExtra.Reset();
+                    WheelModData.Reset();
                     break;
             }
         }
 
         private void OnMenuFloatPropertyChanged(string id, float value)
         {
-            if (!ExtraIsValid)
+            if (!DataIsValid)
                 return;
 
             switch (id)
             {
                 case WheelSizeID:
-                    VStancerExtra.WheelSize = value;
+                    WheelModData.WheelSize = value;
                     break;
                 case WheelWidthID:
-                    VStancerExtra.WheelWidth = value;
+                    WheelModData.WheelWidth = value;
                     break;
 
                 case FrontTireColliderWidthID:
-                    VStancerExtra.FrontTireColliderWidth = value;
+                    WheelModData.FrontTireColliderWidth = value;
                     break;
                 case FrontTireColliderSizeID:
-                    VStancerExtra.FrontTireColliderSize = value;
+                    WheelModData.FrontTireColliderSize = value;
                     break;
                 case FrontRimColliderSizeID:
-                    VStancerExtra.FrontRimColliderSize = value;
+                    WheelModData.FrontRimColliderSize = value;
                     break;
 
                 case RearTireColliderWidthID:
-                    VStancerExtra.RearTireColliderWidth = value;
+                    WheelModData.RearTireColliderWidth = value;
                     break;
                 case RearTireColliderSizeID:
-                    VStancerExtra.RearTireColliderSize = value;
+                    WheelModData.RearTireColliderSize = value;
                     break;
                 case RearRimColliderSizeID:
-                    VStancerExtra.RearRimColliderSize = value;
+                    WheelModData.RearRimColliderSize = value;
                     break;
             }
         }
@@ -613,7 +609,7 @@ namespace VStancer.Client.Scripts
         {
             IEnumerable<int> entities = vehiclesList.Where(entity => EntityHasDecorators(entity));
 
-            Debug.WriteLine($"{nameof(VStancerExtraScript)}: Vehicles with decorators: {entities.Count()}");
+            Debug.WriteLine($"{nameof(WheelModScript)}: Vehicles with decorators: {entities.Count()}");
 
             foreach (int item in entities)
                 Debug.WriteLine($"Vehicle: {item}");
@@ -623,14 +619,14 @@ namespace VStancer.Client.Scripts
         {
             if (!DoesEntityExist(vehicle))
             {
-                Debug.WriteLine($"{nameof(VStancerExtraScript)}: Can't find vehicle with handle {vehicle}");
+                Debug.WriteLine($"{nameof(WheelModScript)}: Can't find vehicle with handle {vehicle}");
                 return;
             }
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int netID = NetworkGetNetworkIdFromEntity(vehicle);
             StringBuilder s = new StringBuilder();
-            s.AppendLine($"{nameof(VStancerExtraScript)}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
+            s.AppendLine($"{nameof(WheelModScript)}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
 
             if (DecorExistOn(vehicle, WheelSizeID))
             {

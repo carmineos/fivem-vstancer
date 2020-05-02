@@ -11,13 +11,13 @@ namespace VStancer.Client.UI
     {
         private readonly MainScript _script;
 
-        private DataMenu DataMenu { get; set; }
-        private ExtraMenu ExtraMenu { get; set; }
+        private WheelMenu WheelMenu { get; set; }
+        private WheelModMenu WheelModMenu { get; set; }
         private PresetsMenu PresetsMenu { get; set; }
 
-        private MenuItem EditorMenuItem { get; set; }
-        private MenuItem ExtraMenuItem { get; set; }
-        private MenuItem PresetsMenuItem { get; set; }
+        private MenuItem WheelMenuMenuItem { get; set; }
+        private MenuItem WheelModMenuMenuItem { get; set; }
+        private MenuItem PresetsMenuMenuItem { get; set; }
 
 
         internal MainMenu(MainScript script, string name = Globals.ScriptName, string subtitle = "Main Menu") : base(name, subtitle)
@@ -40,13 +40,13 @@ namespace VStancer.Client.UI
             MenuController.DontOpenAnyMenu = true;
             MenuController.MainMenu = this;
 
-            if (_script.VStancerDataScript != null)
-                DataMenu = _script.VStancerDataScript.Menu;
+            if (_script.WheelScript != null)
+                WheelMenu = _script.WheelScript.Menu;
 
-            if (_script.VStancerExtraScript != null)
+            if (_script.WheelModScript != null)
             {
-                _script.VStancerExtraScript.VStancerExtraChanged += (sender, args) => UpdateExtraMenuItem();
-                ExtraMenu = _script.VStancerExtraScript.Menu;
+                _script.WheelModScript.WheelModDataChanged += (sender, args) => UpdateExtraMenuItem();
+                WheelModMenu = _script.WheelModScript.Menu;
             }
 
             if (_script.LocalPresetScript != null)
@@ -62,44 +62,44 @@ namespace VStancer.Client.UI
             MenuController.Menus.Clear();
             MenuController.AddMenu(this);
 
-            if (DataMenu != null)
+            if (WheelMenu != null)
             {
-                EditorMenuItem = new MenuItem("Editor Menu", "The menu to edit main properties.")
+                WheelMenuMenuItem = new MenuItem("Wheel Menu", "The menu to edit main properties.")
                 {
                     Label = "→→→"
                 };
 
-                AddMenuItem(EditorMenuItem);
+                AddMenuItem(WheelMenuMenuItem);
 
-                MenuController.AddSubmenu(this, DataMenu);
-                MenuController.BindMenuItem(this, DataMenu, EditorMenuItem);
+                MenuController.AddSubmenu(this, WheelMenu);
+                MenuController.BindMenuItem(this, WheelMenu, WheelMenuMenuItem);
             }
 
-            if (ExtraMenu != null)
+            if (WheelModMenu != null)
             {
-                ExtraMenuItem = new MenuItem("Extra Menu")
+                WheelModMenuMenuItem = new MenuItem("Wheel Mod Menu")
                 {
                     Label = "→→→"
                 };
                 UpdateExtraMenuItem();
 
-                AddMenuItem(ExtraMenuItem);
+                AddMenuItem(WheelModMenuMenuItem);
 
-                MenuController.AddSubmenu(this, ExtraMenu);
-                MenuController.BindMenuItem(this, ExtraMenu, ExtraMenuItem);
+                MenuController.AddSubmenu(this, WheelModMenu);
+                MenuController.BindMenuItem(this, WheelModMenu, WheelModMenuMenuItem);
             }
 
             if (PresetsMenu != null)
             {
-                PresetsMenuItem = new MenuItem("Personal Presets", "The menu to manage the presets saved by you.")
+                PresetsMenuMenuItem = new MenuItem("Personal Presets", "The menu to manage the presets saved by you.")
                 {
                     Label = "→→→"
                 };
 
-                AddMenuItem(PresetsMenuItem);
+                AddMenuItem(PresetsMenuMenuItem);
 
                 MenuController.AddSubmenu(this, PresetsMenu);
-                MenuController.BindMenuItem(this, PresetsMenu, PresetsMenuItem);
+                MenuController.BindMenuItem(this, PresetsMenu, PresetsMenuMenuItem);
             }
         }
 
@@ -114,18 +114,18 @@ namespace VStancer.Client.UI
 
         private void UpdateExtraMenuItem()
         {
-            if (ExtraMenuItem == null)
+            if (WheelModMenuMenuItem == null)
                 return;
 
             var enabled = false;
 
-            if (_script.VStancerExtraScript != null)
-                enabled = _script.VStancerExtraScript.ExtraIsValid;
+            if (_script.WheelModScript != null)
+                enabled = _script.WheelModScript.DataIsValid;
 
-            ExtraMenuItem.Enabled = enabled;
-            ExtraMenuItem.RightIcon = enabled ? MenuItem.Icon.NONE : MenuItem.Icon.LOCK;
-            ExtraMenuItem.Label = enabled ? "→→→" : string.Empty;
-            ExtraMenuItem.Description = enabled ? "The menu to edit extra properties." : "Install a wheel mod to access to this menu";
+            WheelModMenuMenuItem.Enabled = enabled;
+            WheelModMenuMenuItem.RightIcon = enabled ? MenuItem.Icon.NONE : MenuItem.Icon.LOCK;
+            WheelModMenuMenuItem.Label = enabled ? "→→→" : string.Empty;
+            WheelModMenuMenuItem.Description = enabled ? "The menu to edit extra properties." : "Install a wheel mod to access to this menu";
         }
     }
 }

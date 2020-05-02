@@ -5,15 +5,15 @@ using static VStancer.Client.UI.MenuUtilities;
 
 namespace VStancer.Client.UI
 {
-    internal class ExtraMenu : Menu
+    internal class WheelModMenu : Menu
     {
-        private readonly VStancerExtraScript _script;
+        private readonly WheelModScript _script;
 
-        internal ExtraMenu(VStancerExtraScript script, string name = Globals.ScriptName, string subtitle = "Wheel Mod Menu") : base(name, subtitle)
+        internal WheelModMenu(WheelModScript script, string name = Globals.ScriptName, string subtitle = "Wheel Mod Menu") : base(name, subtitle)
         {
             _script = script;
 
-            _script.VStancerExtraChanged += new EventHandler((sender, args) =>
+            _script.WheelModDataChanged += new EventHandler((sender, args) =>
             {
                 Update();
             });
@@ -58,66 +58,66 @@ namespace VStancer.Client.UI
         {
             ClearMenuItems();
 
-            if (!_script.ExtraIsValid)
+            if (!_script.DataIsValid)
                 return;
 
             WheelSizeListItem = CreateDynamicFloatList("Wheel Size",
-                _script.VStancerExtra.DefaultWheelSize,
-                _script.VStancerExtra.WheelSize,
+                _script.WheelModData.DefaultWheelSize,
+                _script.WheelModData.WheelSize,
                 _script.Config.Extra.WheelSize,
-                VStancerExtraScript.WheelSizeID,
+                WheelModScript.WheelSizeID,
                 _script.Config.FloatStep);
 
             WheelWidthListItem = CreateDynamicFloatList("Wheel Width",
-                _script.VStancerExtra.DefaultWheelWidth,
-                _script.VStancerExtra.WheelWidth,
+                _script.WheelModData.DefaultWheelWidth,
+                _script.WheelModData.WheelWidth,
                 _script.Config.Extra.WheelWidth,
-                VStancerExtraScript.WheelWidthID,
+                WheelModScript.WheelWidthID,
                 _script.Config.FloatStep);
 
             FrontTireColliderWidthListItem = CreateDynamicFloatList("Front Tire Collider Width",
-                _script.VStancerExtra.DefaultFrontTireColliderWidth,
-                _script.VStancerExtra.FrontTireColliderWidth,
+                _script.WheelModData.DefaultFrontTireColliderWidth,
+                _script.WheelModData.FrontTireColliderWidth,
                 _script.Config.Extra.FrontWheelModSizeNodeLimit.TireColliderScaleX,
-                VStancerExtraScript.FrontTireColliderWidthID,
+                WheelModScript.FrontTireColliderWidthID,
                 _script.Config.FloatStep);
 
             FrontTireColliderSizeListItem = CreateDynamicFloatList("Front Tire Collider Size",
-                _script.VStancerExtra.DefaultFrontTireColliderSize,
-                _script.VStancerExtra.FrontTireColliderSize,
+                _script.WheelModData.DefaultFrontTireColliderSize,
+                _script.WheelModData.FrontTireColliderSize,
                 _script.Config.Extra.FrontWheelModSizeNodeLimit.TireColliderScaleYZ,
-                VStancerExtraScript.FrontTireColliderSizeID,
+                WheelModScript.FrontTireColliderSizeID,
                 _script.Config.FloatStep);
 
             FrontRimColliderSizeListItem = CreateDynamicFloatList("Front Rim Collider Size",
-                _script.VStancerExtra.DefaultFrontRimColliderSize,
-                _script.VStancerExtra.FrontRimColliderSize,
+                _script.WheelModData.DefaultFrontRimColliderSize,
+                _script.WheelModData.FrontRimColliderSize,
                 _script.Config.Extra.FrontWheelModSizeNodeLimit.RimColliderScaleYZ,
-                VStancerExtraScript.FrontRimColliderSizeID,
+                WheelModScript.FrontRimColliderSizeID,
                 _script.Config.FloatStep);
 
             RearTireColliderWidthListItem = CreateDynamicFloatList("Rear Tire Collider Width",
-                _script.VStancerExtra.DefaultRearTireColliderWidth,
-                _script.VStancerExtra.RearTireColliderWidth,
+                _script.WheelModData.DefaultRearTireColliderWidth,
+                _script.WheelModData.RearTireColliderWidth,
                 _script.Config.Extra.RearWheelModSizeNodeLimit.TireColliderScaleX,
-                VStancerExtraScript.RearTireColliderWidthID,
+                WheelModScript.RearTireColliderWidthID,
                 _script.Config.FloatStep);
 
             RearTireColliderSizeListItem = CreateDynamicFloatList("Rear Tire Collider Size",
-                _script.VStancerExtra.DefaultRearTireColliderSize,
-                _script.VStancerExtra.RearTireColliderSize,
+                _script.WheelModData.DefaultRearTireColliderSize,
+                _script.WheelModData.RearTireColliderSize,
                 _script.Config.Extra.RearWheelModSizeNodeLimit.TireColliderScaleYZ,
-                VStancerExtraScript.RearTireColliderSizeID,
+                WheelModScript.RearTireColliderSizeID,
                 _script.Config.FloatStep);
 
             RearRimColliderSizeListItem = CreateDynamicFloatList("Rear Rim Collider Size",
-                _script.VStancerExtra.DefaultRearRimColliderSize,
-                _script.VStancerExtra.RearRimColliderSize,
+                _script.WheelModData.DefaultRearRimColliderSize,
+                _script.WheelModData.RearRimColliderSize,
                 _script.Config.Extra.RearWheelModSizeNodeLimit.RimColliderScaleYZ,
-                VStancerExtraScript.RearRimColliderSizeID,
+                WheelModScript.RearRimColliderSizeID,
                 _script.Config.FloatStep);
 
-            ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = VStancerExtraScript.ExtraResetID };
+            ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = WheelModScript.ExtraResetID };
 
             AddMenuItem(WheelSizeListItem);
             AddMenuItem(WheelWidthListItem);
