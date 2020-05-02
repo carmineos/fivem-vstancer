@@ -108,7 +108,7 @@ namespace VStancer.Client.Data
             set
             {
                 for (int index = 0; index < FrontWheelsCount; index++)
-                    Nodes[index].TireColliderScaleX = (index % 2 == 0) ? value : -value;
+                    Nodes[index].TireColliderScaleX = value;
 
                 PropertyChanged?.Invoke(nameof(FrontTireColliderWidth), value);
             }
@@ -121,7 +121,7 @@ namespace VStancer.Client.Data
             set
             {
                 for (int index = 0; index < FrontWheelsCount; index++)
-                    Nodes[index].TireColliderScaleYZ = (index % 2 == 0) ? value : -value;
+                    Nodes[index].TireColliderScaleYZ = value;
 
                 PropertyChanged?.Invoke(nameof(FrontTireColliderSize), value);
             }
@@ -134,7 +134,7 @@ namespace VStancer.Client.Data
             set
             {
                 for (int index = 0; index < FrontWheelsCount; index++)
-                    Nodes[index].RimColliderScaleYZ = (index % 2 == 0) ? value : -value;
+                    Nodes[index].RimColliderScaleYZ = value;
 
                 PropertyChanged?.Invoke(nameof(FrontRimColliderSize), value);
             }
@@ -147,7 +147,7 @@ namespace VStancer.Client.Data
             set
             {
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                    Nodes[index].TireColliderScaleX = (index % 2 == 0) ? value : -value;
+                    Nodes[index].TireColliderScaleX = value;
 
                 PropertyChanged?.Invoke(nameof(RearTireColliderWidth), value);
             }
@@ -160,7 +160,7 @@ namespace VStancer.Client.Data
             set
             {
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                    Nodes[index].TireColliderScaleYZ = (index % 2 == 0) ? value : -value;
+                    Nodes[index].TireColliderScaleYZ = value;
 
                 PropertyChanged?.Invoke(nameof(RearTireColliderSize), value);
             }
@@ -172,7 +172,7 @@ namespace VStancer.Client.Data
             set
             {
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                    Nodes[index].RimColliderScaleYZ = (index % 2 == 0) ? value : -value;
+                    Nodes[index].RimColliderScaleYZ = value;
 
                 PropertyChanged?.Invoke(nameof(RearRimColliderSize), value);
             }

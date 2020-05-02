@@ -9,7 +9,7 @@ namespace VStancer.Client.UI
     {
         private readonly VStancerExtraScript _script;
 
-        internal ExtraMenu(VStancerExtraScript script, string name = Globals.ScriptName, string subtitle = "Extra Menu") : base(name, subtitle)
+        internal ExtraMenu(VStancerExtraScript script, string name = Globals.ScriptName, string subtitle = "Wheel Mod Menu") : base(name, subtitle)
         {
             _script = script;
 

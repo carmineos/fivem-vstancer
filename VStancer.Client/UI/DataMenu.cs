@@ -9,7 +9,7 @@ namespace VStancer.Client.UI
     {
         private readonly VStancerDataScript _script;
 
-        internal DataMenu(VStancerDataScript script, string name = Globals.ScriptName, string subtitle = "Editor Menu") : base(name, subtitle)
+        internal DataMenu(VStancerDataScript script, string name = Globals.ScriptName, string subtitle = "Wheel Menu") : base(name, subtitle)
         {
             _script = script;
 
