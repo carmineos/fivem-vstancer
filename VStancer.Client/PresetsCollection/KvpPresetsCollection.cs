@@ -11,7 +11,7 @@ namespace VStancer.Client
     /// <summary>
     /// The vstancer preset manager which saves the presets as key-value pairs built-in FiveM
     /// </summary>
-    public class KvpPresetsCollection : IPresetsCollection<string, VStancerData>
+    public class KvpPresetsCollection : IPresetsCollection<string, WheelData>
     {
         private string mKvpPrefix;
 
@@ -44,7 +44,7 @@ namespace VStancer.Client
             return true;
         }
 
-        public bool Save(string name, VStancerData preset)
+        public bool Save(string name, WheelData preset)
         {
             // Check if the preset and the ID are valid
             if (string.IsNullOrEmpty(name) || preset == null)
@@ -69,7 +69,7 @@ namespace VStancer.Client
             return true;
         }
 
-        public VStancerData Load(string name)
+        public WheelData Load(string name)
         {
             // Check if the preset ID is valid
             if (string.IsNullOrEmpty(name))
@@ -86,7 +86,7 @@ namespace VStancer.Client
                 return null;
 
             // Create a preset
-            VStancerData preset = JsonConvert.DeserializeObject<VStancerData>(value);
+            WheelData preset = JsonConvert.DeserializeObject<WheelData>(value);
 
             return preset;
         }

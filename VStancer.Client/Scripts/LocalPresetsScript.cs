@@ -11,7 +11,7 @@ namespace VStancer.Client.Scripts
     {
         private readonly MainScript _mainScript;
 
-        internal IPresetsCollection<string, VStancerData> Presets { get; private set; }
+        internal IPresetsCollection<string, WheelData> Presets { get; private set; }
         internal PresetsMenu Menu { get; private set; }
 
         public LocalPresetsScript(MainScript mainScript)

@@ -5,7 +5,7 @@ using CitizenFX.Core;
 
 namespace VStancer.Client.Data
 {
-    public class VStancerData : IEquatable<VStancerData>
+    public class WheelData : IEquatable<WheelData>
     {
         private const float Epsilon = VStancerUtilities.Epsilon;
 
@@ -15,8 +15,8 @@ namespace VStancer.Client.Data
         public int FrontWheelsCount { get; private set; }
 
 
-        public VStancerDataNode[] Nodes { get; set; }
-        public VStancerDataNode[] DefaultNodes { get; private set; }
+        public DataNode[] Nodes { get; set; }
+        public DataNode[] DefaultNodes { get; private set; }
 
         public float FrontTrackWidth
         {
@@ -85,11 +85,11 @@ namespace VStancer.Client.Data
             }
         }
 
-        public VStancerData(int count, float defaultFrontOffset, float defaultFrontRotation, float defaultRearOffset, float defaultRearRotation)
+        public WheelData(int count, float defaultFrontOffset, float defaultFrontRotation, float defaultRearOffset, float defaultRearRotation)
         {
             WheelsCount = count;
 
-            DefaultNodes = new VStancerDataNode[WheelsCount];
+            DefaultNodes = new DataNode[WheelsCount];
 
             FrontWheelsCount = VStancerUtilities.CalculateFrontWheelsCount(WheelsCount);
 
@@ -121,7 +121,7 @@ namespace VStancer.Client.Data
                 }
             }
 
-            Nodes = new VStancerDataNode[WheelsCount];
+            Nodes = new DataNode[WheelsCount];
             for (int i = 0; i < WheelsCount; i++)
             {
                 Nodes[i] = DefaultNodes[i];
@@ -136,7 +136,7 @@ namespace VStancer.Client.Data
             PropertyChanged?.Invoke(this, nameof(Reset));
         }
 
-        public bool Equals(VStancerData other)
+        public bool Equals(WheelData other)
         {
             if (WheelsCount != other.WheelsCount)
                 return false;
@@ -197,7 +197,7 @@ namespace VStancer.Client.Data
             };
         }
 
-        public void CopyFrom(VStancerData other)
+        public void CopyFrom(WheelData other)
         {
             if (other == null)
                 return;
@@ -209,7 +209,7 @@ namespace VStancer.Client.Data
         }
     }
 
-    public struct VStancerDataNode
+    public struct DataNode
     {
         /// <summary>
         /// The track width of the wheel

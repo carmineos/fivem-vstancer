@@ -33,8 +33,8 @@ namespace VStancer.Client.Scripts
             }
         }
 
-        private VStancerExtra _vstancerExtra;
-        internal VStancerExtra VStancerExtra 
+        private WheelExtra _vstancerExtra;
+        internal WheelExtra VStancerExtra 
         { 
             get => _vstancerExtra; 
             set
@@ -187,7 +187,7 @@ namespace VStancer.Client.Scripts
             await Task.FromResult(0);
         }
 
-        private void UpdateVehicleUsingVStancerExtra(int vehicle, VStancerExtra extra)
+        private void UpdateVehicleUsingVStancerExtra(int vehicle, WheelExtra extra)
         {
             if (!DoesEntityExist(vehicle) || extra == null)
                 return;
@@ -197,6 +197,8 @@ namespace VStancer.Client.Scripts
 
             if (!MathUtil.WithinEpsilon(GetVehicleWheelSize(vehicle), extra.WheelSize, VStancerUtilities.Epsilon))
                 SetVehicleWheelSize(vehicle, extra.WheelSize);
+
+            // TODO: Also refresh colliders
         }
 
         private void UpdateWorldVehiclesWithExtraDecorators()
@@ -210,7 +212,7 @@ namespace VStancer.Client.Scripts
             }
         }
 
-        private VStancerExtra GetVStancerExtraFromHandle(int vehicle)
+        private WheelExtra GetVStancerExtraFromHandle(int vehicle)
         {
             if (!DoesEntityExist(vehicle))
                 return null;
@@ -232,7 +234,7 @@ namespace VStancer.Client.Scripts
             float rearRimColliderSize_def = DecorExistOn(vehicle, DefaultRearRimColliderSizeID) ? DecorGetFloat(vehicle, DefaultRearRimColliderSizeID) : GetVehicleWheelRimColliderSize(vehicle, frontCount);
 
             // Create the preset with the default values
-            return new VStancerExtra(wheelsCount, wheelWidth_def, wheelSize_def,
+            return new WheelExtra(wheelsCount, wheelWidth_def, wheelSize_def,
                 frontTireColliderWidth_def, frontTireColliderSize_def, frontRimColliderSize_def,
                 rearTireColliderWidth_def, rearTireColliderSize_def, rearRimColliderSize_def)
             {

@@ -19,7 +19,7 @@ namespace VStancer.Client.Scripts
         private long _lastTime;
         private int _playerVehicleHandle;
 
-        internal VStancerData VStancerData { get; set; }
+        internal WheelData VStancerData { get; set; }
         internal VStancerConfig Config => _mainScript.Config;
         internal DataMenu Menu { get; private set; }
 
@@ -60,7 +60,7 @@ namespace VStancer.Client.Scripts
             PlayerVehicleChanged(_mainScript.PlayerVehicleHandle);
         }
 
-        internal async Task LoadPreset(VStancerData data)
+        internal async Task LoadPreset(WheelData data)
         {
             VStancerData.CopyFrom(data);
 
@@ -162,7 +162,7 @@ namespace VStancer.Client.Scripts
             UpdateVehicleUsingVStancerData(_playerVehicleHandle, VStancerData);
         }
 
-        private VStancerData GetVStancerDataFromEntity(int vehicle)
+        private WheelData GetVStancerDataFromEntity(int vehicle)
         {
             if (!DoesEntityExist(vehicle))
                 return null;
@@ -183,7 +183,7 @@ namespace VStancer.Client.Scripts
             float rearTrackWdith = DecorExistOn(vehicle, RearTrackWidthID) ? DecorGetFloat(vehicle, RearTrackWidthID) : rearTrackWidth_def;
             float rearCamber = DecorExistOn(vehicle, RearCamberID) ? DecorGetFloat(vehicle, RearCamberID) : rearCamber_def;
 
-            return new VStancerData(wheelsCount, frontTrackWidth_def, frontCamber_def, rearTrackWidth_def, rearCamber_def)
+            return new WheelData(wheelsCount, frontTrackWidth_def, frontCamber_def, rearTrackWidth_def, rearCamber_def)
             {
                 FrontTrackWidth = frontTrackWidth,
                 FrontCamber = frontCamber,
@@ -250,7 +250,7 @@ namespace VStancer.Client.Scripts
             }
         }
 
-        private void UpdateVehicleUsingVStancerData(int vehicle, VStancerData data)
+        private void UpdateVehicleUsingVStancerData(int vehicle, WheelData data)
         {
             if (!DoesEntityExist(vehicle) || data == null)
                 return;
@@ -263,7 +263,7 @@ namespace VStancer.Client.Scripts
             }
         }
 
-        private void UpdateVehicleDecorators(int vehicle, VStancerData data)
+        private void UpdateVehicleDecorators(int vehicle, WheelData data)
         {
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, data.DefaultFrontTrackWidth, data.FrontTrackWidth);
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, data.DefaultFrontCamber, data.FrontCamber);
@@ -353,7 +353,7 @@ namespace VStancer.Client.Scripts
 
             if (vehicle == _playerVehicleHandle)
             {
-                VStancerData = new VStancerData(wheelsCount, off_f_def, rot_f_def, off_r_def, rot_r_def)
+                VStancerData = new WheelData(wheelsCount, off_f_def, rot_f_def, off_r_def, rot_r_def)
                 {
                     FrontTrackWidth = frontOffset,
                     FrontCamber = frontRotation,
@@ -380,7 +380,7 @@ namespace VStancer.Client.Scripts
 
         public float[] GetVstancerPreset(int vehicle)
         {
-            VStancerData preset = (vehicle == _playerVehicleHandle && DataIsValid) ? VStancerData : GetVStancerDataFromEntity(vehicle);
+            WheelData preset = (vehicle == _playerVehicleHandle && DataIsValid) ? VStancerData : GetVStancerDataFromEntity(vehicle);
             return preset?.ToArray();
         }
 
