@@ -476,6 +476,9 @@ namespace VStancer.Client.Scripts
             if (!DataIsValid)
                 return null;
 
+            if (!WheelData.IsEdited)
+                return null;
+
             return new WheelPreset()
             {
                 FrontCamber = WheelData.FrontCamber,

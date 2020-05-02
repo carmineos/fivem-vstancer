@@ -733,6 +733,9 @@ namespace VStancer.Client.Scripts
             if (!DataIsValid)
                 return null;
 
+            if (!WheelModData.IsEdited)
+                return null;
+
             return new WheelModPreset()
             {
                 WheelSize = WheelModData.WheelSize,
