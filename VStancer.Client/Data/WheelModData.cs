@@ -46,6 +46,13 @@ namespace VStancer.Client.Data
         public float DefaultWheelSize { get; private set; }
         public float DefaultWheelWidth { get; private set; }
 
+        public float DefaultFrontTireColliderWidthRatio { get; private set; }
+        public float DefaultFrontTireColliderSizeRatio { get; private set; }
+        public float DefaultFrontRimColliderSizeRatio { get; private set; }
+        public float DefaultRearTireColliderWidthRatio { get; private set; }
+        public float DefaultRearTireColliderSizeRatio { get; private set; }
+        public float DefaultRearRimColliderSizeRatio { get; private set; }
+
         public WheelModNode[] Nodes { get; set; }
         public WheelModNode[] DefaultNodes { get; private set; }
 
@@ -95,6 +102,14 @@ namespace VStancer.Client.Data
                     DefaultNodes[i].RimColliderSize = -rearRimColliderScaleYZ;
                 }
             }
+
+            DefaultFrontTireColliderWidthRatio = DefaultWheelWidth / DefaultFrontTireColliderWidth;
+            DefaultFrontTireColliderSizeRatio = DefaultWheelSize / DefaultFrontTireColliderSize;
+            DefaultFrontRimColliderSizeRatio = DefaultWheelSize / DefaultFrontRimColliderSize;
+
+            DefaultRearTireColliderWidthRatio = DefaultWheelWidth / DefaultRearTireColliderWidth;
+            DefaultRearTireColliderSizeRatio = DefaultWheelSize / DefaultRearTireColliderSize;
+            DefaultRearRimColliderSizeRatio = DefaultWheelSize / DefaultRearRimColliderSize;
 
             Nodes = new WheelModNode[WheelsCount];
             for (int i = 0; i < WheelsCount; i++)

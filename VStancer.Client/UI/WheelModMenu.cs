@@ -75,6 +75,7 @@ namespace VStancer.Client.UI
                 WheelModScript.WheelWidthID,
                 _script.Config.FloatStep);
 
+            /*
             FrontTireColliderWidthListItem = CreateDynamicFloatList("Front Tire Collider Width",
                 _script.WheelModData.DefaultFrontTireColliderWidth,
                 _script.WheelModData.FrontTireColliderWidth,
@@ -95,7 +96,7 @@ namespace VStancer.Client.UI
                 _script.Config.Extra.FrontWheelModSizeNodeLimit.RimColliderScaleYZ,
                 WheelModScript.FrontRimColliderSizeID,
                 _script.Config.FloatStep);
-
+            
             RearTireColliderWidthListItem = CreateDynamicFloatList("Rear Tire Collider Width",
                 _script.WheelModData.DefaultRearTireColliderWidth,
                 _script.WheelModData.RearTireColliderWidth,
@@ -116,17 +117,17 @@ namespace VStancer.Client.UI
                 _script.Config.Extra.RearWheelModSizeNodeLimit.RimColliderScaleYZ,
                 WheelModScript.RearRimColliderSizeID,
                 _script.Config.FloatStep);
-
+            */
             ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = WheelModScript.ExtraResetID };
 
             AddMenuItem(WheelSizeListItem);
             AddMenuItem(WheelWidthListItem);
-            AddMenuItem(FrontTireColliderWidthListItem);
-            AddMenuItem(FrontTireColliderSizeListItem);
-            AddMenuItem(FrontRimColliderSizeListItem);
-            AddMenuItem(RearTireColliderWidthListItem);
-            AddMenuItem(RearTireColliderSizeListItem);
-            AddMenuItem(RearRimColliderSizeListItem);
+           //AddMenuItem(FrontTireColliderWidthListItem);
+           //AddMenuItem(FrontTireColliderSizeListItem);
+           //AddMenuItem(FrontRimColliderSizeListItem);
+           //AddMenuItem(RearTireColliderWidthListItem);
+           //AddMenuItem(RearTireColliderSizeListItem);
+           //AddMenuItem(RearRimColliderSizeListItem);
             AddMenuItem(ResetItem);
         }
     }
