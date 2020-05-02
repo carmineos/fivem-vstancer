@@ -780,12 +780,20 @@ namespace VStancer.Client.Scripts
 
             WheelModData.WheelSize = preset.WheelSize;
             WheelModData.WheelWidth = preset.WheelWidth;
-            WheelModData.FrontTireColliderWidth = preset.FrontTireColliderWidth;
-            WheelModData.FrontTireColliderSize = preset.FrontTireColliderSize;
-            WheelModData.FrontRimColliderSize = preset.FrontRimColliderSize;
-            WheelModData.RearTireColliderWidth = preset.RearTireColliderWidth;
-            WheelModData.RearTireColliderSize = preset.RearTireColliderSize;
-            WheelModData.RearRimColliderSize = preset.RearRimColliderSize;
+
+            WheelModData.FrontTireColliderWidth = preset.WheelWidth / WheelModData.DefaultFrontTireColliderWidthRatio;
+            WheelModData.FrontTireColliderSize = preset.WheelSize / WheelModData.DefaultFrontTireColliderSizeRatio;
+            WheelModData.FrontRimColliderSize = preset.WheelSize / WheelModData.DefaultFrontRimColliderSizeRatio;
+            WheelModData.RearTireColliderWidth = preset.WheelWidth / WheelModData.DefaultRearTireColliderWidthRatio;
+            WheelModData.RearTireColliderSize = preset.WheelSize / WheelModData.DefaultRearTireColliderSizeRatio;
+            WheelModData.RearRimColliderSize = preset.WheelSize / WheelModData.DefaultRearRimColliderSizeRatio;
+
+            //WheelModData.FrontTireColliderWidth = preset.FrontTireColliderWidth;
+            //WheelModData.FrontTireColliderSize = preset.FrontTireColliderSize;
+            //WheelModData.FrontRimColliderSize = preset.FrontRimColliderSize;
+            //WheelModData.RearTireColliderWidth = preset.RearTireColliderWidth;
+            //WheelModData.RearTireColliderSize = preset.RearTireColliderSize;
+            //WheelModData.RearRimColliderSize = preset.RearRimColliderSize;
 
             Debug.WriteLine($"{nameof(WheelModScript)}: wheel mod preset applied");
             await Delay(200);
