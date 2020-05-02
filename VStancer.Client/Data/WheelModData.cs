@@ -68,15 +68,15 @@ namespace VStancer.Client.Data
             {
                 if (i % 2 == 0)
                 {
-                    DefaultNodes[i].TireColliderScaleX = frontTireColliderScaleX;
-                    DefaultNodes[i].TireColliderScaleYZ = frontTireColliderScaleYZ;
-                    DefaultNodes[i].RimColliderScaleYZ = frontRimColliderScaleYZ;
+                    DefaultNodes[i].TireColliderWidth = frontTireColliderScaleX;
+                    DefaultNodes[i].TireColliderSize = frontTireColliderScaleYZ;
+                    DefaultNodes[i].RimColliderSize = frontRimColliderScaleYZ;
                 }
                 else
                 {
-                    DefaultNodes[i].TireColliderScaleX = -frontTireColliderScaleX;
-                    DefaultNodes[i].TireColliderScaleYZ = -frontTireColliderScaleYZ;
-                    DefaultNodes[i].RimColliderScaleYZ = -frontRimColliderScaleYZ;
+                    DefaultNodes[i].TireColliderWidth = -frontTireColliderScaleX;
+                    DefaultNodes[i].TireColliderSize = -frontTireColliderScaleYZ;
+                    DefaultNodes[i].RimColliderSize = -frontRimColliderScaleYZ;
                 }
             }
 
@@ -84,15 +84,15 @@ namespace VStancer.Client.Data
             {
                 if (i % 2 == 0)
                 {
-                    DefaultNodes[i].TireColliderScaleX = rearTireColliderScaleX;
-                    DefaultNodes[i].TireColliderScaleYZ = rearTireColliderScaleYZ;
-                    DefaultNodes[i].RimColliderScaleYZ = rearRimColliderScaleYZ;
+                    DefaultNodes[i].TireColliderWidth = rearTireColliderScaleX;
+                    DefaultNodes[i].TireColliderSize = rearTireColliderScaleYZ;
+                    DefaultNodes[i].RimColliderSize = rearRimColliderScaleYZ;
                 }
                 else
                 {
-                    DefaultNodes[i].TireColliderScaleX = -rearTireColliderScaleX;
-                    DefaultNodes[i].TireColliderScaleYZ = -rearTireColliderScaleYZ;
-                    DefaultNodes[i].RimColliderScaleYZ = -rearRimColliderScaleYZ;
+                    DefaultNodes[i].TireColliderWidth = -rearTireColliderScaleX;
+                    DefaultNodes[i].TireColliderSize = -rearTireColliderScaleYZ;
+                    DefaultNodes[i].RimColliderSize = -rearRimColliderScaleYZ;
                 }
             }
 
@@ -104,11 +104,11 @@ namespace VStancer.Client.Data
         
         public float FrontTireColliderWidth
         {
-            get => Nodes[0].TireColliderScaleX;
+            get => Nodes[0].TireColliderWidth;
             set
             {
                 for (int index = 0; index < FrontWheelsCount; index++)
-                    Nodes[index].TireColliderScaleX = value;
+                    Nodes[index].TireColliderWidth = value;
 
                 PropertyChanged?.Invoke(nameof(FrontTireColliderWidth), value);
             }
@@ -117,11 +117,11 @@ namespace VStancer.Client.Data
         
         public float FrontTireColliderSize
         {
-            get => Nodes[0].TireColliderScaleYZ;
+            get => Nodes[0].TireColliderSize;
             set
             {
                 for (int index = 0; index < FrontWheelsCount; index++)
-                    Nodes[index].TireColliderScaleYZ = value;
+                    Nodes[index].TireColliderSize = value;
 
                 PropertyChanged?.Invoke(nameof(FrontTireColliderSize), value);
             }
@@ -130,11 +130,11 @@ namespace VStancer.Client.Data
         
         public float FrontRimColliderSize
         {
-            get => Nodes[0].RimColliderScaleYZ;
+            get => Nodes[0].RimColliderSize;
             set
             {
                 for (int index = 0; index < FrontWheelsCount; index++)
-                    Nodes[index].RimColliderScaleYZ = value;
+                    Nodes[index].RimColliderSize = value;
 
                 PropertyChanged?.Invoke(nameof(FrontRimColliderSize), value);
             }
@@ -143,11 +143,11 @@ namespace VStancer.Client.Data
         
         public float RearTireColliderWidth
         {
-            get => Nodes[FrontWheelsCount].TireColliderScaleX;
+            get => Nodes[FrontWheelsCount].TireColliderWidth;
             set
             {
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                    Nodes[index].TireColliderScaleX = value;
+                    Nodes[index].TireColliderWidth = value;
 
                 PropertyChanged?.Invoke(nameof(RearTireColliderWidth), value);
             }
@@ -156,11 +156,11 @@ namespace VStancer.Client.Data
         
         public float RearTireColliderSize
         {
-            get => Nodes[FrontWheelsCount].TireColliderScaleYZ;
+            get => Nodes[FrontWheelsCount].TireColliderSize;
             set
             {
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                    Nodes[index].TireColliderScaleYZ = value;
+                    Nodes[index].TireColliderSize = value;
 
                 PropertyChanged?.Invoke(nameof(RearTireColliderSize), value);
             }
@@ -168,23 +168,23 @@ namespace VStancer.Client.Data
 
         public float RearRimColliderSize
         {
-            get => Nodes[FrontWheelsCount].RimColliderScaleYZ;
+            get => Nodes[FrontWheelsCount].RimColliderSize;
             set
             {
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
-                    Nodes[index].RimColliderScaleYZ = value;
+                    Nodes[index].RimColliderSize = value;
 
                 PropertyChanged?.Invoke(nameof(RearRimColliderSize), value);
             }
         }
 
-        public float DefaultFrontTireColliderWidth => DefaultNodes[0].TireColliderScaleX;
-        public float DefaultFrontTireColliderSize => DefaultNodes[0].TireColliderScaleYZ;
-        public float DefaultFrontRimColliderSize => DefaultNodes[0].RimColliderScaleYZ;
+        public float DefaultFrontTireColliderWidth => DefaultNodes[0].TireColliderWidth;
+        public float DefaultFrontTireColliderSize => DefaultNodes[0].TireColliderSize;
+        public float DefaultFrontRimColliderSize => DefaultNodes[0].RimColliderSize;
 
-        public float DefaultRearTireColliderWidth => DefaultNodes[FrontWheelsCount].TireColliderScaleX;
-        public float DefaultRearTireColliderSize => DefaultNodes[FrontWheelsCount].TireColliderScaleYZ;
-        public float DefaultRearRimColliderSize => DefaultNodes[FrontWheelsCount].RimColliderScaleYZ;
+        public float DefaultRearTireColliderWidth => DefaultNodes[FrontWheelsCount].TireColliderWidth;
+        public float DefaultRearTireColliderSize => DefaultNodes[FrontWheelsCount].TireColliderSize;
+        public float DefaultRearRimColliderSize => DefaultNodes[FrontWheelsCount].RimColliderSize;
 
         public void Reset()
         {
@@ -207,9 +207,9 @@ namespace VStancer.Client.Data
 
                 for (int i = 0; i < WheelsCount; i++)
                 {
-                    if (!MathUtil.WithinEpsilon(DefaultNodes[i].TireColliderScaleX, Nodes[i].TireColliderScaleX, Epsilon) ||
-                        !MathUtil.WithinEpsilon(DefaultNodes[i].TireColliderScaleYZ, Nodes[i].TireColliderScaleYZ, Epsilon) ||
-                        !MathUtil.WithinEpsilon(DefaultNodes[i].RimColliderScaleYZ, Nodes[i].RimColliderScaleYZ, Epsilon))
+                    if (!MathUtil.WithinEpsilon(DefaultNodes[i].TireColliderWidth, Nodes[i].TireColliderWidth, Epsilon) ||
+                        !MathUtil.WithinEpsilon(DefaultNodes[i].TireColliderSize, Nodes[i].TireColliderSize, Epsilon) ||
+                        !MathUtil.WithinEpsilon(DefaultNodes[i].RimColliderSize, Nodes[i].RimColliderSize, Epsilon))
                         return true;
                 }
                 return false;
@@ -227,9 +227,9 @@ namespace VStancer.Client.Data
             {
                 var defNode = DefaultNodes[i];
                 var node = Nodes[i];
-                s.Append($"Wheel {i}: {nameof(WheelModNode.TireColliderScaleX)}: {node.TireColliderScaleX} ({defNode.TireColliderScaleX})");
-                s.Append($" {nameof(WheelModNode.TireColliderScaleYZ)}: {node.TireColliderScaleYZ} ({defNode.TireColliderScaleYZ})");
-                s.AppendLine($" {nameof(WheelModNode.RimColliderScaleYZ)}: {node.RimColliderScaleYZ} ({defNode.RimColliderScaleYZ})");
+                s.Append($"Wheel {i}: {nameof(WheelModNode.TireColliderWidth)}: {node.TireColliderWidth} ({defNode.TireColliderWidth})");
+                s.Append($" {nameof(WheelModNode.TireColliderSize)}: {node.TireColliderSize} ({defNode.TireColliderSize})");
+                s.AppendLine($" {nameof(WheelModNode.RimColliderSize)}: {node.RimColliderSize} ({defNode.RimColliderSize})");
             }
             return s.ToString();
         }
@@ -239,17 +239,20 @@ namespace VStancer.Client.Data
     {
         /// <summary>
         /// The collider wheel thread size
+        /// For vanilla wheel mod this is always 50% of visual width
         /// </summary>
-        public float TireColliderScaleX { get; set; }
+        public float TireColliderWidth { get; set; }
 
         /// <summary>
         /// The collider wheel radius
+        /// For vanilla wheel mod this is always 50% of visual size
         /// </summary>
-        public float TireColliderScaleYZ { get; set; }
+        public float TireColliderSize { get; set; }
 
         /// <summary>
         /// The collider wheel radius
+        /// Defined as rimRadius in carcols for wheels (CVehicleModelInfoVarGlobal)
         /// </summary>
-        public float RimColliderScaleYZ { get; set; }
+        public float RimColliderSize { get; set; }
     }
 }
