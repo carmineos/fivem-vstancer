@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using VStancer.Client.Data;
+using VStancer.Client.Preset;
 using VStancer.Client.UI;
 
 using CitizenFX.Core;
@@ -725,6 +726,45 @@ namespace VStancer.Client.Scripts
             }
 
             Debug.WriteLine(s.ToString());
+        }
+
+        internal WheelModPreset GetWheelModPreset()
+        {
+            if (!DataIsValid)
+                return null;
+
+            return new WheelModPreset()
+            {
+                WheelSize = WheelModData.WheelSize,
+                WheelWidth = WheelModData.WheelWidth,
+                FrontTireColliderWidth = WheelModData.FrontTireColliderWidth,
+                FrontTireColliderSize = WheelModData.FrontTireColliderSize,
+                FrontRimColliderSize = WheelModData.FrontRimColliderSize,
+                RearTireColliderWidth = WheelModData.RearTireColliderWidth,
+                RearTireColliderSize = WheelModData.RearTireColliderSize,
+                RearRimColliderSize = WheelModData.RearRimColliderSize,
+            };
+        }
+
+        internal async Task SetWheelModPreset(WheelModPreset preset)
+        {
+            if (!DataIsValid || preset == null)
+                return;
+
+            // TODO: Check if values are within limits
+
+            WheelModData.WheelSize = preset.WheelSize;
+            WheelModData.WheelWidth = preset.WheelWidth;
+            WheelModData.FrontTireColliderWidth = preset.FrontTireColliderWidth;
+            WheelModData.FrontTireColliderSize = preset.FrontTireColliderSize;
+            WheelModData.FrontRimColliderSize = preset.FrontRimColliderSize;
+            WheelModData.RearTireColliderWidth = preset.RearTireColliderWidth;
+            WheelModData.RearTireColliderSize = preset.RearTireColliderSize;
+            WheelModData.RearRimColliderSize = preset.RearRimColliderSize;
+
+            Debug.WriteLine($"{nameof(WheelModScript)}: wheel mod preset applied");
+            await Delay(200);
+            WheelModDataChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

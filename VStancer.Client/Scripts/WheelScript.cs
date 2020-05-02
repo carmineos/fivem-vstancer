@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using VStancer.Client.Data;
+using VStancer.Client.Preset;
 using VStancer.Client.UI;
 
 using CitizenFX.Core;
@@ -58,17 +59,6 @@ namespace VStancer.Client.Scripts
 
             mainScript.PlayerVehicleHandleChanged += (sender, handle) => PlayerVehicleChanged(handle);
             PlayerVehicleChanged(_mainScript.PlayerVehicleHandle);
-        }
-
-        internal async Task LoadPreset(WheelData data)
-        {
-            WheelData.CopyFrom(data);
-
-            // Force refresh 
-            UpdateVehicleUsingWheelData(_playerVehicleHandle, WheelData);
-
-            await Delay(200);
-            WheelDataChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void InvalidateData()
@@ -479,6 +469,41 @@ namespace VStancer.Client.Scripts
         {
             WheelData preset = (vehicle == _playerVehicleHandle && DataIsValid) ? WheelData : GetWheelDataFromEntity(vehicle);
             return preset?.ToArray();
+        }
+
+        internal WheelPreset GetWheelPreset()
+        {
+            if (!DataIsValid)
+                return null;
+
+            return new WheelPreset()
+            {
+                FrontCamber = WheelData.FrontCamber,
+                RearCamber = WheelData.RearCamber,
+                FrontTrackWidth = WheelData.FrontTrackWidth,
+                RearTrackWidth = WheelData.RearTrackWidth,
+            };
+        }
+
+        internal async Task SetWheelPreset(WheelPreset preset)
+        {
+            if (!DataIsValid || preset == null)
+                return;
+
+            // TODO: Check if values are within limits
+
+            WheelData.FrontTrackWidth = preset.FrontTrackWidth;
+            WheelData.RearTrackWidth = preset.RearTrackWidth;
+            WheelData.FrontCamber = preset.FrontCamber;
+            WheelData.RearCamber = preset.RearCamber;
+
+            // Force refresh 
+            UpdateVehicleUsingWheelData(_playerVehicleHandle, WheelData);
+
+            Debug.WriteLine($"{nameof(WheelScript)}: wheel preset applied");
+
+            await Delay(200);
+            WheelDataChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 
-using VStancer.Client.Data;
 using VStancer.Client.UI;
 
 using CitizenFX.Core.UI;
+using VStancer.Client.Preset;
 
 namespace VStancer.Client.Scripts
 {
@@ -11,7 +11,7 @@ namespace VStancer.Client.Scripts
     {
         private readonly MainScript _mainScript;
 
-        internal IPresetsCollection<string, WheelData> Presets { get; private set; }
+        internal IPresetsCollection<string, VStancerPreset> Presets { get; private set; }
         internal PresetsMenu Menu { get; private set; }
 
         public LocalPresetsScript(MainScript mainScript)
@@ -41,7 +41,13 @@ namespace VStancer.Client.Scripts
 
         private void OnSavePresetInvoked(string presetKey)
         {
-            if (Presets.Save(presetKey, _mainScript.WheelScript.WheelData))
+            VStancerPreset preset = new VStancerPreset
+            {
+                WheelPreset = _mainScript.WheelScript?.GetWheelPreset(),
+                WheelModPreset = _mainScript.WheelModScript?.GetWheelModPreset()
+            };
+
+            if (Presets.Save(presetKey, preset))
                 Screen.ShowNotification($"Personal preset ~g~{presetKey}~w~ saved");
             else
                 Screen.ShowNotification($"~r~ERROR~w~ The name {presetKey} is invalid or already used.");
@@ -58,7 +64,9 @@ namespace VStancer.Client.Scripts
                 return;
             }
 
-            await _mainScript.WheelScript.LoadPreset(loadedPreset);
+            await _mainScript.WheelScript.SetWheelPreset(loadedPreset.WheelPreset);
+            await _mainScript.WheelModScript.SetWheelModPreset(loadedPreset.WheelModPreset);
+
             Screen.ShowNotification($"Personal preset ~b~{presetKey}~w~ applied");
         }
     }

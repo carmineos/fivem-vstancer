@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace VStancer.Client
+namespace VStancer.Client.Preset
 {
     public interface IPresetsCollection<TKey, TValue>
     {

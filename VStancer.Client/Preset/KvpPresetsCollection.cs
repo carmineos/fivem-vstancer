@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using VStancer.Client.Data;
-
 using static CitizenFX.Core.Native.API;
 using Newtonsoft.Json;
 
-namespace VStancer.Client
+namespace VStancer.Client.Preset
 {
     /// <summary>
     /// The vstancer preset manager which saves the presets as key-value pairs built-in FiveM
     /// </summary>
-    public class KvpPresetsCollection : IPresetsCollection<string, WheelData>
+    public class KvpPresetsCollection : IPresetsCollection<string, VStancerPreset>
     {
         private string mKvpPrefix;
 
@@ -44,7 +42,7 @@ namespace VStancer.Client
             return true;
         }
 
-        public bool Save(string name, WheelData preset)
+        public bool Save(string name, VStancerPreset preset)
         {
             // Check if the preset and the ID are valid
             if (string.IsNullOrEmpty(name) || preset == null)
@@ -69,7 +67,7 @@ namespace VStancer.Client
             return true;
         }
 
-        public WheelData Load(string name)
+        public VStancerPreset Load(string name)
         {
             // Check if the preset ID is valid
             if (string.IsNullOrEmpty(name))
@@ -86,9 +84,7 @@ namespace VStancer.Client
                 return null;
 
             // Create a preset
-            WheelData preset = JsonConvert.DeserializeObject<WheelData>(value);
-
-            return preset;
+            return JsonConvert.DeserializeObject<VStancerPreset>(value);
         }
 
         public IEnumerable<string> GetKeys()
