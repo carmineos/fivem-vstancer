@@ -59,39 +59,50 @@ Once FiveM exposes extra-natives to edit `SubHandlingData` fields at runtime, th
 
 ### Exports
 
-Remember that exports require the resource to be called “vstancer”
+These script expose some API to manage the main features from other scripts:
+Remember that exports require the resource to be called exactly “vstancer”
 
 ```csharp
-private void SetVstancerPreset(int vehicle, float off_f, float rot_f, float off_r, float rot_r, object defaultFrontOffset = null, object defaultFrontRotation = null, object defaultRearOffset = null, object defaultRearRotation = null);
-private float[] GetVstancerPreset(int vehicle);
+void SetWheelPreset(int vehicle, float frontTrackWidth, float frontCamber, float rearTrackWidth, float rearCamber);
+float[] GetWheelPreset(int vehicle);
+void ResetWheelPreset(int vehicle);
+float GetFrontCamber(int vehicle);
+float GetRearCamber(int vehicle);
+float GetFrontTrackWidth(int vehicle);
+float GetRearTrackWidth(int vehicle);
+bool SetFrontCamber(int vehicle, float value);
+bool SetRearCamber(int vehicle, float value);
+bool SetFrontTrackWidth(int vehicle, float value);
+bool SetRearTrackWidth(int vehicle, float value);
+bool SaveLocalPreset(string presetName, int vehicle);
+bool LoadLocalPreset(string presetName, int vehicle);
+bool DeleteLocalPreset(string presetName);
+string[] GetLocalPresetList()
 ```
 
 **SET**
 
-Note that when using the `SetVstancerPreset`, the default values are optional and the script will get them itself if you don't pass them.
-This is an example of how to set a vstancer preset on a vehicle:
-
 C#:
 ```csharp
-Exports["vstancer"].SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r);
+Exports["vstancer"].SetWheelPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r);
 ```
 Lua:
 ```lua
-exports["vstancer"]:SetVstancerPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r)
+exports["vstancer"]:SetWheelPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r)
 ```
 
 **GET**
 
-When using the `GetVstancerPreset` the returned array will contain the following floats in order: off_f, rot_f, off_r, rot_r, off_f_def, rot_f_def, off_r_def, rot_r_def.
+When using the `GetWheelPreset` the returned array will contain the following floats in order: frontTrackWidth, frontCamber, rearTrackWidth, rearCamber.
 This is an example of how to get a vstancer preset (in case you want to store them):
 
 C#:
 ```csharp
-float[] preset = Exports["vstancer"].GetVstancerPreset(vehicle);
+float[] preset = Exports["vstancer"].GetWheelPreset(vehicle);
 ```
 Lua:
 ```lua
-local preset = exports["vstancer"]:GetVstancerPreset(vehicle);
+local preset = exports["vstancer"]:GetWheelPreset(vehicle);
 ```
 
 [Source](https://github.com/carmineos/fivem-vstancer)
