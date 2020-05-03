@@ -14,8 +14,8 @@ namespace VStancer.Client.Data
         private float wheelSize;
         private float wheelWidth;
 
-        public delegate void WheelModSizePropertyEdited(string name, float value);
-        public event WheelModSizePropertyEdited PropertyChanged;
+        public delegate void WheelModPropertyEdited(string name, float value);
+        public event WheelModPropertyEdited PropertyChanged;
 
         public float WheelSize
         {
@@ -209,7 +209,7 @@ namespace VStancer.Client.Data
             for (int i = 0; i < WheelsCount; i++)
                 Nodes[i] = DefaultNodes[i];
 
-            PropertyChanged?.Invoke(nameof(Reset), 0f);
+            PropertyChanged?.Invoke(nameof(Reset), default);
         }
 
         public bool IsEdited

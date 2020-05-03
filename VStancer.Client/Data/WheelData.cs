@@ -9,7 +9,8 @@ namespace VStancer.Client.Data
     {
         private const float Epsilon = VStancerUtilities.Epsilon;
 
-        public event EventHandler<string> PropertyChanged;
+        public delegate void WheelDataPropertyEdited(string name, float value);
+        public event WheelDataPropertyEdited PropertyChanged;
 
         public int WheelsCount { get; private set; }
         public int FrontWheelsCount { get; private set; }
@@ -26,7 +27,7 @@ namespace VStancer.Client.Data
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
 
-                PropertyChanged?.Invoke(this, nameof(FrontTrackWidth));
+                PropertyChanged?.Invoke(nameof(FrontTrackWidth), value);
             }
         }
 
@@ -38,7 +39,7 @@ namespace VStancer.Client.Data
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].PositionX = (index % 2 == 0) ? value : -value;
 
-                PropertyChanged?.Invoke(this, nameof(RearTrackWidth));
+                PropertyChanged?.Invoke(nameof(RearTrackWidth), value);
             }
         }
 
@@ -50,7 +51,7 @@ namespace VStancer.Client.Data
                 for (int index = 0; index < FrontWheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
 
-                PropertyChanged?.Invoke(this, nameof(FrontCamber));
+                PropertyChanged?.Invoke(nameof(FrontCamber), value);
             }
         }
 
@@ -62,7 +63,7 @@ namespace VStancer.Client.Data
                 for (int index = FrontWheelsCount; index < WheelsCount; index++)
                     Nodes[index].RotationY = (index % 2 == 0) ? value : -value;
 
-                PropertyChanged?.Invoke(this, nameof(RearCamber));
+                PropertyChanged?.Invoke(nameof(RearCamber), value);
             }
         }
 
@@ -133,7 +134,7 @@ namespace VStancer.Client.Data
             for (int i = 0; i < WheelsCount; i++)
                 Nodes[i] = DefaultNodes[i];
 
-            PropertyChanged?.Invoke(this, nameof(Reset));
+            PropertyChanged?.Invoke(nameof(Reset), default);
         }
 
         public override string ToString()

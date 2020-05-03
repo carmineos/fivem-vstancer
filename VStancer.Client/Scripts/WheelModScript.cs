@@ -231,14 +231,11 @@ namespace VStancer.Client.Scripts
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
 
-            // Wait for wheel mod to apply
-            while (GetVehicleMod(vehicle, 23) == -1)
-                await Delay(100);
-
             float wheelWidth_def;
             float wheelSize_def;
 
-            // Wait for data to actually update
+            // wait for data to actually update, required if wheel mod is changed too fast
+            // and data read by GetVehicleWheelWidth and GetVehicleWheelSize didn't update yet resulting in 0
             if (DecorExistOn(vehicle, DefaultWidthID))
             {
                 wheelWidth_def = DecorGetFloat(vehicle, DefaultWidthID);
@@ -678,100 +675,53 @@ namespace VStancer.Client.Scripts
             s.AppendLine($"{nameof(WheelModScript)}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
 
             if (DecorExistOn(vehicle, WheelSizeID))
-            {
-                float value = DecorGetFloat(vehicle, WheelSizeID);
-                s.AppendLine($"{WheelSizeID}: {value}");
-            }
+
+                s.AppendLine($"{WheelSizeID}: {DecorGetFloat(vehicle, WheelSizeID)}");
 
             if (DecorExistOn(vehicle, DefaultSizeID))
-            {
-                float value = DecorGetFloat(vehicle, DefaultSizeID);
-                s.AppendLine($"{DefaultSizeID}: {value}");
-            }
+                s.AppendLine($"{DefaultSizeID}: {DecorGetFloat(vehicle, DefaultSizeID)}");
 
             if (DecorExistOn(vehicle, WheelWidthID))
-            {
-                float value = DecorGetFloat(vehicle, WheelWidthID);
-                s.AppendLine($"{WheelWidthID}: {value}");
-            }
+                s.AppendLine($"{WheelWidthID}: {DecorGetFloat(vehicle, WheelWidthID)}");
 
             if (DecorExistOn(vehicle, DefaultWidthID))
-            {
-                float value = DecorGetFloat(vehicle, DefaultWidthID);
-                s.AppendLine($"{DefaultWidthID}: {value}");
-            }
+                s.AppendLine($"{DefaultWidthID}: {DecorGetFloat(vehicle, DefaultWidthID)}");
 
             if (DecorExistOn(vehicle, FrontTireColliderWidthID))
-            {
-                float value = DecorGetFloat(vehicle, FrontTireColliderWidthID);
-                s.AppendLine($"{FrontTireColliderWidthID}: {value}");
-            }
+                s.AppendLine($"{FrontTireColliderWidthID}: {DecorGetFloat(vehicle, FrontTireColliderWidthID)}");
 
             if (DecorExistOn(vehicle, DefaultFrontTireColliderWidthID))
-            {
-                float value = DecorGetFloat(vehicle, DefaultFrontTireColliderWidthID);
-                s.AppendLine($"{DefaultFrontTireColliderWidthID}: {value}");
-            }
+                s.AppendLine($"{DefaultFrontTireColliderWidthID}: {DecorGetFloat(vehicle, DefaultFrontTireColliderWidthID)}");
 
             if (DecorExistOn(vehicle, RearTireColliderWidthID))
-            {
-                float value = DecorGetFloat(vehicle, RearTireColliderWidthID);
-                s.AppendLine($"{RearTireColliderWidthID}: {value}");
-            }
+                s.AppendLine($"{RearTireColliderWidthID}: {DecorGetFloat(vehicle, RearTireColliderWidthID)}");
 
             if (DecorExistOn(vehicle, DefaultRearTireColliderWidthID))
-            {
-                float value = DecorGetFloat(vehicle, DefaultRearTireColliderWidthID);
-                s.AppendLine($"{DefaultRearTireColliderWidthID}: {value}");
-            }
+                s.AppendLine($"{DefaultRearTireColliderWidthID}: {DecorGetFloat(vehicle, DefaultRearTireColliderWidthID)}");
 
             if (DecorExistOn(vehicle, FrontTireColliderSizeID))
-            {
-                float value = DecorGetFloat(vehicle, FrontTireColliderSizeID);
-                s.AppendLine($"{FrontTireColliderSizeID}: {value}");
-            }
+                s.AppendLine($"{FrontTireColliderSizeID}: {DecorGetFloat(vehicle, FrontTireColliderSizeID)}");
 
             if (DecorExistOn(vehicle, DefaultFrontTireColliderSizeID))
-            {
-                float value = DecorGetFloat(vehicle, DefaultFrontTireColliderSizeID);
-                s.AppendLine($"{DefaultFrontTireColliderSizeID}: {value}");
-            }
+                s.AppendLine($"{DefaultFrontTireColliderSizeID}: {DecorGetFloat(vehicle, DefaultFrontTireColliderSizeID)}");
 
             if (DecorExistOn(vehicle, RearTireColliderSizeID))
-            {
-                float value = DecorGetFloat(vehicle, RearTireColliderSizeID);
-                s.AppendLine($"{RearTireColliderSizeID}: {value}");
-            }
+                s.AppendLine($"{RearTireColliderSizeID}: {DecorGetFloat(vehicle, RearTireColliderSizeID)}");
 
             if (DecorExistOn(vehicle, DefaultRearTireColliderSizeID))
-            {
-                float value = DecorGetFloat(vehicle, DefaultRearTireColliderSizeID);
-                s.AppendLine($"{DefaultRearTireColliderSizeID}: {value}");
-            }
+                s.AppendLine($"{DefaultRearTireColliderSizeID}: {DecorGetFloat(vehicle, DefaultRearTireColliderSizeID)}");
 
             if (DecorExistOn(vehicle, FrontRimColliderSizeID))
-            {
-                float value = DecorGetFloat(vehicle, FrontRimColliderSizeID);
-                s.AppendLine($"{FrontRimColliderSizeID}: {value}");
-            }
+                s.AppendLine($"{FrontRimColliderSizeID}: {DecorGetFloat(vehicle, FrontRimColliderSizeID)}");
 
             if (DecorExistOn(vehicle, DefaultFrontRimColliderSizeID))
-            {
-                float value = DecorGetFloat(vehicle, DefaultFrontRimColliderSizeID);
-                s.AppendLine($"{DefaultFrontRimColliderSizeID}: {value}");
-            }
+                s.AppendLine($"{DefaultFrontRimColliderSizeID}: {DecorGetFloat(vehicle, DefaultFrontRimColliderSizeID)}");
 
             if (DecorExistOn(vehicle, RearRimColliderSizeID))
-            {
-                float value = DecorGetFloat(vehicle, RearRimColliderSizeID);
-                s.AppendLine($"{RearRimColliderSizeID}: {value}");
-            }
+                s.AppendLine($"{RearRimColliderSizeID}: {DecorGetFloat(vehicle, RearRimColliderSizeID)}");
 
             if (DecorExistOn(vehicle, DefaultRearRimColliderSizeID))
-            {
-                float value = DecorGetFloat(vehicle, DefaultRearRimColliderSizeID);
-                s.AppendLine($"{DefaultRearRimColliderSizeID}: {value}");
-            }
+                s.AppendLine($"{DefaultRearRimColliderSizeID}: {DecorGetFloat(vehicle, DefaultRearRimColliderSizeID)}");
 
             Debug.WriteLine(s.ToString());
         }
@@ -781,6 +731,7 @@ namespace VStancer.Client.Scripts
             if (!DataIsValid)
                 return null;
 
+            // Only required to avoid saving this preset locally when not required
             if (!WheelModData.IsEdited)
                 return null;
 

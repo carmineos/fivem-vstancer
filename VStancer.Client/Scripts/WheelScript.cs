@@ -54,7 +54,7 @@ namespace VStancer.Client.Scripts
             Menu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
 
             Tick += UpdateWorldVehiclesTask;
-            Tick += TimedTask;
+            //Tick += TimedTask;
             Tick += UpdatePlayerVehicleTask;
 
             mainScript.PlayerVehicleHandleChanged += (sender, handle) => PlayerVehicleChanged(handle);
@@ -124,8 +124,8 @@ namespace VStancer.Client.Scripts
             // Check if decorators needs to be updated
             if (currentTime > _mainScript.Config.Timer)
             {
-                if (DataIsValid)
-                    UpdateVehicleDecorators(_playerVehicleHandle, WheelData);
+                //if (DataIsValid)
+                //    UpdateVehicleDecorators(_playerVehicleHandle, WheelData);
 
                 _lastTime = GetGameTimer();
             }
@@ -133,23 +133,92 @@ namespace VStancer.Client.Scripts
             await Task.FromResult(0);
         }
 
-        private async void OnWheelDataPropertyChanged(object sender, string editedProperty)
+        private async void OnWheelDataPropertyChanged(string propertyName, float value)
         {
             if (!DataIsValid)
                 return;
 
-            // If false then this has been invoked by after a reset
-            if (editedProperty == nameof(WheelData.Reset))
+            switch(propertyName)
             {
-                RemoveDecoratorsFromVehicle(_playerVehicleHandle);
+                // If false then this has been invoked by after a reset
+                case nameof(WheelData.Reset):
+                    RemoveDecoratorsFromVehicle(_playerVehicleHandle);
+                    UpdateVehicleUsingWheelData(_playerVehicleHandle, WheelData);
+                    await Delay(50);
+                    WheelDataChanged?.Invoke(this, EventArgs.Empty);
+                    break;
 
-                await Delay(50);
-                WheelDataChanged?.Invoke(this, EventArgs.Empty);
+                case nameof(WheelData.FrontCamber):
+                    SetFrontCamberUsingData(_playerVehicleHandle, WheelData);
+                    break;
+                case nameof(WheelData.RearCamber):
+                    SetRearCamberUsingData(_playerVehicleHandle, WheelData);
+                    break;
+                case nameof(WheelData.FrontTrackWidth): 
+                    SetFrontTrackWidthUsingData(_playerVehicleHandle, WheelData);
+                    break;
+                case nameof(WheelData.RearTrackWidth):
+                    SetRearTrackWidthUsingData(_playerVehicleHandle, WheelData);
+                    break;
             }
+        }
 
-            // Force one single refresh to update rendering at correct position after reset
-            // This is required because otherwise the vehicle won't update immediately as
-            UpdateVehicleUsingWheelData(_playerVehicleHandle, WheelData);
+        private void SetFrontCamberUsingData(int vehicle, WheelData data)
+        {
+            if (!DoesEntityExist(vehicle) || data == null)
+                return;
+
+            int frontWheelsCount = data.FrontWheelsCount;
+            
+            for (int i = 0; i < frontWheelsCount; i++)
+                SetVehicleWheelYRotation(vehicle, i, data.Nodes[i].RotationY);
+
+            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, data.DefaultFrontCamber, data.FrontCamber);
+            VStancerUtilities.UpdateFloatDecorator(vehicle, FrontCamberID, data.FrontCamber, data.DefaultFrontCamber);
+        }
+
+        private void SetRearCamberUsingData(int vehicle, WheelData data)
+        {
+            if (!DoesEntityExist(vehicle) || data == null)
+                return;
+
+            int wheelsCount = data.WheelsCount;
+            int frontWheelsCount = data.FrontWheelsCount;
+
+            for (int i = frontWheelsCount; i < wheelsCount; i++)
+                SetVehicleWheelYRotation(vehicle, i, data.Nodes[i].RotationY);
+
+            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearCamberID, data.DefaultRearCamber, data.RearCamber);
+            VStancerUtilities.UpdateFloatDecorator(vehicle, RearCamberID, data.RearCamber, data.DefaultRearCamber);
+        }
+
+        private void SetFrontTrackWidthUsingData(int vehicle, WheelData data)
+        {
+            if (!DoesEntityExist(vehicle) || data == null)
+                return;
+
+            int frontWheelsCount = data.FrontWheelsCount;
+
+            for (int i = 0; i < frontWheelsCount; i++)
+                SetVehicleWheelXOffset(vehicle, i, data.Nodes[i].PositionX);
+
+            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, data.DefaultFrontTrackWidth, data.FrontTrackWidth);
+            VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTrackWidthID, data.FrontTrackWidth, data.DefaultFrontTrackWidth);
+        }
+
+        private void SetRearTrackWidthUsingData(int vehicle, WheelData data)
+        {
+            if (!DoesEntityExist(vehicle) || data == null)
+                return;
+
+            int wheelsCount = data.WheelsCount;
+            int frontWheelsCount = data.FrontWheelsCount;
+
+            for (int i = frontWheelsCount; i < wheelsCount; i++)
+                SetVehicleWheelXOffset(vehicle, i, data.Nodes[i].PositionX);
+
+            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, data.DefaultRearTrackWidth, data.RearTrackWidth);
+            VStancerUtilities.UpdateFloatDecorator(vehicle, RearTrackWidthID, data.RearTrackWidth, data.DefaultRearTrackWidth);
         }
 
         private WheelData GetWheelDataFromEntity(int vehicle)
@@ -251,6 +320,8 @@ namespace VStancer.Client.Scripts
                 SetVehicleWheelXOffset(vehicle, index, data.Nodes[index].PositionX);
                 SetVehicleWheelYRotation(vehicle, index, data.Nodes[index].RotationY);
             }
+
+            UpdateVehicleDecorators(vehicle, data);
         }
 
         private void UpdateVehicleDecorators(int vehicle, WheelData data)
@@ -353,28 +424,28 @@ namespace VStancer.Client.Scripts
             s.AppendLine($"{nameof(WheelScript)}: Vehicle:{vehicle} netID:{netID} wheelsCount:{wheelsCount}");
 
             if (DecorExistOn(vehicle, FrontTrackWidthID))
-            {
-                float value = DecorGetFloat(vehicle, FrontTrackWidthID);
-                s.AppendLine($"{FrontTrackWidthID}: {value}");
-            }
+                s.AppendLine($"{FrontTrackWidthID}: {DecorGetFloat(vehicle, FrontTrackWidthID)}");
 
-            if (DecorExistOn(vehicle, FrontCamberID))
-            {
-                float value = DecorGetFloat(vehicle, FrontCamberID);
-                s.AppendLine($"{FrontCamberID}: {value}");
-            }
+            if (DecorExistOn(vehicle, DefaultFrontTrackWidthID))
+                s.AppendLine($"{DefaultFrontTrackWidthID}: {DecorGetFloat(vehicle, DefaultFrontTrackWidthID)}");
 
             if (DecorExistOn(vehicle, RearTrackWidthID))
-            {
-                float value = DecorGetFloat(vehicle, RearTrackWidthID);
-                s.AppendLine($"{RearTrackWidthID}: {value}");
-            }
+                s.AppendLine($"{RearTrackWidthID}: {DecorGetFloat(vehicle, RearTrackWidthID)}");
+
+            if (DecorExistOn(vehicle, DefaultRearTrackWidthID))
+                s.AppendLine($"{DefaultRearTrackWidthID}: {DecorGetFloat(vehicle, DefaultRearTrackWidthID)}");
+
+            if (DecorExistOn(vehicle, FrontCamberID))
+                s.AppendLine($"{FrontCamberID}: {DecorGetFloat(vehicle, FrontCamberID)}");
+
+            if (DecorExistOn(vehicle, DefaultFrontCamberID))
+                s.AppendLine($"{DefaultFrontCamberID}: {DecorGetFloat(vehicle, DefaultFrontCamberID)}");
 
             if (DecorExistOn(vehicle, RearCamberID))
-            {
-                float value = DecorGetFloat(vehicle, RearCamberID);
-                s.AppendLine($"{RearCamberID}: {value}");
-            }
+                s.AppendLine($"{RearCamberID}: {DecorGetFloat(vehicle, RearCamberID)}");
+
+            if (DecorExistOn(vehicle, DefaultRearCamberID))
+                s.AppendLine($"{RearCamberID}: {DecorGetFloat(vehicle, DefaultRearCamberID)}");
 
             Debug.WriteLine(s.ToString());
         }
@@ -408,6 +479,7 @@ namespace VStancer.Client.Scripts
             if (!DataIsValid)
                 return null;
 
+            // Only required to avoid saving this preset locally when not required
             if (!WheelData.IsEdited)
                 return null;
 
@@ -426,8 +498,7 @@ namespace VStancer.Client.Scripts
             WheelData.FrontCamber = preset.FrontCamber;
             WheelData.RearCamber = preset.RearCamber;
 
-            // Force refresh 
-            UpdateVehicleUsingWheelData(_playerVehicleHandle, WheelData);
+            // Don't refresh, as it's already done by OnWheelDataPropertyChanged
 
             Debug.WriteLine($"{nameof(WheelScript)}: wheel preset applied");
 
