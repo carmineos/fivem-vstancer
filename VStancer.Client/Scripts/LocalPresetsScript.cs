@@ -22,11 +22,14 @@ namespace VStancer.Client.Scripts
             _mainScript = mainScript;
             Presets = new KvpPresetsCollection(Globals.KvpPrefix);
 
-            Menu = new PresetsMenu(this);
+            if (!_mainScript.Config.DisableMenu)
+            {
+                Menu = new PresetsMenu(this);
 
-            Menu.DeletePresetEvent += (sender, presetID) => OnDeletePresetInvoked(presetID);
-            Menu.SavePresetEvent += (sender, presetID) => OnSavePresetInvoked(presetID);
-            Menu.ApplyPresetEvent += (sender, presetID) => OnApplyPresetInvoked(presetID);
+                Menu.DeletePresetEvent += (sender, presetID) => OnDeletePresetInvoked(presetID);
+                Menu.SavePresetEvent += (sender, presetID) => OnSavePresetInvoked(presetID);
+                Menu.ApplyPresetEvent += (sender, presetID) => OnApplyPresetInvoked(presetID);
+            }
         }
 
         internal async Task<string> GetPresetNameFromUser(string title, string defaultText)
