@@ -84,7 +84,8 @@ namespace VStancer.Client.Scripts
 
             LocalPresetsScript = new LocalPresetsScript(this);
 
-            Menu = new MainMenu(this);
+            if(!Config.DisableMenu)
+                Menu = new MainMenu(this);
 
             Tick += GetPlayerAndVehicleTask;
             Tick += TimedTask;

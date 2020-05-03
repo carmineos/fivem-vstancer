@@ -3,6 +3,7 @@
     public class VStancerConfig
     {
         public bool Debug { get; set; }
+        public bool DisableMenu { get; set; }
         public bool ExposeCommand { get; set; }
         public bool ExposeEvent { get; set; }
         public float ScriptRange { get; set; }
@@ -16,6 +17,7 @@
         public VStancerConfig()
         {
             Debug = false;
+            DisableMenu = false;
             ExposeCommand = false;
             ExposeEvent = false;
             ScriptRange = 150.0f;

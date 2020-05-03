@@ -49,9 +49,12 @@ namespace VStancer.Client.Scripts
 
             RegisterDecorators();
 
-            Menu = new WheelMenu(this);
-            Menu.FloatPropertyChangedEvent += OnMenuFloatPropertyChanged;
-            Menu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
+            if (!_mainScript.Config.DisableMenu)
+            {
+                Menu = new WheelMenu(this);
+                Menu.FloatPropertyChangedEvent += OnMenuFloatPropertyChanged;
+                Menu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
+            }
 
             Tick += UpdateWorldVehiclesTask;
             //Tick += TimedTask;

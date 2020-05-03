@@ -89,10 +89,13 @@ namespace VStancer.Client.Scripts
             VehicleWheelMod = -1;
             WheelModData = null;
 
-            Menu = new WheelModMenu(this);
+            if (!_mainScript.Config.DisableMenu)
+            {
+                Menu = new WheelModMenu(this);
+                Menu.FloatPropertyChangedEvent += OnMenuFloatPropertyChanged;
+                Menu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
+            }
 
-            Menu.FloatPropertyChangedEvent += OnMenuFloatPropertyChanged;
-            Menu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
 
             Tick += GetVehicleWheelModTask;
             Tick += TimedTask;

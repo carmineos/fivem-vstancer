@@ -1,5 +1,6 @@
 {
   "Debug": false,
+  "DisableMenu": false,
   "ExposeCommand": false,
   "ExposeEvent": false,
   "ScriptRange": 150.0,

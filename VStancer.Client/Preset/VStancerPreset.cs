@@ -22,10 +22,10 @@ namespace VStancer.Client.Preset
 
         public WheelPreset(float frontTrackWidth, float frontCamber, float rearTrackWidth, float rearCamber)
         {
+            FrontTrackWidth = frontTrackWidth;
             FrontCamber = frontCamber;
-            RearCamber = rearCamber;
-            FrontTrackWidth = rearCamber;
             RearTrackWidth = rearTrackWidth;
+            RearCamber = rearCamber;
         }
 
         public WheelPreset(WheelData data)
