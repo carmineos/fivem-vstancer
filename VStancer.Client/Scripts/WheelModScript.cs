@@ -235,10 +235,40 @@ namespace VStancer.Client.Scripts
             Debug.WriteLine($"Vehicle has {nameof(DefaultWidthID)}: {DecorExistOn(vehicle, DefaultWidthID)}");
             Debug.WriteLine($"Vehicle has {nameof(DefaultSizeID)}: {DecorExistOn(vehicle, DefaultSizeID)}");
 #endif
-            await Delay(1000);
+            // Wait for wheel mod to apply
+            while(GetVehicleMod(vehicle, 23) == -1)
+            await Delay(100);
 
-            float wheelWidth_def = DecorExistOn(vehicle, DefaultWidthID) ? DecorGetFloat(vehicle, DefaultWidthID) : GetVehicleWheelWidth(vehicle);
-            float wheelSize_def = DecorExistOn(vehicle, DefaultSizeID) ? DecorGetFloat(vehicle, DefaultSizeID) : GetVehicleWheelSize(vehicle);
+            float wheelWidth_def;
+            float wheelSize_def;
+
+            // Wait for data to actually update
+            if (DecorExistOn(vehicle, DefaultWidthID))
+            {
+                wheelWidth_def = DecorGetFloat(vehicle, DefaultWidthID);
+            }
+            else
+            {
+                do
+                {
+                    wheelWidth_def = GetVehicleWheelWidth(vehicle);
+                    await Delay(100);
+                } while (MathUtil.IsZero(wheelWidth_def));
+            }
+
+            if (DecorExistOn(vehicle, DefaultSizeID))
+            {
+                wheelSize_def = DecorGetFloat(vehicle, DefaultSizeID);
+            }
+            else
+            {
+                do
+                {
+                    wheelSize_def = GetVehicleWheelSize(vehicle);
+                    await Delay(100);
+                } while (MathUtil.IsZero(wheelSize_def));
+            }
+
             float frontTireColliderWidth_def = DecorExistOn(vehicle, DefaultFrontTireColliderWidthID) ? DecorGetFloat(vehicle, DefaultFrontTireColliderWidthID) : GetVehicleWheelTireColliderWidth(vehicle, 0);
             float frontTireColliderSize_def = DecorExistOn(vehicle, DefaultFrontTireColliderSizeID) ? DecorGetFloat(vehicle, DefaultFrontTireColliderSizeID) : GetVehicleWheelTireColliderSize(vehicle, 0);
             float frontRimColliderSize_def = DecorExistOn(vehicle, DefaultFrontRimColliderSizeID) ? DecorGetFloat(vehicle, DefaultFrontRimColliderSizeID) : GetVehicleWheelRimColliderSize(vehicle, 0);
