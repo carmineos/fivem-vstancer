@@ -35,9 +35,9 @@ namespace VStancer.Client.Scripts
         }
 
         private WheelModData _wheelModData;
-        internal WheelModData WheelModData 
-        { 
-            get => _wheelModData; 
+        internal WheelModData WheelModData
+        {
+            get => _wheelModData;
             set
             {
                 if (Equals(_wheelModData, value))
@@ -84,7 +84,7 @@ namespace VStancer.Client.Scripts
             RegisterDecorators();
 
             _lastTime = GetGameTimer();
-            
+
             _playerVehicleHandle = -1;
             VehicleWheelMod = -1;
             WheelModData = null;
@@ -99,7 +99,7 @@ namespace VStancer.Client.Scripts
             //Tick += TickTask;
 
             mainScript.PlayerVehicleHandleChanged += (sender, handle) => PlayerVehicleChanged(handle);
-            
+
             WheelModDataChanged += (sender, args) => OnWheelModDataChanged();
 
             PlayerVehicleChanged(_mainScript.PlayerVehicleHandle);
@@ -146,7 +146,7 @@ namespace VStancer.Client.Scripts
             if (WheelModData != null)
                 WheelModData.PropertyChanged -= OnWheelModDataPropertyChanged;
 
-            if(VehicleWheelMod == -1)
+            if (VehicleWheelMod == -1)
             {
                 WheelModData = null;
                 RemoveDecoratorsFromVehicle(_playerVehicleHandle);
@@ -177,7 +177,6 @@ namespace VStancer.Client.Scripts
             }
 
             VehicleWheelMod = GetVehicleMod(_playerVehicleHandle, 23);
-            //VStancerExtra = VehicleWheelMod == -1 ? null : GetVStancerExtraFromHandle(_playerVehicleHandle);
         }
 
         private async Task TimedTask()
@@ -204,7 +203,7 @@ namespace VStancer.Client.Scripts
             if (!DoesEntityExist(vehicle) || data == null)
                 return;
 
-            if(!MathUtil.WithinEpsilon(GetVehicleWheelWidth(vehicle), data.WheelWidth, VStancerUtilities.Epsilon))
+            if (!MathUtil.WithinEpsilon(GetVehicleWheelWidth(vehicle), data.WheelWidth, VStancerUtilities.Epsilon))
                 SetVehicleWheelWidth(vehicle, data.WheelWidth);
 
             if (!MathUtil.WithinEpsilon(GetVehicleWheelSize(vehicle), data.WheelSize, VStancerUtilities.Epsilon))
@@ -231,13 +230,10 @@ namespace VStancer.Client.Scripts
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
-#if DEBUG
-            Debug.WriteLine($"Vehicle has {nameof(DefaultWidthID)}: {DecorExistOn(vehicle, DefaultWidthID)}");
-            Debug.WriteLine($"Vehicle has {nameof(DefaultSizeID)}: {DecorExistOn(vehicle, DefaultSizeID)}");
-#endif
+
             // Wait for wheel mod to apply
-            while(GetVehicleMod(vehicle, 23) == -1)
-            await Delay(100);
+            while (GetVehicleMod(vehicle, 23) == -1)
+                await Delay(100);
 
             float wheelWidth_def;
             float wheelSize_def;
@@ -406,7 +402,7 @@ namespace VStancer.Client.Scripts
                     SetWheelSizeUsingData(_playerVehicleHandle, WheelModData);
                     break;
 
-               case nameof(WheelModData.FrontTireColliderWidth):
+                case nameof(WheelModData.FrontTireColliderWidth):
                     SetFrontTireColliderWidthUsingData(_playerVehicleHandle, WheelModData);
                     break;
                 case nameof(WheelModData.FrontTireColliderSize):
@@ -506,10 +502,10 @@ namespace VStancer.Client.Scripts
         {
             DecorRegister(WheelWidthID, 1);
             DecorRegister(DefaultWidthID, 1);
-            
+
             DecorRegister(WheelSizeID, 1);
             DecorRegister(DefaultSizeID, 1);
-            
+
             DecorRegister(FrontTireColliderWidthID, 1);
             DecorRegister(FrontTireColliderSizeID, 1);
             DecorRegister(FrontRimColliderSizeID, 1);
@@ -608,7 +604,7 @@ namespace VStancer.Client.Scripts
                     WheelModData.FrontTireColliderWidth = value / WheelModData.DefaultFrontTireColliderWidthRatio;
                     WheelModData.RearTireColliderWidth = value / WheelModData.DefaultRearTireColliderWidthRatio;
                     break;
-                    
+
                     // Update colliders with visual but keep visual/collider ratio constant as with default wheels
                     // This ratio is usually 50% for for vanilla wheel mod
 
@@ -788,17 +784,7 @@ namespace VStancer.Client.Scripts
             if (!WheelModData.IsEdited)
                 return null;
 
-            return new WheelModPreset()
-            {
-                WheelSize = WheelModData.WheelSize,
-                WheelWidth = WheelModData.WheelWidth,
-                FrontTireColliderWidth = WheelModData.FrontTireColliderWidth,
-                FrontTireColliderSize = WheelModData.FrontTireColliderSize,
-                FrontRimColliderSize = WheelModData.FrontRimColliderSize,
-                RearTireColliderWidth = WheelModData.RearTireColliderWidth,
-                RearTireColliderSize = WheelModData.RearTireColliderSize,
-                RearRimColliderSize = WheelModData.RearRimColliderSize,
-            };
+            return new WheelModPreset(WheelModData);
         }
 
         internal async Task SetWheelModPreset(WheelModPreset preset)

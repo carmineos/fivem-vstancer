@@ -7,6 +7,7 @@ using VStancer.Client.UI;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using Newtonsoft.Json;
+using VStancer.Client.Preset;
 
 namespace VStancer.Client.Scripts
 {
@@ -90,11 +91,19 @@ namespace VStancer.Client.Scripts
 
             RegisterCommands();
 
-            if (WheelScript != null)
-            {
-                Exports.Add("SetVstancerPreset", new Action<int, float, float, float, float, object, object, object, object>(WheelScript.SetVstancerPreset));
-                Exports.Add("GetVstancerPreset", new Func<int, float[]>(WheelScript.GetVstancerPreset));
-            }
+            Exports.Add("SetWheelPreset", new Func<int, float, float, float, float, bool>(SetWheelPreset));
+            Exports.Add("GetWheelPreset", new Func<int, float[]>(GetWheelPreset));
+            Exports.Add("ResetWheelPreset", new Func<int, bool>(ResetWheelPreset));
+
+            Exports.Add("SetFrontCamber", new Func<int, float, bool>(SetFrontCamber));
+            Exports.Add("SetRearCamber", new Func<int, float, bool>(SetRearCamber));
+            Exports.Add("SetFrontTrackWidth", new Func<int, float, bool>(SetFrontTrackWidth));
+            Exports.Add("SetRearTrackWidth", new Func<int, float, bool>(SetRearTrackWidth));
+
+            Exports.Add("GetFrontCamber", new Func<int, float>(GetFrontCamber));
+            Exports.Add("GetRearCamber", new Func<int, float>(GetRearCamber));
+            Exports.Add("GetFrontTrackWidth", new Func<int, float>(GetFrontTrackWidth));
+            Exports.Add("GetRearTrackWidth", new Func<int, float>(GetRearTrackWidth));
         }
 
         private async Task HideUITask()
@@ -277,6 +286,130 @@ namespace VStancer.Client.Scripts
 
             if (Config.ExposeEvent)
                 EventHandlers.Add("vstancer:toggleMenu", new Action(() => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }));
+        }
+
+        public float[] GetWheelPreset(int vehicle)
+        {
+            List<float> preset = new List<float>();
+
+            if (WheelScript != null)
+            {
+                preset.AddRange(WheelScript.API_GetWheelPreset(vehicle));
+            }
+            else
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to get wheel data");
+
+            return preset.ToArray();
+        }
+
+        public bool SetWheelPreset(int vehicle, float frontTrackWidth, float frontCamber, float rearTrackWidth, float rearCamber)
+        {
+            if (WheelScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
+                return false;
+            }
+
+            return WheelScript.API_SetWheelPreset(vehicle, frontTrackWidth, frontCamber, rearTrackWidth, rearCamber);
+        }
+        
+        public bool ResetWheelPreset(int vehicle)
+        {
+            if (WheelScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
+                return false;
+            }
+
+            return WheelScript.API_ResetWheelPreset(vehicle);
+        }
+
+        public bool SetFrontCamber(int vehicle, float value)
+        {
+            if (WheelScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
+                return false;
+            }
+
+            return WheelScript.API_SetFrontCamber(vehicle, value);
+        }
+
+        public bool SetRearCamber(int vehicle, float value)
+        {
+            if (WheelScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
+                return false;
+            }
+
+            return WheelScript.API_SetRearCamber(vehicle, value);
+        }
+
+        public bool SetFrontTrackWidth(int vehicle, float value)
+        {
+            if (WheelScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
+                return false;
+            }
+
+            return WheelScript.API_SetFrontTrackWidth(vehicle, value);
+        }
+
+        public bool SetRearTrackWidth(int vehicle, float value)
+        {
+            if (WheelScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
+                return false;
+            }
+
+            return WheelScript.API_SetRearTrackWidth(vehicle, value);
+        }
+
+        public float GetFrontCamber(int vehicle)
+        {
+            if (WheelScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
+                return default;
+            }
+
+            return WheelScript.API_GetFrontCamber(vehicle);
+        }
+
+        public float GetRearCamber(int vehicle)
+        {
+            if (WheelScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
+                return default;
+            }
+
+            return WheelScript.API_GetRearCamber(vehicle);
+        }
+
+        public float GetFrontTrackWidth(int vehicle)
+        {
+            if (WheelScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
+                return default;
+            }
+
+            return WheelScript.API_GetFrontTrackWidth(vehicle);
+        }
+
+        public float GetRearTrackWidth(int vehicle)
+        {
+            if (WheelScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
+                return default;
+            }
+
+            return WheelScript.API_GetRearTrackWidth(vehicle);
         }
     }
 }

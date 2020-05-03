@@ -136,22 +136,6 @@ namespace VStancer.Client.Data
             PropertyChanged?.Invoke(this, nameof(Reset));
         }
 
-        public bool Equals(WheelData other)
-        {
-            if (WheelsCount != other.WheelsCount)
-                return false;
-
-            for (int i = 0; i < WheelsCount; i++)
-            {
-                if (!MathUtil.WithinEpsilon(DefaultNodes[i].PositionX, other.DefaultNodes[i].PositionX, Epsilon) ||
-                    !MathUtil.WithinEpsilon(DefaultNodes[i].RotationY, other.DefaultNodes[i].RotationY, Epsilon) ||
-                    !MathUtil.WithinEpsilon(Nodes[i].PositionX, other.Nodes[i].PositionX, Epsilon) ||
-                    !MathUtil.WithinEpsilon(Nodes[i].RotationY, other.Nodes[i].RotationY, Epsilon))
-                    return false;
-            }
-            return true;
-        }
-
         public override string ToString()
         {
             StringBuilder s = new StringBuilder();
@@ -178,34 +162,20 @@ namespace VStancer.Client.Data
             return s.ToString();
         }
 
-        /// <summary>
-        /// Returns the preset as an array of floats containing in order: 
-        /// frontOffset, frontRotation, rearOffset, rearRotation, defaultFrontOffset, defaultFrontRotation, defaultRearOffset, defaultRearRotation
-        /// </summary>
-        /// <returns>The float array</returns>
-        public float[] ToArray()
+        public bool Equals(WheelData other)
         {
-            return new float[] {
-                Nodes[0].PositionX,
-                Nodes[0].RotationY,
-                Nodes[FrontWheelsCount].PositionX,
-                Nodes[FrontWheelsCount].RotationY,
-                DefaultNodes[0].PositionX,
-                DefaultNodes[0].RotationY,
-                DefaultNodes[FrontWheelsCount].PositionX,
-                DefaultNodes[FrontWheelsCount].RotationY,
-            };
-        }
+            if (WheelsCount != other.WheelsCount)
+                return false;
 
-        public void CopyFrom(WheelData other)
-        {
-            if (other == null)
-                return;
-
-            FrontTrackWidth = other.FrontTrackWidth;
-            FrontCamber = other.FrontCamber;
-            RearTrackWidth = other.RearTrackWidth;
-            RearCamber = other.RearCamber;
+            for (int i = 0; i < WheelsCount; i++)
+            {
+                if (!MathUtil.WithinEpsilon(DefaultNodes[i].PositionX, other.DefaultNodes[i].PositionX, Epsilon) ||
+                    !MathUtil.WithinEpsilon(DefaultNodes[i].RotationY, other.DefaultNodes[i].RotationY, Epsilon) ||
+                    !MathUtil.WithinEpsilon(Nodes[i].PositionX, other.Nodes[i].PositionX, Epsilon) ||
+                    !MathUtil.WithinEpsilon(Nodes[i].RotationY, other.Nodes[i].RotationY, Epsilon))
+                    return false;
+            }
+            return true;
         }
     }
 
