@@ -4,6 +4,9 @@ using VStancer.Client.UI;
 
 using CitizenFX.Core.UI;
 using VStancer.Client.Preset;
+using System.Collections.Generic;
+using CitizenFX.Core;
+using static CitizenFX.Core.Native.API;
 
 namespace VStancer.Client.Scripts
 {
@@ -68,6 +71,53 @@ namespace VStancer.Client.Scripts
             await _mainScript.WheelModScript.SetWheelModPreset(loadedPreset.WheelModPreset);
 
             Screen.ShowNotification($"Personal preset ~b~{presetKey}~w~ applied");
+        }
+
+        internal bool API_DeletePreset(string presetKey)
+        {
+            return Presets.Delete(presetKey);
+        }
+
+        internal bool API_SavePreset(string presetKey, int vehicle)
+        {
+            if (!DoesEntityExist(vehicle))
+                return false;
+
+            WheelPreset wheelPreset = _mainScript.WheelScript?.API_GetWheelPreset(vehicle);
+
+            if(wheelPreset != null)
+            {
+                VStancerPreset preset = new VStancerPreset
+                {
+                    WheelPreset = wheelPreset
+                };
+
+                return Presets.Save(presetKey, preset);
+            }
+
+            return false;
+        }
+
+        internal bool API_LoadPreset(string presetKey, int vehicle)
+        {
+            var loadedPreset = Presets.Load(presetKey);
+
+            if (loadedPreset == null)
+                return false;
+
+            if(_mainScript.WheelScript != null)
+            {
+                return _mainScript.WheelScript.API_SetWheelPreset(vehicle, loadedPreset.WheelPreset);
+            }
+
+            // TODO: Load wheel mod preset on vehicle
+
+            return false;
+        }
+
+        internal IEnumerable<string> API_GetLocalPresetList()
+        {
+            return Presets.GetKeys();
         }
     }
 }

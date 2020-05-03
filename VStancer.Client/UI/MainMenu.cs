@@ -49,8 +49,8 @@ namespace VStancer.Client.UI
                 WheelModMenu = _script.WheelModScript.Menu;
             }
 
-            if (_script.LocalPresetScript != null)
-                PresetsMenu = _script.LocalPresetScript.Menu;
+            if (_script.LocalPresetsScript != null)
+                PresetsMenu = _script.LocalPresetsScript.Menu;
 
             Update();
         }

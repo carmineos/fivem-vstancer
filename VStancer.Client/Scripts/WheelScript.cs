@@ -506,8 +506,16 @@ namespace VStancer.Client.Scripts
             WheelDataChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        internal bool API_SetWheelPreset(int vehicle, float frontTrackWidth, float frontCamber, float rearTrackWidth, float rearCamber)
+        internal bool API_SetWheelPreset(int vehicle, WheelPreset preset)
         {
+            if (preset == null)
+                return false;
+
+            float frontTrackWidth = preset.FrontTrackWidth;
+            float rearTrackWidth = preset.RearTrackWidth;
+            float frontCamber = preset.FrontCamber;
+            float rearCamber = preset.RearCamber;
+
 #if DEBUG
             Debug.WriteLine($"{nameof(VStancerDataScript)}: SetVstancerPreset parameters {frontTrackWidth} {frontCamber} {rearTrackWidth} {rearCamber} {frontTrackWidth_def} {frontCamber_def} {rearTrackWidth_def} {rearCamber_def}");
 #endif
@@ -552,10 +560,10 @@ namespace VStancer.Client.Scripts
             return true;
         }
 
-        internal float[] API_GetWheelPreset(int vehicle)
+        internal WheelPreset API_GetWheelPreset(int vehicle)
         {
             WheelData data = (vehicle == _playerVehicleHandle && DataIsValid) ? WheelData : GetWheelDataFromEntity(vehicle);
-            return new WheelPreset(data).ToArray;
+            return new WheelPreset(data);
         }
         
         internal bool API_ResetWheelPreset(int vehicle)

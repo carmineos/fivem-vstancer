@@ -8,6 +8,7 @@ using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using Newtonsoft.Json;
 using VStancer.Client.Preset;
+using System.Linq;
 
 namespace VStancer.Client.Scripts
 {
@@ -55,7 +56,7 @@ namespace VStancer.Client.Scripts
         internal VStancerConfig Config { get; private set; }
         internal WheelScript WheelScript { get; private set; }
         internal WheelModScript WheelModScript { get; private set; }
-        internal LocalPresetsScript LocalPresetScript { get; private set; }
+        internal LocalPresetsScript LocalPresetsScript { get; private set; }
 
         public MainScript()
         {
@@ -81,7 +82,7 @@ namespace VStancer.Client.Scripts
                 RegisterScript(WheelModScript);
             }
 
-            LocalPresetScript = new LocalPresetsScript(this);
+            LocalPresetsScript = new LocalPresetsScript(this);
 
             Menu = new MainMenu(this);
 
@@ -104,6 +105,11 @@ namespace VStancer.Client.Scripts
             Exports.Add("GetRearCamber", new Func<int, float>(GetRearCamber));
             Exports.Add("GetFrontTrackWidth", new Func<int, float>(GetFrontTrackWidth));
             Exports.Add("GetRearTrackWidth", new Func<int, float>(GetRearTrackWidth));
+
+            Exports.Add("SaveLocalPreset", new Func<string, int, bool>(SaveLocalPreset));
+            Exports.Add("LoadLocalPreset", new Func<string, int, bool>(LoadLocalPreset));
+            Exports.Add("DeleteLocalPreset", new Func<string, bool>(DeleteLocalPreset));
+            Exports.Add("GetLocalPresetList", new Func<string[]>(GetLocalPresetList));
         }
 
         private async Task HideUITask()
@@ -294,7 +300,7 @@ namespace VStancer.Client.Scripts
 
             if (WheelScript != null)
             {
-                preset.AddRange(WheelScript.API_GetWheelPreset(vehicle));
+                preset.AddRange(WheelScript.API_GetWheelPreset(vehicle).ToArray());
             }
             else
                 Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to get wheel data");
@@ -310,7 +316,8 @@ namespace VStancer.Client.Scripts
                 return false;
             }
 
-            return WheelScript.API_SetWheelPreset(vehicle, frontTrackWidth, frontCamber, rearTrackWidth, rearCamber);
+            WheelPreset preset = new WheelPreset(frontTrackWidth, frontCamber, rearTrackWidth, rearCamber);
+            return WheelScript.API_SetWheelPreset(vehicle, preset);
         }
         
         public bool ResetWheelPreset(int vehicle)
@@ -410,6 +417,50 @@ namespace VStancer.Client.Scripts
             }
 
             return WheelScript.API_GetRearTrackWidth(vehicle);
+        }
+
+        public bool SaveLocalPreset(string id, int vehicle)
+        {
+            if (LocalPresetsScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(LocalPresetsScript)} is null, impossible to save preset");
+                return false;
+            }
+
+            return LocalPresetsScript.API_SavePreset(id, vehicle);
+        }
+
+        public bool LoadLocalPreset(string id, int vehicle)
+        {
+            if (LocalPresetsScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(LocalPresetsScript)} is null, impossible to load preset");
+                return false;
+            }
+
+            return LocalPresetsScript.API_LoadPreset(id, vehicle);
+        }
+
+        public bool DeleteLocalPreset(string id)
+        {
+            if (LocalPresetsScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(LocalPresetsScript)} is null, impossible to delete preset");
+                return false;
+            }
+
+            return LocalPresetsScript.API_DeletePreset(id);
+        }
+
+        public string[] GetLocalPresetList()
+        {
+            if (LocalPresetsScript == null)
+            {
+                Debug.WriteLine($"{nameof(MainScript)}: {nameof(LocalPresetsScript)} is null, impossible to read presets");
+                return new string[] { };
+            }
+
+            return LocalPresetsScript.API_GetLocalPresetList().ToArray();
         }
     }
 }

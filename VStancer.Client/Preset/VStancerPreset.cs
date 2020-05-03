@@ -20,6 +20,14 @@ namespace VStancer.Client.Preset
 
         }
 
+        public WheelPreset(float frontTrackWidth, float frontCamber, float rearTrackWidth, float rearCamber)
+        {
+            FrontCamber = frontCamber;
+            RearCamber = rearCamber;
+            FrontTrackWidth = rearCamber;
+            RearTrackWidth = rearTrackWidth;
+        }
+
         public WheelPreset(WheelData data)
         {
             if (data == null)
@@ -31,7 +39,7 @@ namespace VStancer.Client.Preset
             RearCamber = data.RearCamber;
         }
 
-        public float[] ToArray => new float[] { FrontTrackWidth, FrontCamber, RearTrackWidth, RearCamber };
+        public float[] ToArray() { return new float[] { FrontTrackWidth, FrontCamber, RearTrackWidth, RearCamber }; }
     }
 
     public class WheelModPreset
@@ -67,6 +75,6 @@ namespace VStancer.Client.Preset
             RearRimColliderSize = data.RearRimColliderSize;
         }
 
-        public float[] ToArray => new float[] { WheelSize, WheelWidth, FrontTireColliderWidth, FrontTireColliderSize, FrontRimColliderSize, RearTireColliderWidth, RearTireColliderSize, RearRimColliderSize };
+    public float[] ToArray() { return new float[] { WheelSize, WheelWidth, FrontTireColliderWidth, FrontTireColliderSize, FrontRimColliderSize, RearTireColliderWidth, RearTireColliderSize, RearRimColliderSize }; }
     }
 }
