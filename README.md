@@ -368,6 +368,7 @@ The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to re
 * Update local presets API to support wheel mod data
 * Add limits check for API
 * Add limits check for preset loading
+* Workaround wheel mod data being reset after any tuning component is changed
 * Clean duplicated code
 
 ### Roadmap
