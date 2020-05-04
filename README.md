@@ -28,9 +28,6 @@ The default key to open the menu is F6
 When a preset is created for the first time, it will use the current wheels' state as default. So in case of damaged vehicles (e.g. deformed wheels), the default values might be incorrect. 
 Workaround: If a vehicle is damaged, be sure to fix it before to enter it and create a preset. (e.g. reset preset, fix the vehicle, exit the vehicle and enter again) 
 
-### Roadmap
-Once FiveM exposes extra-natives to edit `SubHandlingData` fields at runtime, the script will allow to edit XYZ rotation using the native handling fields of `CCarHandlingData` such as `fToeFront`, `fToeRear`, `fCamberFront`, `fCamberRear`, `fCastor`. (This will also improve a lot performances as such values won't need to be set each tick)
-
 ### Client Commands
 * `vstancer_preset`: Prints the preset of the current vehicle
 * `vstancer_decorators`: Prints the info about decorators on the current vehicle
@@ -51,8 +48,8 @@ Once FiveM exposes extra-natives to edit `SubHandlingData` fields at runtime, th
 * `FloatStep`: The step used to increase and decrease a value
 * `PositionX`: The max value you can increase or decrease the Track Width
 * `RotationY`: The max value you can increase or decrease the Camber
-### Exports
 
+### Exports
 The script exposes some API to manage the main features from other scripts:
 
 ```csharp
@@ -74,10 +71,9 @@ string[] GetLocalPresetList();
 ```
 
 **NOTE**
-Current API don't support editing of wheel mod data (wheelSize and wheelWidth) yet.
+Current API don't support editing of tuning wheel data (wheelSize and wheelWidth) yet.
 
 #### Remember that API require the resource to be called exactly “vstancer”
-
 **API Usage Example**
 
 **SetWheelPreset**
@@ -94,7 +90,7 @@ bool result = Exports["vstancer"].SetWheelPreset(vehicle, frontTrackWidth, front
 ```
 Lua:
 ```lua
-bool result = exports["vstancer"]:SetWheelPreset(vehicle, frontTrackWidth, frontCamber, rearTrackWidth, rearCamber)
+local result = exports["vstancer"]:SetWheelPreset(vehicle, frontTrackWidth, frontCamber, rearTrackWidth, rearCamber)
 ```
 
 **GetWheelPreset**
@@ -120,7 +116,7 @@ bool result = Exports["vstancer"].ResetWheelPreset(vehicle);
 ```
 Lua:
 ```lua
-bool result = exports["vstancer"]:ResetWheelPreset(vehicle);
+local result = exports["vstancer"]:ResetWheelPreset(vehicle);
 ```
 
 **GetFrontCamber**
@@ -133,7 +129,7 @@ float frontCamber = Exports["vstancer"].GetFrontCamber(vehicle);
 ```
 Lua:
 ```lua
-float frontCamber = exports["vstancer"]:GetFrontCamber(vehicle);
+local frontCamber = exports["vstancer"]:GetFrontCamber(vehicle);
 ```
 
 **GetRearCamber**
@@ -146,7 +142,7 @@ float rearCamber = Exports["vstancer"].GetRearCamber(vehicle);
 ```
 Lua:
 ```lua
-float rearCamber = exports["vstancer"]:GetRearCamber(vehicle);
+local rearCamber = exports["vstancer"]:GetRearCamber(vehicle);
 ```
 
 **GetFrontTrackWidth**
@@ -159,7 +155,7 @@ float frontTrackWidth = Exports["vstancer"].GetFrontTrackWidth(vehicle);
 ```
 Lua:
 ```lua
-float frontTrackWidth = exports["vstancer"]:GetFrontTrackWidth(vehicle);
+local frontTrackWidth = exports["vstancer"]:GetFrontTrackWidth(vehicle);
 ```
 
 **GetRearTrackWidth**
@@ -172,7 +168,7 @@ float rearTrackWidth = Exports["vstancer"].GetRearTrackWidth(vehicle);
 ```
 Lua:
 ```lua
-float rearTrackWidth = exports["vstancer"]:GetRearTrackWidth(vehicle);
+local rearTrackWidth = exports["vstancer"]:GetRearTrackWidth(vehicle);
 ```
 
 **SetFrontCamber**
@@ -186,7 +182,7 @@ bool result = Exports["vstancer"].SetFrontCamber(vehicle, frontCamber);
 ```
 Lua:
 ```lua
-bool result = exports["vstancer"]:SetFrontCamber(vehicle, frontCamber);
+local result = exports["vstancer"]:SetFrontCamber(vehicle, frontCamber);
 ```
 
 **SetRearCamber**
@@ -200,7 +196,7 @@ bool result = Exports["vstancer"].SetRearCamber(vehicle, rearCamber);
 ```
 Lua:
 ```lua
-bool result = exports["vstancer"]:SetRearCamber(vehicle, rearCamber);
+local result = exports["vstancer"]:SetRearCamber(vehicle, rearCamber);
 ```
 
 **SetFrontTrackWidth**
@@ -214,7 +210,7 @@ bool result = Exports["vstancer"].SetFrontTrackWidth(vehicle, frontTrackWidth);
 ```
 Lua:
 ```lua
-bool result = exports["vstancer"]:SetFrontTrackWidth(vehicle, frontTrackWidth);
+local result = exports["vstancer"]:SetFrontTrackWidth(vehicle, frontTrackWidth);
 ```
 
 **SetRearTrackWidth**
@@ -228,7 +224,7 @@ bool result = Exports["vstancer"].SetRearTrackWidth(vehicle, rearTrackWidth);
 ```
 Lua:
 ```lua
-bool result = exports["vstancer"]:SetRearTrackWidth(vehicle, rearTrackWidth);
+local result = exports["vstancer"]:SetRearTrackWidth(vehicle, rearTrackWidth);
 ```
 
 **SaveLocalPreset**
@@ -242,7 +238,7 @@ bool result = Exports["vstancer"].SaveLocalPreset(presetName, vehicle);
 ```
 Lua:
 ```lua
-bool result = exports["vstancer"]:SaveLocalPreset(presetName, vehicle);
+local result = exports["vstancer"]:SaveLocalPreset(presetName, vehicle);
 ```
 
 **LoadLocalPreset**
@@ -256,7 +252,7 @@ bool result = Exports["vstancer"].LoadLocalPreset(presetName, vehicle);
 ```
 Lua:
 ```lua
-bool result = exports["vstancer"]:LoadLocalPreset(presetName, vehicle);
+local result = exports["vstancer"]:LoadLocalPreset(presetName, vehicle);
 ```
 
 **DeleteLocalPreset**
@@ -269,7 +265,7 @@ bool result = Exports["vstancer"].DeleteLocalPreset(presetName);
 ```
 Lua:
 ```lua
-bool result = exports["vstancer"]:DeleteLocalPreset(presetName);
+local result = exports["vstancer"]:DeleteLocalPreset(presetName);
 ```
 
 **GetLocalPresetList**
@@ -281,7 +277,7 @@ string[] presetList = Exports["vstancer"].GetLocalPresetList();
 ```
 Lua:
 ```lua
-string[] presetList = exports["vstancer"]:GetLocalPresetList();
+local presetList = exports["vstancer"]:GetLocalPresetList();
 ```
 
 [Source](https://github.com/carmineos/fivem-vstancer)
@@ -302,7 +298,12 @@ The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to re
 ### Todo
 * Add API for wheel mod data
 * Update local presets API to support wheel mod data
+* Add limits check for API
+* Add limits check for preset loading
 * Clean duplicated code
+
+### Roadmap
+Once FiveM exposes extra-natives to edit `SubHandlingData` fields at runtime, the script will allow to edit XYZ rotation using the native handling fields of `CCarHandlingData` such as `fToeFront`, `fToeRear`, `fCamberFront`, `fCamberRear`, `fCastor`. (This will also improve a lot performances as such values won't need to be set each tick)
 
 ### Credits
 * VStancer by ikt: https://github.com/E66666666/GTAVStancer
