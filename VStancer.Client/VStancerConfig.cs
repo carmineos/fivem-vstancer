@@ -10,9 +10,9 @@
         public long Timer { get; set; }
         public int ToggleMenuControl { get; set; }
         public float FloatStep { get; set; }
-        public ConfigNodeLimits FrontLimits { get; set; }
-        public ConfigNodeLimits RearLimits { get; set; }
-        public ConfigExtra Extra { get; set; }
+        public bool EnableWheelMod { get; set; }
+        public WheelLimits WheelLimits { get; set; }
+        public WheelModLimits WheelModLimits { get; set; }
 
         public VStancerConfig()
         {
@@ -24,49 +24,54 @@
             Timer = 1000;
             ToggleMenuControl = 167;
             FloatStep = 0.01f;
-            FrontLimits = new ConfigNodeLimits { PositionX = 0.25f, RotationY = 0.20f };
-            RearLimits = new ConfigNodeLimits { PositionX = 0.25f, RotationY = 0.20f };
+            EnableWheelMod = true;
+            
+            WheelLimits = new WheelLimits 
+            { 
+                FrontTrackWidth= 0.25f,
+                RearTrackWidth = 0.25f,
+                FrontCamber = 0.20f, 
+                RearCamber = 0.20f,
+            };
 
-            Extra = new ConfigExtra
+            WheelModLimits = new WheelModLimits
             {
-                EnableExtra = true,
                 WheelSize = 0.2f,
                 WheelWidth = 0.2f,
-                FrontWheelModSizeNodeLimit = new ConfigWheelModSizeNodeLimit
-                {
-                    TireColliderScaleX = 0.1f,
-                    TireColliderScaleYZ = 0.1f,
-                    RimColliderScaleYZ = 0.1f,
-                },
-                RearWheelModSizeNodeLimit = new ConfigWheelModSizeNodeLimit
-                {
-                    TireColliderScaleX = 0.1f,
-                    TireColliderScaleYZ = 0.1f,
-                    RimColliderScaleYZ = 0.1f,
-                },
+                FrontTireColliderWidth = 0.1f,
+                FrontTireColliderSize = 0.1f,
+                FrontRimColliderSize = 0.1f,
+                RearTireColliderWidth = 0.1f,
+                RearTireColliderSize = 0.1f,
+                RearRimColliderSize = 0.1f,
             };
         }
     }
 
-    public struct ConfigNodeLimits
+    public struct WheelLimits
     {
-        public float PositionX { get; set; }
-        public float RotationY { get; set; }
+        public float FrontTrackWidth { get; set; }
+        public float RearTrackWidth { get; set; }
+        public float FrontCamber { get; set; }
+        public float RearCamber { get; set; }
     }
 
-    public struct ConfigWheelModSizeNodeLimit
+    public struct WheelModColliderLimits
     {
         public float TireColliderScaleX { get; set; }
         public float TireColliderScaleYZ { get; set; }
         public float RimColliderScaleYZ { get; set; }
     }
 
-    public struct ConfigExtra
+    public struct WheelModLimits
     {
-        public bool EnableExtra { get; set; }
         public float WheelSize { get; set; }
         public float WheelWidth { get; set; }
-        public ConfigWheelModSizeNodeLimit FrontWheelModSizeNodeLimit { get; set; }
-        public ConfigWheelModSizeNodeLimit RearWheelModSizeNodeLimit { get; set; }
+        public float FrontTireColliderWidth { get; set; }
+        public float FrontTireColliderSize { get; set; }
+        public float FrontRimColliderSize { get; set; }
+        public float RearTireColliderWidth { get; set; }
+        public float RearTireColliderSize { get; set; }
+        public float RearRimColliderSize { get; set; }
     }
 }

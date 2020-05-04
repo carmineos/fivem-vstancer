@@ -76,7 +76,7 @@ namespace VStancer.Client.Scripts
             WheelScript = new WheelScript(this);
             RegisterScript(WheelScript);
 
-            if (Config.Extra.EnableExtra)
+            if (Config.EnableWheelMod)
             {
                 WheelModScript = new WheelModScript(this);
                 RegisterScript(WheelModScript);

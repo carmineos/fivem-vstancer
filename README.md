@@ -46,8 +46,15 @@ Workaround: If a vehicle is damaged, be sure to fix it before to enter it and cr
 * `Timer`: The value in milliseconds used by each client to do some specific timed tasks
 * `ToggleMenuControl`:The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
 * `FloatStep`: The step used to increase and decrease a value
-* `PositionX`: The max value you can increase or decrease the Track Width
-* `RotationY`: The max value you can increase or decrease the Camber
+* `EnableWheelMod`: Enables the script to edit wheel size and width of tuning wheels
+* `WheelLimits`:
+    * `FrontTrackWidth`: The max value you can increase or decrease the front Track Width from its default value
+    * `RearTrackWidth`: The max value you can increase or decrease the rear Track Width from its default value
+    * `FrontCamber`: The max value you can increase or decrease the front Camber from its default value
+    * `RearCamber`: The max value you can increase or decrease the rear Camber from its default value
+* `WheelModLimits`:
+    * `WheelSize`: The max value you can increase or decrease the size of tuning wheels from its default value
+    * `WheelWidth`: The max value you can increase or decrease the width of tuning wheels from its default value
 
 ### Exports
 The script exposes some API to manage the main features from other scripts:

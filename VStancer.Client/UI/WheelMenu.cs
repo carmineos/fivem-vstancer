@@ -56,28 +56,28 @@ namespace VStancer.Client.UI
             FrontTrackWidthListItem = CreateDynamicFloatList("Front Track Width",
                 -_script.WheelData.DefaultFrontTrackWidth,
                 -_script.WheelData.FrontTrackWidth,
-                _script.Config.FrontLimits.PositionX,
+                _script.Config.WheelLimits.FrontTrackWidth,
                 WheelScript.FrontTrackWidthID,
                 _script.Config.FloatStep);
 
             RearTrackWidthListItem = CreateDynamicFloatList("Rear Track Width",
                 -_script.WheelData.DefaultRearTrackWidth,
                 -_script.WheelData.RearTrackWidth,
-                _script.Config.RearLimits.PositionX,
+                _script.Config.WheelLimits.RearTrackWidth,
                 WheelScript.RearTrackWidthID,
                 _script.Config.FloatStep);
 
             FrontCamberListItem = CreateDynamicFloatList("Front Camber",
                 _script.WheelData.DefaultFrontCamber,
                 _script.WheelData.FrontCamber,
-                _script.Config.FrontLimits.RotationY,
+                _script.Config.WheelLimits.FrontCamber,
                 WheelScript.FrontCamberID,
                 _script.Config.FloatStep);
 
             RearCamberListItem = CreateDynamicFloatList("Rear Camber",
                 _script.WheelData.DefaultRearCamber,
                 _script.WheelData.RearCamber,
-                _script.Config.RearLimits.RotationY,
+                _script.Config.WheelLimits.RearCamber,
                 WheelScript.RearCamberID,
                 _script.Config.FloatStep);
 
