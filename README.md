@@ -13,9 +13,9 @@ The synchronization is made using decorators.
 The default key to open the menu is F6
 
 ### Glossary
-* Track Width: It's the X offset of the vehicle's wheels bones in the entity local coords system. Because wheels model are rotated it means to have a positivie Track Width you have to assign a negative value.
-* Camber: It's the Y rotation of the vehicle's wheels bones in the entity local coords system.
-* Wheel Mod: It refers to a custom wheel you can apply on a vehicle from in-game tuning features. Since this term can create ambiguity with custom assets mods (wheel modifications), we will refers to these as "tuning wheels" and to game modifications as "wheel mods"
+* **Track Width**: It's the X offset of the vehicle's wheels bones in the entity local coords system. Because wheels model are rotated it means to have a positivie Track Width you have to assign a negative value.
+* **Camber**: It's the Y rotation of the vehicle's wheels bones in the entity local coords system.
+* **Wheel Mod**: It refers to a custom wheel you can apply on a vehicle from in-game tuning features. Since this term can create ambiguity with custom assets mods (wheel modifications), we will refers to these as "tuning wheels" and to game modifications as "wheel mods"
 
 ### Features of the script
 * Edit Track Width of vehicles
@@ -76,7 +76,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
 #### Remember that API require the resource to be called exactly “vstancer”
 **API Usage**
 
-* SetWheelPreset
+* **SetWheelPreset**
     * int vehicle: the handle of the vehicle entity
     * float frontTrackWidth: the value you want to assign as front track width 
     * float frontCamber: the value you want to assign as front camber
@@ -97,7 +97,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
 
     </details>
-* GetWheelPreset
+* **GetWheelPreset**
     * int vehicle: the handle of the vehicle entity
     * float result: the array containing the oreset values in this order frontTrackWidth, frontCamber, rearTrackWidth, rearCamber.
     
@@ -114,7 +114,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
     
     </details>
-* ResetWheelPreset
+* **ResetWheelPreset**
     * int vehicle: the handle of the vehicle entity
     * bool result: returns `true` if the action successfully executed otherwise `false`
 
@@ -131,7 +131,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
     
     </details>
-* GetFrontCamber
+* **GetFrontCamber**
     * int vehicle: the handle of the vehicle entity
     * float frontCamber: the front camber value
     
@@ -148,7 +148,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
     
     </details>
-* GetRearCamber
+* **GetRearCamber**
     * int vehicle: the handle of the vehicle entity
     * float rearCamber: the rear camber value
 
@@ -165,7 +165,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
     
     </details>
-* GetFrontTrackWidth
+* **GetFrontTrackWidth**
     * int vehicle: the handle of the vehicle entity
     * float frontTrackWidth: the front track width value
     
@@ -182,7 +182,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
     
     </details>
-* GetRearTrackWidth
+* **GetRearTrackWidth**
     * int vehicle: the handle of the vehicle entity
     * float rearTrackWidth: the rear track width value
     
@@ -199,7 +199,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
     
     </details>
-* SetFrontCamber
+* **SetFrontCamber**
     * int vehicle: the handle of the vehicle entity
     * float frontCamber: the value you want to assign as front camber
     * bool result: returns `true` if the action successfully executed otherwise `false`
@@ -217,7 +217,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
 
     </details>
-* SetRearCamber
+* **SetRearCamber**
     * int vehicle: the handle of the vehicle entity
     * float rearCamber: the value you want to assign as rear camber
     * bool result: returns `true` if the action successfully executed otherwise `false`
@@ -235,7 +235,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
 
     </details>
-* SetFrontTrackWidth
+* **SetFrontTrackWidth**
     * int vehicle: the handle of the vehicle entity
     * float frontTrackWidth: the value you want to assign as front track width
     * bool result: returns `true` if the action successfully executed otherwise `false`
@@ -253,7 +253,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
 
     </details>
-* SetRearTrackWidth
+* **SetRearTrackWidth**
     * int vehicle: the handle of the vehicle entity
     * float rearTrackWidth: the value you want to assign as rear track width
     * bool result: returns `true` if the action successfully executed otherwise `false`
@@ -271,7 +271,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
 
     </details>
-* SaveLocalPreset
+* **SaveLocalPreset**
     * string presetName: the name you want to use for the saved preset
     * int vehicle: the handle of the vehicle entity you want to save the preset from
     * bool result: returns `true` if the action successfully executed otherwise `false`
@@ -289,7 +289,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
 
     </details>
-* LoadLocalPreset
+* **LoadLocalPreset**
     * string presetName: the name of the preset you want to load
     * int vehicle: the handle of the vehicle entity you want to load the preset on
     * bool result: returns `true` if the action successfully executed otherwise `false`
@@ -307,7 +307,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
 
     </details>
-* DeleteLocalPreset
+* **DeleteLocalPreset**
     * string presetName: the name of the preset you want to delete
     * bool result: returns `true` if the action successfully executed otherwise `false`
     
@@ -324,7 +324,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
 
     </details>
-* GetLocalPresetList
+* **GetLocalPresetList**
     * string[] presetList: the list of all the presets saved locally
     
     <details>
