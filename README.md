@@ -12,11 +12,19 @@ The synchronization is made using decorators.
 
 The default key to open the menu is F6
 
-### Features
-* Edit X Position of the wheels' bones (Track Width)
-* Edit Y Rotation of the wheels' bones (Camber)
+### Glossary
+* Track Width: It's the X offset of the vehicle's wheels bones in the entity local coords system. Because wheels model are rotated it means to have a positivie Track Width you have to assign a negative value.
+* Camber: It's the Y rotation of the vehicle's wheels bones in the entity local coords system.
+* Wheel Mod: It refers to a custom wheel you can apply on a vehicle from in-game tuning features. Since this term can create ambiguity with custom assets mods (wheel modifications), we will refers to these as "tuning wheels" and to game modifications as "wheel mods"
 
-### Limitations
+### Features of the script
+* Edit Track Width of vehicles
+* Edit Camber of vehicles
+* Edit Tuning Wheel Size of vehicles (Requires a tuning wheel to be installed on the vehicle)
+* Edit Tuning Wheel Width of vehicles (Requires a tuning wheel to be installed on the vehicle)
+* Manage presets
+
+### Note
 When a preset is created for the first time, it will use the current wheels' state as default. So in case of damaged vehicles (e.g. deformed wheels), the default values might be incorrect. 
 Workaround: If a vehicle is damaged, be sure to fix it before to enter it and create a preset. (e.g. reset preset, fix the vehicle, exit the vehicle and enter again) 
 
@@ -25,47 +33,32 @@ Once FiveM exposes extra-natives to edit `SubHandlingData` fields at runtime, th
 
 ### Client Commands
 * `vstancer_preset`: Prints the preset of the current vehicle
-
 * `vstancer_decorators`: Prints the info about decorators on the current vehicle
-
 * `vstancer_decorators <int>`: Prints the info about decorators on the vehicle with the specified int as local handle
-
 * `vstancer_print`: Prints the list of all the vehicles with any decorator of this script
-
 * `vstancer_range <float>`: Sets the specified float as the maximum distance used to refresh wheels of the vehicles with decorators
-
 * `vstancer_debug <bool>`: Enables or disables the logs to be printed in the console
-
 * `vstancer`: Toggles the menu, this command has to be enabled in the config
 
 ### Config
-* `ToggleMenuControl`:The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
-
-* `FloatStep`: The step used to increase and decrease a value
-
-* `PositionX`: The max value you can increase or decrease the Track Width
-
-* `RotationY`: The max value you can increase or decrease the Camber
-
-* `ScriptRange`: The max distance within which each client refreshes others clients' vehicles
-
-* `Timer`: The value in milliseconds used by each client to check if its preset requires to be synched again
-
 * `Debug`: Enables the debug mode, which prints some logs in the console
-
+* `DisableMenu`: Allows to disable the menu in case you want to allow editing in your own menu using the provided API
 * `ExposeCommand`: Enables the /vstancer command to toggle the menu
-
 * `ExposeEvent`: Enable the "vstancer:toggleMenu" event to toggle the menu
-
+* `ScriptRange`: The max distance within which each client refreshes edited vehicles
+* `Timer`: The value in milliseconds used by each client to do some specific timed tasks
+* `ToggleMenuControl`:The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
+* `FloatStep`: The step used to increase and decrease a value
+* `PositionX`: The max value you can increase or decrease the Track Width
+* `RotationY`: The max value you can increase or decrease the Camber
 ### Exports
 
-These script expose some API to manage the main features from other scripts:
-Remember that exports require the resource to be called exactly “vstancer”
+The script exposes some API to manage the main features from other scripts:
 
 ```csharp
-void SetWheelPreset(int vehicle, float frontTrackWidth, float frontCamber, float rearTrackWidth, float rearCamber);
+bool SetWheelPreset(int vehicle, float frontTrackWidth, float frontCamber, float rearTrackWidth, float rearCamber);
 float[] GetWheelPreset(int vehicle);
-void ResetWheelPreset(int vehicle);
+bool ResetWheelPreset(int vehicle);
 float GetFrontCamber(int vehicle);
 float GetRearCamber(int vehicle);
 float GetFrontTrackWidth(int vehicle);
@@ -77,32 +70,218 @@ bool SetRearTrackWidth(int vehicle, float value);
 bool SaveLocalPreset(string presetName, int vehicle);
 bool LoadLocalPreset(string presetName, int vehicle);
 bool DeleteLocalPreset(string presetName);
-string[] GetLocalPresetList()
+string[] GetLocalPresetList();
 ```
 
-**SET**
+**NOTE**
+Current API don't support editing of wheel mod data (wheelSize and wheelWidth) yet.
+
+#### Remember that API require the resource to be called exactly “vstancer”
+
+**API Usage Example**
+
+**SetWheelPreset**
+* int vehicle: the handle of the vehicle entity
+* float frontTrackWidth: the value you want to assign as front track width 
+* float frontCamber: the value you want to assign as front camber
+* float rearTrackWidth: the value you want to assign as rear track width 
+* float rearCamber: the value you want to assign as rear camber
+* bool result: returns `true` if the action successfully executed otherwise `false`
 
 C#:
 ```csharp
-Exports["vstancer"].SetWheelPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r);
+bool result = Exports["vstancer"].SetWheelPreset(vehicle, frontTrackWidth, frontCamber, rearTrackWidth, rearCamber);
 ```
 Lua:
 ```lua
-exports["vstancer"]:SetWheelPreset(vehicle,offset_f,rotation_f,offset_r,rotation_r)
+bool result = exports["vstancer"]:SetWheelPreset(vehicle, frontTrackWidth, frontCamber, rearTrackWidth, rearCamber)
 ```
 
-**GET**
-
-When using the `GetWheelPreset` the returned array will contain the following floats in order: frontTrackWidth, frontCamber, rearTrackWidth, rearCamber.
-This is an example of how to get a vstancer preset (in case you want to store them):
+**GetWheelPreset**
+* int vehicle: the handle of the vehicle entity
+* float result: the array containing the oreset values in this order frontTrackWidth, frontCamber, rearTrackWidth, rearCamber.
 
 C#:
 ```csharp
-float[] preset = Exports["vstancer"].GetWheelPreset(vehicle);
+float[] result = Exports["vstancer"].GetWheelPreset(vehicle);
 ```
 Lua:
 ```lua
-local preset = exports["vstancer"]:GetWheelPreset(vehicle);
+local result = exports["vstancer"]:GetWheelPreset(vehicle);
+```
+
+**ResetWheelPreset**
+* int vehicle: the handle of the vehicle entity
+* bool result: returns `true` if the action successfully executed otherwise `false`
+
+C#:
+```csharp
+bool result = Exports["vstancer"].ResetWheelPreset(vehicle);
+```
+Lua:
+```lua
+bool result = exports["vstancer"]:ResetWheelPreset(vehicle);
+```
+
+**GetFrontCamber**
+* int vehicle: the handle of the vehicle entity
+* float frontCamber: the front camber value
+
+C#:
+```csharp
+float frontCamber = Exports["vstancer"].GetFrontCamber(vehicle);
+```
+Lua:
+```lua
+float frontCamber = exports["vstancer"]:GetFrontCamber(vehicle);
+```
+
+**GetRearCamber**
+* int vehicle: the handle of the vehicle entity
+* float rearCamber: the rear camber value
+
+C#:
+```csharp
+float rearCamber = Exports["vstancer"].GetRearCamber(vehicle);
+```
+Lua:
+```lua
+float rearCamber = exports["vstancer"]:GetRearCamber(vehicle);
+```
+
+**GetFrontTrackWidth**
+* int vehicle: the handle of the vehicle entity
+* float frontTrackWidth: the front track width value
+
+C#:
+```csharp
+float frontTrackWidth = Exports["vstancer"].GetFrontTrackWidth(vehicle);
+```
+Lua:
+```lua
+float frontTrackWidth = exports["vstancer"]:GetFrontTrackWidth(vehicle);
+```
+
+**GetRearTrackWidth**
+* int vehicle: the handle of the vehicle entity
+* float rearTrackWidth: the rear track width value
+
+C#:
+```csharp
+float rearTrackWidth = Exports["vstancer"].GetRearTrackWidth(vehicle);
+```
+Lua:
+```lua
+float rearTrackWidth = exports["vstancer"]:GetRearTrackWidth(vehicle);
+```
+
+**SetFrontCamber**
+* int vehicle: the handle of the vehicle entity
+* float frontCamber: the value you want to assign as front camber
+* bool result: returns `true` if the action successfully executed otherwise `false`
+
+C#:
+```csharp
+bool result = Exports["vstancer"].SetFrontCamber(vehicle, frontCamber);
+```
+Lua:
+```lua
+bool result = exports["vstancer"]:SetFrontCamber(vehicle, frontCamber);
+```
+
+**SetRearCamber**
+* int vehicle: the handle of the vehicle entity
+* float rearCamber: the value you want to assign as rear camber
+* bool result: returns `true` if the action successfully executed otherwise `false`
+
+C#:
+```csharp
+bool result = Exports["vstancer"].SetRearCamber(vehicle, rearCamber);
+```
+Lua:
+```lua
+bool result = exports["vstancer"]:SetRearCamber(vehicle, rearCamber);
+```
+
+**SetFrontTrackWidth**
+* int vehicle: the handle of the vehicle entity
+* float frontTrackWidth: the value you want to assign as front track width
+* bool result: returns `true` if the action successfully executed otherwise `false`
+
+C#:
+```csharp
+bool result = Exports["vstancer"].SetFrontTrackWidth(vehicle, frontTrackWidth);
+```
+Lua:
+```lua
+bool result = exports["vstancer"]:SetFrontTrackWidth(vehicle, frontTrackWidth);
+```
+
+**SetRearTrackWidth**
+* int vehicle: the handle of the vehicle entity
+* float rearTrackWidth: the value you want to assign as rear track width
+* bool result: returns `true` if the action successfully executed otherwise `false`
+
+C#:
+```csharp
+bool result = Exports["vstancer"].SetRearTrackWidth(vehicle, rearTrackWidth);
+```
+Lua:
+```lua
+bool result = exports["vstancer"]:SetRearTrackWidth(vehicle, rearTrackWidth);
+```
+
+**SaveLocalPreset**
+* string presetName: the name you want to use for the saved preset
+* int vehicle: the handle of the vehicle entity you want to save the preset from
+* bool result: returns `true` if the action successfully executed otherwise `false`
+
+C#:
+```csharp
+bool result = Exports["vstancer"].SaveLocalPreset(presetName, vehicle);
+```
+Lua:
+```lua
+bool result = exports["vstancer"]:SaveLocalPreset(presetName, vehicle);
+```
+
+**LoadLocalPreset**
+* string presetName: the name of the preset you want to load
+* int vehicle: the handle of the vehicle entity you want to load the preset on
+* bool result: returns `true` if the action successfully executed otherwise `false`
+
+C#:
+```csharp
+bool result = Exports["vstancer"].LoadLocalPreset(presetName, vehicle);
+```
+Lua:
+```lua
+bool result = exports["vstancer"]:LoadLocalPreset(presetName, vehicle);
+```
+
+**DeleteLocalPreset**
+* string presetName: the name of the preset you want to delete
+* bool result: returns `true` if the action successfully executed otherwise `false`
+
+C#:
+```csharp
+bool result = Exports["vstancer"].DeleteLocalPreset(presetName);
+```
+Lua:
+```lua
+bool result = exports["vstancer"]:DeleteLocalPreset(presetName);
+```
+
+**GetLocalPresetList**
+* string[] presetList: the list of all the presets saved locally
+
+C#:
+```csharp
+string[] presetList = Exports["vstancer"].GetLocalPresetList();
+```
+Lua:
+```lua
+string[] presetList = exports["vstancer"]:GetLocalPresetList();
 ```
 
 [Source](https://github.com/carmineos/fivem-vstancer)
@@ -115,6 +294,15 @@ Open the `postbuild.bat` and edit the path of the resource folder. If in Debug c
 ### Requirements
 The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to render the UI, ~~it uses FiveM built-in resource dependency, so the script will only work if MenuAPI resource is found and running~~ and comes already with a built assembly so that it's ready to use.
 
+### Installation
+1. Download the zip file from the release page
+2. Extract the content of the zip to the resources folder of your server (it should be a folder named `vstancer`)
+3. Enable the resource in your server config (`start vstancer`)
+
+### Todo
+* Add API for wheel mod data
+* Update local presets API to support wheel mod data
+* Clean duplicated code
 
 ### Credits
 * VStancer by ikt: https://github.com/E66666666/GTAVStancer
