@@ -76,209 +76,209 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
 #### Remember that API require the resource to be called exactly “vstancer”
 **API Usage Example**
 
-**SetWheelPreset**
-* int vehicle: the handle of the vehicle entity
-* float frontTrackWidth: the value you want to assign as front track width 
-* float frontCamber: the value you want to assign as front camber
-* float rearTrackWidth: the value you want to assign as rear track width 
-* float rearCamber: the value you want to assign as rear camber
-* bool result: returns `true` if the action successfully executed otherwise `false`
+* SetWheelPreset:
+	* int vehicle: the handle of the vehicle entity
+	* float frontTrackWidth: the value you want to assign as front track width 
+	* float frontCamber: the value you want to assign as front camber
+	* float rearTrackWidth: the value you want to assign as rear track width 
+	* float rearCamber: the value you want to assign as rear camber
+	* bool result: returns `true` if the action successfully executed otherwise `false`
 
-C#:
-```csharp
-bool result = Exports["vstancer"].SetWheelPreset(vehicle, frontTrackWidth, frontCamber, rearTrackWidth, rearCamber);
-```
-Lua:
-```lua
-local result = exports["vstancer"]:SetWheelPreset(vehicle, frontTrackWidth, frontCamber, rearTrackWidth, rearCamber)
-```
+	C#:
+	```csharp
+	bool result = Exports["vstancer"].SetWheelPreset(vehicle, frontTrackWidth, frontCamber, rearTrackWidth, rearCamber);
+	```
+	Lua:
+	```lua
+	local result = exports["vstancer"]:SetWheelPreset(vehicle, frontTrackWidth, frontCamber, rearTrackWidth, rearCamber)
+	```
 
-**GetWheelPreset**
-* int vehicle: the handle of the vehicle entity
-* float result: the array containing the oreset values in this order frontTrackWidth, frontCamber, rearTrackWidth, rearCamber.
+* GetWheelPreset
+	* int vehicle: the handle of the vehicle entity
+	* float result: the array containing the oreset values in this order frontTrackWidth, frontCamber, rearTrackWidth, rearCamber.
+	
+	C#:
+	```csharp
+	float[] result = Exports["vstancer"].GetWheelPreset(vehicle);
+	```
+	Lua:
+	```lua
+	local result = exports["vstancer"]:GetWheelPreset(vehicle);
+	```
 
-C#:
-```csharp
-float[] result = Exports["vstancer"].GetWheelPreset(vehicle);
-```
-Lua:
-```lua
-local result = exports["vstancer"]:GetWheelPreset(vehicle);
-```
+* ResetWheelPreset
+	* int vehicle: the handle of the vehicle entity
+	* bool result: returns `true` if the action successfully executed otherwise `false`
+	
+	C#:
+	```csharp
+	bool result = Exports["vstancer"].ResetWheelPreset(vehicle);
+	```
+	Lua:
+	```lua
+	local result = exports["vstancer"]:ResetWheelPreset(vehicle);
+	```
 
-**ResetWheelPreset**
-* int vehicle: the handle of the vehicle entity
-* bool result: returns `true` if the action successfully executed otherwise `false`
+* GetFrontCamber
+	* int vehicle: the handle of the vehicle entity
+	* float frontCamber: the front camber value
+	
+	C#:
+	```csharp
+	float frontCamber = Exports["vstancer"].GetFrontCamber(vehicle);
+	```
+	Lua:
+	```lua
+	local frontCamber = exports["vstancer"]:GetFrontCamber(vehicle);
+	```
 
-C#:
-```csharp
-bool result = Exports["vstancer"].ResetWheelPreset(vehicle);
-```
-Lua:
-```lua
-local result = exports["vstancer"]:ResetWheelPreset(vehicle);
-```
+* GetRearCamber
+	* int vehicle: the handle of the vehicle entity
+	* float rearCamber: the rear camber value
+	
+	C#:
+	```csharp
+	float rearCamber = Exports["vstancer"].GetRearCamber(vehicle);
+	```
+	Lua:
+	```lua
+	local rearCamber = exports["vstancer"]:GetRearCamber(vehicle);
+	```
 
-**GetFrontCamber**
-* int vehicle: the handle of the vehicle entity
-* float frontCamber: the front camber value
+* GetFrontTrackWidth
+	* int vehicle: the handle of the vehicle entity
+	* float frontTrackWidth: the front track width value
+	
+	C#:
+	```csharp
+	float frontTrackWidth = Exports["vstancer"].GetFrontTrackWidth(vehicle);
+	```
+	Lua:
+	```lua
+	local frontTrackWidth = exports["vstancer"]:GetFrontTrackWidth(vehicle);
+	```
 
-C#:
-```csharp
-float frontCamber = Exports["vstancer"].GetFrontCamber(vehicle);
-```
-Lua:
-```lua
-local frontCamber = exports["vstancer"]:GetFrontCamber(vehicle);
-```
+* GetRearTrackWidth
+	* int vehicle: the handle of the vehicle entity
+	* float rearTrackWidth: the rear track width value
+	
+	C#:
+	```csharp
+	float rearTrackWidth = Exports["vstancer"].GetRearTrackWidth(vehicle);
+	```
+	Lua:
+	```lua
+	local rearTrackWidth = exports["vstancer"]:GetRearTrackWidth(vehicle);
+	```
 
-**GetRearCamber**
-* int vehicle: the handle of the vehicle entity
-* float rearCamber: the rear camber value
+* SetFrontCamber
+	* int vehicle: the handle of the vehicle entity
+	* float frontCamber: the value you want to assign as front camber
+	* bool result: returns `true` if the action successfully executed otherwise `false`
+	
+	C#:
+	```csharp
+	bool result = Exports["vstancer"].SetFrontCamber(vehicle, frontCamber);
+	```
+	Lua:
+	```lua
+	local result = exports["vstancer"]:SetFrontCamber(vehicle, frontCamber);
+	```
 
-C#:
-```csharp
-float rearCamber = Exports["vstancer"].GetRearCamber(vehicle);
-```
-Lua:
-```lua
-local rearCamber = exports["vstancer"]:GetRearCamber(vehicle);
-```
+* SetRearCamber
+	* int vehicle: the handle of the vehicle entity
+	* float rearCamber: the value you want to assign as rear camber
+	* bool result: returns `true` if the action successfully executed otherwise `false`
+	
+	C#:
+	```csharp
+	bool result = Exports["vstancer"].SetRearCamber(vehicle, rearCamber);
+	```
+	Lua:
+	```lua
+	local result = exports["vstancer"]:SetRearCamber(vehicle, rearCamber);
+	```
 
-**GetFrontTrackWidth**
-* int vehicle: the handle of the vehicle entity
-* float frontTrackWidth: the front track width value
+* SetFrontTrackWidth
+	* int vehicle: the handle of the vehicle entity
+	* float frontTrackWidth: the value you want to assign as front track width
+	* bool result: returns `true` if the action successfully executed otherwise `false`
+	
+	C#:
+	```csharp
+	bool result = Exports["vstancer"].SetFrontTrackWidth(vehicle, frontTrackWidth);
+	```
+	Lua:
+	```lua
+	local result = exports["vstancer"]:SetFrontTrackWidth(vehicle, frontTrackWidth);
+	```
 
-C#:
-```csharp
-float frontTrackWidth = Exports["vstancer"].GetFrontTrackWidth(vehicle);
-```
-Lua:
-```lua
-local frontTrackWidth = exports["vstancer"]:GetFrontTrackWidth(vehicle);
-```
+* SetRearTrackWidth
+	* int vehicle: the handle of the vehicle entity
+	* float rearTrackWidth: the value you want to assign as rear track width
+	* bool result: returns `true` if the action successfully executed otherwise `false`
+	
+	C#:
+	```csharp
+	bool result = Exports["vstancer"].SetRearTrackWidth(vehicle, rearTrackWidth);
+	```
+	Lua:
+	```lua
+	local result = exports["vstancer"]:SetRearTrackWidth(vehicle, rearTrackWidth);
+	```
 
-**GetRearTrackWidth**
-* int vehicle: the handle of the vehicle entity
-* float rearTrackWidth: the rear track width value
+* SaveLocalPreset
+	* string presetName: the name you want to use for the saved preset
+	* int vehicle: the handle of the vehicle entity you want to save the preset from
+	* bool result: returns `true` if the action successfully executed otherwise `false`
+	
+	C#:
+	```csharp
+	bool result = Exports["vstancer"].SaveLocalPreset(presetName, vehicle);
+	```
+	Lua:
+	```lua
+	local result = exports["vstancer"]:SaveLocalPreset(presetName, vehicle);
+	```
 
-C#:
-```csharp
-float rearTrackWidth = Exports["vstancer"].GetRearTrackWidth(vehicle);
-```
-Lua:
-```lua
-local rearTrackWidth = exports["vstancer"]:GetRearTrackWidth(vehicle);
-```
+* LoadLocalPreset
+	* string presetName: the name of the preset you want to load
+	* int vehicle: the handle of the vehicle entity you want to load the preset on
+	* bool result: returns `true` if the action successfully executed otherwise `false`
+	
+	C#:
+	```csharp
+	bool result = Exports["vstancer"].LoadLocalPreset(presetName, vehicle);
+	```
+	Lua:
+	```lua
+	local result = exports["vstancer"]:LoadLocalPreset(presetName, vehicle);
+	```
 
-**SetFrontCamber**
-* int vehicle: the handle of the vehicle entity
-* float frontCamber: the value you want to assign as front camber
-* bool result: returns `true` if the action successfully executed otherwise `false`
+* DeleteLocalPreset
+	* string presetName: the name of the preset you want to delete
+	* bool result: returns `true` if the action successfully executed otherwise `false`
+	
+	C#:
+	```csharp
+	bool result = Exports["vstancer"].DeleteLocalPreset(presetName);
+	```
+	Lua:
+	```lua
+	local result = exports["vstancer"]:DeleteLocalPreset(presetName);
+	```
 
-C#:
-```csharp
-bool result = Exports["vstancer"].SetFrontCamber(vehicle, frontCamber);
-```
-Lua:
-```lua
-local result = exports["vstancer"]:SetFrontCamber(vehicle, frontCamber);
-```
-
-**SetRearCamber**
-* int vehicle: the handle of the vehicle entity
-* float rearCamber: the value you want to assign as rear camber
-* bool result: returns `true` if the action successfully executed otherwise `false`
-
-C#:
-```csharp
-bool result = Exports["vstancer"].SetRearCamber(vehicle, rearCamber);
-```
-Lua:
-```lua
-local result = exports["vstancer"]:SetRearCamber(vehicle, rearCamber);
-```
-
-**SetFrontTrackWidth**
-* int vehicle: the handle of the vehicle entity
-* float frontTrackWidth: the value you want to assign as front track width
-* bool result: returns `true` if the action successfully executed otherwise `false`
-
-C#:
-```csharp
-bool result = Exports["vstancer"].SetFrontTrackWidth(vehicle, frontTrackWidth);
-```
-Lua:
-```lua
-local result = exports["vstancer"]:SetFrontTrackWidth(vehicle, frontTrackWidth);
-```
-
-**SetRearTrackWidth**
-* int vehicle: the handle of the vehicle entity
-* float rearTrackWidth: the value you want to assign as rear track width
-* bool result: returns `true` if the action successfully executed otherwise `false`
-
-C#:
-```csharp
-bool result = Exports["vstancer"].SetRearTrackWidth(vehicle, rearTrackWidth);
-```
-Lua:
-```lua
-local result = exports["vstancer"]:SetRearTrackWidth(vehicle, rearTrackWidth);
-```
-
-**SaveLocalPreset**
-* string presetName: the name you want to use for the saved preset
-* int vehicle: the handle of the vehicle entity you want to save the preset from
-* bool result: returns `true` if the action successfully executed otherwise `false`
-
-C#:
-```csharp
-bool result = Exports["vstancer"].SaveLocalPreset(presetName, vehicle);
-```
-Lua:
-```lua
-local result = exports["vstancer"]:SaveLocalPreset(presetName, vehicle);
-```
-
-**LoadLocalPreset**
-* string presetName: the name of the preset you want to load
-* int vehicle: the handle of the vehicle entity you want to load the preset on
-* bool result: returns `true` if the action successfully executed otherwise `false`
-
-C#:
-```csharp
-bool result = Exports["vstancer"].LoadLocalPreset(presetName, vehicle);
-```
-Lua:
-```lua
-local result = exports["vstancer"]:LoadLocalPreset(presetName, vehicle);
-```
-
-**DeleteLocalPreset**
-* string presetName: the name of the preset you want to delete
-* bool result: returns `true` if the action successfully executed otherwise `false`
-
-C#:
-```csharp
-bool result = Exports["vstancer"].DeleteLocalPreset(presetName);
-```
-Lua:
-```lua
-local result = exports["vstancer"]:DeleteLocalPreset(presetName);
-```
-
-**GetLocalPresetList**
-* string[] presetList: the list of all the presets saved locally
-
-C#:
-```csharp
-string[] presetList = Exports["vstancer"].GetLocalPresetList();
-```
-Lua:
-```lua
-local presetList = exports["vstancer"]:GetLocalPresetList();
-```
+* GetLocalPresetList
+	* string[] presetList: the list of all the presets saved locally
+	
+	C#:
+	```csharp
+	string[] presetList = Exports["vstancer"].GetLocalPresetList();
+	```
+	Lua:
+	```lua
+	local presetList = exports["vstancer"]:GetLocalPresetList();
+	```
 
 [Source](https://github.com/carmineos/fivem-vstancer)
 [Download](https://github.com/carmineos/fivem-vstancer/releases)
