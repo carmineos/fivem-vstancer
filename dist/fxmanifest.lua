@@ -1,6 +1,12 @@
-fx_version 'adamant'
+fx_version 'bodacious'
 games { 'gta5' }
 --dependency 'MenuAPI'
+
+name 'vstancer'
+author 'Neos7'
+description 'A script to edit wheels of vehicles'
+version 'v2.0.0'
+url 'https://github.com/carmineos/fivem-vstancer'
 
 files {
 	--'@MenuAPI/MenuAPI.dll',
@@ -13,5 +19,19 @@ client_scripts {
 	'VStancer.Client.net.dll'
 }
 
-export 'SetVstancerPreset'
-export 'GetVstancerPreset'
+exports {
+	"GetWheelPreset",
+	"ResetWheelPreset",
+	"GetFrontCamber",
+	"GetRearCamber",
+	"GetFrontTrackWidth",
+	"GetRearTrackWidth",
+	"SetFrontCamber",
+	"SetRearCamber",
+	"SetFrontTrackWidth",
+	"SetRearTrackWidth",
+	"SaveLocalPreset",
+	"LoadLocalPreset",
+	"DeleteLocalPreset",
+	"GetLocalPresetList"
+}
