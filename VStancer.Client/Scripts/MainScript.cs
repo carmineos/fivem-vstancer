@@ -102,10 +102,10 @@ namespace VStancer.Client.Scripts
             Exports.Add("SetFrontTrackWidth", new Func<int, float, bool>(SetFrontTrackWidth));
             Exports.Add("SetRearTrackWidth", new Func<int, float, bool>(SetRearTrackWidth));
 
-            Exports.Add("GetFrontCamber", new Func<int, float>(GetFrontCamber));
-            Exports.Add("GetRearCamber", new Func<int, float>(GetRearCamber));
-            Exports.Add("GetFrontTrackWidth", new Func<int, float>(GetFrontTrackWidth));
-            Exports.Add("GetRearTrackWidth", new Func<int, float>(GetRearTrackWidth));
+            Exports.Add("GetFrontCamber", new Func<int, object[]>(GetFrontCamber));
+            Exports.Add("GetRearCamber", new Func<int, object[]>(GetRearCamber));
+            Exports.Add("GetFrontTrackWidth", new Func<int, object[]>(GetFrontTrackWidth));
+            Exports.Add("GetRearTrackWidth", new Func<int, object[]>(GetRearTrackWidth));
 
             Exports.Add("SaveLocalPreset", new Func<string, int, bool>(SaveLocalPreset));
             Exports.Add("LoadLocalPreset", new Func<string, int, bool>(LoadLocalPreset));
@@ -297,25 +297,21 @@ namespace VStancer.Client.Scripts
 
         public float[] GetWheelPreset(int vehicle)
         {
-            List<float> preset = new List<float>();
+            List<float> values = new List<float>();
 
             if (WheelScript != null)
             {
-                preset.AddRange(WheelScript.API_GetWheelPreset(vehicle).ToArray());
+                if(WheelScript.API_GetWheelPreset(vehicle, out WheelPreset preset))
+                    values.AddRange(preset.ToArray());
             }
-            else
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to get wheel data");
 
-            return preset.ToArray();
+            return values.ToArray();
         }
 
         public bool SetWheelPreset(int vehicle, float frontTrackWidth, float frontCamber, float rearTrackWidth, float rearCamber)
         {
             if (WheelScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
                 return false;
-            }
 
             WheelPreset preset = new WheelPreset(frontTrackWidth, frontCamber, rearTrackWidth, rearCamber);
             return WheelScript.API_SetWheelPreset(vehicle, preset);
@@ -324,10 +320,7 @@ namespace VStancer.Client.Scripts
         public bool ResetWheelPreset(int vehicle)
         {
             if (WheelScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
                 return false;
-            }
 
             return WheelScript.API_ResetWheelPreset(vehicle);
         }
@@ -335,10 +328,7 @@ namespace VStancer.Client.Scripts
         public bool SetFrontCamber(int vehicle, float value)
         {
             if (WheelScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
                 return false;
-            }
 
             return WheelScript.API_SetFrontCamber(vehicle, value);
         }
@@ -346,10 +336,7 @@ namespace VStancer.Client.Scripts
         public bool SetRearCamber(int vehicle, float value)
         {
             if (WheelScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
                 return false;
-            }
 
             return WheelScript.API_SetRearCamber(vehicle, value);
         }
@@ -357,10 +344,7 @@ namespace VStancer.Client.Scripts
         public bool SetFrontTrackWidth(int vehicle, float value)
         {
             if (WheelScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
                 return false;
-            }
 
             return WheelScript.API_SetFrontTrackWidth(vehicle, value);
         }
@@ -368,65 +352,47 @@ namespace VStancer.Client.Scripts
         public bool SetRearTrackWidth(int vehicle, float value)
         {
             if (WheelScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
                 return false;
-            }
 
             return WheelScript.API_SetRearTrackWidth(vehicle, value);
         }
 
-        public float GetFrontCamber(int vehicle)
+        public object[] GetFrontCamber(int vehicle)
         {
             if (WheelScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
-                return default;
-            }
+                return new object[] { false, default(float) };
 
-            return WheelScript.API_GetFrontCamber(vehicle);
+            return new object[] { WheelScript.API_GetFrontCamber(vehicle, out float value), value };
         }
 
-        public float GetRearCamber(int vehicle)
+        public object[] GetRearCamber(int vehicle)
         {
             if (WheelScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
-                return default;
-            }
+                return new object[] { false, default(float) };
 
-            return WheelScript.API_GetRearCamber(vehicle);
+            return new object[] { WheelScript.API_GetRearCamber(vehicle, out float value), value };
         }
 
-        public float GetFrontTrackWidth(int vehicle)
+        public object[] GetFrontTrackWidth(int vehicle)
         {
             if (WheelScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
-                return default;
-            }
+                return new object[] { false, default(float) };
 
-            return WheelScript.API_GetFrontTrackWidth(vehicle);
+            return new object[] { WheelScript.API_GetFrontTrackWidth(vehicle, out float value), value };
         }
 
-        public float GetRearTrackWidth(int vehicle)
+        public object[] GetRearTrackWidth(int vehicle)
         {
             if (WheelScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript)} is null, impossible to set wheel data");
-                return default;
-            }
+                return new object[] { false, default(float) };
 
-            return WheelScript.API_GetRearTrackWidth(vehicle);
+            return new object[] { WheelScript.API_GetRearTrackWidth(vehicle, out float value), value };
         }
 
         public bool SaveLocalPreset(string id, int vehicle)
         {
             if (LocalPresetsScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(LocalPresetsScript)} is null, impossible to save preset");
                 return false;
-            }
 
             return LocalPresetsScript.API_SavePreset(id, vehicle);
         }
@@ -434,10 +400,7 @@ namespace VStancer.Client.Scripts
         public bool LoadLocalPreset(string id, int vehicle)
         {
             if (LocalPresetsScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(LocalPresetsScript)} is null, impossible to load preset");
                 return false;
-            }
 
             return LocalPresetsScript.API_LoadPreset(id, vehicle);
         }
@@ -445,10 +408,7 @@ namespace VStancer.Client.Scripts
         public bool DeleteLocalPreset(string id)
         {
             if (LocalPresetsScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(LocalPresetsScript)} is null, impossible to delete preset");
                 return false;
-            }
 
             return LocalPresetsScript.API_DeletePreset(id);
         }
@@ -456,10 +416,7 @@ namespace VStancer.Client.Scripts
         public string[] GetLocalPresetList()
         {
             if (LocalPresetsScript == null)
-            {
-                Debug.WriteLine($"{nameof(MainScript)}: {nameof(LocalPresetsScript)} is null, impossible to read presets");
                 return new string[] { };
-            }
 
             return LocalPresetsScript.API_GetLocalPresetList().ToArray();
         }

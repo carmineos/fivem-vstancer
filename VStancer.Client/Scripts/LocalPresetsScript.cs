@@ -83,10 +83,11 @@ namespace VStancer.Client.Scripts
 
         internal bool API_SavePreset(string presetKey, int vehicle)
         {
-            if (!DoesEntityExist(vehicle))
+            if (_mainScript.WheelScript == null)
                 return false;
 
-            WheelPreset wheelPreset = _mainScript.WheelScript?.API_GetWheelPreset(vehicle);
+            if (!_mainScript.WheelScript.API_GetWheelPreset(vehicle, out WheelPreset wheelPreset))
+                return false;
 
             if(wheelPreset != null)
             {

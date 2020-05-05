@@ -63,10 +63,10 @@ The script exposes some API to manage the main features from other scripts:
 bool SetWheelPreset(int vehicle, float frontTrackWidth, float frontCamber, float rearTrackWidth, float rearCamber);
 float[] GetWheelPreset(int vehicle);
 bool ResetWheelPreset(int vehicle);
-float GetFrontCamber(int vehicle);
-float GetRearCamber(int vehicle);
-float GetFrontTrackWidth(int vehicle);
-float GetRearTrackWidth(int vehicle);
+object[] GetFrontCamber(int vehicle);
+object[] GetRearCamber(int vehicle);
+object[] GetFrontTrackWidth(int vehicle);
+object[] GetRearTrackWidth(int vehicle);
 bool SetFrontCamber(int vehicle, float value);
 bool SetRearCamber(int vehicle, float value);
 bool SetFrontTrackWidth(int vehicle, float value);
@@ -140,14 +140,14 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     </details>
 * **GetFrontCamber**
     * int vehicle: the handle of the vehicle entity
-    * float frontCamber: the front camber value
+    * object[] frontCamber: an array containing as first object a bool and as second the value which is relevant only if the first is true 
     
     <details>
     <summary>Example</summary>
     
     C#:
     ```csharp
-    float frontCamber = Exports["vstancer"].GetFrontCamber(vehicle);
+    object[] frontCamber = Exports["vstancer"].GetFrontCamber(vehicle);
     ```
     Lua:
     ```lua
@@ -157,14 +157,14 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     </details>
 * **GetRearCamber**
     * int vehicle: the handle of the vehicle entity
-    * float rearCamber: the rear camber value
+    * object[] rearCamber: an array containing as first object a bool and as second the value which is relevant only if the first is true 
 
     <details>
     <summary>Example</summary>
     
     C#:
     ```csharp
-    float rearCamber = Exports["vstancer"].GetRearCamber(vehicle);
+    object[] rearCamber = Exports["vstancer"].GetRearCamber(vehicle);
     ```
     Lua:
     ```lua
@@ -174,14 +174,14 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     </details>
 * **GetFrontTrackWidth**
     * int vehicle: the handle of the vehicle entity
-    * float frontTrackWidth: the front track width value
+    * object[] frontTrackWidth: an array containing as first object a bool and as second the value which is relevant only if the first is true 
     
     <details>
     <summary>Example</summary>
     
     C#:
     ```csharp
-    float frontTrackWidth = Exports["vstancer"].GetFrontTrackWidth(vehicle);
+    object[] frontTrackWidth = Exports["vstancer"].GetFrontTrackWidth(vehicle);
     ```
     Lua:
     ```lua
@@ -191,14 +191,14 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     </details>
 * **GetRearTrackWidth**
     * int vehicle: the handle of the vehicle entity
-    * float rearTrackWidth: the rear track width value
+    * object[] rearTrackWidth: an array containing as first object a bool and as second the value which is relevant only if the first is true 
     
     <details>
     <summary>Example</summary>
     
     C#:
     ```csharp
-    float rearTrackWidth = Exports["vstancer"].GetRearTrackWidth(vehicle);
+    object[] rearTrackWidth = Exports["vstancer"].GetRearTrackWidth(vehicle);
     ```
     Lua:
     ```lua
