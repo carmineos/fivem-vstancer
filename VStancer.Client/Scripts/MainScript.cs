@@ -102,10 +102,10 @@ namespace VStancer.Client.Scripts
             Exports.Add("SetFrontTrackWidth", new Func<int, float, bool>(SetFrontTrackWidth));
             Exports.Add("SetRearTrackWidth", new Func<int, float, bool>(SetRearTrackWidth));
 
-            Exports.Add("GetFrontCamber", new Func<int, object[]>(GetFrontCamber));
-            Exports.Add("GetRearCamber", new Func<int, object[]>(GetRearCamber));
-            Exports.Add("GetFrontTrackWidth", new Func<int, object[]>(GetFrontTrackWidth));
-            Exports.Add("GetRearTrackWidth", new Func<int, object[]>(GetRearTrackWidth));
+            Exports.Add("GetFrontCamber", new Func<int, float[]>(GetFrontCamber));
+            Exports.Add("GetRearCamber", new Func<int, float[]>(GetRearCamber));
+            Exports.Add("GetFrontTrackWidth", new Func<int, float[]>(GetFrontTrackWidth));
+            Exports.Add("GetRearTrackWidth", new Func<int, float[]>(GetRearTrackWidth));
 
             Exports.Add("SaveLocalPreset", new Func<string, int, bool>(SaveLocalPreset));
             Exports.Add("LoadLocalPreset", new Func<string, int, bool>(LoadLocalPreset));
@@ -297,15 +297,13 @@ namespace VStancer.Client.Scripts
 
         public float[] GetWheelPreset(int vehicle)
         {
-            List<float> values = new List<float>();
+            if (WheelScript == null)
+                return new float[] { };
 
-            if (WheelScript != null)
-            {
-                if(WheelScript.API_GetWheelPreset(vehicle, out WheelPreset preset))
-                    values.AddRange(preset.ToArray());
-            }
+            if (WheelScript.API_GetWheelPreset(vehicle, out WheelPreset preset))
+                return preset.ToArray();
 
-            return values.ToArray();
+            return new float[] { };
         }
 
         public bool SetWheelPreset(int vehicle, float frontTrackWidth, float frontCamber, float rearTrackWidth, float rearCamber)
@@ -357,36 +355,48 @@ namespace VStancer.Client.Scripts
             return WheelScript.API_SetRearTrackWidth(vehicle, value);
         }
 
-        public object[] GetFrontCamber(int vehicle)
+        public float[] GetFrontCamber(int vehicle)
         {
             if (WheelScript == null)
-                return new object[] { false, default(float) };
+                return new float[] { };
 
-            return new object[] { WheelScript.API_GetFrontCamber(vehicle, out float value), value };
+            if (WheelScript.API_GetFrontCamber(vehicle, out float value))
+                return new float[] { value };
+
+            return new float[] { };
         }
 
-        public object[] GetRearCamber(int vehicle)
+        public float[] GetRearCamber(int vehicle)
         {
             if (WheelScript == null)
-                return new object[] { false, default(float) };
+                return new float[] { };
 
-            return new object[] { WheelScript.API_GetRearCamber(vehicle, out float value), value };
+            if (WheelScript.API_GetRearCamber(vehicle, out float value))
+                return new float[] { value };
+
+            return new float[] { };
         }
 
-        public object[] GetFrontTrackWidth(int vehicle)
+        public float[] GetFrontTrackWidth(int vehicle)
         {
             if (WheelScript == null)
-                return new object[] { false, default(float) };
+                return new float[] { };
 
-            return new object[] { WheelScript.API_GetFrontTrackWidth(vehicle, out float value), value };
+            if (WheelScript.API_GetFrontTrackWidth(vehicle, out float value))
+                return new float[] { value };
+
+            return new float[] { };
         }
 
-        public object[] GetRearTrackWidth(int vehicle)
+        public float[] GetRearTrackWidth(int vehicle)
         {
             if (WheelScript == null)
-                return new object[] { false, default(float) };
+                return new float[] { };
 
-            return new object[] { WheelScript.API_GetRearTrackWidth(vehicle, out float value), value };
+            if (WheelScript.API_GetRearTrackWidth(vehicle, out float value))
+                return new float[] { value };
+
+            return new float[] { };
         }
 
         public bool SaveLocalPreset(string id, int vehicle)
