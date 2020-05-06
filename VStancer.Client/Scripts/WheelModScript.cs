@@ -96,10 +96,9 @@ namespace VStancer.Client.Scripts
                 Menu.ResetPropertiesEvent += (sender, id) => OnMenuCommandInvoked(id);
             }
 
-
-            Tick += GetVehicleWheelModTask;
-            Tick += TimedTask;
+            // TODO: Consider using a task as workaround for values resetting when any tuning part is installed
             //Tick += TickTask;
+            Tick += TimedTask;
 
             mainScript.PlayerVehicleHandleChanged += (sender, handle) => PlayerVehicleChanged(handle);
 
@@ -108,15 +107,15 @@ namespace VStancer.Client.Scripts
             PlayerVehicleChanged(_mainScript.PlayerVehicleHandle);
         }
 
-        private async Task TickTask()
-        {
-            await Task.FromResult(0);
-
-            if (!DataIsValid)
-                return;
-
-            UpdateVehicleUsingData(_playerVehicleHandle, WheelModData);
-        }
+        //private async Task TickTask()
+        //{
+        //    await Task.FromResult(0);
+        //
+        //    if (!DataIsValid)
+        //        return;
+        //
+        //    UpdateVehicleUsingData(_playerVehicleHandle, WheelModData);
+        //}
 
         private async Task GetVehicleWheelModTask()
         {
@@ -139,13 +138,6 @@ namespace VStancer.Client.Scripts
             if (_playerVehicleHandle == -1)
                 return;
 
-            //await Delay(1000);
-#if DEBUG
-            Debug.WriteLine($"{nameof(VehicleWheelModChanged)}: {VehicleWheelMod}");
-            Debug.WriteLine($"Width: {GetVehicleWheelWidth(_playerVehicleHandle)}");
-            Debug.WriteLine($"Size: {GetVehicleWheelSize(_playerVehicleHandle)}");
-#endif
-
             if (WheelModData != null)
                 WheelModData.PropertyChanged -= OnWheelModDataPropertyChanged;
 
@@ -161,9 +153,6 @@ namespace VStancer.Client.Scripts
 
         private void PlayerVehicleChanged(int vehicle)
         {
-#if DEBUG
-            Debug.WriteLine($"New vehicle received {vehicle}");
-#endif
             if (vehicle == _playerVehicleHandle)
                 return;
 
@@ -176,24 +165,20 @@ namespace VStancer.Client.Scripts
             {
                 VehicleWheelMod = -1;
                 WheelModData = null;
+                Tick -= GetVehicleWheelModTask;
                 return;
             }
 
-            VehicleWheelMod = GetVehicleMod(_playerVehicleHandle, 23);
+            Tick += GetVehicleWheelModTask;
         }
 
         private async Task TimedTask()
         {
             long currentTime = (GetGameTimer() - _lastTime);
 
-            // Check if decorators needs to be updated
             if (currentTime > _mainScript.Config.Timer)
             {
                 UpdateWorldVehiclesUsingDecorators();
-
-                // This might be required as if a script edits and mod on the vehicle, wheel size and width will restore to default values
-                //if (DataIsValid)
-                //    UpdateVehicleUsingData(_playerVehicleHandle, WheelModData);
 
                 _lastTime = GetGameTimer();
             }
@@ -206,13 +191,25 @@ namespace VStancer.Client.Scripts
             if (!DoesEntityExist(vehicle) || data == null)
                 return;
 
-            if (!MathUtil.WithinEpsilon(GetVehicleWheelWidth(vehicle), data.WheelWidth, VStancerUtilities.Epsilon))
+            //if (!MathUtil.WithinEpsilon(GetVehicleWheelWidth(vehicle), data.WheelWidth, VStancerUtilities.Epsilon))
                 SetVehicleWheelWidth(vehicle, data.WheelWidth);
 
-            if (!MathUtil.WithinEpsilon(GetVehicleWheelSize(vehicle), data.WheelSize, VStancerUtilities.Epsilon))
+            //if (!MathUtil.WithinEpsilon(GetVehicleWheelSize(vehicle), data.WheelSize, VStancerUtilities.Epsilon))
                 SetVehicleWheelSize(vehicle, data.WheelSize);
 
-            // TODO: Also refresh colliders
+            for (int i = 0; i < data.FrontWheelsCount; i++)
+            {
+                SetVehicleWheelTireColliderWidth(vehicle, i, data.FrontTireColliderWidth);
+                SetVehicleWheelTireColliderSize(vehicle, i, data.FrontTireColliderSize);
+                SetVehicleWheelRimColliderSize(vehicle, i, data.FrontRimColliderSize);
+            }
+
+            for (int i = data.FrontWheelsCount; i < data.WheelsCount; i++)
+            {
+                SetVehicleWheelTireColliderWidth(vehicle, i, data.RearTireColliderWidth);
+                SetVehicleWheelTireColliderSize(vehicle, i, data.RearTireColliderSize);
+                SetVehicleWheelRimColliderSize(vehicle, i, data.RearRimColliderSize);
+            }
         }
 
         private void UpdateWorldVehiclesUsingDecorators()
@@ -249,7 +246,7 @@ namespace VStancer.Client.Scripts
                 {
                     wheelWidth_def = GetVehicleWheelWidth(vehicle);
                     await Delay(100);
-                } while (MathUtil.IsZero(wheelWidth_def));
+                } while (MathUtil.IsZero(wheelWidth_def) || MathUtil.IsOne(wheelWidth_def));
             }
 
             if (DecorExistOn(vehicle, DefaultSizeID))
@@ -262,7 +259,7 @@ namespace VStancer.Client.Scripts
                 {
                     wheelSize_def = GetVehicleWheelSize(vehicle);
                     await Delay(100);
-                } while (MathUtil.IsZero(wheelSize_def));
+                } while (MathUtil.IsZero(wheelSize_def) || MathUtil.IsOne(wheelSize_def));
             }
 
             float frontTireColliderWidth_def = DecorExistOn(vehicle, DefaultFrontTireColliderWidthID) ? DecorGetFloat(vehicle, DefaultFrontTireColliderWidthID) : GetVehicleWheelTireColliderWidth(vehicle, 0);

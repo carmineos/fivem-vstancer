@@ -20,7 +20,20 @@ namespace VStancer.Client.Scripts
         private long _lastTime;
         private int _playerVehicleHandle;
 
-        internal WheelData WheelData { get; set; }
+        private WheelData _wheelData;
+        internal WheelData WheelData 
+        { 
+            get => _wheelData;
+            set
+            {
+                if (Equals(_wheelData, value))
+                    return;
+
+                _wheelData = value;
+                WheelDataChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
         internal VStancerConfig Config => _mainScript.Config;
         internal WheelMenu Menu { get; private set; }
 
@@ -62,19 +75,14 @@ namespace VStancer.Client.Scripts
 
             mainScript.PlayerVehicleHandleChanged += (sender, handle) => PlayerVehicleChanged(handle);
             PlayerVehicleChanged(_mainScript.PlayerVehicleHandle);
+
+            WheelDataChanged += (sender, args) => OnWheelDataChanged();
         }
 
-        private void InvalidateData()
+        private void OnWheelDataChanged()
         {
-            if (DataIsValid)
-            {
-                WheelData.PropertyChanged -= OnWheelDataPropertyChanged;
-                WheelData = null;
-
-                _playerVehicleHandle = -1;
-
-                Tick -= UpdatePlayerVehicleTask;
-            }
+            if (WheelData != null)
+                WheelData.PropertyChanged += OnWheelDataPropertyChanged;
         }
 
         private void PlayerVehicleChanged(int vehicle)
@@ -84,18 +92,19 @@ namespace VStancer.Client.Scripts
 
             _playerVehicleHandle = vehicle;
 
+            if (WheelData != null)
+                WheelData.PropertyChanged -= OnWheelDataPropertyChanged;
+
             if (_playerVehicleHandle == -1)
             {
-                InvalidateData();
+                WheelData = null;
+                Tick -= UpdatePlayerVehicleTask;
                 return;
             }
 
             WheelData = GetWheelDataFromEntity(vehicle);
-            WheelData.PropertyChanged += OnWheelDataPropertyChanged;
 
             Tick += UpdatePlayerVehicleTask;
-
-            WheelDataChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private async Task UpdatePlayerVehicleTask()
@@ -514,16 +523,13 @@ namespace VStancer.Client.Scripts
             if (preset == null)
                 return false;
 
+            if (!DoesEntityExist(vehicle))
+                return false;
+
             float frontTrackWidth = preset.FrontTrackWidth;
             float rearTrackWidth = preset.RearTrackWidth;
             float frontCamber = preset.FrontCamber;
             float rearCamber = preset.RearCamber;
-
-#if DEBUG
-            Debug.WriteLine($"{nameof(VStancerDataScript)}: SetVstancerPreset parameters {frontTrackWidth} {frontCamber} {rearTrackWidth} {rearCamber} {frontTrackWidth_def} {frontCamber_def} {rearTrackWidth_def} {rearCamber_def}");
-#endif
-            if (!DoesEntityExist(vehicle))
-                return false;
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
@@ -543,9 +549,6 @@ namespace VStancer.Client.Scripts
                     RearTrackWidth = rearTrackWidth,
                     RearCamber = rearCamber
                 };
-
-                WheelData.PropertyChanged += OnWheelDataPropertyChanged;
-                WheelDataChanged?.Invoke(this, EventArgs.Empty);
             }
             else
             {
