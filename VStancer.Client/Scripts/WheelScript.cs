@@ -238,8 +238,6 @@ namespace VStancer.Client.Scripts
             if (!DoesEntityExist(vehicle))
                 return null;
 
-            Debug.WriteLine($"WARNING: Retrieving wheel data for a damaged vehicle, default data of the wheels might be wrong");
-
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
             int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
 
