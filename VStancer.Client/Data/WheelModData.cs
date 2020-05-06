@@ -57,8 +57,8 @@ namespace VStancer.Client.Data
         public WheelModNode[] DefaultNodes { get; private set; }
 
         public WheelModData(int wheelsCount, float width, float radius,
-            float frontTireColliderScaleX, float frontTireColliderScaleYZ, float frontRimColliderScaleYZ,
-            float rearTireColliderScaleX, float rearTireColliderScaleYZ, float rearRimColliderScaleYZ)
+            float frontTireColliderWidth, float frontTireColliderSize, float frontRimColliderSize,
+            float rearTireColliderWidth, float rearTireColliderSize, float rearRimColliderSize)
         {
             WheelsCount = wheelsCount;
             FrontWheelsCount = VStancerUtilities.CalculateFrontWheelsCount(WheelsCount);
@@ -73,34 +73,16 @@ namespace VStancer.Client.Data
 
             for (int i = 0; i < FrontWheelsCount; i++)
             {
-                if (i % 2 == 0)
-                {
-                    DefaultNodes[i].TireColliderWidth = frontTireColliderScaleX;
-                    DefaultNodes[i].TireColliderSize = frontTireColliderScaleYZ;
-                    DefaultNodes[i].RimColliderSize = frontRimColliderScaleYZ;
-                }
-                else
-                {
-                    DefaultNodes[i].TireColliderWidth = -frontTireColliderScaleX;
-                    DefaultNodes[i].TireColliderSize = -frontTireColliderScaleYZ;
-                    DefaultNodes[i].RimColliderSize = -frontRimColliderScaleYZ;
-                }
+                DefaultNodes[i].TireColliderWidth = frontTireColliderWidth;
+                DefaultNodes[i].TireColliderSize = frontTireColliderSize;
+                DefaultNodes[i].RimColliderSize = frontRimColliderSize;
             }
 
             for (int i = FrontWheelsCount; i < WheelsCount; i++)
             {
-                if (i % 2 == 0)
-                {
-                    DefaultNodes[i].TireColliderWidth = rearTireColliderScaleX;
-                    DefaultNodes[i].TireColliderSize = rearTireColliderScaleYZ;
-                    DefaultNodes[i].RimColliderSize = rearRimColliderScaleYZ;
-                }
-                else
-                {
-                    DefaultNodes[i].TireColliderWidth = -rearTireColliderScaleX;
-                    DefaultNodes[i].TireColliderSize = -rearTireColliderScaleYZ;
-                    DefaultNodes[i].RimColliderSize = -rearRimColliderScaleYZ;
-                }
+                DefaultNodes[i].TireColliderWidth = rearTireColliderWidth;
+                DefaultNodes[i].TireColliderSize = rearTireColliderSize;
+                DefaultNodes[i].RimColliderSize = rearRimColliderSize;
             }
 
             DefaultFrontTireColliderWidthRatio = DefaultWheelWidth / DefaultFrontTireColliderWidth;
