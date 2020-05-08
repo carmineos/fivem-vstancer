@@ -181,9 +181,10 @@ namespace VStancer.Client.Scripts
                 return;
 
             int frontWheelsCount = data.FrontWheelsCount;
-            
+            WheelDataNode[] nodes = data.GetNodes();
+
             for (int i = 0; i < frontWheelsCount; i++)
-                SetVehicleWheelYRotation(vehicle, i, data.Nodes[i].RotationY);
+                SetVehicleWheelYRotation(vehicle, i, nodes[i].RotationY);
 
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, data.DefaultFrontCamber, data.FrontCamber);
             VStancerUtilities.UpdateFloatDecorator(vehicle, FrontCamberID, data.FrontCamber, data.DefaultFrontCamber);
@@ -196,9 +197,10 @@ namespace VStancer.Client.Scripts
 
             int wheelsCount = data.WheelsCount;
             int frontWheelsCount = data.FrontWheelsCount;
+            WheelDataNode[] nodes = data.GetNodes();
 
             for (int i = frontWheelsCount; i < wheelsCount; i++)
-                SetVehicleWheelYRotation(vehicle, i, data.Nodes[i].RotationY);
+                SetVehicleWheelYRotation(vehicle, i, nodes[i].RotationY);
 
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearCamberID, data.DefaultRearCamber, data.RearCamber);
             VStancerUtilities.UpdateFloatDecorator(vehicle, RearCamberID, data.RearCamber, data.DefaultRearCamber);
@@ -210,9 +212,10 @@ namespace VStancer.Client.Scripts
                 return;
 
             int frontWheelsCount = data.FrontWheelsCount;
+            WheelDataNode[] nodes = data.GetNodes();
 
             for (int i = 0; i < frontWheelsCount; i++)
-                SetVehicleWheelXOffset(vehicle, i, data.Nodes[i].PositionX);
+                SetVehicleWheelXOffset(vehicle, i, nodes[i].PositionX);
 
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, data.DefaultFrontTrackWidth, data.FrontTrackWidth);
             VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTrackWidthID, data.FrontTrackWidth, data.DefaultFrontTrackWidth);
@@ -225,9 +228,10 @@ namespace VStancer.Client.Scripts
 
             int wheelsCount = data.WheelsCount;
             int frontWheelsCount = data.FrontWheelsCount;
+            WheelDataNode[] nodes = data.GetNodes();
 
             for (int i = frontWheelsCount; i < wheelsCount; i++)
-                SetVehicleWheelXOffset(vehicle, i, data.Nodes[i].PositionX);
+                SetVehicleWheelXOffset(vehicle, i, nodes[i].PositionX);
 
             VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, data.DefaultRearTrackWidth, data.RearTrackWidth);
             VStancerUtilities.UpdateFloatDecorator(vehicle, RearTrackWidthID, data.RearTrackWidth, data.DefaultRearTrackWidth);
@@ -325,10 +329,12 @@ namespace VStancer.Client.Scripts
                 return;
 
             int wheelsCount = data.WheelsCount;
+            WheelDataNode[] nodes = data.GetNodes();
+
             for (int index = 0; index < wheelsCount; index++)
             {
-                SetVehicleWheelXOffset(vehicle, index, data.Nodes[index].PositionX);
-                SetVehicleWheelYRotation(vehicle, index, data.Nodes[index].RotationY);
+                SetVehicleWheelXOffset(vehicle, index, nodes[index].PositionX);
+                SetVehicleWheelYRotation(vehicle, index, nodes[index].RotationY);
             }
 
             UpdateVehicleDecorators(vehicle, data);
