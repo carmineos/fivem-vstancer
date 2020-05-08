@@ -21,6 +21,7 @@ namespace VStancer.Client.Scripts
         private int _playerPedHandle;
         private Vector3 _playerPedCoords;
         private List<int> _worldVehiclesHandles;
+        private float _maxDistanceSquared;
 
         internal int PlayerVehicleHandle
         {
@@ -71,8 +72,10 @@ namespace VStancer.Client.Scripts
             _playerPedHandle = -1;
             _playerPedCoords = Vector3.Zero;
             _worldVehiclesHandles = new List<int>();
+            _maxDistanceSquared = 10;
 
             Config = LoadConfig();
+            _maxDistanceSquared = (float)Math.Sqrt(Config.ScriptRange);
             WheelScript = new WheelScript(this);
             RegisterScript(WheelScript);
 
@@ -131,9 +134,8 @@ namespace VStancer.Client.Scripts
                     continue;
 
                 Vector3 coords = GetEntityCoords(handle, true);
-                float maxDistanceSquared = (float)Math.Sqrt(Config.ScriptRange);
 
-                if (Vector3.DistanceSquared(_playerPedCoords, coords) <= maxDistanceSquared)
+                if (Vector3.DistanceSquared(_playerPedCoords, coords) <= _maxDistanceSquared)
                     closeVehicles.Add(handle);
             }
 
@@ -241,6 +243,7 @@ namespace VStancer.Client.Scripts
                 if (float.TryParse(args[0], out float value))
                 {
                     Config.ScriptRange = value;
+                    _maxDistanceSquared = (float)Math.Sqrt(value);
                     Debug.WriteLine($"{Globals.ScriptName}: {nameof(Config.ScriptRange)} updated to {value}");
                 }
                 else Debug.WriteLine($"{Globals.ScriptName}: Error parsing {args[0]} as float");
