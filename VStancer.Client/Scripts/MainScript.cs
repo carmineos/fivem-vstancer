@@ -250,7 +250,6 @@ namespace VStancer.Client.Scripts
 
             }), false);
 
-
             RegisterCommand("vstancer_debug", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
@@ -268,7 +267,6 @@ namespace VStancer.Client.Scripts
 
             }), false);
 
-
             RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
             {
                 if (WheelScript?.WheelData != null)
@@ -282,7 +280,6 @@ namespace VStancer.Client.Scripts
                     Debug.WriteLine($"{Globals.ScriptName}: {nameof(WheelModScript.WheelModData)} is null");
             }), false);
 
-
             RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
             {
                 if (WheelScript != null)
@@ -291,11 +288,14 @@ namespace VStancer.Client.Scripts
                     WheelModScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
             }), false);
 
-            if (Config.ExposeCommand)
-                RegisterCommand("vstancer", new Action<int, dynamic>((source, args) => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }), false);
+            if(!Config.DisableMenu)
+            {
+                if (Config.ExposeCommand)
+                    RegisterCommand("vstancer", new Action<int, dynamic>((source, args) => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }), false);
 
-            if (Config.ExposeEvent)
-                EventHandlers.Add("vstancer:toggleMenu", new Action(() => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }));
+                if (Config.ExposeEvent)
+                    EventHandlers.Add("vstancer:toggleMenu", new Action(() => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }));
+            }
         }
 
         public float[] GetWheelPreset(int vehicle)
