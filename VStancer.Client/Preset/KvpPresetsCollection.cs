@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using static CitizenFX.Core.Native.API;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace VStancer.Client.Preset
 {
@@ -11,7 +12,7 @@ namespace VStancer.Client.Preset
     /// </summary>
     public class KvpPresetsCollection : IPresetsCollection<string, VStancerPreset>
     {
-        private string mKvpPrefix;
+        private readonly string mKvpPrefix;
 
         public event EventHandler PresetsCollectionChanged;
 
@@ -89,7 +90,7 @@ namespace VStancer.Client.Preset
 
         public IEnumerable<string> GetKeys()
         {
-            return VStancerUtilities.GetKeyValuePairs(mKvpPrefix);
+            return VStancerUtilities.GetKeyValuePairs(mKvpPrefix).Select(key => key.Remove(0, mKvpPrefix.Length));
         }
     }
 }

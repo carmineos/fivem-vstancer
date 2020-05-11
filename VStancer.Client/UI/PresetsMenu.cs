@@ -43,7 +43,7 @@ namespace VStancer.Client.UI
             {
                 if (GetMenuItems().Count > 0)
                 {
-                    string presetName = GetMenuItems()[CurrentIndex].Text;
+                    string presetName = GetMenuItems()[CurrentIndex].ItemData;
                     DeletePresetEvent?.Invoke(this, presetName);
                 }
             }), true));
@@ -62,10 +62,10 @@ namespace VStancer.Client.UI
 
             foreach (var key in _script.Presets.GetKeys())
             {
-                AddMenuItem(new MenuItem(key.Remove(0, Globals.KvpPrefix.Length)) { ItemData = key });
+                AddMenuItem(new MenuItem(key) { ItemData = key });
             }
         }
 
-        private void ItemSelect(Menu menu, MenuItem menuItem, int itemIndex) => ApplyPresetEvent?.Invoke(menu, menuItem.Text);
+        private void ItemSelect(Menu menu, MenuItem menuItem, int itemIndex) => ApplyPresetEvent?.Invoke(menu, menuItem.ItemData);
     }
 }
