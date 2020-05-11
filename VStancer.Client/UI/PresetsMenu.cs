@@ -25,21 +25,21 @@ namespace VStancer.Client.UI
             InstructionalButtons.Add(Control.PhoneOption, GetLabelText("ITEM_DEL"));
 
             // Disable Controls binded on the same key
-            ButtonPressHandlers.Add(new ButtonPressHandler(Control.SelectWeapon, ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) =>
+            ButtonPressHandlers.Add(new ButtonPressHandler(Control.SelectWeapon, ControlPressCheckType.JUST_RELEASED, new Action<Menu, Control>((sender, control) =>
             {
             }), true));
 
-            ButtonPressHandlers.Add(new ButtonPressHandler(Control.VehicleExit, ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) =>
+            ButtonPressHandlers.Add(new ButtonPressHandler(Control.VehicleExit, ControlPressCheckType.JUST_RELEASED, new Action<Menu, Control>((sender, control) =>
             {
             }), true));
 
-            ButtonPressHandlers.Add(new ButtonPressHandler(Control.PhoneExtraOption, ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>(async (sender, control) =>
+            ButtonPressHandlers.Add(new ButtonPressHandler(Control.PhoneExtraOption, ControlPressCheckType.JUST_RELEASED, new Action<Menu, Control>(async (sender, control) =>
             {
                 string presetName = await _script.GetPresetNameFromUser("VSTANCER_ENTER_PRESET_NAME", "");
                 SavePresetEvent?.Invoke(this, presetName.Trim());
             }), true));
 
-            ButtonPressHandlers.Add(new ButtonPressHandler(Control.PhoneOption, ControlPressCheckType.JUST_PRESSED, new Action<Menu, Control>((sender, control) =>
+            ButtonPressHandlers.Add(new ButtonPressHandler(Control.PhoneOption, ControlPressCheckType.JUST_RELEASED, new Action<Menu, Control>((sender, control) =>
             {
                 if (GetMenuItems().Count > 0)
                 {
