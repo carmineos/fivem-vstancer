@@ -91,7 +91,7 @@ namespace VStancer.Client.UI
 
             if (PresetsMenu != null)
             {
-                PresetsMenuMenuItem = new MenuItem("Personal Presets", "The menu to manage the presets saved by you.")
+                PresetsMenuMenuItem = new MenuItem("Personal Presets Menu", "The menu to manage the presets saved by you.")
                 {
                     Label = "→→→"
                 };
@@ -122,7 +122,7 @@ namespace VStancer.Client.UI
             WheelModMenuMenuItem.Enabled = enabled;
             WheelModMenuMenuItem.RightIcon = enabled ? MenuItem.Icon.NONE : MenuItem.Icon.LOCK;
             WheelModMenuMenuItem.Label = enabled ? "→→→" : string.Empty;
-            WheelModMenuMenuItem.Description = enabled ? "The menu to edit extra properties." : "Install a wheel mod to access to this menu";
+            WheelModMenuMenuItem.Description = enabled ? "The menu to edit custom wheel properties." : "Install a custom wheel to access to this menu.";
         }
     }
 }
