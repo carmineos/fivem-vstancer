@@ -45,8 +45,8 @@ namespace VStancer.Client.UI
 
             if (_script.WheelModScript != null)
             {
-                _script.WheelModScript.WheelModDataChanged += (sender, args) => UpdateExtraMenuItem();
                 WheelModMenu = _script.WheelModScript.Menu;
+                WheelModMenu.PropertyChanged += (sender, args) => UpdateWheelModMenuMenuItem();
             }
 
             if (_script.LocalPresetsScript != null)
@@ -81,7 +81,7 @@ namespace VStancer.Client.UI
                 {
                     Label = "→→→"
                 };
-                UpdateExtraMenuItem();
+                UpdateWheelModMenuMenuItem();
 
                 AddMenuItem(WheelModMenuMenuItem);
 
@@ -112,15 +112,12 @@ namespace VStancer.Client.UI
             }
         }
 
-        private void UpdateExtraMenuItem()
+        private void UpdateWheelModMenuMenuItem()
         {
             if (WheelModMenuMenuItem == null)
                 return;
 
-            var enabled = false;
-
-            if (_script.WheelModScript != null)
-                enabled = _script.WheelModScript.DataIsValid;
+            var enabled = WheelModMenu != null ? WheelModMenu.Enabled : false;
 
             WheelModMenuMenuItem.Enabled = enabled;
             WheelModMenuMenuItem.RightIcon = enabled ? MenuItem.Icon.NONE : MenuItem.Icon.LOCK;

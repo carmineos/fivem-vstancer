@@ -8,6 +8,22 @@ namespace VStancer.Client.UI
     internal class WheelModMenu : Menu
     {
         private readonly WheelModScript _script;
+        private bool _enabled;
+
+        internal event EventHandler<string> PropertyChanged;
+
+        internal bool Enabled 
+        { 
+            get => _enabled;
+            private set
+            {
+                if (Equals(value, _enabled))
+                    return;
+
+                _enabled = value;
+                PropertyChanged?.Invoke(this, nameof(Enabled));
+            } 
+        }
 
         internal WheelModMenu(WheelModScript script, string name = Globals.ScriptName, string subtitle = "Wheel Mod Menu") : base(name, subtitle)
         {
@@ -58,7 +74,9 @@ namespace VStancer.Client.UI
         {
             ClearMenuItems();
 
-            if (!_script.DataIsValid)
+            Enabled = _script.DataIsValid;
+            
+            if (!Enabled)
                 return;
 
             WheelSizeListItem = CreateDynamicFloatList("Wheel Size",
