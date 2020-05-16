@@ -11,6 +11,7 @@
         public int ToggleMenuControl { get; set; }
         public float FloatStep { get; set; }
         public bool EnableWheelMod { get; set; }
+        public bool EnablePresets { get; set; }
         public WheelLimits WheelLimits { get; set; }
         public WheelModLimits WheelModLimits { get; set; }
 
@@ -25,6 +26,7 @@
             ToggleMenuControl = 167;
             FloatStep = 0.01f;
             EnableWheelMod = true;
+            EnablePresets = true;
             
             WheelLimits = new WheelLimits 
             { 

@@ -8,6 +8,7 @@
   "ToggleMenuControl": 167,
   "FloatStep": 0.01,
   "EnableWheelMod": true,
+  "EnablePresets": true,
   "WheelLimits": {
     "FrontTrackWidth": 0.25,
     "RearTrackWidth": 0.25,

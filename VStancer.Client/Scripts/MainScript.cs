@@ -85,9 +85,12 @@ namespace VStancer.Client.Scripts
                 RegisterScript(WheelModScript);
             }
 
-            LocalPresetsScript = new LocalPresetsScript(this);
+            if (Config.EnablePresets)
+            {
+                LocalPresetsScript = new LocalPresetsScript(this);
+            }
 
-            if(!Config.DisableMenu)
+            if (!Config.DisableMenu)
                 Menu = new MainMenu(this);
 
             Tick += GetPlayerAndVehicleTask;
