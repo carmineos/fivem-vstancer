@@ -47,6 +47,7 @@ Workaround: If a vehicle is damaged, be sure to fix it before to enter it and cr
 * `ToggleMenuControl`:The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
 * `FloatStep`: The step used to increase and decrease a value
 * `EnableWheelMod`: Enables the script to edit wheel size and width of tuning wheels
+* `EnablePresets`: Enables the script to manage presets
 * `WheelLimits`:
     * `FrontTrackWidth`: The max value you can increase or decrease the front Track Width from its default value
     * `RearTrackWidth`: The max value you can increase or decrease the rear Track Width from its default value
