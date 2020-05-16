@@ -61,11 +61,14 @@ namespace VStancer.Client.Scripts
 
         private async void OnApplyPresetInvoked(string presetKey)
         {
-            var loadedPreset = Presets.Load(presetKey);
+            if (!Presets.Load(presetKey, out VStancerPreset loadedPreset))
+            {
+                Screen.ShowNotification($"~r~ERROR~w~ No Client preset with name ~b~{presetKey}~w~ found");
+                return;
+            }
 
             if (loadedPreset == null)
             {
-                await Task.FromResult(0);
                 Screen.ShowNotification($"~r~ERROR~w~ Client preset ~b~{presetKey}~w~ corrupted");
                 return;
             }
@@ -104,7 +107,8 @@ namespace VStancer.Client.Scripts
 
         internal bool API_LoadPreset(string presetKey, int vehicle)
         {
-            var loadedPreset = Presets.Load(presetKey);
+            if (!Presets.Load(presetKey, out VStancerPreset loadedPreset))
+                return false;
 
             if (loadedPreset == null)
                 return false;

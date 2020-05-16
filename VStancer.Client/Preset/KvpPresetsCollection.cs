@@ -68,11 +68,13 @@ namespace VStancer.Client.Preset
             return true;
         }
 
-        public VStancerPreset Load(string name)
+        public bool Load(string name, out VStancerPreset preset)
         {
+            preset = null;
+
             // Check if the preset ID is valid
             if (string.IsNullOrEmpty(name))
-                return null;
+                return false;
 
             // Get the KVP key
             string key = string.Concat(mKvpPrefix, name);
@@ -82,10 +84,11 @@ namespace VStancer.Client.Preset
 
             // Check if the value is valid
             if (string.IsNullOrEmpty(value))
-                return null;
+                return false;
 
             // Create a preset
-            return JsonConvert.DeserializeObject<VStancerPreset>(value);
+            preset = JsonConvert.DeserializeObject<VStancerPreset>(value);
+            return true;
         }
 
         public IEnumerable<string> GetKeys()
