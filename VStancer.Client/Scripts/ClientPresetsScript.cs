@@ -10,21 +10,21 @@ using static CitizenFX.Core.Native.API;
 
 namespace VStancer.Client.Scripts
 {
-    internal class LocalPresetsScript
+    internal class ClientPresetsScript
     {
         private readonly MainScript _mainScript;
 
         internal IPresetsCollection<string, VStancerPreset> Presets { get; private set; }
-        internal PresetsMenu Menu { get; private set; }
+        internal ClientPresetsMenu Menu { get; private set; }
 
-        public LocalPresetsScript(MainScript mainScript)
+        public ClientPresetsScript(MainScript mainScript)
         {
             _mainScript = mainScript;
             Presets = new KvpPresetsCollection(Globals.KvpPrefix);
 
             if (!_mainScript.Config.DisableMenu)
             {
-                Menu = new PresetsMenu(this);
+                Menu = new ClientPresetsMenu(this);
 
                 Menu.DeletePresetEvent += (sender, presetID) => OnDeletePresetInvoked(presetID);
                 Menu.SavePresetEvent += (sender, presetID) => OnSavePresetInvoked(presetID);
@@ -40,7 +40,7 @@ namespace VStancer.Client.Scripts
         private void OnDeletePresetInvoked(string presetKey)
         {
             if (Presets.Delete(presetKey))
-                Screen.ShowNotification($"Personal preset ~r~{presetKey}~w~ deleted");
+                Screen.ShowNotification($"Client preset ~r~{presetKey}~w~ deleted");
             else
                 Screen.ShowNotification($"~r~ERROR~w~ No preset found with {presetKey} key.");
         }
@@ -54,7 +54,7 @@ namespace VStancer.Client.Scripts
             };
 
             if (Presets.Save(presetKey, preset))
-                Screen.ShowNotification($"Personal preset ~g~{presetKey}~w~ saved");
+                Screen.ShowNotification($"Client preset ~g~{presetKey}~w~ saved");
             else
                 Screen.ShowNotification($"~r~ERROR~w~ The name {presetKey} is invalid or already used.");
         }
@@ -66,14 +66,14 @@ namespace VStancer.Client.Scripts
             if (loadedPreset == null)
             {
                 await Task.FromResult(0);
-                Screen.ShowNotification($"~r~ERROR~w~ Personal preset ~b~{presetKey}~w~ corrupted");
+                Screen.ShowNotification($"~r~ERROR~w~ Client preset ~b~{presetKey}~w~ corrupted");
                 return;
             }
 
             await _mainScript.WheelScript.SetWheelPreset(loadedPreset.WheelPreset);
             await _mainScript.WheelModScript.SetWheelModPreset(loadedPreset.WheelModPreset);
 
-            Screen.ShowNotification($"Personal preset ~b~{presetKey}~w~ applied");
+            Screen.ShowNotification($"Client preset ~b~{presetKey}~w~ applied");
         }
 
         internal bool API_DeletePreset(string presetKey)
@@ -119,7 +119,7 @@ namespace VStancer.Client.Scripts
             return false;
         }
 
-        internal IEnumerable<string> API_GetLocalPresetList()
+        internal IEnumerable<string> API_GetClientPresetList()
         {
             return Presets.GetKeys();
         }

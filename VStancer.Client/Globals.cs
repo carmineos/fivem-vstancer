@@ -16,5 +16,10 @@
         /// The expected name of the resource
         /// </summary>
         public const string ResourceName = "vstancer";
+
+        /// <summary>
+        /// The prefix used for commands exposed by the script
+        /// </summary>
+        public const string CommandPrefix = "vstancer_";
     }
 }

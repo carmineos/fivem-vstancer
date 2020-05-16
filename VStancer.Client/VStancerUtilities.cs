@@ -9,11 +9,6 @@ namespace VStancer.Client
     {
         public const float Epsilon = 0.001f;
 
-        /// <summary>
-        /// Calculate the number of front wheels of a vehicle, starting from the number of all the wheels
-        /// </summary>
-        /// <param name="wheelsCount">The number of wheels of a such vehicle</param>
-        /// <returns></returns>
         public static int CalculateFrontWheelsCount(int wheelsCount)
         {
             int _frontWheelsCount = wheelsCount / 2;
@@ -75,7 +70,7 @@ namespace VStancer.Client
                 {
                     DecorSetFloat(vehicle, name, currentValue);
 #if DEBUG
-                    Debug.WriteLine($"{Globals.ScriptName}: Updated decorator {name} from {decorValue} to {currentValue} on vehicle {vehicle}");
+                    Debug.WriteLine($"Updated decorator {name} from {decorValue} to {currentValue} on vehicle {vehicle}");
 #endif
                 }
             }
@@ -85,7 +80,7 @@ namespace VStancer.Client
                 {
                     DecorSetFloat(vehicle, name, currentValue);
 #if DEBUG
-                    Debug.WriteLine($"{Globals.ScriptName}: Added decorator {name} with value {currentValue} to vehicle {vehicle}");
+                    Debug.WriteLine($"Added decorator {name} with value {currentValue} to vehicle {vehicle}");
 #endif
                 }
             }

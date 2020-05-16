@@ -13,11 +13,11 @@ namespace VStancer.Client.UI
 
         private WheelMenu WheelMenu { get; set; }
         private WheelModMenu WheelModMenu { get; set; }
-        private PresetsMenu PresetsMenu { get; set; }
+        private ClientPresetsMenu ClientPresetsMenu { get; set; }
 
         private MenuItem WheelMenuMenuItem { get; set; }
         private MenuItem WheelModMenuMenuItem { get; set; }
-        private MenuItem PresetsMenuMenuItem { get; set; }
+        private MenuItem ClientPresetsMenuMenuItem { get; set; }
 
 
         internal MainMenu(MainScript script, string name = Globals.ScriptName, string subtitle = "Main Menu") : base(name, subtitle)
@@ -49,8 +49,8 @@ namespace VStancer.Client.UI
                 WheelModMenu.PropertyChanged += (sender, args) => UpdateWheelModMenuMenuItem();
             }
 
-            if (_script.LocalPresetsScript != null)
-                PresetsMenu = _script.LocalPresetsScript.Menu;
+            if (_script.ClientPresetsScript != null)
+                ClientPresetsMenu = _script.ClientPresetsScript.Menu;
 
             Update();
         }
@@ -89,17 +89,17 @@ namespace VStancer.Client.UI
                 MenuController.BindMenuItem(this, WheelModMenu, WheelModMenuMenuItem);
             }
 
-            if (PresetsMenu != null)
+            if (ClientPresetsMenu != null)
             {
-                PresetsMenuMenuItem = new MenuItem("Personal Presets Menu", "The menu to manage the presets saved by you.")
+                ClientPresetsMenuMenuItem = new MenuItem("Client Presets Menu", "The menu to manage the presets saved by you.")
                 {
                     Label = "→→→"
                 };
 
-                AddMenuItem(PresetsMenuMenuItem);
+                AddMenuItem(ClientPresetsMenuMenuItem);
 
-                MenuController.AddSubmenu(this, PresetsMenu);
-                MenuController.BindMenuItem(this, PresetsMenu, PresetsMenuMenuItem);
+                MenuController.AddSubmenu(this, ClientPresetsMenu);
+                MenuController.BindMenuItem(this, ClientPresetsMenu, ClientPresetsMenuMenuItem);
             }
         }
 

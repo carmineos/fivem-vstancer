@@ -6,11 +6,11 @@ using VStancer.Client.Scripts;
 
 namespace VStancer.Client.UI
 {
-    internal class PresetsMenu : Menu
+    internal class ClientPresetsMenu : Menu
     {
-        private readonly LocalPresetsScript _script;
+        private readonly ClientPresetsScript _script;
 
-        internal PresetsMenu(LocalPresetsScript script, string name = Globals.ScriptName, string subtitle = "Personal Presets Menu") : base(name, subtitle)
+        internal ClientPresetsMenu(ClientPresetsScript script, string name = Globals.ScriptName, string subtitle = "Client Presets Menu") : base(name, subtitle)
         {
             _script = script;
 

@@ -47,7 +47,7 @@ Workaround: If a vehicle is damaged, be sure to fix it before to enter it and cr
 * `ToggleMenuControl`:The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
 * `FloatStep`: The step used to increase and decrease a value
 * `EnableWheelMod`: Enables the script to edit wheel size and width of tuning wheels
-* `EnablePresets`: Enables the script to manage presets
+* `EnableClientPresets`: Enables the script to manage clients' presets
 * `WheelLimits`:
     * `FrontTrackWidth`: The max value you can increase or decrease the front Track Width from its default value
     * `RearTrackWidth`: The max value you can increase or decrease the rear Track Width from its default value
@@ -72,10 +72,10 @@ bool SetFrontCamber(int vehicle, float value);
 bool SetRearCamber(int vehicle, float value);
 bool SetFrontTrackWidth(int vehicle, float value);
 bool SetRearTrackWidth(int vehicle, float value);
-bool SaveLocalPreset(string presetName, int vehicle);
-bool LoadLocalPreset(string presetName, int vehicle);
-bool DeleteLocalPreset(string presetName);
-string[] GetLocalPresetList();
+bool SaveClientPreset(string presetName, int vehicle);
+bool LoadClientPreset(string presetName, int vehicle);
+bool DeleteClientPreset(string presetName);
+string[] GetClientPresetList();
 ```
 
 **NOTE**
@@ -279,7 +279,7 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
     ```
 
     </details>
-* **SaveLocalPreset**
+* **SaveClientPreset**
     * string presetName: the name you want to use for the saved preset
     * int vehicle: the handle of the vehicle entity you want to save the preset from
     * bool result: returns `true` if the action successfully executed otherwise `false`
@@ -289,15 +289,15 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
 
     C#:
     ```csharp
-    bool result = Exports["vstancer"].SaveLocalPreset(presetName, vehicle);
+    bool result = Exports["vstancer"].SaveClientPreset(presetName, vehicle);
     ```
     Lua:
     ```lua
-    local result = exports["vstancer"]:SaveLocalPreset(presetName, vehicle);
+    local result = exports["vstancer"]:SaveClientPreset(presetName, vehicle);
     ```
 
     </details>
-* **LoadLocalPreset**
+* **LoadClientPreset**
     * string presetName: the name of the preset you want to load
     * int vehicle: the handle of the vehicle entity you want to load the preset on
     * bool result: returns `true` if the action successfully executed otherwise `false`
@@ -307,15 +307,15 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
 
     C#:
     ```csharp
-    bool result = Exports["vstancer"].LoadLocalPreset(presetName, vehicle);
+    bool result = Exports["vstancer"].LoadClientPreset(presetName, vehicle);
     ```
     Lua:
     ```lua
-    local result = exports["vstancer"]:LoadLocalPreset(presetName, vehicle);
+    local result = exports["vstancer"]:LoadClientPreset(presetName, vehicle);
     ```
 
     </details>
-* **DeleteLocalPreset**
+* **DeleteClientPreset**
     * string presetName: the name of the preset you want to delete
     * bool result: returns `true` if the action successfully executed otherwise `false`
     
@@ -324,15 +324,15 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
 
     C#:
     ```csharp
-    bool result = Exports["vstancer"].DeleteLocalPreset(presetName);
+    bool result = Exports["vstancer"].DeleteClientPreset(presetName);
     ```
     Lua:
     ```lua
-    local result = exports["vstancer"]:DeleteLocalPreset(presetName);
+    local result = exports["vstancer"]:DeleteClientPreset(presetName);
     ```
 
     </details>
-* **GetLocalPresetList**
+* **GetClientPresetList**
     * string[] presetList: the list of all the presets saved locally
     
     <details>
@@ -340,11 +340,11 @@ Current API don't support editing of tuning wheel data (wheelSize and wheelWidth
 
     C#:
     ```csharp
-    string[] presetList = Exports["vstancer"].GetLocalPresetList();
+    string[] presetList = Exports["vstancer"].GetClientPresetList();
     ```
     Lua:
     ```lua
-    local presetList = exports["vstancer"]:GetLocalPresetList();
+    local presetList = exports["vstancer"]:GetClientPresetList();
     ```
 
     </details>

@@ -57,13 +57,13 @@ namespace VStancer.Client.Scripts
         internal VStancerConfig Config { get; private set; }
         internal WheelScript WheelScript { get; private set; }
         internal WheelModScript WheelModScript { get; private set; }
-        internal LocalPresetsScript LocalPresetsScript { get; private set; }
+        internal ClientPresetsScript ClientPresetsScript { get; private set; }
 
         public MainScript()
         {
             if (GetCurrentResourceName() != Globals.ResourceName)
             {
-                Debug.WriteLine($"{Globals.ScriptName}: Invalid resource name, be sure the resource name is {Globals.ResourceName}");
+                Debug.WriteLine($"{nameof(MainScript)}: Invalid resource name, be sure the resource name is {Globals.ResourceName}");
                 return;
             }
 
@@ -85,9 +85,9 @@ namespace VStancer.Client.Scripts
                 RegisterScript(WheelModScript);
             }
 
-            if (Config.EnablePresets)
+            if (Config.EnableClientPresets)
             {
-                LocalPresetsScript = new LocalPresetsScript(this);
+                ClientPresetsScript = new ClientPresetsScript(this);
             }
 
             if (!Config.DisableMenu)
@@ -113,10 +113,10 @@ namespace VStancer.Client.Scripts
             Exports.Add("GetFrontTrackWidth", new Func<int, float[]>(GetFrontTrackWidth));
             Exports.Add("GetRearTrackWidth", new Func<int, float[]>(GetRearTrackWidth));
 
-            Exports.Add("SaveLocalPreset", new Func<string, int, bool>(SaveLocalPreset));
-            Exports.Add("LoadLocalPreset", new Func<string, int, bool>(LoadLocalPreset));
-            Exports.Add("DeleteLocalPreset", new Func<string, bool>(DeleteLocalPreset));
-            Exports.Add("GetLocalPresetList", new Func<string[]>(GetLocalPresetList));
+            Exports.Add("SaveClientPreset", new Func<string, int, bool>(SaveClientPreset));
+            Exports.Add("LoadClientPreset", new Func<string, int, bool>(LoadClientPreset));
+            Exports.Add("DeleteClientPreset", new Func<string, bool>(DeleteClientPreset));
+            Exports.Add("GetClientPresetList", new Func<string[]>(GetClientPresetList));
         }
 
         private async Task HideUITask()
@@ -194,11 +194,11 @@ namespace VStancer.Client.Scripts
                 string strings = LoadResourceFile(Globals.ResourceName, filename);
                 config = JsonConvert.DeserializeObject<VStancerConfig>(strings);
 
-                Debug.WriteLine($"{Globals.ScriptName}: Loaded config from {filename}");
+                Debug.WriteLine($"{nameof(MainScript)}: Loaded config from {filename}");
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"{Globals.ScriptName}: Impossible to load {filename}", e.Message);
+                Debug.WriteLine($"{nameof(MainScript)}: Impossible to load {filename}", e.Message);
                 Debug.WriteLine(e.StackTrace);
 
                 config = new VStancerConfig();
@@ -217,7 +217,7 @@ namespace VStancer.Client.Scripts
 
         private void RegisterCommands()
         {
-            RegisterCommand("vstancer_decorators", new Action<int, dynamic>((source, args) =>
+            RegisterCommand($"{Globals.CommandPrefix}decorators", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
                 {
@@ -231,15 +231,15 @@ namespace VStancer.Client.Scripts
                         WheelScript.PrintDecoratorsInfo(value);
                         WheelModScript.PrintDecoratorsInfo(value);
                     }
-                    else Debug.WriteLine($"{Globals.ScriptName}: Error parsing entity handle {args[0]} as int");
+                    else Debug.WriteLine($"{nameof(MainScript)}: Error parsing entity handle {args[0]} as int");
                 }
             }), false);
 
-            RegisterCommand("vstancer_range", new Action<int, dynamic>((source, args) =>
+            RegisterCommand($"{Globals.CommandPrefix}range", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
                 {
-                    Debug.WriteLine($"{Globals.ScriptName}: Missing float argument");
+                    Debug.WriteLine($"{nameof(MainScript)}: Missing float argument");
                     return;
                 }
 
@@ -247,43 +247,43 @@ namespace VStancer.Client.Scripts
                 {
                     Config.ScriptRange = value;
                     _maxDistanceSquared = (float)Math.Sqrt(value);
-                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(Config.ScriptRange)} updated to {value}");
+                    Debug.WriteLine($"{nameof(MainScript)}: {nameof(Config.ScriptRange)} updated to {value}");
                 }
-                else Debug.WriteLine($"{Globals.ScriptName}: Error parsing {args[0]} as float");
+                else Debug.WriteLine($"{nameof(MainScript)}: Error parsing {args[0]} as float");
 
             }), false);
 
-            RegisterCommand("vstancer_debug", new Action<int, dynamic>((source, args) =>
+            RegisterCommand($"{Globals.CommandPrefix}debug", new Action<int, dynamic>((source, args) =>
             {
                 if (args.Count < 1)
                 {
-                    Debug.WriteLine($"{Globals.ScriptName}: Missing bool argument");
+                    Debug.WriteLine($"{nameof(MainScript)}: Missing bool argument");
                     return;
                 }
 
                 if (bool.TryParse(args[0], out bool value))
                 {
                     Config.Debug = value;
-                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(Config.Debug)} updated to {value}");
+                    Debug.WriteLine($"{nameof(MainScript)}: {nameof(Config.Debug)} updated to {value}");
                 }
-                else Debug.WriteLine($"{Globals.ScriptName}: Error parsing {args[0]} as bool");
+                else Debug.WriteLine($"{nameof(MainScript)}: Error parsing {args[0]} as bool");
 
             }), false);
 
-            RegisterCommand("vstancer_preset", new Action<int, dynamic>((source, args) =>
+            RegisterCommand($"{Globals.CommandPrefix}preset", new Action<int, dynamic>((source, args) =>
             {
                 if (WheelScript?.WheelData != null)
                     Debug.WriteLine(WheelScript.WheelData.ToString());
                 else
-                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(WheelScript.WheelData)} is null");
+                    Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelScript.WheelData)} is null");
 
                 if (WheelModScript?.WheelModData != null)
                     Debug.WriteLine(WheelModScript.WheelModData.ToString());
                 else
-                    Debug.WriteLine($"{Globals.ScriptName}: {nameof(WheelModScript.WheelModData)} is null");
+                    Debug.WriteLine($"{nameof(MainScript)}: {nameof(WheelModScript.WheelModData)} is null");
             }), false);
 
-            RegisterCommand("vstancer_print", new Action<int, dynamic>((source, args) =>
+            RegisterCommand($"{Globals.CommandPrefix}print", new Action<int, dynamic>((source, args) =>
             {
                 if (WheelScript != null)
                     WheelScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
@@ -405,36 +405,36 @@ namespace VStancer.Client.Scripts
             return new float[] { };
         }
 
-        public bool SaveLocalPreset(string id, int vehicle)
+        public bool SaveClientPreset(string id, int vehicle)
         {
-            if (LocalPresetsScript == null)
+            if (ClientPresetsScript == null)
                 return false;
 
-            return LocalPresetsScript.API_SavePreset(id, vehicle);
+            return ClientPresetsScript.API_SavePreset(id, vehicle);
         }
 
-        public bool LoadLocalPreset(string id, int vehicle)
+        public bool LoadClientPreset(string id, int vehicle)
         {
-            if (LocalPresetsScript == null)
+            if (ClientPresetsScript == null)
                 return false;
 
-            return LocalPresetsScript.API_LoadPreset(id, vehicle);
+            return ClientPresetsScript.API_LoadPreset(id, vehicle);
         }
 
-        public bool DeleteLocalPreset(string id)
+        public bool DeleteClientPreset(string id)
         {
-            if (LocalPresetsScript == null)
+            if (ClientPresetsScript == null)
                 return false;
 
-            return LocalPresetsScript.API_DeletePreset(id);
+            return ClientPresetsScript.API_DeletePreset(id);
         }
 
-        public string[] GetLocalPresetList()
+        public string[] GetClientPresetList()
         {
-            if (LocalPresetsScript == null)
+            if (ClientPresetsScript == null)
                 return new string[] { };
 
-            return LocalPresetsScript.API_GetLocalPresetList().ToArray();
+            return ClientPresetsScript.API_GetClientPresetList().ToArray();
         }
     }
 }
