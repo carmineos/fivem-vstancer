@@ -377,8 +377,12 @@ The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to re
 Once FiveM exposes extra-natives to edit `SubHandlingData` fields at runtime, the script will allow to edit XYZ rotation using the native handling fields of `CCarHandlingData` such as `fToeFront`, `fToeRear`, `fCamberFront`, `fCamberRear`, `fCastor`. (This will also improve a lot performances as such values won't need to be set each tick)
 
 ### Credits
-* VStancer by ikt: https://github.com/E66666666/GTAVStancer
-* FiveM by CitizenFX: https://github.com/citizenfx/fivem
-* MenuAPI by Vespura: https://github.com/TomGrobbe/MenuAPI
-* GTADrifting members: https://gtad.club/
+* [VStancer by ikt](https://github.com/E66666666/GTAVStancer)
+* [FiveM by CitizenFX](https://github.com/citizenfx/fivem)
+* [MenuAPI by Vespura](https://github.com/TomGrobbe/MenuAPI)
+* [GTADrifting members](https://gtad.club/)
 * All the testers
+
+### Support
+If you would like to support my work, you can through:
+* [Patreon](https://patreon.com/carmineos)
