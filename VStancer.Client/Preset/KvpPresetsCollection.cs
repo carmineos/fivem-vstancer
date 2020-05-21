@@ -1,20 +1,22 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using static CitizenFX.Core.Native.API;
 
-namespace VStancer.Client
+using static CitizenFX.Core.Native.API;
+using Newtonsoft.Json;
+using System.Linq;
+
+namespace VStancer.Client.Preset
 {
     /// <summary>
     /// The vstancer preset manager which saves the presets as key-value pairs built-in FiveM
     /// </summary>
-    public class KvpPresetManager : IPresetManager<string, VStancerPreset>
+    public class KvpPresetsCollection : IPresetsCollection<string, VStancerPreset>
     {
-        private string mKvpPrefix;
+        private readonly string mKvpPrefix;
 
-        public event EventHandler PresetsListChanged;
+        public event EventHandler PresetsCollectionChanged;
 
-        public KvpPresetManager(string prefix)
+        public KvpPresetsCollection(string prefix)
         {
             mKvpPrefix = prefix;
         }
@@ -36,7 +38,7 @@ namespace VStancer.Client
             DeleteResourceKvp(key);
 
             // Invoke the event
-            PresetsListChanged?.Invoke(this, EventArgs.Empty);
+            PresetsCollectionChanged?.Invoke(this, EventArgs.Empty);
 
             return true;
         }
@@ -61,16 +63,18 @@ namespace VStancer.Client
             SetResourceKvp(key, json);
 
             // Invoke the event
-            PresetsListChanged?.Invoke(this, EventArgs.Empty);
+            PresetsCollectionChanged?.Invoke(this, EventArgs.Empty);
 
             return true;
         }
 
-        public VStancerPreset Load(string name)
+        public bool Load(string name, out VStancerPreset preset)
         {
+            preset = null;
+
             // Check if the preset ID is valid
             if (string.IsNullOrEmpty(name))
-                return null;
+                return false;
 
             // Get the KVP key
             string key = string.Concat(mKvpPrefix, name);
@@ -80,17 +84,16 @@ namespace VStancer.Client
 
             // Check if the value is valid
             if (string.IsNullOrEmpty(value))
-                return null;
+                return false;
 
             // Create a preset
-            VStancerPreset preset = JsonConvert.DeserializeObject<VStancerPreset>(value);
-
-            return preset;
+            preset = JsonConvert.DeserializeObject<VStancerPreset>(value);
+            return true;
         }
 
         public IEnumerable<string> GetKeys()
         {
-            return new KvpEnumerable(mKvpPrefix);
+            return VStancerUtilities.GetKeyValuePairs(mKvpPrefix).Select(key => key.Remove(0, mKvpPrefix.Length));
         }
     }
 }

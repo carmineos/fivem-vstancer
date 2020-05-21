@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace VStancer.Client
+namespace VStancer.Client.Preset
 {
-    public interface IPresetManager<TKey, TValue>
+    public interface IPresetsCollection<TKey, TValue>
     {
         /// <summary>
         /// Invoked when an element is saved or deleted
         /// </summary>
-        event EventHandler PresetsListChanged;
+        event EventHandler PresetsCollectionChanged;
 
         /// <summary>
         /// Saves the <paramref name="preset"/> using the <paramref name="name"/> as preset name
@@ -26,11 +26,11 @@ namespace VStancer.Client
         bool Delete(TKey name);
 
         /// <summary>
-        /// Loads and the returns the <see cref="VStancerPreset"/> named <paramref name="name"/>
+        /// Loads and the returns the <see cref="TValue"/> named <paramref name="name"/>
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        TValue Load(TKey name);
+        bool Load(TKey name, out TValue value);
 
         /// <summary>
         /// Returns the list of all the saved keys
