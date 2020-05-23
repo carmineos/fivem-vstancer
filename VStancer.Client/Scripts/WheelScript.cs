@@ -336,8 +336,6 @@ namespace VStancer.Client.Scripts
                 SetVehicleWheelXOffset(vehicle, index, nodes[index].PositionX);
                 SetVehicleWheelYRotation(vehicle, index, nodes[index].RotationY);
             }
-
-            UpdateVehicleDecorators(vehicle, data);
         }
 
         private void UpdateVehicleDecorators(int vehicle, WheelData data)
