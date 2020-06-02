@@ -36,6 +36,10 @@ namespace VStancer.Client.UI
             ButtonPressHandlers.Add(new ButtonPressHandler(Control.PhoneExtraOption, ControlPressCheckType.JUST_RELEASED, new Action<Menu, Control>(async (sender, control) =>
             {
                 string presetName = await _script.GetPresetNameFromUser("VSTANCER_ENTER_PRESET_NAME", "");
+
+                if (string.IsNullOrEmpty(presetName))
+                    return;
+
                 SavePresetEvent?.Invoke(this, presetName.Trim());
             }), true));
 
