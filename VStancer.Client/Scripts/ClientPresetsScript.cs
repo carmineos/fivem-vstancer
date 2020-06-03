@@ -47,10 +47,25 @@ namespace VStancer.Client.Scripts
 
         private void OnSavePresetInvoked(string presetKey)
         {
+            var wheelPreset = _mainScript.WheelScript?.GetWheelPreset();
+            var wheelModPreset = _mainScript.WheelModScript?.GetWheelModPreset();
+            
+            if(wheelPreset == null && wheelModPreset == null)
+            {
+                Screen.ShowNotification($"~r~ERROR~w~ Nothing to save, be sure your vehicle is edited!");
+                return;
+            }
+
+            if (wheelPreset == null)
+                Screen.ShowNotification($"~y~WARNING~w~ The preset doesn't contain any wheel data.");
+
+            if (wheelModPreset == null)
+                Screen.ShowNotification($"~y~WARNING~w~ The preset doesn't contain any wheel mod data.");
+
             VStancerPreset preset = new VStancerPreset
             {
-                WheelPreset = _mainScript.WheelScript?.GetWheelPreset(),
-                WheelModPreset = _mainScript.WheelModScript?.GetWheelModPreset()
+                WheelPreset = wheelPreset,
+                WheelModPreset = wheelModPreset,
             };
 
             if (Presets.Save(presetKey, preset))

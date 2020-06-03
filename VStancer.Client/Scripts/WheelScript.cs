@@ -70,8 +70,8 @@ namespace VStancer.Client.Scripts
             }
 
             Tick += UpdateWorldVehiclesTask;
-            //Tick += TimedTask;
             Tick += UpdatePlayerVehicleTask;
+            //Tick += TimedTask;
 
             mainScript.PlayerVehicleHandleChanged += (sender, handle) => PlayerVehicleChanged(handle);
             PlayerVehicleChanged(_mainScript.PlayerVehicleHandle);
@@ -129,21 +129,21 @@ namespace VStancer.Client.Scripts
             }
         }
 
-        private async Task TimedTask()
-        {
-            long currentTime = (GetGameTimer() - _lastTime);
-
-            // Check if decorators needs to be updated
-            if (currentTime > _mainScript.Config.Timer)
-            {
-                //if (DataIsValid)
-                //    UpdateVehicleDecorators(_playerVehicleHandle, WheelData);
-
-                _lastTime = GetGameTimer();
-            }
-
-            await Task.FromResult(0);
-        }
+        //private async Task TimedTask()
+        //{
+        //    long currentTime = (GetGameTimer() - _lastTime);
+        //
+        //    if (currentTime > _mainScript.Config.Timer)
+        //    {
+        //        // Check if decorators needs to be updated
+        //        //if (DataIsValid)
+        //        //    UpdateVehicleDecorators(_playerVehicleHandle, WheelData);
+        //
+        //        _lastTime = GetGameTimer();
+        //    }
+        //
+        //    await Task.FromResult(0);
+        //}
 
         private async void OnWheelDataPropertyChanged(string propertyName, float value)
         {
@@ -152,7 +152,6 @@ namespace VStancer.Client.Scripts
 
             switch(propertyName)
             {
-                // If false then this has been invoked by after a reset
                 case nameof(WheelData.Reset):
                     RemoveDecoratorsFromVehicle(_playerVehicleHandle);
                     UpdateVehicleUsingWheelData(_playerVehicleHandle, WheelData);
@@ -336,22 +335,20 @@ namespace VStancer.Client.Scripts
                 SetVehicleWheelXOffset(vehicle, index, nodes[index].PositionX);
                 SetVehicleWheelYRotation(vehicle, index, nodes[index].RotationY);
             }
-
-            UpdateVehicleDecorators(vehicle, data);
         }
 
-        private void UpdateVehicleDecorators(int vehicle, WheelData data)
-        {
-            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, data.DefaultFrontTrackWidth, data.FrontTrackWidth);
-            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, data.DefaultFrontCamber, data.FrontCamber);
-            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, data.DefaultRearTrackWidth, data.RearTrackWidth);
-            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearCamberID, data.DefaultRearCamber, data.RearCamber);
-
-            VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTrackWidthID, data.FrontTrackWidth, data.DefaultFrontTrackWidth);
-            VStancerUtilities.UpdateFloatDecorator(vehicle, FrontCamberID, data.FrontCamber, data.DefaultFrontCamber);
-            VStancerUtilities.UpdateFloatDecorator(vehicle, RearTrackWidthID, data.RearTrackWidth, data.DefaultRearTrackWidth);
-            VStancerUtilities.UpdateFloatDecorator(vehicle, RearCamberID, data.RearCamber, data.DefaultRearCamber);
-        }
+        //private void UpdateVehicleDecorators(int vehicle, WheelData data)
+        //{
+        //    VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, data.DefaultFrontTrackWidth, data.FrontTrackWidth);
+        //    VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, data.DefaultFrontCamber, data.FrontCamber);
+        //    VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, data.DefaultRearTrackWidth, data.RearTrackWidth);
+        //    VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearCamberID, data.DefaultRearCamber, data.RearCamber);
+        //
+        //    VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTrackWidthID, data.FrontTrackWidth, data.DefaultFrontTrackWidth);
+        //    VStancerUtilities.UpdateFloatDecorator(vehicle, FrontCamberID, data.FrontCamber, data.DefaultFrontCamber);
+        //    VStancerUtilities.UpdateFloatDecorator(vehicle, RearTrackWidthID, data.RearTrackWidth, data.DefaultRearTrackWidth);
+        //    VStancerUtilities.UpdateFloatDecorator(vehicle, RearCamberID, data.RearCamber, data.DefaultRearCamber);
+        //}
 
         private void RegisterDecorators()
         {
