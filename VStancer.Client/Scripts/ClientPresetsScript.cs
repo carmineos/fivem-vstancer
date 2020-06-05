@@ -7,6 +7,7 @@ using VStancer.Client.Preset;
 using System.Collections.Generic;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
+using System.Linq;
 
 namespace VStancer.Client.Scripts
 {
@@ -20,6 +21,9 @@ namespace VStancer.Client.Scripts
         public ClientPresetsScript(MainScript mainScript)
         {
             _mainScript = mainScript;
+
+            MigrateLegacyPresets("vstancer_", "vstancer_client_preset_");
+
             Presets = new KvpPresetsCollection("vstancer_client_preset_");
 
             if (!_mainScript.Config.DisableMenu)
@@ -29,6 +33,31 @@ namespace VStancer.Client.Scripts
                 Menu.DeletePresetEvent += (sender, presetID) => OnDeletePresetInvoked(presetID);
                 Menu.SavePresetEvent += (sender, presetID) => OnSavePresetInvoked(presetID);
                 Menu.ApplyPresetEvent += (sender, presetID) => OnApplyPresetInvoked(presetID);
+            }
+        }
+
+        private void MigrateLegacyPresets(string oldPrefix, string newPrefix)
+        {
+            var oldKeys = VStancerUtilities.GetKeyValuePairs(oldPrefix)
+                .Except(VStancerUtilities.GetKeyValuePairs(newPrefix))
+                .Except(new List<string>() { "vstancer_client_settings" });
+
+            foreach (var oldKey in oldKeys)
+            {
+                string value = GetResourceKvpString(oldKey);
+
+                if (string.IsNullOrEmpty(value))
+                    continue;
+
+                var keyWithoutPrefix = oldKey.Remove(0, oldPrefix.Length);
+                var newKey = $"{newPrefix}{keyWithoutPrefix}";
+
+                if (string.IsNullOrEmpty(GetResourceKvpString(newKey)))
+                {
+                    SetResourceKvp(newKey, value);
+                    Debug.WriteLine($"{nameof(ClientPresetsScript)}: Migrated preset: {oldKey} -> {newKey}");
+                }
+
             }
         }
 
