@@ -14,7 +14,7 @@ namespace VStancer.Client.Scripts
     {
         private readonly MainScript _mainScript;
 
-        private const string ClientSettingsID = "_vstancer_client_settings";
+        private const string ClientSettingsID = "vstancer_client_settings";
 
         private ClientSettings _clientSettings;
         internal ClientSettings ClientSettings 

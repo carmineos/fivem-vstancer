@@ -20,7 +20,7 @@ namespace VStancer.Client.Scripts
         public ClientPresetsScript(MainScript mainScript)
         {
             _mainScript = mainScript;
-            Presets = new KvpPresetsCollection(Globals.KvpPrefix);
+            Presets = new KvpPresetsCollection("vstancer_client_preset_");
 
             if (!_mainScript.Config.DisableMenu)
             {

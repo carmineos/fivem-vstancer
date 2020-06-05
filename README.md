@@ -58,6 +58,11 @@ Workaround: If a vehicle is damaged, be sure to fix it before to enter it and cr
     * `WheelSize`: The max value you can increase or decrease the size of tuning wheels from its default value
     * `WheelWidth`: The max value you can increase or decrease the width of tuning wheels from its default value
 
+### Client Storage
+The script saves some data on the client using the KvP resource API:
+* `vstancer_client_settings`: The client settings of the script
+* `vstancer_client_preset_#`: Where # is a preset name used to save a preset by the client
+
 ### Exports
 The script exposes some API to manage the main features from other scripts:
 
