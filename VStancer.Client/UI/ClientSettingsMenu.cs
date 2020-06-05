@@ -45,7 +45,7 @@ namespace VStancer.Client.UI
 
             IgnoreEmptyPresetsCheckboxItem = new MenuCheckboxItem(
                 "Ignore Empty Presets",
-                "If checked the incomplete presets will only apply partially and all the rest will be kept in the current status, otherwise missing data will just be reset.",
+                "If checked, when an incomplete preset is applied, missing data won't be reset.",
                 _script.ClientSettings.IgnoreEmptyPresets)
             {
                 ItemData = nameof(_script.ClientSettings.IgnoreEmptyPresets)
