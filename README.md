@@ -48,6 +48,7 @@ Workaround: If a vehicle is damaged, be sure to fix it before to enter it and cr
 * `FloatStep`: The step used to increase and decrease a value
 * `EnableWheelMod`: Enables the script to edit wheel size and width of tuning wheels
 * `EnableClientPresets`: Enables the script to manage clients' presets
+* `EnableClientSettings`: Enables the script to manage clients' settings
 * `WheelLimits`:
     * `FrontTrackWidth`: The max value you can increase or decrease the front Track Width from its default value
     * `RearTrackWidth`: The max value you can increase or decrease the rear Track Width from its default value

@@ -14,10 +14,12 @@ namespace VStancer.Client.UI
         private WheelMenu WheelMenu { get; set; }
         private WheelModMenu WheelModMenu { get; set; }
         private ClientPresetsMenu ClientPresetsMenu { get; set; }
+        private ClientSettingsMenu ClientSettingsMenu { get; set; }
 
         private MenuItem WheelMenuMenuItem { get; set; }
         private MenuItem WheelModMenuMenuItem { get; set; }
         private MenuItem ClientPresetsMenuMenuItem { get; set; }
+        private MenuItem ClientSettingsMenuMenuItem { get; set; }
 
 
         internal MainMenu(MainScript script, string name = Globals.ScriptName, string subtitle = "Main Menu") : base(name, subtitle)
@@ -51,6 +53,9 @@ namespace VStancer.Client.UI
 
             if (_script.ClientPresetsScript != null)
                 ClientPresetsMenu = _script.ClientPresetsScript.Menu;
+
+            if (_script.ClientSettingsScript != null)
+                ClientSettingsMenu = _script.ClientSettingsScript.Menu;
 
             Update();
         }
@@ -100,6 +105,19 @@ namespace VStancer.Client.UI
 
                 MenuController.AddSubmenu(this, ClientPresetsMenu);
                 MenuController.BindMenuItem(this, ClientPresetsMenu, ClientPresetsMenuMenuItem);
+            }
+
+            if (ClientSettingsMenu != null)
+            {
+                ClientSettingsMenuMenuItem = new MenuItem("Client Settings Menu", "The menu to manage your own settings.")
+                {
+                    Label = "→→→"
+                };
+
+                AddMenuItem(ClientSettingsMenuMenuItem);
+
+                MenuController.AddSubmenu(this, ClientSettingsMenu);
+                MenuController.BindMenuItem(this, ClientSettingsMenu, ClientSettingsMenuMenuItem);
             }
         }
 

@@ -738,10 +738,18 @@ namespace VStancer.Client.Scripts
             return new WheelModPreset(WheelModData);
         }
 
-        internal async Task SetWheelModPreset(WheelModPreset preset)
+        internal async Task SetWheelModPreset(WheelModPreset preset, bool ignoreEmptyPresets = false)
         {
-            if (!DataIsValid || preset == null)
+            if (!DataIsValid)
                 return;
+
+            if(preset == null)
+            {
+                if (!ignoreEmptyPresets)
+                    WheelModData.Reset();
+
+                return;
+            }
 
             // TODO: Check if values are within limits
 

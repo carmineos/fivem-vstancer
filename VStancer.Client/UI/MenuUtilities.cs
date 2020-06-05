@@ -6,6 +6,7 @@ namespace VStancer.Client.UI
     internal static class MenuUtilities
     {
         internal delegate void FloatPropertyChanged(string id, float value);
+        internal delegate void BoolPropertyChanged(string id, bool value);
 
         internal static MenuDynamicListItem CreateDynamicFloatList(string name, float defaultValue, float value, float maxEditing, string id, float step = 0.01f)
         {

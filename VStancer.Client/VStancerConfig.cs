@@ -12,6 +12,7 @@
         public float FloatStep { get; set; }
         public bool EnableWheelMod { get; set; }
         public bool EnableClientPresets { get; set; }
+        public bool EnableClientSettings { get; set; }
         public WheelLimits WheelLimits { get; set; }
         public WheelModLimits WheelModLimits { get; set; }
 
@@ -27,6 +28,7 @@
             FloatStep = 0.01f;
             EnableWheelMod = true;
             EnableClientPresets = true;
+            EnableClientSettings = true;
             
             WheelLimits = new WheelLimits 
             { 

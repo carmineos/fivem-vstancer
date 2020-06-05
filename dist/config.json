@@ -9,6 +9,7 @@
   "FloatStep": 0.01,
   "EnableWheelMod": true,
   "EnableClientPresets": true,
+  "EnableClientSettings": true,
   "WheelLimits": {
     "FrontTrackWidth": 0.25,
     "RearTrackWidth": 0.25,

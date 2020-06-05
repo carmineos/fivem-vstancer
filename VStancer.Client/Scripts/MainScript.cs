@@ -58,6 +58,7 @@ namespace VStancer.Client.Scripts
         internal WheelScript WheelScript { get; private set; }
         internal WheelModScript WheelModScript { get; private set; }
         internal ClientPresetsScript ClientPresetsScript { get; private set; }
+        internal ClientSettingsScript ClientSettingsScript { get; private set; }
 
         public MainScript()
         {
@@ -89,6 +90,8 @@ namespace VStancer.Client.Scripts
             {
                 ClientPresetsScript = new ClientPresetsScript(this);
             }
+
+            ClientSettingsScript = new ClientSettingsScript(this);
 
             if (!Config.DisableMenu)
                 Menu = new MainMenu(this);

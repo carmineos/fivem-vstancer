@@ -499,10 +499,18 @@ namespace VStancer.Client.Scripts
             return new WheelPreset(WheelData);
         }
 
-        internal async Task SetWheelPreset(WheelPreset preset)
+        internal async Task SetWheelPreset(WheelPreset preset, bool ignoreEmptyPresets)
         {
-            if (!DataIsValid || preset == null)
+            if (!DataIsValid)
                 return;
+
+            if (preset == null)
+            {
+                if (!ignoreEmptyPresets)
+                    WheelData.Reset();
+
+                return;
+            }
 
             // TODO: Check if values are within limits
 

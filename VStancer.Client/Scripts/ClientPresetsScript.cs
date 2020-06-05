@@ -88,8 +88,13 @@ namespace VStancer.Client.Scripts
                 return;
             }
 
-            await _mainScript.WheelScript.SetWheelPreset(loadedPreset.WheelPreset);
-            await _mainScript.WheelModScript.SetWheelModPreset(loadedPreset.WheelModPreset);
+            bool ignoreEmptyPresets = false;
+            
+            if (_mainScript.ClientSettingsScript?.ClientSettings != null)
+                ignoreEmptyPresets = _mainScript.ClientSettingsScript.ClientSettings.IgnoreEmptyPresets;
+
+            await _mainScript.WheelScript.SetWheelPreset(loadedPreset.WheelPreset, ignoreEmptyPresets);
+            await _mainScript.WheelModScript.SetWheelModPreset(loadedPreset.WheelModPreset, ignoreEmptyPresets);
 
             Screen.ShowNotification($"Client preset ~b~{presetKey}~w~ applied");
         }
