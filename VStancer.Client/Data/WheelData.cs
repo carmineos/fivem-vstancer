@@ -7,7 +7,7 @@ namespace VStancer.Client.Data
 {
     public class WheelData : IEquatable<WheelData>
     {
-        private const float Epsilon = VStancerUtilities.Epsilon;
+        private const float Epsilon = Utilities.Epsilon;
 
         public delegate void WheelDataPropertyEdited(string name, float value);
         public event WheelDataPropertyEdited PropertyChanged;
@@ -93,7 +93,7 @@ namespace VStancer.Client.Data
 
             _defaultNodes = new WheelDataNode[WheelsCount];
 
-            FrontWheelsCount = VStancerUtilities.CalculateFrontWheelsCount(WheelsCount);
+            FrontWheelsCount = Utilities.CalculateFrontWheelsCount(WheelsCount);
 
             for (int i = 0; i < FrontWheelsCount; i++)
             {

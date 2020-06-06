@@ -14,7 +14,7 @@ namespace VStancer.Client.Scripts
     {
         private readonly MainScript _mainScript;
 
-        private const string ClientSettingsID = "vstancer_client_settings";
+        internal const string ClientSettingsID = "vstancer_client_settings";
 
         private ClientSettings _clientSettings;
         internal ClientSettings ClientSettings 
@@ -87,7 +87,7 @@ namespace VStancer.Client.Scripts
             return true;
         }
 
-        public bool Save()
+        private bool Save()
         {
             if (ClientSettings == null)
                 return false;

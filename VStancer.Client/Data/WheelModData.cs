@@ -6,7 +6,7 @@ namespace VStancer.Client.Data
 {
     public class WheelModData
     {
-        private const float Epsilon = VStancerUtilities.Epsilon;
+        private const float Epsilon = Utilities.Epsilon;
 
         private readonly WheelModNode[] _nodes;
         private readonly WheelModNode[] _defaultNodes;
@@ -62,7 +62,7 @@ namespace VStancer.Client.Data
             float rearTireColliderWidth, float rearTireColliderSize, float rearRimColliderSize)
         {
             WheelsCount = wheelsCount;
-            FrontWheelsCount = VStancerUtilities.CalculateFrontWheelsCount(WheelsCount);
+            FrontWheelsCount = Utilities.CalculateFrontWheelsCount(WheelsCount);
 
             DefaultWheelSize = radius;
             DefaultWheelWidth = width;

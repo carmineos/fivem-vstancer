@@ -1,6 +1,6 @@
 ﻿namespace VStancer.Client
 {
-    public class VStancerConfig
+    public class Config
     {
         public bool Debug { get; set; }
         public bool DisableMenu { get; set; }
@@ -16,7 +16,7 @@
         public WheelLimits WheelLimits { get; set; }
         public WheelModLimits WheelModLimits { get; set; }
 
-        public VStancerConfig()
+        public Config()
         {
             Debug = false;
             DisableMenu = false;
@@ -58,13 +58,6 @@
         public float RearTrackWidth { get; set; }
         public float FrontCamber { get; set; }
         public float RearCamber { get; set; }
-    }
-
-    public struct WheelModColliderLimits
-    {
-        public float TireColliderScaleX { get; set; }
-        public float TireColliderScaleYZ { get; set; }
-        public float RimColliderScaleYZ { get; set; }
     }
 
     public struct WheelModLimits

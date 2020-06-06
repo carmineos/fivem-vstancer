@@ -5,7 +5,7 @@ using static CitizenFX.Core.Native.API;
 
 namespace VStancer.Client
 {
-    public static class VStancerUtilities
+    public static class Utilities
     {
         public const float Epsilon = 0.001f;
 

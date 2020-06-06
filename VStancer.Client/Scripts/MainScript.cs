@@ -54,7 +54,7 @@ namespace VStancer.Client.Scripts
 
         internal event EventHandler ToggleMenuVisibility;
 
-        internal VStancerConfig Config { get; private set; }
+        internal Config Config { get; private set; }
         internal WheelScript WheelScript { get; private set; }
         internal WheelModScript WheelModScript { get; private set; }
         internal ClientPresetsScript ClientPresetsScript { get; private set; }
@@ -156,7 +156,7 @@ namespace VStancer.Client.Scripts
             {
                 _playerPedCoords = GetEntityCoords(_playerPedHandle, true);
 
-                _worldVehiclesHandles = VStancerUtilities.GetWorldVehicles();
+                _worldVehiclesHandles = Utilities.GetWorldVehicles();
 
                 _lastTime = GetGameTimer();
             }
@@ -188,14 +188,14 @@ namespace VStancer.Client.Scripts
             PlayerVehicleHandle = vehicle;
         }
 
-        private VStancerConfig LoadConfig(string filename = "config.json")
+        private Config LoadConfig(string filename = "config.json")
         {
-            VStancerConfig config;
+            Config config;
 
             try
             {
                 string strings = LoadResourceFile(Globals.ResourceName, filename);
-                config = JsonConvert.DeserializeObject<VStancerConfig>(strings);
+                config = JsonConvert.DeserializeObject<Config>(strings);
 
                 Debug.WriteLine($"{nameof(MainScript)}: Loaded config from {filename}");
             }
@@ -204,7 +204,7 @@ namespace VStancer.Client.Scripts
                 Debug.WriteLine($"{nameof(MainScript)}: Impossible to load {filename}", e.Message);
                 Debug.WriteLine(e.StackTrace);
 
-                config = new VStancerConfig();
+                config = new Config();
             }
 
             return config;

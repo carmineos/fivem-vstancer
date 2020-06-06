@@ -34,7 +34,7 @@ namespace VStancer.Client.Scripts
             }
         }
 
-        internal VStancerConfig Config => _mainScript.Config;
+        internal Config Config => _mainScript.Config;
         internal WheelMenu Menu { get; private set; }
 
         internal bool DataIsValid => _playerVehicleHandle != -1 && WheelData != null;
@@ -185,8 +185,8 @@ namespace VStancer.Client.Scripts
             for (int i = 0; i < frontWheelsCount; i++)
                 SetVehicleWheelYRotation(vehicle, i, nodes[i].RotationY);
 
-            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, data.DefaultFrontCamber, data.FrontCamber);
-            VStancerUtilities.UpdateFloatDecorator(vehicle, FrontCamberID, data.FrontCamber, data.DefaultFrontCamber);
+            Utilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, data.DefaultFrontCamber, data.FrontCamber);
+            Utilities.UpdateFloatDecorator(vehicle, FrontCamberID, data.FrontCamber, data.DefaultFrontCamber);
         }
 
         private void SetRearCamberUsingData(int vehicle, WheelData data)
@@ -201,8 +201,8 @@ namespace VStancer.Client.Scripts
             for (int i = frontWheelsCount; i < wheelsCount; i++)
                 SetVehicleWheelYRotation(vehicle, i, nodes[i].RotationY);
 
-            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearCamberID, data.DefaultRearCamber, data.RearCamber);
-            VStancerUtilities.UpdateFloatDecorator(vehicle, RearCamberID, data.RearCamber, data.DefaultRearCamber);
+            Utilities.UpdateFloatDecorator(vehicle, DefaultRearCamberID, data.DefaultRearCamber, data.RearCamber);
+            Utilities.UpdateFloatDecorator(vehicle, RearCamberID, data.RearCamber, data.DefaultRearCamber);
         }
 
         private void SetFrontTrackWidthUsingData(int vehicle, WheelData data)
@@ -216,8 +216,8 @@ namespace VStancer.Client.Scripts
             for (int i = 0; i < frontWheelsCount; i++)
                 SetVehicleWheelXOffset(vehicle, i, nodes[i].PositionX);
 
-            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, data.DefaultFrontTrackWidth, data.FrontTrackWidth);
-            VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTrackWidthID, data.FrontTrackWidth, data.DefaultFrontTrackWidth);
+            Utilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, data.DefaultFrontTrackWidth, data.FrontTrackWidth);
+            Utilities.UpdateFloatDecorator(vehicle, FrontTrackWidthID, data.FrontTrackWidth, data.DefaultFrontTrackWidth);
         }
 
         private void SetRearTrackWidthUsingData(int vehicle, WheelData data)
@@ -232,8 +232,8 @@ namespace VStancer.Client.Scripts
             for (int i = frontWheelsCount; i < wheelsCount; i++)
                 SetVehicleWheelXOffset(vehicle, i, nodes[i].PositionX);
 
-            VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, data.DefaultRearTrackWidth, data.RearTrackWidth);
-            VStancerUtilities.UpdateFloatDecorator(vehicle, RearTrackWidthID, data.RearTrackWidth, data.DefaultRearTrackWidth);
+            Utilities.UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, data.DefaultRearTrackWidth, data.RearTrackWidth);
+            Utilities.UpdateFloatDecorator(vehicle, RearTrackWidthID, data.RearTrackWidth, data.DefaultRearTrackWidth);
         }
 
         private WheelData GetWheelDataFromEntity(int vehicle)
@@ -242,7 +242,7 @@ namespace VStancer.Client.Scripts
                 return null;
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
+            int frontCount = Utilities.CalculateFrontWheelsCount(wheelsCount);
 
             // Get default values first
             float frontTrackWidth_def = DecorExistOn(vehicle, DefaultFrontTrackWidthID) ? DecorGetFloat(vehicle, DefaultFrontTrackWidthID) : GetVehicleWheelXOffset(vehicle, 0);
@@ -267,7 +267,7 @@ namespace VStancer.Client.Scripts
         private void UpdateVehicleUsingDecorators(int vehicle)
         {
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
+            int frontCount = Utilities.CalculateFrontWheelsCount(wheelsCount);
 
             if (DecorExistOn(vehicle, FrontTrackWidthID))
             {
@@ -541,7 +541,7 @@ namespace VStancer.Client.Scripts
             float rearCamber = preset.RearCamber;
 
             int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-            int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
+            int frontCount = Utilities.CalculateFrontWheelsCount(wheelsCount);
 
             float frontTrackWidth_def = DecorExistOn(vehicle, DefaultFrontTrackWidthID) ? DecorGetFloat(vehicle, DefaultFrontTrackWidthID) : GetVehicleWheelXOffset(vehicle, 0);
             float frontCamber_def = DecorExistOn(vehicle, DefaultFrontCamberID) ? DecorGetFloat(vehicle, DefaultFrontCamberID) : GetVehicleWheelYRotation(vehicle, 0);
@@ -561,15 +561,15 @@ namespace VStancer.Client.Scripts
             }
             else
             {
-                VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, frontTrackWidth_def, frontTrackWidth);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, frontCamber_def, frontCamber);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, rearTrackWidth_def, rearTrackWidth);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearCamberID, rearCamber_def, rearCamber);
+                Utilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, frontTrackWidth_def, frontTrackWidth);
+                Utilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, frontCamber_def, frontCamber);
+                Utilities.UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, rearTrackWidth_def, rearTrackWidth);
+                Utilities.UpdateFloatDecorator(vehicle, DefaultRearCamberID, rearCamber_def, rearCamber);
 
-                VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTrackWidthID, frontTrackWidth, frontTrackWidth_def);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, FrontCamberID, frontCamber, frontCamber_def);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, RearTrackWidthID, rearTrackWidth, rearTrackWidth_def);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, RearCamberID, rearCamber, rearCamber_def);
+                Utilities.UpdateFloatDecorator(vehicle, FrontTrackWidthID, frontTrackWidth, frontTrackWidth_def);
+                Utilities.UpdateFloatDecorator(vehicle, FrontCamberID, frontCamber, frontCamber_def);
+                Utilities.UpdateFloatDecorator(vehicle, RearTrackWidthID, rearTrackWidth, rearTrackWidth_def);
+                Utilities.UpdateFloatDecorator(vehicle, RearCamberID, rearCamber, rearCamber_def);
             }
 
             return true;
@@ -619,8 +619,8 @@ namespace VStancer.Client.Scripts
             if (vehicle != _playerVehicleHandle)
             {
                 float value_def = DecorExistOn(vehicle, DefaultFrontCamberID) ? DecorGetFloat(vehicle, DefaultFrontCamberID) : GetVehicleWheelYRotation(vehicle, 0);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, value_def, value);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, FrontCamberID, value, value_def);
+                Utilities.UpdateFloatDecorator(vehicle, DefaultFrontCamberID, value_def, value);
+                Utilities.UpdateFloatDecorator(vehicle, FrontCamberID, value, value_def);
                 return true;
             }
 
@@ -641,11 +641,11 @@ namespace VStancer.Client.Scripts
             if (vehicle != _playerVehicleHandle)
             {
                 int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-                int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
+                int frontCount = Utilities.CalculateFrontWheelsCount(wheelsCount);
 
                 float value_def = DecorExistOn(vehicle, DefaultRearCamberID) ? DecorGetFloat(vehicle, DefaultRearCamberID) : GetVehicleWheelYRotation(vehicle, frontCount);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearCamberID, value_def, value);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, RearCamberID, value, value_def);
+                Utilities.UpdateFloatDecorator(vehicle, DefaultRearCamberID, value_def, value);
+                Utilities.UpdateFloatDecorator(vehicle, RearCamberID, value, value_def);
                 return true;
             }
 
@@ -666,8 +666,8 @@ namespace VStancer.Client.Scripts
             if (vehicle != _playerVehicleHandle)
             {
                 float value_def = DecorExistOn(vehicle, DefaultFrontTrackWidthID) ? DecorGetFloat(vehicle, DefaultFrontTrackWidthID) : GetVehicleWheelXOffset(vehicle, 0);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, value_def, value);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, FrontTrackWidthID, value, value_def); 
+                Utilities.UpdateFloatDecorator(vehicle, DefaultFrontTrackWidthID, value_def, value);
+                Utilities.UpdateFloatDecorator(vehicle, FrontTrackWidthID, value, value_def); 
                 return true;
             }
 
@@ -688,11 +688,11 @@ namespace VStancer.Client.Scripts
             if (vehicle != _playerVehicleHandle)
             {
                 int wheelsCount = GetVehicleNumberOfWheels(vehicle);
-                int frontCount = VStancerUtilities.CalculateFrontWheelsCount(wheelsCount);
+                int frontCount = Utilities.CalculateFrontWheelsCount(wheelsCount);
 
                 float value_def = DecorExistOn(vehicle, DefaultRearTrackWidthID) ? DecorGetFloat(vehicle, DefaultRearTrackWidthID) : GetVehicleWheelXOffset(vehicle, frontCount);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, value_def, value);
-                VStancerUtilities.UpdateFloatDecorator(vehicle, RearTrackWidthID, value, value_def);
+                Utilities.UpdateFloatDecorator(vehicle, DefaultRearTrackWidthID, value_def, value);
+                Utilities.UpdateFloatDecorator(vehicle, RearTrackWidthID, value, value_def);
                 return true;
             }
 
@@ -723,7 +723,7 @@ namespace VStancer.Client.Scripts
             if (!DoesEntityExist(vehicle))
                 return false;
 
-            int frontCount = VStancerUtilities.CalculateFrontWheelsCount(GetVehicleNumberOfWheels(vehicle));
+            int frontCount = Utilities.CalculateFrontWheelsCount(GetVehicleNumberOfWheels(vehicle));
             value = DecorExistOn(vehicle, RearCamberID) ? DecorGetFloat(vehicle, RearCamberID) : GetVehicleWheelYRotation(vehicle, frontCount);
             return true;
         }
@@ -746,7 +746,7 @@ namespace VStancer.Client.Scripts
             if (!DoesEntityExist(vehicle))
                 return false;
 
-            int frontCount = VStancerUtilities.CalculateFrontWheelsCount(GetVehicleNumberOfWheels(vehicle));
+            int frontCount = Utilities.CalculateFrontWheelsCount(GetVehicleNumberOfWheels(vehicle));
             value = DecorExistOn(vehicle, RearTrackWidthID) ? DecorGetFloat(vehicle, RearTrackWidthID) : GetVehicleWheelXOffset(vehicle, frontCount);
             return true;
         }

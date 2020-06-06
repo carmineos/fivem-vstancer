@@ -38,9 +38,9 @@ namespace VStancer.Client.Scripts
 
         private void MigrateLegacyPresets(string oldPrefix, string newPrefix)
         {
-            var oldKeys = VStancerUtilities.GetKeyValuePairs(oldPrefix)
-                .Except(VStancerUtilities.GetKeyValuePairs(newPrefix))
-                .Except(new List<string>() { "vstancer_client_settings" });
+            var oldKeys = Utilities.GetKeyValuePairs(oldPrefix)
+                .Except(Utilities.GetKeyValuePairs(newPrefix))
+                .Except(new List<string>() { ClientSettingsScript.ClientSettingsID });
 
             foreach (var oldKey in oldKeys)
             {
