@@ -14,6 +14,7 @@ namespace VStancer.Client.UI
         private readonly ClientSettingsScript _script;
 
         private MenuCheckboxItem IgnoreEmptyPresetsCheckboxItem { get; set; }
+        private MenuCheckboxItem AllowStockPresetsCheckboxItem { get; set; }
 
         internal event BoolPropertyChanged BoolPropertyChanged;
 
@@ -52,6 +53,16 @@ namespace VStancer.Client.UI
             };
 
             AddMenuItem(IgnoreEmptyPresetsCheckboxItem);
+
+            AllowStockPresetsCheckboxItem = new MenuCheckboxItem(
+                "Allow Stock Presets",
+                "If checked, will allow saving of unedited presets.",
+                _script.ClientSettings.AllowStockPresets)
+            {
+                ItemData = nameof(_script.ClientSettings.AllowStockPresets)
+            };
+
+            AddMenuItem(AllowStockPresetsCheckboxItem);
         }
     }
 }

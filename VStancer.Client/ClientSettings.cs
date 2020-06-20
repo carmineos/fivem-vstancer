@@ -10,7 +10,8 @@ namespace VStancer.Client
     {
         public event EventHandler<string> PropertyChanged;
 
-        private bool _ignoreEmptyPresets;
+        private bool _ignoreEmptyPresets = false;
+        private bool _allowStockPresets = false;
 
         public bool IgnoreEmptyPresets
         {
@@ -22,6 +23,19 @@ namespace VStancer.Client
 
                 _ignoreEmptyPresets = value;
                 PropertyChanged?.Invoke(this, nameof(IgnoreEmptyPresets));
+            }
+        }
+
+        public bool AllowStockPresets
+        {
+            get => _allowStockPresets;
+            set
+            {
+                if (Equals(_allowStockPresets, value))
+                    return;
+
+                _allowStockPresets = value;
+                PropertyChanged?.Invoke(this, nameof(AllowStockPresets));
             }
         }
     }

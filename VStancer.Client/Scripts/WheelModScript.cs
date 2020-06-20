@@ -726,19 +726,19 @@ namespace VStancer.Client.Scripts
             Debug.WriteLine(s.ToString());
         }
 
-        internal WheelModPreset GetWheelModPreset()
+        internal WheelModPreset GetWheelModPreset(bool allowStockPreset = false)
         {
             if (!DataIsValid)
                 return null;
 
             // Only required to avoid saving this preset locally when not required
-            if (!WheelModData.IsEdited)
+            if (!WheelModData.IsEdited && !allowStockPreset)
                 return null;
 
             return new WheelModPreset(WheelModData);
         }
 
-        internal async Task SetWheelModPreset(WheelModPreset preset, bool ignoreEmptyPresets = false)
+        internal async Task SetWheelModPreset(WheelModPreset preset, bool ignoreEmptyPresets = true)
         {
             if (!DataIsValid)
                 return;

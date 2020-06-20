@@ -67,6 +67,10 @@ namespace VStancer.Client.Scripts
                 case nameof(ClientSettings.IgnoreEmptyPresets):
                     ClientSettings.IgnoreEmptyPresets = value;
                     break;
+
+                case nameof(ClientSettings.AllowStockPresets):
+                    ClientSettings.AllowStockPresets = value;
+                    break;
             }
         }
 

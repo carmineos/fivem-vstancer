@@ -76,8 +76,13 @@ namespace VStancer.Client.Scripts
 
         private void OnSavePresetInvoked(string presetKey)
         {
-            var wheelPreset = _mainScript.WheelScript?.GetWheelPreset();
-            var wheelModPreset = _mainScript.WheelModScript?.GetWheelModPreset();
+            bool allowStockPreset = false;
+
+            if (_mainScript.ClientSettingsScript?.ClientSettings != null)
+                allowStockPreset = _mainScript.ClientSettingsScript.ClientSettings.AllowStockPresets;
+
+            var wheelPreset = _mainScript.WheelScript?.GetWheelPreset(allowStockPreset);
+            var wheelModPreset = _mainScript.WheelModScript?.GetWheelModPreset(allowStockPreset);
             
             if(wheelPreset == null && wheelModPreset == null)
             {
