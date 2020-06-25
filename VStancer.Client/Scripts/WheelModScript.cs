@@ -422,15 +422,15 @@ namespace VStancer.Client.Scripts
                 case nameof(WheelModData.Reset):
 
                     // TODO: Avoid updating decorators if we have to remove them anyway
-                    SetWheelWidthUsingData(_playerVehicleHandle, WheelModData);
-                    SetWheelSizeUsingData(_playerVehicleHandle, WheelModData);
-                    SetFrontTireColliderWidthUsingData(_playerVehicleHandle, WheelModData);
-                    SetFrontTireColliderSizeUsingData(_playerVehicleHandle, WheelModData);
-                    SetFrontRimColliderSizeUsingData(_playerVehicleHandle, WheelModData);
-                    SetRearTireColliderWidthUsingData(_playerVehicleHandle, WheelModData);
-                    SetRearTireColliderSizeUsingData(_playerVehicleHandle, WheelModData);
-                    SetRearRimColliderSizeUsingData(_playerVehicleHandle, WheelModData);
-
+                    //SetWheelWidthUsingData(_playerVehicleHandle, WheelModData);
+                    //SetWheelSizeUsingData(_playerVehicleHandle, WheelModData);
+                    //SetFrontTireColliderWidthUsingData(_playerVehicleHandle, WheelModData);
+                    //SetFrontTireColliderSizeUsingData(_playerVehicleHandle, WheelModData);
+                    //SetFrontRimColliderSizeUsingData(_playerVehicleHandle, WheelModData);
+                    //SetRearTireColliderWidthUsingData(_playerVehicleHandle, WheelModData);
+                    //SetRearTireColliderSizeUsingData(_playerVehicleHandle, WheelModData);
+                    //SetRearRimColliderSizeUsingData(_playerVehicleHandle, WheelModData);
+                    UpdateVehicleUsingData(_playerVehicleHandle, WheelModData);
                     RemoveDecoratorsFromVehicle(_playerVehicleHandle);
 
                     WheelModDataChanged?.Invoke(this, EventArgs.Empty);
