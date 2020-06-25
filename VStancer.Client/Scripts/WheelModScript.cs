@@ -292,27 +292,21 @@ namespace VStancer.Client.Scripts
         private void SetWheelWidthUsingData(int vehicle, WheelModData data)
         {
             float value = data.WheelWidth;
+            float defValue = data.DefaultWheelWidth;
 
-            bool result = SetVehicleWheelWidth(vehicle, value);
-            if (result)
-            {
-                float defValue = data.DefaultWheelWidth;
-                Utilities.UpdateFloatDecorator(vehicle, DefaultWidthID, defValue, value);
-                Utilities.UpdateFloatDecorator(vehicle, WheelWidthID, value, defValue);
-            }
+            SetVehicleWheelWidth(vehicle, value);
+            Utilities.UpdateFloatDecorator(vehicle, DefaultWidthID, defValue, value);
+            Utilities.UpdateFloatDecorator(vehicle, WheelWidthID, value, defValue);
         }
 
         private void SetWheelSizeUsingData(int vehicle, WheelModData data)
         {
             float value = data.WheelSize;
+            float defValue = data.DefaultWheelSize;
 
-            bool result = SetVehicleWheelSize(vehicle, value);
-            if (result)
-            {
-                float defValue = data.DefaultWheelSize;
-                Utilities.UpdateFloatDecorator(vehicle, DefaultSizeID, defValue, value);
-                Utilities.UpdateFloatDecorator(vehicle, WheelSizeID, value, defValue);
-            }
+            SetVehicleWheelSize(vehicle, value);
+            Utilities.UpdateFloatDecorator(vehicle, DefaultSizeID, defValue, value);
+            Utilities.UpdateFloatDecorator(vehicle, WheelSizeID, value, defValue);
         }
 
         private void SetFrontTireColliderWidthUsingData(int vehicle, WheelModData data)
