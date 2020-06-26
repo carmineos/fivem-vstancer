@@ -73,10 +73,10 @@ namespace VStancer.Client.Scripts
             _playerPedHandle = -1;
             _playerPedCoords = Vector3.Zero;
             _worldVehiclesHandles = new List<int>();
-            _maxDistanceSquared = 10;
+            _maxDistanceSquared = 10000;
 
             Config = LoadConfig();
-            _maxDistanceSquared = (float)Math.Sqrt(Config.ScriptRange);
+            _maxDistanceSquared = (float)Math.Pow(Config.ScriptRange, 2.0);
             WheelScript = new WheelScript(this);
             RegisterScript(WheelScript);
 
@@ -249,7 +249,7 @@ namespace VStancer.Client.Scripts
                 if (float.TryParse(args[0], out float value))
                 {
                     Config.ScriptRange = value;
-                    _maxDistanceSquared = (float)Math.Sqrt(value);
+                    _maxDistanceSquared = (float)Math.Pow(Config.ScriptRange, 2.0);
                     Debug.WriteLine($"{nameof(MainScript)}: {nameof(Config.ScriptRange)} updated to {value}");
                 }
                 else Debug.WriteLine($"{nameof(MainScript)}: Error parsing {args[0]} as float");
@@ -294,7 +294,7 @@ namespace VStancer.Client.Scripts
                     WheelModScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
             }), false);
 
-            if(!Config.DisableMenu)
+            if (!Config.DisableMenu)
             {
                 if (Config.ExposeCommand)
                     RegisterCommand("vstancer", new Action<int, dynamic>((source, args) => { ToggleMenuVisibility?.Invoke(this, EventArgs.Empty); }), false);
@@ -323,7 +323,7 @@ namespace VStancer.Client.Scripts
             WheelPreset preset = new WheelPreset(frontTrackWidth, frontCamber, rearTrackWidth, rearCamber);
             return WheelScript.API_SetWheelPreset(vehicle, preset);
         }
-        
+
         public bool ResetWheelPreset(int vehicle)
         {
             if (WheelScript == null)
