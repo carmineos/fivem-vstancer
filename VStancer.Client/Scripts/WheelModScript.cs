@@ -652,7 +652,7 @@ namespace VStancer.Client.Scripts
             Debug.WriteLine($"{nameof(WheelModScript)}: Vehicles with decorators: {entities.Count()}");
 
             foreach (int item in entities)
-                Debug.WriteLine($"Vehicle: {item}");
+                Debug.WriteLine($"Vehicle: {item}, netID: {NetworkGetNetworkIdFromEntity(item)}");
         }
 
         internal void PrintDecoratorsInfo(int vehicle)
