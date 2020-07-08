@@ -244,6 +244,9 @@ namespace VStancer.Client.Scripts
             {
                 do
                 {
+                    if (!DoesEntityExist(vehicle))
+                        return null;
+
                     wheelWidth_def = GetVehicleWheelWidth(vehicle);
                     await Delay(100);
                 } while (MathUtil.IsZero(wheelWidth_def) || MathUtil.IsOne(wheelWidth_def));
@@ -257,6 +260,9 @@ namespace VStancer.Client.Scripts
             {
                 do
                 {
+                    if (!DoesEntityExist(vehicle))
+                        return null;
+
                     wheelSize_def = GetVehicleWheelSize(vehicle);
                     await Delay(100);
                 } while (MathUtil.IsZero(wheelSize_def) || MathUtil.IsOne(wheelSize_def));
