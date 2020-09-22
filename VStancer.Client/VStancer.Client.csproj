@@ -22,12 +22,12 @@
   <ItemGroup>
     
     <PackageReference Include="CitizenFX.Core.Client">
-      <Version>1.0.2586</Version>
+      <Version>1.0.2963</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     
-    <PackageReference Include="MenuAPI.FiveM" Version="3.1.5" />
+    <PackageReference Include="MenuAPI.FiveM" Version="3.2.0" />
 
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" ExcludeAssets="Compile" GeneratePathProperty="true" />
     <Reference Include="Newtonsoft.Json">
