@@ -12,6 +12,7 @@ namespace VStancer.Client
 
         private bool _ignoreEmptyPresets = false;
         private bool _allowStockPresets = false;
+        private bool _menuLeftAlignment = false;
 
         public bool IgnoreEmptyPresets
         {
@@ -36,6 +37,19 @@ namespace VStancer.Client
 
                 _allowStockPresets = value;
                 PropertyChanged?.Invoke(this, nameof(AllowStockPresets));
+            }
+        }
+
+        public bool MenuLeftAlignment
+        {
+            get => _menuLeftAlignment;
+            set
+            {
+                if (Equals(_menuLeftAlignment, value))
+                    return;
+
+                _menuLeftAlignment = value;
+                PropertyChanged?.Invoke(this, nameof(MenuLeftAlignment));
             }
         }
     }

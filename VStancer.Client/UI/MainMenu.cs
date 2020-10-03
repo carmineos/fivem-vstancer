@@ -130,6 +130,15 @@ namespace VStancer.Client.UI
             }
         }
 
+        internal bool LeftAlignment
+        {
+            get => MenuController.MenuAlignment == MenuController.MenuAlignmentOption.Left;
+            set
+            {
+                MenuController.MenuAlignment = value ? MenuController.MenuAlignmentOption.Left : MenuController.MenuAlignmentOption.Right;
+            }
+        }
+
         private void UpdateWheelModMenuMenuItem()
         {
             if (WheelModMenuMenuItem == null)

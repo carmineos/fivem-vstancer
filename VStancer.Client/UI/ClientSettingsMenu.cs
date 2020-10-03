@@ -15,6 +15,7 @@ namespace VStancer.Client.UI
 
         private MenuCheckboxItem IgnoreEmptyPresetsCheckboxItem { get; set; }
         private MenuCheckboxItem AllowStockPresetsCheckboxItem { get; set; }
+        private MenuCheckboxItem MenuLeftAlignmentCheckboxItem { get; set; }
 
         internal event BoolPropertyChanged BoolPropertyChanged;
 
@@ -63,6 +64,16 @@ namespace VStancer.Client.UI
             };
 
             AddMenuItem(AllowStockPresetsCheckboxItem);
+
+            MenuLeftAlignmentCheckboxItem = new MenuCheckboxItem(
+                "Menu Left Alignment",
+                "If checked, the Menu will be aligned to the left of the screen.",
+                _script.ClientSettings.MenuLeftAlignment)
+            {
+                ItemData = nameof(_script.ClientSettings.MenuLeftAlignment)
+            };
+
+            AddMenuItem(MenuLeftAlignmentCheckboxItem);
         }
     }
 }

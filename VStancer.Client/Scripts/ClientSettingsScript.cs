@@ -71,6 +71,10 @@ namespace VStancer.Client.Scripts
                 case nameof(ClientSettings.AllowStockPresets):
                     ClientSettings.AllowStockPresets = value;
                     break;
+
+                case nameof(ClientSettings.MenuLeftAlignment):
+                    ClientSettings.MenuLeftAlignment = value;
+                    break;
             }
         }
 

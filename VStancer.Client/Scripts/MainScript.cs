@@ -98,7 +98,7 @@ namespace VStancer.Client.Scripts
 
             Tick += GetPlayerAndVehicleTask;
             Tick += TimedTask;
-            Tick += HideUITask;
+            Tick += UpdateMenuTask;
 
             RegisterCommands();
 
@@ -122,12 +122,15 @@ namespace VStancer.Client.Scripts
             Exports.Add("GetClientPresetList", new Func<string[]>(GetClientPresetList));
         }
 
-        private async Task HideUITask()
+        private async Task UpdateMenuTask()
         {
-            if (Menu != null)
-                Menu.HideMenu = _playerVehicleHandle == -1;
-
             await Task.FromResult(0);
+            
+            if (Menu == null)
+                return;
+
+            Menu.LeftAlignment = ClientSettingsScript.ClientSettings.MenuLeftAlignment;
+            Menu.HideMenu = _playerVehicleHandle == -1;
         }
 
         internal List<int> GetCloseVehicleHandles()
