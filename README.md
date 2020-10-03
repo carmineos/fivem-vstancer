@@ -378,6 +378,7 @@ The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to re
 * Workaround wheel mod data being reset after any tuning component is changed
 * Clean duplicated code
 * API shouldn't allow to edit vehicles other players are driving
+* Replace decorators with the new entity state bags system
 
 ### Roadmap
 Once FiveM exposes extra-natives to edit `SubHandlingData` fields at runtime, the script will allow to edit XYZ rotation using the native handling fields of `CCarHandlingData` such as `fToeFront`, `fToeRear`, `fCamberFront`, `fCamberRear`, `fCastor`. (This will also improve a lot performances as such values won't need to be set each tick)
