@@ -13,11 +13,13 @@ namespace VStancer.Client.UI
 
         private WheelMenu WheelMenu { get; set; }
         private WheelModMenu WheelModMenu { get; set; }
+        private SuspensionMenu SuspensionMenu { get; set; }
         private ClientPresetsMenu ClientPresetsMenu { get; set; }
         private ClientSettingsMenu ClientSettingsMenu { get; set; }
 
         private MenuItem WheelMenuMenuItem { get; set; }
         private MenuItem WheelModMenuMenuItem { get; set; }
+        private MenuItem SuspensionMenuMenuItem { get; set; }
         private MenuItem ClientPresetsMenuMenuItem { get; set; }
         private MenuItem ClientSettingsMenuMenuItem { get; set; }
 
@@ -50,6 +52,9 @@ namespace VStancer.Client.UI
                 WheelModMenu = _script.WheelModScript.Menu;
                 WheelModMenu.PropertyChanged += (sender, args) => UpdateWheelModMenuMenuItem();
             }
+
+            if (_script.SuspensionScript != null)
+                SuspensionMenu = _script.SuspensionScript.Menu;
 
             if (_script.ClientPresetsScript != null)
                 ClientPresetsMenu = _script.ClientPresetsScript.Menu;
@@ -92,6 +97,18 @@ namespace VStancer.Client.UI
 
                 MenuController.AddSubmenu(this, WheelModMenu);
                 MenuController.BindMenuItem(this, WheelModMenu, WheelModMenuMenuItem);
+            }
+
+            if (SuspensionMenu != null)
+            {
+                SuspensionMenuMenuItem = new MenuItem("Suspension Menu", "The menu to suspension properties.")
+                {
+                    Label = "→→→"
+                };
+                AddMenuItem(SuspensionMenuMenuItem);
+
+                MenuController.AddSubmenu(this, SuspensionMenu);
+                MenuController.BindMenuItem(this, SuspensionMenu, SuspensionMenuMenuItem);
             }
 
             if (ClientPresetsMenu != null)

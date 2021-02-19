@@ -22,7 +22,7 @@
   <ItemGroup>
     
     <PackageReference Include="CitizenFX.Core.Client">
-      <Version>1.0.3107</Version>
+      <Version>1.0.3542</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

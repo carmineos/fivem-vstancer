@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using VStancer.Client.Scripts;
 using MenuAPI;
 using static VStancer.Client.UI.MenuUtilities;
+using static VStancer.Client.Utilities;
 
 namespace VStancer.Client.UI
 {
@@ -17,7 +18,7 @@ namespace VStancer.Client.UI
         private MenuCheckboxItem AllowStockPresetsCheckboxItem { get; set; }
         private MenuCheckboxItem MenuLeftAlignmentCheckboxItem { get; set; }
 
-        internal event BoolPropertyChanged BoolPropertyChanged;
+        internal event PropertyChanged<bool> BoolPropertyChanged;
 
         public ClientSettingsMenu(ClientSettingsScript script, string name = Globals.ScriptName, string subtitle = "Client Settings Menu") : base(name, subtitle)
         {

@@ -8,6 +8,7 @@
   "ToggleMenuControl": 167,
   "FloatStep": 0.01,
   "EnableWheelMod": true,
+  "EnableSuspension": true,
   "EnableClientPresets": true,
   "EnableClientSettings": true,
   "WheelLimits": {
@@ -25,5 +26,8 @@
     "RearTireColliderWidth": 0.10,
     "RearTireColliderSize": 0.10,
     "RearRimColliderSize": 0.10
+  },
+  "SuspensionLimits": {
+    "SuspensionVisualHeight": 0.10
   }
 }

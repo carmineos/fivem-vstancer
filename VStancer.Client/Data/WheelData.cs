@@ -2,6 +2,7 @@
 using System.Text;
 
 using CitizenFX.Core;
+using static VStancer.Client.Utilities;
 
 namespace VStancer.Client.Data
 {
@@ -9,8 +10,7 @@ namespace VStancer.Client.Data
     {
         private const float Epsilon = Utilities.Epsilon;
 
-        public delegate void WheelDataPropertyEdited(string name, float value);
-        public event WheelDataPropertyEdited PropertyChanged;
+        public event PropertyChanged<float> PropertyChanged;
 
         private readonly WheelDataNode[] _nodes;
         private readonly WheelDataNode[] _defaultNodes;

@@ -11,10 +11,12 @@
         public int ToggleMenuControl { get; set; }
         public float FloatStep { get; set; }
         public bool EnableWheelMod { get; set; }
+        public bool EnableSuspension { get; set; }
         public bool EnableClientPresets { get; set; }
         public bool EnableClientSettings { get; set; }
         public WheelLimits WheelLimits { get; set; }
         public WheelModLimits WheelModLimits { get; set; }
+        public SuspensionLimits SuspensionLimits { get; set; }
 
         public Config()
         {
@@ -27,6 +29,7 @@
             ToggleMenuControl = 167;
             FloatStep = 0.01f;
             EnableWheelMod = true;
+            EnableSuspension = true;
             EnableClientPresets = true;
             EnableClientSettings = true;
             
@@ -49,6 +52,11 @@
                 RearTireColliderSize = 0.1f,
                 RearRimColliderSize = 0.1f,
             };
+
+            SuspensionLimits = new SuspensionLimits
+            {
+                SuspensionVisualHeight = 0.10f,
+            };
         }
     }
 
@@ -70,5 +78,10 @@
         public float RearTireColliderWidth { get; set; }
         public float RearTireColliderSize { get; set; }
         public float RearRimColliderSize { get; set; }
+    }
+
+    public struct SuspensionLimits
+    {
+        public float SuspensionVisualHeight { get; set; }
     }
 }

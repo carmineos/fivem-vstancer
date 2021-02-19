@@ -52,28 +52,28 @@ namespace VStancer.Client.Scripts
         internal WheelModMenu Menu { get; private set; }
         public bool DataIsValid => _playerVehicleHandle != -1 && WheelModData != null && VehicleWheelMod != -1;
 
-        internal const string ExtraResetID = "vstancer_extra_reset";
+        internal const string WheelModResetID = "vstancer_wheelmod_reset";
 
-        internal const string WheelWidthID = "vstancer_extra_width";
-        internal const string WheelSizeID = "vstancer_extra_size";
-        internal const string DefaultWidthID = "vstancer_extra_width_def";
-        internal const string DefaultSizeID = "vstancer_extra_size_def";
+        internal const string WheelWidthID = "vstancer_wheelmod_width";
+        internal const string WheelSizeID = "vstancer_wheelmod_size";
+        internal const string DefaultWidthID = "vstancer_wheelmod_width_def";
+        internal const string DefaultSizeID = "vstancer_wheelmod_size_def";
 
-        internal const string FrontTireColliderWidthID = "vstancer_extra_tirecollider_width_f";
-        internal const string FrontTireColliderSizeID = "vstancer_extra_tirecollider_size_f";
-        internal const string FrontRimColliderSizeID = "vstancer_extra_rimcollider_size_f";
+        internal const string FrontTireColliderWidthID = "vstancer_wheelmod_tirecollider_width_f";
+        internal const string FrontTireColliderSizeID = "vstancer_wheelmod_tirecollider_size_f";
+        internal const string FrontRimColliderSizeID = "vstancer_wheelmod_rimcollider_size_f";
 
-        internal const string RearTireColliderWidthID = "vstancer_extra_tirecollider_width_r";
-        internal const string RearTireColliderSizeID = "vstancer_extra_tirecollider_size_r";
-        internal const string RearRimColliderSizeID = "vstancer_extra_rimcollider_size_r";
+        internal const string RearTireColliderWidthID = "vstancer_wheelmod_tirecollider_width_r";
+        internal const string RearTireColliderSizeID = "vstancer_wheelmod_tirecollider_size_r";
+        internal const string RearRimColliderSizeID = "vstancer_wheelmod_rimcollider_size_r";
 
-        internal const string DefaultFrontTireColliderWidthID = "vstancer_extra_tirecollider_width_f_def";
-        internal const string DefaultFrontTireColliderSizeID = "vstancer_extra_tirecollider_size_f_def";
-        internal const string DefaultFrontRimColliderSizeID = "vstancer_extra_rimcollider_size_f_def";
+        internal const string DefaultFrontTireColliderWidthID = "vstancer_wheelmod_tirecollider_width_f_def";
+        internal const string DefaultFrontTireColliderSizeID = "vstancer_wheelmod_tirecollider_size_f_def";
+        internal const string DefaultFrontRimColliderSizeID = "vstancer_wheelmod_rimcollider_size_f_def";
 
-        internal const string DefaultRearTireColliderWidthID = "vstancer_extra_tirecollider_width_r_def";
-        internal const string DefaultRearTireColliderSizeID = "vstancer_extra_tirecollider_size_r_def";
-        internal const string DefaultRearRimColliderSizeID = "vstancer_extra_rimcollider_size_r_def";
+        internal const string DefaultRearTireColliderWidthID = "vstancer_wheelmod_tirecollider_width_r_def";
+        internal const string DefaultRearTireColliderSizeID = "vstancer_wheelmod_tirecollider_size_r_def";
+        internal const string DefaultRearRimColliderSizeID = "vstancer_wheelmod_rimcollider_size_r_def";
 
         public event EventHandler WheelModDataChanged;
 
@@ -576,7 +576,7 @@ namespace VStancer.Client.Scripts
 
             switch (commandID)
             {
-                case ExtraResetID:
+                case WheelModResetID:
                     WheelModData.Reset();
                     break;
             }

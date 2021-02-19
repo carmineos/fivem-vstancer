@@ -57,6 +57,7 @@ namespace VStancer.Client.Scripts
         internal Config Config { get; private set; }
         internal WheelScript WheelScript { get; private set; }
         internal WheelModScript WheelModScript { get; private set; }
+        internal SuspensionScript SuspensionScript { get; private set; }
         internal ClientPresetsScript ClientPresetsScript { get; private set; }
         internal ClientSettingsScript ClientSettingsScript { get; private set; }
 
@@ -84,6 +85,11 @@ namespace VStancer.Client.Scripts
             {
                 WheelModScript = new WheelModScript(this);
                 RegisterScript(WheelModScript);
+            }
+
+            if (Config.EnableSuspension)
+            {
+                SuspensionScript = new SuspensionScript(this);
             }
 
             if (Config.EnableClientPresets)
@@ -229,6 +235,7 @@ namespace VStancer.Client.Scripts
                 {
                     WheelScript.PrintDecoratorsInfo(_playerVehicleHandle);
                     WheelModScript.PrintDecoratorsInfo(_playerVehicleHandle);
+                    SuspensionScript.PrintDecoratorsInfo(_playerVehicleHandle);
                 }
                 else
                 {
@@ -236,6 +243,7 @@ namespace VStancer.Client.Scripts
                     {
                         WheelScript.PrintDecoratorsInfo(value);
                         WheelModScript.PrintDecoratorsInfo(value);
+                        SuspensionScript.PrintDecoratorsInfo(value);
                     }
                     else Debug.WriteLine($"{nameof(MainScript)}: Error parsing entity handle {args[0]} as int");
                 }
@@ -295,6 +303,8 @@ namespace VStancer.Client.Scripts
                     WheelScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
                 if (WheelModScript != null)
                     WheelModScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
+                if (SuspensionScript != null)
+                    SuspensionScript.PrintVehiclesWithDecorators(_worldVehiclesHandles);
             }), false);
 
             if (!Config.DisableMenu)

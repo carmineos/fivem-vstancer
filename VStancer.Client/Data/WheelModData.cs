@@ -1,6 +1,7 @@
 ﻿using System.Text;
 
 using CitizenFX.Core;
+using static VStancer.Client.Utilities;
 
 namespace VStancer.Client.Data
 {
@@ -16,8 +17,7 @@ namespace VStancer.Client.Data
         public int WheelsCount { get; private set; }
         public int FrontWheelsCount { get; private set; }
 
-        public delegate void WheelModPropertyEdited(string name, float value);
-        public event WheelModPropertyEdited PropertyChanged;
+        public event PropertyChanged<float> PropertyChanged;
 
         public float WheelSize
         {

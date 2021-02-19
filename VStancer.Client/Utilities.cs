@@ -9,6 +9,8 @@ namespace VStancer.Client
     {
         public const float Epsilon = 0.001f;
 
+        public delegate void PropertyChanged<T>(string id, T value);
+
         public static int CalculateFrontWheelsCount(int wheelsCount)
         {
             int _frontWheelsCount = wheelsCount / 2;
@@ -86,4 +88,53 @@ namespace VStancer.Client
             }
         }
     }
+
+    // TODO: Replace sync through decors with statebag values
+    //public static class StateBagUtilities
+    //{
+    //    public static void UpdateOrSet(Entity entity, string keyName, float currentValue, float defaultValue)
+    //    {
+    //        if (!entity.Exists())
+    //            return;
+    //
+    //        StateBag state = entity.State;
+    //        dynamic stateValue = state.Get(keyName);
+    //
+    //        // State exists
+    //        if (stateValue is float value)
+    //        {
+    //            // if existing state is different from new one
+    //            if (!MathUtil.WithinEpsilon(currentValue, value, Utilities.Epsilon))
+    //                state.Set(keyName, currentValue, true);
+    //        }
+    //        else // State doesn't exist
+    //        {
+    //            // if current value is not the default one, create a state
+    //            if (!MathUtil.WithinEpsilon(currentValue, defaultValue, Utilities.Epsilon))
+    //                state.Set(keyName, currentValue, true);
+    //        }
+    //    }
+    //
+    //    public static bool TryGetValue<T>(Entity entity, string keyName, out T value) where T : unmanaged
+    //    {
+    //        dynamic stateValue = entity.State.Get(keyName);
+    //
+    //        if (stateValue is T)
+    //        {
+    //            value = stateValue;
+    //            return true;
+    //        }
+    //
+    //        value = default;
+    //        return false;
+    //    }
+    //
+    //    public static void RemoveValue(Entity entity, string keyName)
+    //    {
+    //        dynamic stateValue = entity.State.Get(keyName);
+    //
+    //        if (stateValue != null)
+    //            entity.State.Set(keyName, null, true);
+    //    }
+    //}
 }

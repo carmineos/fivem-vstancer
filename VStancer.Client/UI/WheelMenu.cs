@@ -2,6 +2,7 @@
 using MenuAPI;
 using VStancer.Client.Scripts;
 using static VStancer.Client.UI.MenuUtilities;
+using static VStancer.Client.Utilities;
 
 namespace VStancer.Client.UI
 {
@@ -43,7 +44,7 @@ namespace VStancer.Client.UI
         private MenuDynamicListItem RearTrackWidthListItem { get; set; }
         private MenuItem ResetItem { get; set; }
 
-        internal event FloatPropertyChanged FloatPropertyChangedEvent;
+        internal event PropertyChanged<float> FloatPropertyChangedEvent;
         internal event EventHandler<string> ResetPropertiesEvent;
 
         internal void Update()
