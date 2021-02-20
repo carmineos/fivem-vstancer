@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VStancer.Client.Data;
+using VStancer.Client.Preset;
 using VStancer.Client.UI;
 using static CitizenFX.Core.Native.API;
 
@@ -255,6 +256,43 @@ namespace VStancer.Client.Scripts
 
             foreach (int item in entities)
                 Debug.WriteLine($"Vehicle: {item}, netID: {NetworkGetNetworkIdFromEntity(item)}");
+        }
+
+        internal SuspensionPreset GetSuspensionPreset(bool allowStockPreset = false)
+        {
+            if (!DataIsValid)
+                return null;
+
+            // Only required to avoid saving this preset locally when not required
+            if (!SuspensionData.IsEdited && !allowStockPreset)
+                return null;
+
+            return new SuspensionPreset(SuspensionData);
+        }
+
+        internal async Task SetSuspensionPreset(SuspensionPreset preset, bool ignoreEmptyPresets = true)
+        {
+            if (!DataIsValid)
+                return;
+
+            if (preset == null)
+            {
+                if (!ignoreEmptyPresets)
+                    SuspensionData.Reset();
+
+                return;
+            }
+
+            // TODO: Check if values are within limits
+
+            SuspensionData.VisualHeight = preset.VisualHeight;
+
+            // Don't refresh, as it's already done by OnSuspensionDataPropertyChanged
+
+            Debug.WriteLine($"{nameof(SuspensionScript)}: suspension preset applied");
+
+            await Delay(200);
+            SuspensionDataChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

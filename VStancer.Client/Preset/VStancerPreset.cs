@@ -6,6 +6,7 @@ namespace VStancer.Client.Preset
     {
         public WheelPreset WheelPreset { get; set; }
         public WheelModPreset WheelModPreset { get; set; }
+        public SuspensionPreset SuspensionPreset { get; set; }
     }
 
     public class WheelPreset
@@ -76,5 +77,25 @@ namespace VStancer.Client.Preset
         }
 
     public float[] ToArray() { return new float[] { WheelSize, WheelWidth, FrontTireColliderWidth, FrontTireColliderSize, FrontRimColliderSize, RearTireColliderWidth, RearTireColliderSize, RearRimColliderSize }; }
+    }
+
+    public class SuspensionPreset
+    {
+        public float VisualHeight { get; set; }
+
+        public SuspensionPreset()
+        {
+
+        }
+
+        public SuspensionPreset(SuspensionData data)
+        {
+            if (data == null)
+                return;
+
+            VisualHeight = data.VisualHeight;
+        }
+
+        public float[] ToArray => new float[] { VisualHeight };
     }
 }

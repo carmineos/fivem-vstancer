@@ -83,8 +83,9 @@ namespace VStancer.Client.Scripts
 
             var wheelPreset = _mainScript.WheelScript?.GetWheelPreset(allowStockPreset);
             var wheelModPreset = _mainScript.WheelModScript?.GetWheelModPreset(allowStockPreset);
+            var suspensionPreset = _mainScript.SuspensionScript?.GetSuspensionPreset(allowStockPreset);
             
-            if(wheelPreset == null && wheelModPreset == null)
+            if(wheelPreset == null && wheelModPreset == null && suspensionPreset == null)
             {
                 Screen.ShowNotification($"~r~ERROR~w~ Nothing to save, be sure your vehicle is edited!");
                 return;
@@ -96,10 +97,14 @@ namespace VStancer.Client.Scripts
             if (wheelModPreset == null)
                 Screen.ShowNotification($"~y~WARNING~w~ The preset doesn't contain any wheel mod data.");
 
+            if (suspensionPreset == null)
+                Screen.ShowNotification($"~y~WARNING~w~ The preset doesn't contain any suspension data.");
+
             VStancerPreset preset = new VStancerPreset
             {
                 WheelPreset = wheelPreset,
                 WheelModPreset = wheelModPreset,
+                SuspensionPreset = suspensionPreset,
             };
 
             if (Presets.Save(presetKey, preset))
@@ -129,6 +134,7 @@ namespace VStancer.Client.Scripts
 
             await _mainScript.WheelScript.SetWheelPreset(loadedPreset.WheelPreset, ignoreEmptyPresets);
             await _mainScript.WheelModScript.SetWheelModPreset(loadedPreset.WheelModPreset, ignoreEmptyPresets);
+            await _mainScript.SuspensionScript.SetSuspensionPreset(loadedPreset.SuspensionPreset, ignoreEmptyPresets);
 
             Screen.ShowNotification($"Client preset ~b~{presetKey}~w~ applied");
         }
