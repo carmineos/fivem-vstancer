@@ -22,6 +22,7 @@ The default key to open the menu is F6
 * Edit Camber of vehicles
 * Edit Tuning Wheel Size of vehicles (Requires a tuning wheel to be installed on the vehicle)
 * Edit Tuning Wheel Width of vehicles (Requires a tuning wheel to be installed on the vehicle)
+* Edit Suspensions Height (Visual only, doesn't affect collisions/handling)
 * Manage presets
 
 ### Note
@@ -47,6 +48,7 @@ Workaround: If a vehicle is damaged, be sure to fix it before to enter it and cr
 * `ToggleMenuControl`:The Control to toggle the Menu, default is 167 which is F6 (check the [controls list](https://docs.fivem.net/game-references/controls/))
 * `FloatStep`: The step used to increase and decrease a value
 * `EnableWheelMod`: Enables the script to edit wheel size and width of tuning wheels
+* `EnableSuspension`: Enables the script to edit suspension properties
 * `EnableClientPresets`: Enables the script to manage clients' presets
 * `EnableClientSettings`: Enables the script to manage clients' settings
 * `WheelLimits`:
@@ -57,6 +59,8 @@ Workaround: If a vehicle is damaged, be sure to fix it before to enter it and cr
 * `WheelModLimits`:
     * `WheelSize`: The max value you can increase or decrease the size of tuning wheels from its default value
     * `WheelWidth`: The max value you can increase or decrease the width of tuning wheels from its default value
+* `SuspensionLimits`:
+    * `VisualHeight`: The max value you can increase or decrease the height of the suspensions (visual only)
 
 ### Client Storage
 The script saves some data on the client using the KvP resource API:
@@ -371,8 +375,8 @@ The script uses [MenuAPI](https://github.com/TomGrobbe/MenuAPI) by Vespura to re
 3. Enable the resource in your server config (`start vstancer`)
 
 ### Todo
-* Add API for wheel mod data
-* Update local presets API to support wheel mod data
+* Add API for wheel mod data and suspension data
+* Update local presets API to support wheel mod data and suspension data
 * Add limits check for API
 * Add limits check for preset loading
 * Workaround wheel mod data being reset after any tuning component is changed
