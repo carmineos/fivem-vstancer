@@ -90,6 +90,7 @@ namespace VStancer.Client.Scripts
             if (Config.EnableSuspension)
             {
                 SuspensionScript = new SuspensionScript(this);
+                RegisterScript(SuspensionScript);
             }
 
             if (Config.EnableClientPresets)
