@@ -99,13 +99,15 @@ namespace VStancer.Client.Scripts
             }
 
             ClientSettingsScript = new ClientSettingsScript(this);
-
+            
+            ClientSettingsScript.ClientSettings.PropertyChanged += OnClientSettingsPropertyChanged;
+            PlayerVehicleHandleChanged += OnPlayerVehicleHandleChanged;
+            
             if (!Config.DisableMenu)
                 Menu = new MainMenu(this);
 
             Tick += GetPlayerAndVehicleTask;
             Tick += TimedTask;
-            Tick += UpdateMenuTask;
 
             RegisterCommands();
 
@@ -129,15 +131,16 @@ namespace VStancer.Client.Scripts
             Exports.Add("GetClientPresetList", new Func<string[]>(GetClientPresetList));
         }
 
-        private async Task UpdateMenuTask()
+        private void OnClientSettingsPropertyChanged(object sender, string name)
         {
-            await Task.FromResult(0);
-            
-            if (Menu == null)
-                return;
+            if(name == nameof(ClientSettings.MenuLeftAlignment))
+                Menu.LeftAlignment = ClientSettingsScript.ClientSettings.MenuLeftAlignment;
+        }
 
-            Menu.LeftAlignment = ClientSettingsScript.ClientSettings.MenuLeftAlignment;
-            Menu.HideMenu = _playerVehicleHandle == -1;
+        private void OnPlayerVehicleHandleChanged(object sender, int handle)
+        {
+            if (Menu != null)
+                Menu.HideMenu = _playerVehicleHandle == -1;
         }
 
         internal List<int> GetCloseVehicleHandles()
