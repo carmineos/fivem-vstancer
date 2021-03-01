@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using VStancer.Client.UI;
+using VStancer.Client.Menus;
 
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;

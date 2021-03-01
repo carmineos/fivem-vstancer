@@ -1,7 +1,7 @@
 ﻿using CitizenFX.Core.UI;
 using MenuAPI;
 
-namespace VStancer.Client.UI
+namespace VStancer.Client.Menus
 {
     internal static class MenuUtilities
     {

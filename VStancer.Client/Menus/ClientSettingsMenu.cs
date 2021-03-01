@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using VStancer.Client.Scripts;
 using MenuAPI;
-using static VStancer.Client.UI.MenuUtilities;
+using static VStancer.Client.Menus.MenuUtilities;
 using static VStancer.Client.Utilities;
 
-namespace VStancer.Client.UI
+namespace VStancer.Client.Menus
 {
     internal class ClientSettingsMenu : Menu
     {

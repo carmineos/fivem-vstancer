@@ -4,7 +4,7 @@ using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using VStancer.Client.Scripts;
 
-namespace VStancer.Client.UI
+namespace VStancer.Client.Menus
 {
     internal class ClientPresetsMenu : Menu
     {

@@ -1,11 +1,11 @@
 ﻿using System;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
-using static VStancer.Client.UI.MenuUtilities;
+using static VStancer.Client.Menus.MenuUtilities;
 using MenuAPI;
 using VStancer.Client.Scripts;
 
-namespace VStancer.Client.UI
+namespace VStancer.Client.Menus
 {
     internal class MainMenu : Menu
     {

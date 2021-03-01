@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-using VStancer.Client.UI;
+using VStancer.Client.Menus;
 
 using CitizenFX.Core.UI;
 using VStancer.Client.Preset;

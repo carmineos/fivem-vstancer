@@ -1,10 +1,10 @@
 ﻿using System;
 using MenuAPI;
 using VStancer.Client.Scripts;
-using static VStancer.Client.UI.MenuUtilities;
+using static VStancer.Client.Menus.MenuUtilities;
 using static VStancer.Client.Utilities;
 
-namespace VStancer.Client.UI
+namespace VStancer.Client.Menus
 {
     internal class WheelMenu : Menu
     {
