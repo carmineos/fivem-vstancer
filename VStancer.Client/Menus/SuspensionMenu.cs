@@ -4,68 +4,67 @@ using VStancer.Client.Scripts;
 using static VStancer.Client.Menus.MenuUtilities;
 using static VStancer.Client.Utilities;
 
-namespace VStancer.Client.Menus
+namespace VStancer.Client.Menus;
+
+internal class SuspensionMenu : Menu
 {
-    internal class SuspensionMenu : Menu
+    private readonly SuspensionScript _script;
+
+    internal SuspensionMenu(SuspensionScript script, string name = Globals.ScriptName, string subtitle = "Suspension Menu") : base(name, subtitle)
     {
-        private readonly SuspensionScript _script;
+        _script = script;
 
-        internal SuspensionMenu(SuspensionScript script, string name = Globals.ScriptName, string subtitle = "Suspension Menu") : base(name, subtitle)
+        _script.SuspensionDataChanged += new EventHandler((sender, args) =>
         {
-            _script = script;
-
-            _script.SuspensionDataChanged += new EventHandler((sender, args) =>
-            {
-                Update();
-            });
-
             Update();
+        });
 
-            OnDynamicListItemCurrentItemChange += DynamicListItemCurrentItemChange;
-            OnItemSelect += ItemSelect;
-        }
+        Update();
 
-        private void ItemSelect(Menu menu, MenuItem menuItem, int itemIndex)
-        {
-            if (menuItem == ResetItem)
-                ResetPropertiesEvent?.Invoke(this, menuItem.ItemData as string);
-        }
+        OnDynamicListItemCurrentItemChange += DynamicListItemCurrentItemChange;
+        OnItemSelect += ItemSelect;
+    }
 
-        private void DynamicListItemCurrentItemChange(Menu menu, MenuDynamicListItem dynamicListItem, string oldValue, string newValue)
-        {
-            // TODO: Does it need to check if newvalue != oldvalue?
-            if (oldValue == newValue)
-                return;
+    private void ItemSelect(Menu menu, MenuItem menuItem, int itemIndex)
+    {
+        if (menuItem == ResetItem)
+            ResetPropertiesEvent?.Invoke(this, menuItem.ItemData as string);
+    }
 
-            if (float.TryParse(newValue, out float newfloatValue))
-                FloatPropertyChangedEvent?.Invoke(dynamicListItem.ItemData as string, newfloatValue);
-        }
+    private void DynamicListItemCurrentItemChange(Menu menu, MenuDynamicListItem dynamicListItem, string oldValue, string newValue)
+    {
+        // TODO: Does it need to check if newvalue != oldvalue?
+        if (oldValue == newValue)
+            return;
 
-        private MenuDynamicListItem SuspensionVisualHeightListItem { get; set; }
+        if (float.TryParse(newValue, out float newfloatValue))
+            FloatPropertyChangedEvent?.Invoke(dynamicListItem.ItemData as string, newfloatValue);
+    }
 
-        private MenuItem ResetItem { get; set; }
+    private MenuDynamicListItem SuspensionVisualHeightListItem { get; set; }
 
-        internal event PropertyChanged<float> FloatPropertyChangedEvent;
-        internal event EventHandler<string> ResetPropertiesEvent;
+    private MenuItem ResetItem { get; set; }
 
-        internal void Update()
-        {
-            ClearMenuItems();
+    internal event PropertyChanged<float> FloatPropertyChangedEvent;
+    internal event EventHandler<string> ResetPropertiesEvent;
 
-            if (!_script.DataIsValid)
-                return;
+    internal void Update()
+    {
+        ClearMenuItems();
 
-            SuspensionVisualHeightListItem = CreateDynamicFloatList("Suspension Visual Height",
-                _script.SuspensionData.DefaultVisualHeight,
-                _script.SuspensionData.VisualHeight,
-                _script.Config.SuspensionLimits.SuspensionVisualHeight,
-                SuspensionScript.VisualHeightID,
-                _script.Config.FloatStep);
+        if (!_script.DataIsValid)
+            return;
 
-            ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = SuspensionScript.SuspensionResetID };
+        SuspensionVisualHeightListItem = CreateDynamicFloatList("Suspension Visual Height",
+            _script.SuspensionData.DefaultVisualHeight,
+            _script.SuspensionData.VisualHeight,
+            _script.Config.SuspensionLimits.SuspensionVisualHeight,
+            SuspensionScript.VisualHeightID,
+            _script.Config.FloatStep);
 
-            AddMenuItem(SuspensionVisualHeightListItem);
-            AddMenuItem(ResetItem);
-        }
+        ResetItem = new MenuItem("Reset", "Restores the default values") { ItemData = SuspensionScript.SuspensionResetID };
+
+        AddMenuItem(SuspensionVisualHeightListItem);
+        AddMenuItem(ResetItem);
     }
 }

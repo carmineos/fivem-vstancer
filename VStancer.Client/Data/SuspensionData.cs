@@ -1,5 +1,4 @@
-﻿using CitizenFX.Core;
-using System.Text;
+﻿using System.Text;
 using static VStancer.Client.Utilities;
 
 namespace VStancer.Client.Data

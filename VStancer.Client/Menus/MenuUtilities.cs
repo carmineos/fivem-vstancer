@@ -1,49 +1,48 @@
-﻿using CitizenFX.Core.UI;
-using MenuAPI;
+﻿using MenuAPI;
 
-namespace VStancer.Client.Menus
+namespace VStancer.Client.Menus;
+
+internal static class MenuUtilities
 {
-    internal static class MenuUtilities
+    internal static MenuDynamicListItem CreateDynamicFloatList(string name, float defaultValue, float value, float maxEditing, string id, float step = 0.01f)
     {
-        internal static MenuDynamicListItem CreateDynamicFloatList(string name, float defaultValue, float value, float maxEditing, string id, float step = 0.01f)
+        float min = defaultValue - maxEditing;
+        float max = defaultValue + maxEditing;
+
+        var callback = FloatChangeCallback(name, value, min, max, step);
+
+        return new MenuDynamicListItem(name, value.ToString("F3"), callback) { ItemData = id };
+    }
+
+    internal static MenuDynamicListItem.ChangeItemCallback FloatChangeCallback(string name, float value, float minimum, float maximum, float step)
+    {
+        string callback(MenuDynamicListItem sender, bool left)
         {
-            float min = defaultValue - maxEditing;
-            float max = defaultValue + maxEditing;
+            var min = minimum;
+            var max = maximum;
 
-            var callback = FloatChangeCallback(name, value, min, max, step);
+            var newvalue = value;
 
-            return new MenuDynamicListItem(name, value.ToString("F3"), callback) { ItemData = id };
-        }
+            if (left)
+                newvalue -= step;
+            else if (!left)
+                newvalue += step;
+            else return value.ToString("F3");
 
-        internal static MenuDynamicListItem.ChangeItemCallback FloatChangeCallback(string name, float value, float minimum, float maximum, float step)
-        {
-            string callback(MenuDynamicListItem sender, bool left)
+            // Hotfix to trim the value to 3 digits
+            newvalue = float.Parse((newvalue).ToString("F3"));
+
+            if (newvalue < min)
+                Screen.ShowNotification($"~o~Warning~w~: Min ~b~{name}~w~ value allowed is {min}");
+            else if (newvalue > max)
+                Screen.ShowNotification($"~o~Warning~w~: Max ~b~{name}~w~ value allowed is {max}");
+            else
             {
-                var min = minimum;
-                var max = maximum;
+                value = newvalue;
+            }
+            return value.ToString("F3");
+        };
 
-                var newvalue = value;
-
-                if (left)
-                    newvalue -= step;
-                else if (!left)
-                    newvalue += step;
-                else return value.ToString("F3");
-
-                // Hotfix to trim the value to 3 digits
-                newvalue = float.Parse((newvalue).ToString("F3"));
-
-                if (newvalue < min)
-                    Screen.ShowNotification($"~o~Warning~w~: Min ~b~{name}~w~ value allowed is {min}");
-                else if (newvalue > max)
-                    Screen.ShowNotification($"~o~Warning~w~: Max ~b~{name}~w~ value allowed is {max}");
-                else
-                {
-                    value = newvalue;
-                }
-                return value.ToString("F3");
-            };
-            return callback;
-        }
+        return callback;
     }
 }

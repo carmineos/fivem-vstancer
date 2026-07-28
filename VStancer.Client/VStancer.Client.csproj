@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>VStancer.Client</RootNamespace>
     <AssemblyName>VStancer.Client.net</AssemblyName>
     <!-- CI handles patching -->
@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-	  <Product>FiveM VStancer</Product>
+	<Product>FiveM VStancer</Product>
     <Description>A FiveM script to edit transform of vehicles' wheels bones</Description>
     <Company>carmineos</Company>
     <Authors>Carmine Giugliano</Authors>
@@ -20,27 +20,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    
-    <PackageReference Include="CitizenFX.Core.Client">
-      <Version>1.0.3542</Version>
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    
-    <PackageReference Include="MenuAPI.FiveM" Version="3.2.1" />
-
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" ExcludeAssets="Compile" GeneratePathProperty="true" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(PkgNewtonsoft_Json)\lib\portable-net40+sl5+win8+wp8+wpa81\Newtonsoft.Json.dll</HintPath>
-    </Reference>
+    <PackageReference Include="CitizenFX.FiveM.Client" Version="0.0.2-alpha" />
+    <PackageReference Include="MenuAPI.FiveM.Enhanced" Version="0.1.0-alpha.3" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if '$(CI)' == '' ( &#xD;&#xA;call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetPath)&quot;&#xD;&#xA;call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\config.json&quot;&#xD;&#xA;call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(SolutionDir)\dist\fxmanifest.lua&quot;&#xD;&#xA;call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetDir)\MenuAPI.dll&quot;&#xD;&#xA;call &quot;$(SolutionDir)postbuild.bat&quot; &quot;$(TargetDir)\Newtonsoft.Json.dll&quot;)" />
-  </Target>
 
 </Project>

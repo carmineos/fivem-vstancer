@@ -1,14 +1,12 @@
-﻿using System;
+﻿using CitizenFX.FiveM.Client;
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using VStancer.Client.Menus;
-
-using CitizenFX.Core;
-using static CitizenFX.Core.Native.API;
-using Newtonsoft.Json;
-using VStancer.Client.Preset;
 using System.Linq;
+using System.Numerics;
+using System.Text.Json;
+using System.Threading.Tasks;
+using VStancer.Client.Menus;
+using VStancer.Client.Preset;
 
 namespace VStancer.Client.Scripts
 {
@@ -63,13 +61,13 @@ namespace VStancer.Client.Scripts
 
         public MainScript()
         {
-            if (GetCurrentResourceName() != Globals.ResourceName)
+            if (Native.GetCurrentResourceName() != Globals.ResourceName)
             {
                 Debug.WriteLine($"{nameof(MainScript)}: Invalid resource name, be sure the resource name is {Globals.ResourceName}");
                 return;
             }
 
-            _lastTime = GetGameTimer();
+            _lastTime = Native.GetGameTimer();
             _playerVehicleHandle = -1;
             _playerPedHandle = -1;
             _playerPedCoords = Vector3.Zero;
@@ -99,10 +97,10 @@ namespace VStancer.Client.Scripts
             }
 
             ClientSettingsScript = new ClientSettingsScript(this);
-            
+
             ClientSettingsScript.ClientSettings.PropertyChanged += OnClientSettingsPropertyChanged;
             PlayerVehicleHandleChanged += OnPlayerVehicleHandleChanged;
-            
+
             if (!Config.DisableMenu)
                 Menu = new MainMenu(this);
 
@@ -133,7 +131,7 @@ namespace VStancer.Client.Scripts
 
         private void OnClientSettingsPropertyChanged(object sender, string name)
         {
-            if(name == nameof(ClientSettings.MenuLeftAlignment))
+            if (name == nameof(ClientSettings.MenuLeftAlignment))
                 Menu.LeftAlignment = ClientSettingsScript.ClientSettings.MenuLeftAlignment;
         }
 
@@ -149,10 +147,10 @@ namespace VStancer.Client.Scripts
 
             foreach (int handle in _worldVehiclesHandles)
             {
-                if (!DoesEntityExist(handle))
+                if (!Native.DoesEntityExist(handle))
                     continue;
 
-                Vector3 coords = GetEntityCoords(handle, true);
+                Vector3 coords = Native.GetEntityCoords(handle, true);
 
                 if (Vector3.DistanceSquared(_playerPedCoords, coords) <= _maxDistanceSquared)
                     closeVehicles.Add(handle);
@@ -163,15 +161,15 @@ namespace VStancer.Client.Scripts
 
         private async Task TimedTask()
         {
-            long currentTime = GetGameTimer() - _lastTime;
+            long currentTime = Native.GetGameTimer() - _lastTime;
 
             if (currentTime > Config.Timer)
             {
-                _playerPedCoords = GetEntityCoords(_playerPedHandle, true);
+                _playerPedCoords = Native.GetEntityCoords(_playerPedHandle, true);
 
                 _worldVehiclesHandles = Utilities.GetWorldVehicles();
 
-                _lastTime = GetGameTimer();
+                _lastTime = Native.GetGameTimer();
             }
 
             await Task.FromResult(0);
@@ -181,18 +179,18 @@ namespace VStancer.Client.Scripts
         {
             await Task.FromResult(0);
 
-            _playerPedHandle = PlayerPedId();
+            _playerPedHandle = Native.PlayerPedId();
 
-            if (!IsPedInAnyVehicle(_playerPedHandle, false))
+            if (!Native.IsPedInAnyVehicle(_playerPedHandle, false))
             {
                 PlayerVehicleHandle = -1;
                 return;
             }
 
-            int vehicle = GetVehiclePedIsIn(_playerPedHandle, false);
+            int vehicle = Native.GetVehiclePedIsIn(_playerPedHandle, false);
 
             // If this model isn't a car, or player isn't the driver, or vehicle is not driveable
-            if (!IsThisModelACar((uint)GetEntityModel(vehicle)) || GetPedInVehicleSeat(vehicle, -1) != _playerPedHandle || !IsVehicleDriveable(vehicle, false))
+            if (!Native.IsThisModelACar((uint)Native.GetEntityModel(vehicle)) || Native.GetPedInVehicleSeat(vehicle, -1) != _playerPedHandle || !Native.IsVehicleDriveable(vehicle, false))
             {
                 PlayerVehicleHandle = -1;
                 return;
@@ -207,8 +205,8 @@ namespace VStancer.Client.Scripts
 
             try
             {
-                string strings = LoadResourceFile(Globals.ResourceName, filename);
-                config = JsonConvert.DeserializeObject<Config>(strings);
+                string strings = Native.LoadResourceFile(Globals.ResourceName, filename);
+                config = JsonSerializer.Deserialize<Config>(strings, JsonSerializerOptions.Web);
 
                 Debug.WriteLine($"{nameof(MainScript)}: Loaded config from {filename}");
             }
@@ -225,10 +223,10 @@ namespace VStancer.Client.Scripts
 
         public async Task<string> GetOnScreenString(string title, string defaultText)
         {
-            DisplayOnscreenKeyboard(1, title, "", defaultText, "", "", "", 128);
-            while (UpdateOnscreenKeyboard() != 1 && UpdateOnscreenKeyboard() != 2) await Delay(100);
+            Native.DisplayOnscreenKeyboard(1, title, "", defaultText, "", "", "", 128);
+            while (Native.UpdateOnscreenKeyboard() != 1 && Native.UpdateOnscreenKeyboard() != 2) await Delay(100);
 
-            return GetOnscreenKeyboardResult();
+            return Native.GetOnscreenKeyboardResult();
         }
 
         private void RegisterCommands()
